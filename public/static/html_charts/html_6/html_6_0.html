@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobility Startup Financing Evolution</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 650px;
+            background-color: white;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto 1fr 1fr;
+            grid-gap: 15px;
+            padding: 20px;
+        }
+        
+        .title {
+            grid-column: 1 / 3;
+            text-align: center;
+            font-weight: bold;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        
+        .chart {
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .subtitle {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .note {
+            font-size: 12px;
+            font-style: italic;
+            color: #666;
+            position: absolute;
+            bottom: 5px;
+            left: 15px;
+            max-width: 90%;
+        }
+        
+        .citation {
+            grid-column: 1 / 3;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .axis line, .axis path {
+            stroke: #ccc;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Mobility Startup Financing Evolution: Beyond Traditional Equity</div>
+        
+        <!-- Debt/Equity Ratio Chart (Top Left) -->
+        <div class="chart" id="debt-equity-chart">
+            <div class="subtitle">US Mobility Startups Debt/Equity Ratio Growth (2023-24)</div>
+            <div class="note"><i class="fas fa-info-circle"></i> Equity drought driving alternative funding</div>
+        </div>
+        
+        <!-- Capital Stack Diagram (Top Right) -->
+        <div class="chart" id="capital-stack-chart">
+            <div class="subtitle">Comprehensive Capital Stack Approach</div>
+            <div class="note"><i class="fas fa-info-circle"></i> Sources & Uses framework for integrated financing</div>
+        </div>
+        
+        <!-- Debt Structure Chart (Bottom Left) -->
+        <div class="chart" id="debt-structure-chart">
+            <div class="subtitle">Primary Debt Structures for Mobility Ventures</div>
+            <div class="note"><i class="fas fa-info-circle"></i> Specialized debt tailored to asset types</div>
+        </div>
+        
+        <!-- WACC Comparison (Bottom Right) -->
+        <div class="chart" id="wacc-chart">
+            <div class="subtitle">Weighted Average Cost of Capital (WACC) Ranges</div>
+            <div class="note"><i class="fas fa-info-circle"></i> Cost of capital optimization crucial for capital-intensive mobility ventures</div>
+        </div>
+        
+        <div class="citation">Source: MIT Mobility Initiative Non-Dilutive Capital Framework (2025)</div>
+    </div>
+
+    <script>
+        // Color scheme
+        const colors = {
+            equity: "#1F355E",      // Deep Navy Blue
+            ventureDebt: "#6B5B95", // Purple-Gray
+            projectFinance: "#2A7F62", // Teal Green
+            grants: "#F28C28",      // Vibrant Orange
+            revenue: "#545B64",     // Slate Gray
+            bar: "#6B5B95"          // Purple-Gray for bars
+        };
+
+        // 1. Debt/Equity Ratio Chart (Top Left)
+        function createDebtEquityChart() {
+            const data = [
+                { stage: "Seed Stage", ratio: 4.0 },
+                { stage: "Series A", ratio: 5.0 },
+                { stage: "Series B", ratio: 0.4 }
+            ];
+            
+            const margin = { top: 40, right: 30, bottom: 40, left: 50 };
+            const container = d3.select("#debt-equity-chart");
+            const width = container.node().getBoundingClientRect().width - margin.left - margin.right - 30;
+            const height = container.node().getBoundingClientRect().height - margin.top - margin.bottom - 40;
+            
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // X scale
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.stage))
+                .range([0, width])
+                .padding(0.3);
+            
+            // Y scale
+            const y = d3.scaleLinear()
+                .domain([0, 6])
+                .range([height, 0]);
+            
+            // Add X axis
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x));
+            
+            // Add Y axis
+            svg.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y).ticks(6).tickFormat(d => d + "x"));
+            
+            // Add Y grid lines
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y)
+                    .ticks(6)
+                    .tickSize(-width)
+                    .tickFormat(""))
+                .selectAll("line")
+                .attr("stroke-dasharray", "3,3");
+            
+            // Add bars
+            svg.selectAll(".bar")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.stage))
+                .attr("width", x.bandwidth())
+                .attr("y", d => y(d.ratio))
+                .attr("height", d => height - y(d.ratio))
+                .attr("fill", colors.bar);
+            
+            // Add data labels
+            svg.selectAll(".label")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "key-number")
+                .attr("x", d => x(d.stage) + x.bandwidth() / 2)
+                .attr("y", d => y(d.ratio) - 10)
+                .attr("text-anchor", "middle")
+                .text(d => d.ratio + "x")
+                .attr("fill", "#333");
+        }
+
+        // 2. Capital Stack Diagram (Top Right)
+        function createCapitalStackChart() {
+            const data = [
+                { type: "Equity", percentage: 35, color: colors.equity },
+                { type: "Venture Debt", percentage: 25, color: colors.ventureDebt },
+                { type: "Project Finance", percentage: 20, color: colors.projectFinance },
+                { type: "Grants", percentage: 10, color: colors.grants },
+                { type: "Revenue", percentage: 10, color: colors.revenue }
+            ];
+            
+            const margin = { top: 40, right: 120, bottom: 40, left: 50 };
+            const container = d3.select("#capital-stack-chart");
+            const width = container.node().getBoundingClientRect().width - margin.left - margin.right - 30;
+            const height = container.node().getBoundingClientRect().height - margin.top - margin.bottom - 40;
+            
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // Calculate cumulative percentages for stacking
+            let cumulative = 0;
+            data.forEach(d => {
+                d.start = cumulative;
+                cumulative += d.percentage;
+                d.end = cumulative;
+            });
+            
+            // Y scale
+            const y = d3.scaleLinear()
+                .domain([0, 100])
+                .range([height, 0]);
+            
+            // Create the stack
+            const barWidth = 80;
+            const barX = width / 2 - barWidth / 2;
+            
+            // Add segments
+            svg.selectAll(".segment")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("class", "segment")
+                .attr("x", barX)
+                .attr("y", d => y(d.end))
+                .attr("width", barWidth)
+                .attr("height", d => y(d.start) - y(d.end))
+                .attr("fill", d => d.color);
+            
+            // Add labels
+            svg.selectAll(".stack-label")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "stack-label")
+                .attr("x", barX + barWidth + 10)
+                .attr("y", d => y((d.start + d.end) / 2) + 5)
+                .text(d => `${d.type} (${d.percentage}%)`)
+                .attr("fill", "#333")
+                .attr("font-size", "12px");
+            
+            // Add percentage labels inside the segments (if there's enough space)
+            svg.selectAll(".stack-percent")
+                .data(data.filter(d => d.percentage >= 15)) // Only add for segments with enough space
+                .enter()
+                .append("text")
+                .attr("class", "key-number")
+                .attr("x", barX + barWidth / 2)
+                .attr("y", d => y((d.start + d.end) / 2) + 5)
+                .attr("text-anchor", "middle")
+                .text(d => `${d.percentage}%`)
+                .attr("fill", "white");
+            
+            // Add Y axis
+            svg.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y).ticks(5).tickFormat(d => d + "%"));
+            
+            // Add Y grid lines
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y)
+                    .ticks(5)
+                    .tickSize(-width)
+                    .tickFormat(""))
+                .selectAll("line")
+                .attr("stroke-dasharray", "3,3");
+        }
+
+        // 3. Debt Structure Chart (Bottom Left)
+        function createDebtStructureChart() {
+            const data = [
+                { type: "Project Finance", description: "Pre-construction & Construction" },
+                { type: "Receivables Financing", description: ">50% gross margin" },
+                { type: "Equipment Finance", description: "Credit based on asset life & resale value" }
+            ];
+            
+            const margin = { top: 30, right: 30, bottom: 40, left: 30 };
+            const container = d3.select("#debt-structure-chart");
+            const width = container.node().getBoundingClientRect().width - margin.left - margin.right - 30;
+            const height = container.node().getBoundingClientRect().height - margin.top - margin.bottom - 40;
+            
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // Y scale
+            const y = d3.scaleBand()
+                .domain(data.map(d => d.type))
+                .range([0, height])
+                .padding(0.3);
+            
+            // X scale (just for bar width)
+            const x = d3.scaleLinear()
+                .domain([0, 1])
+                .range([0, width - 100]);
+            
+            // Add bars
+            svg.selectAll(".debt-bar")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("class", "debt-bar")
+                .attr("x", 0)
+                .attr("y", d => y(d.type))
+                .attr("width", width - 100)
+                .attr("height", y.bandwidth())
+                .attr("fill", (d, i) => d3.color(colors.ventureDebt).darker(i * 0.2));
+            
+            // Add type labels
+            svg.selectAll(".debt-type")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "debt-type")
+                .attr("x", 10)
+                .attr("y", d => y(d.type) + y.bandwidth() / 2 + 5)
+                .text(d => d.type)
+                .attr("fill", "white")
+                .attr("font-weight", "bold")
+                .attr("font-size", "14px");
+            
+            // Add description labels
+            svg.selectAll(".debt-desc")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "debt-desc")
+                .attr("x", 10)
+                .attr("y", d => y(d.type) + y.bandwidth() / 2 + 25)
+                .text(d => d.description)
+                .attr("fill", "white")
+                .attr("font-size", "12px");
+        }
+
+        // 4. WACC Comparison Chart (Bottom Right)
+        function createWACCChart() {
+            const data = [
+                { type: "Traditional VC Equity", min: 18, max: 25, color: colors.equity },
+                { type: "Green Banks", min: 5, max: 8, color: colors.projectFinance },
+                { type: "Climate-Focused Debt Funds", min: 8, max: 12, color: colors.ventureDebt },
+                { type: "Equipment Financing", min: 10, max: 15, color: colors.revenue }
+            ];
+            
+            const margin = { top: 30, right: 30, bottom: 40, left: 180 };
+            const container = d3.select("#wacc-chart");
+            const width = container.node().getBoundingClientRect().width - margin.left - margin.right - 30;
+            const height = container.node().getBoundingClientRect().height - margin.top - margin.bottom - 40;
+            
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // Y scale
+            const y = d3.scaleBand()
+                .domain(data.map(d => d.type))
+                .range([0, height])
+                .padding(0.3);
+            
+            // X scale
+            const x = d3.scaleLinear()
+                .domain([0, 30])
+                .range([0, width]);
+            
+            // Add X axis
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(6).tickFormat(d => d + "%"));
+            
+            // Add Y axis
+            svg.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y));
+            
+            // Add X grid lines
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisBottom(x)
+                    .ticks(6)
+                    .tickSize(height)
+                    .tickFormat(""))
+                .attr("transform", `translate(0,0)`)
+                .selectAll("line")
+                .attr("stroke-dasharray", "3,3");
+            
+            // Add range bars
+            svg.selectAll(".range-bar")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("class", "range-bar")
+                .attr("x", d => x(d.min))
+                .attr("y", d => y(d.type))
+                .attr("width", d => x(d.max) - x(d.min))
+                .attr("height", y.bandwidth())
+                .attr("fill", d => d.color);
+            
+            // Add min labels
+            svg.selectAll(".min-label")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "key-number")
+                .attr("x", d => x(d.min) - 5)
+                .attr("y", d => y(d.type) + y.bandwidth() / 2 + 5)
+                .attr("text-anchor", "end")
+                .text(d => d.min + "%")
+                .attr("fill", "#333");
+            
+            // Add max labels
+            svg.selectAll(".max-label")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "key-number")
+                .attr("x", d => x(d.max) + 5)
+                .attr("y", d => y(d.type) + y.bandwidth() / 2 + 5)
+                .attr("text-anchor", "start")
+                .text(d => d.max + "%")
+                .attr("fill", "#333");
+        }
+
+        // Initialize all charts
+        document.addEventListener("DOMContentLoaded", function() {
+            createDebtEquityChart();
+            createCapitalStackChart();
+            createDebtStructureChart();
+            createWACCChart();
+        });
+    </script>
+</body>
+</html>

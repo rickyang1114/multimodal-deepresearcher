@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regional Mobility Funding Patterns</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 650px;
+            padding: 10px;
+        }
+        
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+            margin-top: 5px;
+        }
+        
+        .chart-container {
+            display: flex;
+            height: 520px;
+        }
+        
+        .left-chart {
+            width: 40%;
+            height: 100%;
+        }
+        
+        .right-charts {
+            width: 60%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .top-right-chart, .bottom-right-chart {
+            height: 50%;
+            padding: 10px;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+        }
+        
+        .annotation {
+            font-size: 11px;
+            font-style: italic;
+            fill: #555;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 15px;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+            border-radius: 2px;
+        }
+        
+        .donut-label {
+            font-size: 12px;
+            text-anchor: middle;
+        }
+        
+        .donut-value {
+            font-size: 10px;
+            text-anchor: middle;
+        }
+        
+        .donut-percent {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+            text-anchor: middle;
+        }
+        
+        .bar-label {
+            font-size: 11px;
+            text-anchor: start;
+            dominant-baseline: middle;
+        }
+        
+        .grid-line {
+            stroke: #e0e0e0;
+            stroke-width: 1px;
+        }
+        
+        .region-label {
+            font-size: 12px;
+            font-weight: 500;
+            text-anchor: end;
+        }
+        
+        .year-label {
+            font-size: 10px;
+            text-anchor: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Regional Mobility Funding Patterns: North America Dominance Amid Policy-Driven Investment</div>
+        
+        <div class="chart-container">
+            <div class="left-chart" id="donut-chart">
+                <div class="subtitle">2024 Global Mobility Funding Distribution</div>
+            </div>
+            
+            <div class="right-charts">
+                <div class="top-right-chart" id="funding-chart">
+                    <div class="subtitle">Total Mobility Funding by Region, 2022-2024 ($ Billion)</div>
+                </div>
+                
+                <div class="bottom-right-chart" id="round-size-chart">
+                    <div class="subtitle">Average Round Size by Region ($ Million)</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #1F355E;"></div>
+                <span>Americas</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #F28C28;"></div>
+                <span>Asia-Pacific</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #2A7F62;"></div>
+                <span>Europe</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data preparation
+        const donutData = [
+            { region: "Americas", percentage: 56, value: 30.1, color: "#1F355E" },
+            { region: "Asia-Pacific", percentage: 32, value: 17.1, color: "#F28C28" },
+            { region: "Europe", percentage: 13, value: 6.9, color: "#2A7F62" }
+        ];
+        
+        const fundingData = [
+            { region: "Americas", year: 2022, value: 18.4, color: "#1F355E", opacity: 0.85 },
+            { region: "Americas", year: 2023, value: 19.5, color: "#1F355E", opacity: 0.85 },
+            { region: "Americas", year: 2024, value: 30.1, color: "#1F355E", opacity: 1.0 },
+            { region: "Asia-Pacific", year: 2022, value: 12.0, color: "#F28C28", opacity: 0.85 },
+            { region: "Asia-Pacific", year: 2023, value: 17.8, color: "#F28C28", opacity: 0.85 },
+            { region: "Asia-Pacific", year: 2024, value: 17.1, color: "#F28C28", opacity: 1.0 },
+            { region: "Europe", year: 2022, value: 8.0, color: "#2A7F62", opacity: 0.85 },
+            { region: "Europe", year: 2023, value: 6.5, color: "#2A7F62", opacity: 0.85 },
+            { region: "Europe", year: 2024, value: 6.9, color: "#2A7F62", opacity: 1.0 }
+        ];
+        
+        const roundSizeData = [
+            { region: "Americas", year: 2022, value: 45.5, color: "#1F355E", opacity: 0.85 },
+            { region: "Americas", year: 2023, value: 79.6, color: "#1F355E", opacity: 0.85 },
+            { region: "Americas", year: 2024, value: 93.2, color: "#1F355E", opacity: 1.0 },
+            { region: "Asia-Pacific", year: 2022, value: 42.1, color: "#F28C28", opacity: 0.85 },
+            { region: "Asia-Pacific", year: 2023, value: 78.7, color: "#F28C28", opacity: 0.85 },
+            { region: "Asia-Pacific", year: 2024, value: 82.5, color: "#F28C28", opacity: 1.0 },
+            { region: "Europe", year: 2022, value: 25.8, color: "#2A7F62", opacity: 0.85 },
+            { region: "Europe", year: 2023, value: 27.5, color: "#2A7F62", opacity: 0.85 },
+            { region: "Europe", year: 2024, value: 32.0, color: "#2A7F62", opacity: 1.0 }
+        ];
+        
+        const annotations = [
+            { region: "Americas", text: "North America: +54% growth in 2024, driven by IRA incentives" },
+            { region: "Asia-Pacific", text: "Asia: -4% in 2024 as share of global climate tech collapsed to 7%" },
+            { region: "Europe", text: "Europe: +6% modest growth amid policy uncertainty" }
+        ];
+        
+        // Donut Chart
+        function createDonutChart() {
+            const width = document.getElementById('donut-chart').clientWidth;
+            const height = document.getElementById('donut-chart').clientHeight - 40; // Subtract subtitle height
+            const radius = Math.min(width, height) / 2 * 0.8;
+            
+            const svg = d3.select("#donut-chart")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${width / 2}, ${height / 2})`);
+            
+            const arc = d3.arc()
+                .innerRadius(radius * 0.6)
+                .outerRadius(radius);
+            
+            const pie = d3.pie()
+                .value(d => d.percentage)
+                .sort(null);
+            
+            const arcs = svg.selectAll("arc")
+                .data(pie(donutData))
+                .enter()
+                .append("g");
+            
+            arcs.append("path")
+                .attr("d", arc)
+                .attr("fill", d => d.data.color);
+            
+            // Add percentage labels
+            arcs.append("text")
+                .attr("transform", d => `translate(${arc.centroid(d)[0]}, ${arc.centroid(d)[1] - 10})`)
+                .attr("class", "donut-percent")
+                .attr("fill", "white")
+                .text(d => `${d.data.percentage}%`);
+            
+            // Add value labels
+            arcs.append("text")
+                .attr("transform", d => `translate(${arc.centroid(d)[0]}, ${arc.centroid(d)[1] + 10})`)
+                .attr("class", "donut-value")
+                .attr("fill", "white")
+                .text(d => `$${d.data.value}B`);
+        }
+        
+        // Horizontal Bar Chart for Funding
+        function createFundingChart() {
+            const margin = { top: 30, right: 100, bottom: 50, left: 80 };
+            const width = document.getElementById('funding-chart').clientWidth - margin.left - margin.right;
+            const height = document.getElementById('funding-chart').clientHeight - margin.top - margin.bottom - 20; // Subtract subtitle height
+            
+            const svg = d3.select("#funding-chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+            
+            // Scales
+            const xScale = d3.scaleLinear()
+                .domain([0, 35])
+                .range([0, width]);
+            
+            const regions = [...new Set(fundingData.map(d => d.region))];
+            const years = [2022, 2023, 2024];
+            
+            const yScale = d3.scaleBand()
+                .domain(regions)
+                .range([0, height])
+                .padding(0.4);
+            
+            const yScaleInner = d3.scaleBand()
+                .domain(years)
+                .range([0, yScale.bandwidth()])
+                .padding(0.1);
+            
+            // Grid lines
+            svg.selectAll("grid-line")
+                .data(xScale.ticks(7))
+                .enter()
+                .append("line")
+                .attr("class", "grid-line")
+                .attr("x1", d => xScale(d))
+                .attr("y1", 0)
+                .attr("x2", d => xScale(d))
+                .attr("y2", height);
+            
+            // X-axis
+            svg.append("g")
+                .attr("transform", `translate(0, ${height})`)
+                .call(d3.axisBottom(xScale).ticks(7).tickSize(0))
+                .call(g => g.select(".domain").remove());
+            
+            // Y-axis (region labels)
+            svg.append("g")
+                .call(d3.axisLeft(yScale).tickSize(0))
+                .call(g => g.select(".domain").remove())
+                .selectAll("text")
+                .attr("class", "region-label");
+            
+            // Bars
+            const regionGroups = svg.selectAll(".region-group")
+                .data(regions)
+                .enter()
+                .append("g")
+                .attr("class", "region-group")
+                .attr("transform", d => `translate(0, ${yScale(d)})`);
+            
+            regionGroups.selectAll("rect")
+                .data(d => fundingData.filter(item => item.region === d))
+                .enter()
+                .append("rect")
+                .attr("x", 0)
+                .attr("y", d => yScaleInner(d.year))
+                .attr("width", d => xScale(d.value))
+                .attr("height", yScaleInner.bandwidth())
+                .attr("fill", d => d.color)
+                .attr("opacity", d => d.opacity);
+            
+            // Bar labels
+            regionGroups.selectAll(".bar-label")
+                .data(d => fundingData.filter(item => item.region === d))
+                .enter()
+                .append("text")
+                .attr("class", "bar-label")
+                .attr("x", d => xScale(d.value) + 5)
+                .attr("y", d => yScaleInner(d.year) + yScaleInner.bandwidth() / 2)
+                .text(d => `$${d.value}B`);
+            
+            // Year labels (below bars)
+            regions.forEach((region, regionIndex) => {
+                svg.append("text")
+                    .attr("class", "year-label")
+                    .attr("x", width / 2)
+                    .attr("y", height + 25)
+                    .attr("text-anchor", "middle")
+                    .text("2022                    2023                    2024");
+            });
+            
+            // Annotations - positioned to avoid overlap
+            svg.append("text")
+                .attr("class", "annotation")
+                .attr("x", xScale(30.1) + 10)
+                .attr("y", yScale("Americas") - 5)
+                .attr("text-anchor", "start")
+                .text("North America: +54% growth in 2024, driven by IRA incentives");
+                
+            svg.append("text")
+                .attr("class", "annotation")
+                .attr("x", xScale(17.1) + 10)
+                .attr("y", yScale("Asia-Pacific") - 5)
+                .attr("text-anchor", "start")
+                .text("Asia: -4% in 2024 as share of global climate tech collapsed to 7%");
+                
+            svg.append("text")
+                .attr("class", "annotation")
+                .attr("x", xScale(6.9) + 10)
+                .attr("y", yScale("Europe") - 5)
+                .attr("text-anchor", "start")
+                .text("Europe: +6% modest growth amid policy uncertainty");
+        }
+        
+        // Horizontal Bar Chart for Average Round Size
+        function createRoundSizeChart() {
+            const margin = { top: 30, right: 100, bottom: 50, left: 80 };
+            const width = document.getElementById('round-size-chart').clientWidth - margin.left - margin.right;
+            const height = document.getElementById('round-size-chart').clientHeight - margin.top - margin.bottom - 20; // Subtract subtitle height
+            
+            const svg = d3.select("#round-size-chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+            
+            // Scales
+            const xScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([0, width]);
+            
+            const regions = [...new Set(roundSizeData.map(d => d.region))];
+            const years = [2022, 2023, 2024];
+            
+            const yScale = d3.scaleBand()
+                .domain(regions)
+                .range([0, height])
+                .padding(0.4);
+            
+            const yScaleInner = d3.scaleBand()
+                .domain(years)
+                .range([0, yScale.bandwidth()])
+                .padding(0.1);
+            
+            // Grid lines
+            svg.selectAll("grid-line")
+                .data(xScale.ticks(5))
+                .enter()
+                .append("line")
+                .attr("class", "grid-line")
+                .attr("x1", d => xScale(d))
+                .attr("y1", 0)
+                .attr("x2", d => xScale(d))
+                .attr("y2", height);
+            
+            // X-axis
+            svg.append("g")
+                .attr("transform", `translate(0, ${height})`)
+                .call(d3.axisBottom(xScale).ticks(5).tickSize(0))
+                .call(g => g.select(".domain").remove());
+            
+            // Y-axis (region labels)
+            svg.append("g")
+                .call(d3.axisLeft(yScale).tickSize(0))
+                .call(g => g.select(".domain").remove())
+                .selectAll("text")
+                .attr("class", "region-label");
+            
+            // Bars
+            const regionGroups = svg.selectAll(".region-group")
+                .data(regions)
+                .enter()
+                .append("g")
+                .attr("class", "region-group")
+                .attr("transform", d => `translate(0, ${yScale(d)})`);
+            
+            regionGroups.selectAll("rect")
+                .data(d => roundSizeData.filter(item => item.region === d))
+                .enter()
+                .append("rect")
+                .attr("x", 0)
+                .attr("y", d => yScaleInner(d.year))
+                .attr("width", d => xScale(d.value))
+                .attr("height", yScaleInner.bandwidth())
+                .attr("fill", d => d.color)
+                .attr("opacity", d => d.opacity);
+            
+            // Bar labels
+            regionGroups.selectAll(".bar-label")
+                .data(d => roundSizeData.filter(item => item.region === d))
+                .enter()
+                .append("text")
+                .attr("class", "bar-label")
+                .attr("x", d => xScale(d.value) + 5)
+                .attr("y", d => yScaleInner(d.year) + yScaleInner.bandwidth() / 2)
+                .text(d => `$${d.value}M`);
+            
+            // Year labels (below bars)
+            svg.append("text")
+                .attr("class", "year-label")
+                .attr("x", width / 2)
+                .attr("y", height + 25)
+                .attr("text-anchor", "middle")
+                .text("2022                    2023                    2024");
+        }
+        
+        // Create all charts
+        createDonutChart();
+        createFundingChart();
+        createRoundSizeChart();
+    </script>
+</body>
+</html>

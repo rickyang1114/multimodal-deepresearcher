@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Mobility Startup Funding Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 800px;
+            height: 580px;
+            background-color: white;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .axis-title {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .callout-box {
+            fill: #F5F5F5;
+            stroke: #CCCCCC;
+            stroke-width: 1px;
+        }
+        
+        .callout-text {
+            font-size: 12px;
+            fill: #333;
+        }
+        
+        .data-label {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+            fill: #333;
+        }
+        
+        .legend {
+            font-size: 12px;
+        }
+        
+        .highlight-text {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            fill: #1F355E;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Global Mobility Startup Funding: Concentrated Capital Amidst Declining Deal Activity</div>
+        <svg id="chart"></svg>
+    </div>
+
+    <script>
+        // Data
+        const data = [
+            { year: "2020", funding: 31, deals: 750 },
+            { year: "2021", funding: 88, deals: 1050 },
+            { year: "2022", funding: 40, deals: 800 },
+            { year: "2023", funding: 39, deals: 580 },
+            { year: "2024", funding: 54, deals: 400 }
+        ];
+
+        // Set up dimensions
+        const margin = { top: 40, right: 70, bottom: 70, left: 70 };
+        const width = 800 - margin.left - margin.right;
+        const height = 500 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // Create scales
+        const x = d3.scaleBand()
+            .domain(data.map(d => d.year))
+            .range([0, width])
+            .padding(0.4);
+
+        const yFunding = d3.scaleLinear()
+            .domain([0, 90])
+            .range([height, 0]);
+
+        const yDeals = d3.scaleLinear()
+            .domain([0, 1200])
+            .range([height, 0]);
+
+        // Add gridlines
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(yFunding)
+                .tickSize(-width)
+                .tickFormat("")
+                .ticks(5))
+            .style("stroke", "#EEEEEE")
+            .style("stroke-width", 1);
+
+        // Add X axis
+        svg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .style("font-size", "12px");
+
+        // Add Y axis for funding
+        svg.append("g")
+            .call(d3.axisLeft(yFunding)
+                .tickFormat(d => `$${d}B`)
+                .ticks(5))
+            .selectAll("text")
+            .style("font-size", "12px");
+
+        // Add Y axis for deals
+        svg.append("g")
+            .attr("transform", `translate(${width}, 0)`)
+            .call(d3.axisRight(yDeals)
+                .ticks(5))
+            .selectAll("text")
+            .style("font-size", "12px");
+
+        // Add axis titles
+        svg.append("text")
+            .attr("class", "axis-title")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left + 20)
+            .attr("x", -height / 2)
+            .attr("text-anchor", "middle")
+            .text("Total Funding (Billions USD)");
+
+        svg.append("text")
+            .attr("class", "axis-title")
+            .attr("transform", "rotate(-90)")
+            .attr("y", width + margin.right - 20)
+            .attr("x", -height / 2)
+            .attr("text-anchor", "middle")
+            .text("Number of Deals");
+
+        // Create bars for funding
+        svg.selectAll(".bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("x", d => x(d.year))
+            .attr("y", d => yFunding(d.funding))
+            .attr("width", x.bandwidth())
+            .attr("height", d => height - yFunding(d.funding))
+            .attr("fill", d => d.year === "2024" ? "#2A4A80" : "#1F355E");
+
+        // Create line for deals
+        const line = d3.line()
+            .x(d => x(d.year) + x.bandwidth() / 2)
+            .y(d => yDeals(d.deals));
+
+        svg.append("path")
+            .datum(data)
+            .attr("fill", "none")
+            .attr("stroke", "#F28C28")
+            .attr("stroke-width", 3)
+            .attr("d", line);
+
+        // Add circles for deal data points
+        svg.selectAll(".dot")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("class", "dot")
+            .attr("cx", d => x(d.year) + x.bandwidth() / 2)
+            .attr("cy", d => yDeals(d.deals))
+            .attr("r", 5)
+            .attr("fill", "#F28C28");
+
+        // Add data labels for funding
+        svg.selectAll(".funding-label")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "data-label")
+            .attr("x", d => x(d.year) + x.bandwidth() / 2)
+            .attr("y", d => yFunding(d.funding) - 10)
+            .attr("text-anchor", "middle")
+            .text(d => `$${d.funding}B`);
+
+        // Add callout box
+        const calloutX = width - 280;
+        const calloutY = 20;
+        const calloutWidth = 270;
+        const calloutHeight = 80;
+
+        svg.append("rect")
+            .attr("class", "callout-box")
+            .attr("x", calloutX)
+            .attr("y", calloutY)
+            .attr("width", calloutWidth)
+            .attr("height", calloutHeight)
+            .attr("rx", 5)
+            .attr("ry", 5);
+
+        svg.append("text")
+            .attr("class", "callout-text")
+            .attr("x", calloutX + 10)
+            .attr("y", calloutY + 20)
+            .attr("width", calloutWidth - 20)
+            .text("Despite 30% fewer deals in 2024, total funding")
+            .call(wrap, calloutWidth - 20);
+
+        svg.append("text")
+            .attr("class", "callout-text")
+            .attr("x", calloutX + 10)
+            .attr("y", calloutY + 40)
+            .attr("width", calloutWidth - 20)
+            .text("rebounded 26% due to mega-rounds and")
+            .call(wrap, calloutWidth - 20);
+
+        svg.append("text")
+            .attr("class", "callout-text")
+            .attr("x", calloutX + 10)
+            .attr("y", calloutY + 60)
+            .attr("width", calloutWidth - 20)
+            .text("capital concentration")
+            .call(wrap, calloutWidth - 20);
+
+        // Add average round size annotation
+        svg.append("text")
+            .attr("class", "highlight-text")
+            .attr("x", width / 2)
+            .attr("y", height + 40)
+            .attr("text-anchor", "middle")
+            .text("2023: $52M (+70% YoY); 2024: $78M (+75% YoY)");
+
+        // Add legend
+        const legendX = width / 2 - 150;
+        const legendY = height + 60;
+
+        // Funding legend
+        svg.append("rect")
+            .attr("x", legendX)
+            .attr("y", legendY)
+            .attr("width", 15)
+            .attr("height", 15)
+            .attr("fill", "#1F355E");
+
+        svg.append("text")
+            .attr("class", "legend")
+            .attr("x", legendX + 25)
+            .attr("y", legendY + 12)
+            .text("Total Funding (Billions USD)");
+
+        // Deals legend
+        svg.append("line")
+            .attr("x1", legendX + 200)
+            .attr("y1", legendY + 7.5)
+            .attr("x2", legendX + 230)
+            .attr("y2", legendY + 7.5)
+            .attr("stroke", "#F28C28")
+            .attr("stroke-width", 3);
+
+        svg.append("circle")
+            .attr("cx", legendX + 215)
+            .attr("cy", legendY + 7.5)
+            .attr("r", 5)
+            .attr("fill", "#F28C28");
+
+        svg.append("text")
+            .attr("class", "legend")
+            .attr("x", legendX + 240)
+            .attr("y", legendY + 12)
+            .text("Number of Deals");
+
+        // Function to wrap text
+        function wrap(text, width) {
+            text.each(function() {
+                const text = d3.select(this);
+                const words = text.text().split(/\s+/).reverse();
+                let word;
+                let line = [];
+                let lineNumber = 0;
+                const lineHeight = 1.1; // ems
+                const y = text.attr("y");
+                const dy = parseFloat(text.attr("dy") || 0);
+                let tspan = text.text(null).append("tspan").attr("x", text.attr("x")).attr("y", y).attr("dy", dy + "em");
+                
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > width) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan").attr("x", text.attr("x")).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

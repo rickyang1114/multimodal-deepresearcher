@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battery Technology Investment Focus Areas (2023)</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 800px;
+            height: 450px;
+            background-color: white;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            text-align: center;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        
+        .bar {
+            fill: url(#barGradient);
+            rx: 3px;
+            ry: 3px;
+        }
+        
+        .category-label {
+            font-size: 14px;
+            font-weight: 500;
+            text-anchor: end;
+            dominant-baseline: middle;
+        }
+        
+        .value-label {
+            font-size: 14px;
+            font-weight: 500;
+            text-anchor: start;
+            dominant-baseline: middle;
+        }
+        
+        .value-number {
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            font-weight: 600;
+            fill: #2A7F62;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-width: 1px;
+        }
+        
+        .separator {
+            stroke: #e0e0e0;
+            stroke-width: 1px;
+        }
+        
+        .context-note {
+            font-size: 9pt;
+            fill: #888;
+            text-anchor: start;
+        }
+        
+        .icon {
+            font-size: 14px;
+            fill: #2A7F62;
+        }
+        
+        .y-axis-line {
+            stroke: #e0e0e0;
+            stroke-width: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Battery Technology Investment Focus Areas (2023)</div>
+        <div class="subtitle">Funding Distribution Across Battery Sub-segments ($ Billions)</div>
+        <svg id="chart"></svg>
+    </div>
+
+    <script>
+        // Data preparation
+        const data = [
+            { category: "Battery Manufacturing", value: 8.1, icon: "fa-industry" },
+            { category: "Battery Recycling & Reuse", value: 3.8, icon: "fa-recycle" },
+            { category: "Battery Swapping/Services", value: 1.3, icon: "fa-exchange-alt" },
+            { category: "Battery Management", value: 0.9, icon: "fa-sliders-h" },
+            { category: "Battery Materials", value: 0.7, icon: "fa-atom" }
+        ].sort((a, b) => b.value - a.value); // Sort by value descending
+        
+        // Set up dimensions - increased left margin to accommodate labels
+        const margin = { top: 50, right: 70, bottom: 70, left: 220 };
+        const width = 800 - margin.left - margin.right;
+        const height = 450 - margin.top - margin.bottom;
+        
+        // Create SVG
+        const svg = d3.select("#chart")
+            .attr("width", 800)
+            .attr("height", 450)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+        
+        // Create scales
+        const xScale = d3.scaleLinear()
+            .domain([0, 9])
+            .range([0, width]);
+        
+        const yScale = d3.scaleBand()
+            .domain(data.map(d => d.category))
+            .range([0, height])
+            .padding(0.4); // Increased padding for better vertical spacing
+        
+        // Create gradient for bars
+        const gradient = svg.append("defs")
+            .append("linearGradient")
+            .attr("id", "barGradient")
+            .attr("x1", "0%")
+            .attr("x2", "100%")
+            .attr("y1", "0%")
+            .attr("y2", "0%");
+        
+        gradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "#2A7F62");
+        
+        gradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#5AB69E");
+        
+        // Add vertical gridlines
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisBottom(xScale)
+                .tickSize(height)
+                .tickFormat("")
+                .ticks(5))
+            .attr("transform", `translate(0, 0)`)
+            .lower();
+        
+        // Add y-axis line for better visual boundary
+        svg.append("line")
+            .attr("class", "y-axis-line")
+            .attr("x1", 0)
+            .attr("x2", 0)
+            .attr("y1", 0)
+            .attr("y2", height);
+        
+        // Add horizontal separators with improved spacing
+        data.forEach((d, i) => {
+            if (i < data.length - 1) {
+                svg.append("line")
+                    .attr("class", "separator")
+                    .attr("x1", -margin.left + 30) // Start from icon area
+                    .attr("x2", width)
+                    .attr("y1", yScale(d.category) + yScale.bandwidth() + yScale.step() * 0.2)
+                    .attr("y2", yScale(d.category) + yScale.bandwidth() + yScale.step() * 0.2);
+            }
+        });
+        
+        // Add x-axis
+        svg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(xScale)
+                .ticks(5)
+                .tickFormat(d => `$${d}B`))
+            .selectAll("text")
+            .style("font-size", "12px");
+        
+        // Create bars
+        svg.selectAll(".bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("x", 0)
+            .attr("y", d => yScale(d.category))
+            .attr("width", d => xScale(d.value))
+            .attr("height", yScale.bandwidth());
+        
+        // Add icons with improved positioning
+        svg.selectAll(".icon-container")
+            .data(data)
+            .enter()
+            .append("foreignObject")
+            .attr("x", -50) // Moved further left to avoid overlap
+            .attr("y", d => yScale(d.category) + (yScale.bandwidth() - 20) / 2)
+            .attr("width", 30)
+            .attr("height", 20)
+            .html(d => `<i class="fas ${d.icon}" style="color: #2A7F62; font-size: 16px;"></i>`);
+        
+        // Add category labels with improved positioning
+        svg.selectAll(".category-label")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "category-label")
+            .attr("x", -60) // Moved further left to avoid overlap with icons
+            .attr("y", d => yScale(d.category) + yScale.bandwidth() / 2)
+            .text(d => d.category);
+        
+        // Add value labels with consistent positioning
+        svg.selectAll(".value-label")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "value-label")
+            .attr("x", d => xScale(d.value) + 10)
+            .attr("y", d => yScale(d.category) + yScale.bandwidth() / 2)
+            .html(d => `<tspan class="value-number">$${d.value}B</tspan>`);
+        
+        // Add context note with improved wrapping
+        const contextNote = "Note: Investment reflects growing urgency around battery lifecycle management, with >100 million EV batteries expected to retire by 2030 and up to 40% of new pack materials potentially sourced from recycled stock by 2040.";
+        
+        svg.append("text")
+            .attr("class", "context-note")
+            .attr("x", 0)
+            .attr("y", height + 40)
+            .text(contextNote)
+            .call(wrap, width);
+        
+        // Function to wrap text
+        function wrap(text, width) {
+            text.each(function() {
+                let text = d3.select(this),
+                    words = text.text().split(/\s+/).reverse(),
+                    word,
+                    line = [],
+                    lineNumber = 0,
+                    lineHeight = 1.1, // ems
+                    y = text.attr("y"),
+                    dy = parseFloat(text.attr("dy") || 0),
+                    tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+                
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > width) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
