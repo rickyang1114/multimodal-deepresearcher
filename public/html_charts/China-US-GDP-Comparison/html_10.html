@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GDP Forecast: China and US</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 10px;
+        }
+        
+        .visualization-container {
+            width: 800px;
+            height: 600px;
+        }
+        
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .panel-title {
+            font-size: 14px;
+            font-weight: bold;
+            text-anchor: middle;
+        }
+        
+        .source {
+            font-size: 11px;
+            text-align: center;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .axis line, .axis path {
+            stroke: #ccc;
+        }
+        
+        .axis text {
+            font-size: 10px;
+            fill: #666;
+        }
+        
+        .grid line {
+            stroke: #eee;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        
+        .annotation-box {
+            fill: #f8f8f8;
+            stroke: #ddd;
+            stroke-width: 1px;
+            rx: 5;
+            ry: 5;
+        }
+        
+        .annotation-text {
+            font-size: 11px;
+            fill: #333;
+        }
+        
+        .value-label {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .crossover-label {
+            font-size: 11px;
+            font-weight: bold;
+            fill: #333;
+        }
+        
+        .panel-divider {
+            stroke: #ccc;
+            stroke-width: 1px;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .uncertainty-band {
+            opacity: 0.15;
+        }
+        
+        .current-divider {
+            stroke: #999;
+            stroke-width: 1;
+            stroke-dasharray: 4,4;
+        }
+        
+        .global-share {
+            font-size: 12px;
+            text-anchor: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">GDP Forecast: China Expected to Overtake US by 2030</div>
+        <svg id="gdp-chart"></svg>
+        <div class="source">Source: Statista, CEBR, IMF WEO, StatsTimes 2023</div>
+    </div>
+
+    <script>
+        // Set up dimensions
+        const width = 800;
+        const height = 520;
+        const margin = { top: 60, right: 80, bottom: 80, left: 60 };
+        const panelWidth = (width - margin.left - margin.right - 30) / 2;
+        
+        // Create SVG
+        const svg = d3.select("#gdp-chart")
+            .attr("width", width)
+            .attr("height", height);
+        
+        // Define data
+        const nominalData = {
+            us: [
+                { year: 2023, gdp: 27.72 },
+                { year: 2026, gdp: 29.10 },
+                { year: 2029, gdp: 30.00 },
+                { year: 2030, gdp: 30.47 },
+                { year: 2032, gdp: 32.50 },
+                { year: 2035, gdp: 36.23 }
+            ],
+            china: [
+                { year: 2023, gdp: 17.76 },
+                { year: 2026, gdp: 24.50 },
+                { year: 2029, gdp: 32.00 },
+                { year: 2030, gdp: 33.72 },
+                { year: 2032, gdp: 38.50 },
+                { year: 2035, gdp: 49.11 }
+            ]
+        };
+        
+        const pppData = {
+            us: [
+                { year: 2023, gdp: 27.72 },
+                { year: 2026, gdp: 29.50 },
+                { year: 2029, gdp: 31.50 },
+                { year: 2030, gdp: 32.10 },
+                { year: 2032, gdp: 34.50 },
+                { year: 2035, gdp: 39.50 }
+            ],
+            china: [
+                { year: 2023, gdp: 34.54 },
+                { year: 2026, gdp: 39.00 },
+                { year: 2029, gdp: 45.00 },
+                { year: 2030, gdp: 46.50 },
+                { year: 2032, gdp: 51.00 },
+                { year: 2035, gdp: 60.20 }
+            ]
+        };
+        
+        // Define scales
+        const xScale = d3.scaleLinear()
+            .domain([2023, 2035])
+            .range([0, panelWidth]);
+        
+        const yScaleNominal = d3.scaleLinear()
+            .domain([0, 55])
+            .range([height - margin.bottom, margin.top]);
+        
+        const yScalePPP = d3.scaleLinear()
+            .domain([0, 65])
+            .range([height - margin.bottom, margin.top]);
+        
+        // Create left panel (Nominal GDP)
+        const leftPanel = svg.append("g")
+            .attr("transform", `translate(${margin.left}, 0)`);
+        
+        // Create right panel (PPP GDP)
+        const rightPanel = svg.append("g")
+            .attr("transform", `translate(${margin.left + panelWidth + 30}, 0)`);
+        
+        // Add panel titles
+        leftPanel.append("text")
+            .attr("class", "panel-title")
+            .attr("x", panelWidth / 2)
+            .attr("y", margin.top / 2)
+            .attr("text-anchor", "middle")
+            .text("Nominal GDP Projections (USD Trillion)");
+        
+        rightPanel.append("text")
+            .attr("class", "panel-title")
+            .attr("x", panelWidth / 2)
+            .attr("y", margin.top / 2)
+            .attr("text-anchor", "middle")
+            .text("PPP GDP Projections (Int. Trillion)");
+        
+        // Add panel divider
+        svg.append("line")
+            .attr("class", "panel-divider")
+            .attr("x1", margin.left + panelWidth + 15)
+            .attr("y1", margin.top - 10)
+            .attr("x2", margin.left + panelWidth + 15)
+            .attr("y2", height - margin.bottom + 10)
+            .attr("stroke", "#ccc")
+            .attr("stroke-width", 1.5);
+        
+        // Create axes for left panel
+        const leftXAxis = d3.axisBottom(xScale)
+            .tickValues([2023, 2026, 2029, 2032, 2035])
+            .tickFormat(d3.format("d"));
+        
+        const leftYAxis = d3.axisLeft(yScaleNominal)
+            .tickValues([0, 10, 20, 30, 40, 50])
+            .tickFormat(d => d);
+        
+        leftPanel.append("g")
+            .attr("class", "axis x-axis")
+            .attr("transform", `translate(0, ${height - margin.bottom})`)
+            .call(leftXAxis);
+        
+        leftPanel.append("g")
+            .attr("class", "axis y-axis")
+            .call(leftYAxis);
+        
+        // Create axes for right panel
+        const rightXAxis = d3.axisBottom(xScale)
+            .tickValues([2023, 2026, 2029, 2032, 2035])
+            .tickFormat(d3.format("d"));
+        
+        const rightYAxis = d3.axisLeft(yScalePPP)
+            .tickValues([0, 10, 20, 30, 40, 50, 60])
+            .tickFormat(d => d);
+        
+        rightPanel.append("g")
+            .attr("class", "axis x-axis")
+            .attr("transform", `translate(0, ${height - margin.bottom})`)
+            .call(rightXAxis);
+        
+        rightPanel.append("g")
+            .attr("class", "axis y-axis")
+            .call(rightYAxis);
+        
+        // Add gridlines
+        function addGridlines(panel, yScale, width) {
+            panel.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(yScale)
+                    .tickValues(yScale === yScaleNominal ? [0, 10, 20, 30, 40, 50] : [0, 10, 20, 30, 40, 50, 60])
+                    .tickSize(-width)
+                    .tickFormat("")
+                );
+        }
+        
+        addGridlines(leftPanel, yScaleNominal, panelWidth);
+        addGridlines(rightPanel, yScalePPP, panelWidth);
+        
+        // Create line generators
+        const lineGeneratorNominal = d3.line()
+            .x(d => xScale(d.year))
+            .y(d => yScaleNominal(d.gdp));
+        
+        const lineGeneratorPPP = d3.line()
+            .x(d => xScale(d.year))
+            .y(d => yScalePPP(d.gdp));
+        
+        // Add uncertainty bands
+        function addUncertaintyBand(panel, data, generator, color) {
+            const areaGenerator = d3.area()
+                .x(d => xScale(d.year))
+                .y0(d => generator === lineGeneratorNominal ? 
+                    yScaleNominal(d.gdp - Math.min((d.year - 2023) * 0.5, d.gdp * 0.15)) : 
+                    yScalePPP(d.gdp - Math.min((d.year - 2023) * 0.5, d.gdp * 0.15)))
+                .y1(d => generator === lineGeneratorNominal ? 
+                    yScaleNominal(d.gdp + Math.min((d.year - 2023) * 0.5, d.gdp * 0.15)) : 
+                    yScalePPP(d.gdp + Math.min((d.year - 2023) * 0.5, d.gdp * 0.15)));
+            
+            panel.append("path")
+                .datum(data.filter(d => d.year >= 2023))
+                .attr("class", "uncertainty-band")
+                .attr("fill", color)
+                .attr("d", areaGenerator);
+        }
+        
+        // Add uncertainty bands
+        addUncertaintyBand(leftPanel, nominalData.us, lineGeneratorNominal, "#004E8C");
+        addUncertaintyBand(leftPanel, nominalData.china, lineGeneratorNominal, "#C6002B");
+        addUncertaintyBand(rightPanel, pppData.us, lineGeneratorPPP, "#004E8C");
+        addUncertaintyBand(rightPanel, pppData.china, lineGeneratorPPP, "#C6002B");
+        
+        // Add current/projection divider (2023)
+        leftPanel.append("line")
+            .attr("class", "current-divider")
+            .attr("x1", xScale(2023))
+            .attr("y1", margin.top - 10)
+            .attr("x2", xScale(2023))
+            .attr("y2", height - margin.bottom)
+            .attr("stroke", "#999")
+            .attr("stroke-width", 1.5)
+            .attr("stroke-dasharray", "4,4");
+        
+        rightPanel.append("line")
+            .attr("class", "current-divider")
+            .attr("x1", xScale(2023))
+            .attr("y1", margin.top - 10)
+            .attr("x2", xScale(2023))
+            .attr("y2", height - margin.bottom)
+            .attr("stroke", "#999")
+            .attr("stroke-width", 1.5)
+            .attr("stroke-dasharray", "4,4");
+        
+        // Add crossover marker for nominal GDP (2030)
+        const nominalCrossoverX = xScale(2030);
+        leftPanel.append("line")
+            .attr("x1", nominalCrossoverX)
+            .attr("y1", margin.top)
+            .attr("x2", nominalCrossoverX)
+            .attr("y2", height - margin.bottom)
+            .attr("stroke", "#FFB300")
+            .attr("stroke-width", 2);
+        
+        // Add crossover label with better positioning
+        leftPanel.append("text")
+            .attr("class", "crossover-label")
+            .attr("x", panelWidth / 2)
+            .attr("y", margin.top - 25)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#FFB300")
+            .text("Projected crossover: 2030");
+        
+        // Add lines for nominal GDP
+        // US solid line (historical)
+        leftPanel.append("path")
+            .datum(nominalData.us.filter(d => d.year <= 2023))
+            .attr("fill", "none")
+            .attr("stroke", "#004E8C")
+            .attr("stroke-width", 2.5)
+            .attr("d", lineGeneratorNominal);
+        
+        // US dashed line (projections)
+        leftPanel.append("path")
+            .datum(nominalData.us.filter(d => d.year >= 2023))
+            .attr("fill", "none")
+            .attr("stroke", "#004E8C")
+            .attr("stroke-width", 2.5)
+            .attr("stroke-dasharray", "5,3")
+            .attr("d", lineGeneratorNominal);
+        
+        // China solid line (historical)
+        leftPanel.append("path")
+            .datum(nominalData.china.filter(d => d.year <= 2023))
+            .attr("fill", "none")
+            .attr("stroke", "#C6002B")
+            .attr("stroke-width", 2.5)
+            .attr("d", lineGeneratorNominal);
+        
+        // China dashed line (projections)
+        leftPanel.append("path")
+            .datum(nominalData.china.filter(d => d.year >= 2023))
+            .attr("fill", "none")
+            .attr("stroke", "#C6002B")
+            .attr("stroke-width", 2.5)
+            .attr("stroke-dasharray", "5,3")
+            .attr("d", lineGeneratorNominal);
+        
+        // Add lines for PPP GDP
+        // US solid line (historical)
+        rightPanel.append("path")
+            .datum(pppData.us.filter(d => d.year <= 2023))
+            .attr("fill", "none")
+            .attr("stroke", "#004E8C")
+            .attr("stroke-width", 2.5)
+            .attr("d", lineGeneratorPPP);
+        
+        // US dashed line (projections)
+        rightPanel.append("path")
+            .datum(pppData.us.filter(d => d.year >= 2023))
+            .attr("fill", "none")
+            .attr("stroke", "#004E8C")
+            .attr("stroke-width", 2.5)
+            .attr("stroke-dasharray", "5,3")
+            .attr("d", lineGeneratorPPP);
+        
+        // China solid line (historical)
+        rightPanel.append("path")
+            .datum(pppData.china.filter(d => d.year <= 2023))
+            .attr("fill", "none")
+            .attr("stroke", "#C6002B")
+            .attr("stroke-width", 2.5)
+            .attr("d", lineGeneratorPPP);
+        
+        // China dashed line (projections)
+        rightPanel.append("path")
+            .datum(pppData.china.filter(d => d.year >= 2023))
+            .attr("fill", "none")
+            .attr("stroke", "#C6002B")
+            .attr("stroke-width", 2.5)
+            .attr("stroke-dasharray", "5,3")
+            .attr("d", lineGeneratorPPP);
+        
+        // Add 2035 value labels
+        // Nominal GDP
+        leftPanel.append("text")
+            .attr("class", "value-label")
+            .attr("x", xScale(2035) + 5)
+            .attr("y", yScaleNominal(nominalData.us[5].gdp))
+            .attr("text-anchor", "start")
+            .attr("alignment-baseline", "middle")
+            .attr("fill", "#004E8C")
+            .text(`$${nominalData.us[5].gdp}T`);
+        
+        leftPanel.append("text")
+            .attr("class", "value-label")
+            .attr("x", xScale(2035) + 5)
+            .attr("y", yScaleNominal(nominalData.china[5].gdp))
+            .attr("text-anchor", "start")
+            .attr("alignment-baseline", "middle")
+            .attr("fill", "#C6002B")
+            .text(`$${nominalData.china[5].gdp}T`);
+        
+        // PPP GDP
+        rightPanel.append("text")
+            .attr("class", "value-label")
+            .attr("x", xScale(2035) + 5)
+            .attr("y", yScalePPP(pppData.us[5].gdp))
+            .attr("text-anchor", "start")
+            .attr("alignment-baseline", "middle")
+            .attr("fill", "#004E8C")
+            .text(`${pppData.us[5].gdp}T`);
+        
+        rightPanel.append("text")
+            .attr("class", "value-label")
+            .attr("x", xScale(2035) + 5)
+            .attr("y", yScalePPP(pppData.china[5].gdp))
+            .attr("text-anchor", "start")
+            .attr("alignment-baseline", "middle")
+            .attr("fill", "#C6002B")
+            .text(`${pppData.china[5].gdp}T`);
+        
+        // Add legend with both solid and dashed lines
+        const legend = svg.append("g")
+            .attr("transform", `translate(${width/2 - 150}, ${height - 30})`);
+        
+        // US legend
+        legend.append("line")
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", 15)
+            .attr("y2", 0)
+            .attr("stroke", "#004E8C")
+            .attr("stroke-width", 2.5);
+            
+        legend.append("line")
+            .attr("x1", 15)
+            .attr("y1", 0)
+            .attr("x2", 30)
+            .attr("y2", 0)
+            .attr("stroke", "#004E8C")
+            .attr("stroke-width", 2.5)
+            .attr("stroke-dasharray", "5,3");
+        
+        legend.append("text")
+            .attr("x", 35)
+            .attr("y", 4)
+            .attr("font-size", "12px")
+            .text("United States");
+        
+        // China legend
+        legend.append("line")
+            .attr("x1", 140)
+            .attr("y1", 0)
+            .attr("x2", 155)
+            .attr("y2", 0)
+            .attr("stroke", "#C6002B")
+            .attr("stroke-width", 2.5);
+            
+        legend.append("line")
+            .attr("x1", 155)
+            .attr("y1", 0)
+            .attr("x2", 170)
+            .attr("y2", 0)
+            .attr("stroke", "#C6002B")
+            .attr("stroke-width", 2.5)
+            .attr("stroke-dasharray", "5,3");
+        
+        legend.append("text")
+            .attr("x", 175)
+            .attr("y", 4)
+            .attr("font-size", "12px")
+            .text("China");
+        
+        // Add annotation box
+        const annotationBox = svg.append("rect")
+            .attr("class", "annotation-box")
+            .attr("x", margin.left + 20)
+            .attr("y", margin.top + 20)
+            .attr("width", panelWidth * 1.5)
+            .attr("height", 70);
+        
+        const annotation = svg.append("text")
+            .attr("class", "annotation-text")
+            .attr("x", margin.left + 30)
+            .attr("y", margin.top + 35);
+        
+        annotation.append("tspan")
+            .attr("x", margin.left + 30)
+            .attr("dy", 0)
+            .text("After 2030, China is projected to lead in both nominal and PPP measures,");
+        
+        annotation.append("tspan")
+            .attr("x", margin.left + 30)
+            .attr("dy", 15)
+            .text("with a nearly ");
+        
+        annotation.append("tspan")
+            .attr("class", "key-number")
+            .attr("fill", "#C6002B")
+            .text("$12.9 trillion");
+        
+        annotation.append("tspan")
+            .text(" nominal advantage by 2035.");
+            
+        annotation.append("tspan")
+            .attr("x", margin.left + 30)
+            .attr("dy", 15)
+            .text("These projections assume continued but moderating growth in China and steady");
+            
+        annotation.append("tspan")
+            .attr("x", margin.left + 30)
+            .attr("dy", 15)
+            .text("expansion in the US.");
+        
+        // Add world share annotation
+        svg.append("text")
+            .attr("class", "global-share")
+            .attr("x", width/2)
+            .attr("y", height - margin.bottom - 15)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#333")
+            .text("By 2035, the two economies are projected to represent nearly 46% of global nominal GDP");
+    </script>
+</body>
+</html>

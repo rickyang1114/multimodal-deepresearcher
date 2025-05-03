@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GDP Per Capita Convergence: China's Catch-up with the US</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 850px;
+        }
+        
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .axis-label {
+            font-size: 12px;
+        }
+        
+        .tick text {
+            font-size: 11px;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        
+        .bar-label {
+            font-size: 10px;
+            text-anchor: middle;
+        }
+        
+        .ratio-label {
+            font-family: 'Georgia', serif;
+            font-size: 12px;
+            font-weight: bold;
+            text-anchor: middle;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 20px;
+        }
+        
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+        }
+        
+        .annotation {
+            font-size: 12px;
+            font-style: italic;
+            text-align: center;
+            margin: 20px 40px;
+            line-height: 1.5;
+        }
+        
+        .source {
+            font-size: 10px;
+            text-align: right;
+            margin-top: 10px;
+            color: #666;
+        }
+        
+        .value-label {
+            font-family: 'Georgia', serif;
+            font-size: 10px;
+            text-anchor: middle;
+        }
+        
+        .value-label-large {
+            font-family: 'Georgia', serif;
+            font-size: 11px;
+            font-weight: bold;
+            text-anchor: middle;
+        }
+        
+        .ratio-arrow {
+            stroke: #444;
+            stroke-width: 1.5;
+            fill: none;
+        }
+        
+        .forecast-note {
+            font-size: 11px;
+            font-style: italic;
+            text-anchor: middle;
+            fill: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">GDP Per Capita Convergence: China's Catch-up with the US (1960-2029F)</div>
+        <div id="chart"></div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #C6002B;"></div>
+                <div>China</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #004E8C;"></div>
+                <div>US</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: repeating-linear-gradient(45deg, #888, #888 2px, #fff 2px, #fff 4px);"></div>
+                <div>2029 Forecast</div>
+            </div>
+        </div>
+        <div class="annotation">
+            Despite rapid convergence, China's per-capita GDP is projected to remain at approximately 1/6 of US levels in nominal terms and 1/3 in PPP terms by 2029, highlighting the substantial remaining gap in average living standards.
+        </div>
+        <div class="source">Source: World Bank, IMF forecasts for 2029</div>
+    </div>
+
+    <script>
+        // Data preparation
+        const data = {
+            nominal: {
+                us: [3000, 23889, 82715, 102987],
+                china: [90, 318, 12597, 17546],
+                ratio: [0.03, 0.013, 0.152, 0.17]
+            },
+            ppp: {
+                us: [3000, 23889, 82715, 102987],
+                china: [71, 989, 24503, 34848],
+                ratio: [0.024, 0.041, 0.296, 0.338]
+            },
+            years: ["1960", "1990", "2023", "2029F"]
+        };
+
+        // Chart dimensions - increased height for better spacing
+        const margin = {top: 70, right: 50, bottom: 60, left: 70};
+        const width = 850 - margin.left - margin.right;
+        const height = 520 - margin.top - margin.bottom;
+        const sectionWidth = width / 2;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Create diagonal pattern for forecast bars - improved pattern
+        const defs = svg.append("defs");
+        
+        // Pattern for US forecast bars
+        const patternUS = defs.append("pattern")
+            .attr("id", "diagonalHatchUS")
+            .attr("patternUnits", "userSpaceOnUse")
+            .attr("width", 6)
+            .attr("height", 6);
+        
+        patternUS.append("rect")
+            .attr("width", 6)
+            .attr("height", 6)
+            .attr("fill", "#004E8C");
+            
+        patternUS.append("path")
+            .attr("d", "M-1,1 l2,-2 M0,6 l6,-6 M5,7 l2,-2")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 1.5)
+            .attr("opacity", 0.5);
+            
+        // Pattern for China forecast bars
+        const patternChina = defs.append("pattern")
+            .attr("id", "diagonalHatchChina")
+            .attr("patternUnits", "userSpaceOnUse")
+            .attr("width", 6)
+            .attr("height", 6);
+        
+        patternChina.append("rect")
+            .attr("width", 6)
+            .attr("height", 6)
+            .attr("fill", "#C6002B");
+            
+        patternChina.append("path")
+            .attr("d", "M-1,1 l2,-2 M0,6 l6,-6 M5,7 l2,-2")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 1.5)
+            .attr("opacity", 0.5);
+
+        // Scales - adjusted to ensure minimum value is visible
+        const xScaleNominal = d3.scaleBand()
+            .domain(data.years)
+            .range([0, sectionWidth - 30])
+            .padding(0.3);
+
+        const xScalePPP = d3.scaleBand()
+            .domain(data.years)
+            .range([sectionWidth + 30, width])
+            .padding(0.3);
+
+        // Adjusted y-scale to ensure proper display of small values
+        const yScale = d3.scaleLog()
+            .domain([40, 200000]) // Lowered minimum to better show small values
+            .range([height, 0]);
+
+        // X-axis for nominal
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScaleNominal))
+            .selectAll("text")
+            .style("text-anchor", "middle");
+
+        // X-axis for PPP
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScalePPP))
+            .selectAll("text")
+            .style("text-anchor", "middle");
+
+        // Y-axis for nominal
+        svg.append("g")
+            .call(d3.axisLeft(yScale)
+                .tickValues([100, 1000, 10000, 100000])
+                .tickFormat(d => `$${d3.format(",")(d)}`));
+
+        // Y-axis for PPP
+        svg.append("g")
+            .attr("transform", `translate(${sectionWidth + 30},0)`)
+            .call(d3.axisRight(yScale)
+                .tickValues([100, 1000, 10000, 100000])
+                .tickFormat(d => `$${d3.format(",")(d)}`));
+
+        // Gridlines
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(yScale)
+                .tickValues([100, 1000, 10000, 100000])
+                .tickSize(-width)
+                .tickFormat(""))
+            .selectAll("line")
+            .style("stroke-dasharray", "3,3");
+
+        // Divider line between sections
+        svg.append("line")
+            .attr("x1", sectionWidth)
+            .attr("y1", 0)
+            .attr("x2", sectionWidth)
+            .attr("y2", height)
+            .style("stroke", "#999")
+            .style("stroke-width", 1);
+
+        // Section titles
+        svg.append("text")
+            .attr("class", "section-title")
+            .attr("x", sectionWidth / 2)
+            .attr("y", -35)
+            .attr("text-anchor", "middle")
+            .text("Nominal GDP Per Capita (USD)");
+
+        svg.append("text")
+            .attr("class", "section-title")
+            .attr("x", sectionWidth + (sectionWidth / 2))
+            .attr("y", -35)
+            .attr("text-anchor", "middle")
+            .text("PPP GDP Per Capita (Int. $)");
+
+        // Group width for bar pairs
+        const xSubgroup = d3.scaleBand()
+            .domain(["us", "china"])
+            .range([0, xScaleNominal.bandwidth()])
+            .padding(0.1);
+
+        // Helper function to create ratio arrows with improved positioning
+        function drawRatioArrow(x, y, ratio, section) {
+            const arrowWidth = xSubgroup.bandwidth() * 1.5;
+            
+            // Adjust y position based on ratio value to prevent overlaps
+            let arrowY;
+            if (ratio < 0.05) {
+                arrowY = y - 25; // More space for very small ratios
+            } else if (ratio < 0.1) {
+                arrowY = y - 20;
+            } else {
+                arrowY = y - 15;
+            }
+            
+            // Draw the arrow line
+            svg.append("path")
+                .attr("class", "ratio-arrow")
+                .attr("d", `M${x - arrowWidth/2},${arrowY} L${x + arrowWidth/2},${arrowY}`)
+                .attr("marker-end", "url(#arrow)");
+                
+            // Add the ratio text with improved positioning
+            svg.append("text")
+                .attr("class", "ratio-label")
+                .attr("x", x)
+                .attr("y", arrowY - 7)
+                .text(`${(ratio * 100).toFixed(1)}%`)
+                .attr("fill", "#444");
+        }
+
+        // Create arrow marker with larger size for better visibility
+        svg.append("defs").append("marker")
+            .attr("id", "arrow")
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 8)
+            .attr("refY", 0)
+            .attr("markerWidth", 8) // Increased size
+            .attr("markerHeight", 8) // Increased size
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M0,-5L10,0L0,5")
+            .attr("fill", "#444");
+
+        // Helper function to determine label class based on value
+        function getLabelClass(value) {
+            return value > 10000 ? "value-label-large" : "value-label";
+        }
+
+        // Helper function to determine label position
+        function getLabelYPosition(value) {
+            // For very small values, position labels further above the bar
+            if (value < 100) {
+                return yScale(value) - 15;
+            } else if (value < 1000) {
+                return yScale(value) - 12;
+            } else {
+                return yScale(value) - 8;
+            }
+        }
+
+        // Draw bars for nominal data
+        data.years.forEach((year, i) => {
+            const yearX = xScaleNominal(year);
+            
+            // US bar
+            svg.append("rect")
+                .attr("x", yearX + xSubgroup("us"))
+                .attr("y", yScale(data.nominal.us[i]))
+                .attr("width", xSubgroup.bandwidth())
+                .attr("height", height - yScale(data.nominal.us[i]))
+                .attr("fill", year === "2029F" ? "url(#diagonalHatchUS)" : "#004E8C")
+                .attr("stroke", "#004E8C")
+                .attr("stroke-width", 1);
+            
+            // China bar
+            svg.append("rect")
+                .attr("x", yearX + xSubgroup("china"))
+                .attr("y", yScale(data.nominal.china[i]))
+                .attr("width", xSubgroup.bandwidth())
+                .attr("height", height - yScale(data.nominal.china[i]))
+                .attr("fill", year === "2029F" ? "url(#diagonalHatchChina)" : "#C6002B")
+                .attr("stroke", "#C6002B")
+                .attr("stroke-width", 1);
+            
+            // US value label with improved positioning
+            svg.append("text")
+                .attr("class", getLabelClass(data.nominal.us[i]))
+                .attr("x", yearX + xSubgroup("us") + xSubgroup.bandwidth()/2)
+                .attr("y", getLabelYPosition(data.nominal.us[i]))
+                .text(`$${d3.format(",")(data.nominal.us[i])}`);
+            
+            // China value label with improved positioning
+            svg.append("text")
+                .attr("class", getLabelClass(data.nominal.china[i]))
+                .attr("x", yearX + xSubgroup("china") + xSubgroup.bandwidth()/2)
+                .attr("y", getLabelYPosition(data.nominal.china[i]))
+                .text(`$${d3.format(",")(data.nominal.china[i])}`);
+            
+            // Draw ratio arrow between bars with improved positioning
+            const minBarHeight = Math.min(yScale(data.nominal.us[i]), yScale(data.nominal.china[i]));
+            drawRatioArrow(
+                yearX + xScaleNominal.bandwidth()/2,
+                minBarHeight,
+                data.nominal.ratio[i],
+                "nominal"
+            );
+        });
+
+        // Draw bars for PPP data
+        data.years.forEach((year, i) => {
+            const yearX = xScalePPP(year);
+            
+            // US bar
+            svg.append("rect")
+                .attr("x", yearX + xSubgroup("us"))
+                .attr("y", yScale(data.ppp.us[i]))
+                .attr("width", xSubgroup.bandwidth())
+                .attr("height", height - yScale(data.ppp.us[i]))
+                .attr("fill", year === "2029F" ? "url(#diagonalHatchUS)" : "#004E8C")
+                .attr("stroke", "#004E8C")
+                .attr("stroke-width", 1);
+            
+            // China bar
+            svg.append("rect")
+                .attr("x", yearX + xSubgroup("china"))
+                .attr("y", yScale(data.ppp.china[i]))
+                .attr("width", xSubgroup.bandwidth())
+                .attr("height", height - yScale(data.ppp.china[i]))
+                .attr("fill", year === "2029F" ? "url(#diagonalHatchChina)" : "#C6002B")
+                .attr("stroke", "#C6002B")
+                .attr("stroke-width", 1);
+            
+            // US value label with improved positioning
+            svg.append("text")
+                .attr("class", getLabelClass(data.ppp.us[i]))
+                .attr("x", yearX + xSubgroup("us") + xSubgroup.bandwidth()/2)
+                .attr("y", getLabelYPosition(data.ppp.us[i]))
+                .text(`$${d3.format(",")(data.ppp.us[i])}`);
+            
+            // China value label with improved positioning
+            svg.append("text")
+                .attr("class", getLabelClass(data.ppp.china[i]))
+                .attr("x", yearX + xSubgroup("china") + xSubgroup.bandwidth()/2)
+                .attr("y", getLabelYPosition(data.ppp.china[i]))
+                .text(`$${d3.format(",")(data.ppp.china[i])}`);
+            
+            // Draw ratio arrow between bars with improved positioning
+            const minBarHeight = Math.min(yScale(data.ppp.us[i]), yScale(data.ppp.china[i]));
+            drawRatioArrow(
+                yearX + xScalePPP.bandwidth()/2,
+                minBarHeight,
+                data.ppp.ratio[i],
+                "ppp"
+            );
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Scenarios for China's Growth</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 800px;
+            height: auto;
+            padding: 20px;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            display: flex;
+            height: auto;
+        }
+        
+        .panel {
+            flex: 1;
+            padding: 10px;
+            position: relative;
+        }
+        
+        .panel-left {
+            background-color: rgba(198, 0, 43, 0.1);
+            border-right: 1px solid #ccc;
+        }
+        
+        .panel-right {
+            background-color: rgba(255, 179, 0, 0.1);
+        }
+        
+        .panel-title {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .description {
+            font-size: 11px;
+            text-align: center;
+            margin-top: 5px;
+            padding: 0 10px;
+            font-style: italic;
+        }
+        
+        .annotation {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .source {
+            text-align: right;
+            font-size: 10px;
+            font-style: italic;
+            margin-top: 10px;
+            color: #666;
+        }
+        
+        .value-label {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .y-axis-label {
+            font-size: 10px;
+            fill: #333;
+        }
+        
+        .zero-indicator {
+            stroke: #999;
+            stroke-width: 1.5;
+        }
+        
+        .zero-value-bar {
+            stroke: #666;
+            stroke-width: 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Policy Scenarios for China's Growth: Demographic vs. Financial Reform</div>
+        
+        <div class="chart-container">
+            <div class="panel panel-left" id="panel-left">
+                <div class="panel-title">Two-Child Policy Scenario</div>
+                <div class="description">Fertility rises to 2.3 by 2030, increasing population and total GDP, but diluting capital per worker</div>
+                <svg id="chart-left"></svg>
+            </div>
+            
+            <div class="panel panel-right" id="panel-right">
+                <div class="panel-title">Financial Reform Scenario</div>
+                <div class="description">Investment premium reduced by 1.6pp through financial liberalization, improving capital allocation efficiency</div>
+                <svg id="chart-right"></svg>
+            </div>
+        </div>
+        
+        <div class="annotation">
+            While both scenarios could boost total GDP by similar amounts, they have opposite effects on per-capita income. 
+            The demographic approach increases total output but reduces living standards, while financial reform improves both aggregate and per-capita output.
+        </div>
+        
+        <div class="source">Source: Tyers & Golley (2010)</div>
+    </div>
+
+    <script>
+        // Data for the two scenarios
+        const twoChildPolicyData = [
+            { metric: "Total GDP", value: 10 },
+            { metric: "Population", value: 11 },
+            { metric: "GDP Per Capita", value: -10 }
+        ];
+        
+        const financialReformData = [
+            { metric: "Total GDP", value: 10 },
+            { metric: "Population", value: 0 },
+            { metric: "GDP Per Capita", value: 10 }
+        ];
+        
+        // Chart dimensions - adjusted for better proportions
+        const margin = { top: 40, right: 30, bottom: 50, left: 50 };
+        const panelWidth = 360;
+        const chartHeight = 320; // Adjusted for better vertical balance
+        
+        // Create the left chart
+        createChart("#chart-left", twoChildPolicyData, "#C6002B");
+        
+        // Create the right chart
+        createChart("#chart-right", financialReformData, "#FFB300");
+        
+        function createChart(selector, data, color) {
+            // Create SVG
+            const svg = d3.select(selector)
+                .attr("width", panelWidth)
+                .attr("height", chartHeight);
+            
+            // Define scales
+            const xScale = d3.scaleBand()
+                .domain(data.map(d => d.metric))
+                .range([margin.left, panelWidth - margin.right])
+                .padding(0.3);
+            
+            const yScale = d3.scaleLinear()
+                .domain([-15, 15])
+                .range([chartHeight - margin.bottom, margin.top]);
+            
+            // Add gridlines
+            const gridValues = [-15, -10, -5, 0, 5, 10, 15];
+            
+            svg.selectAll(".gridline")
+                .data(gridValues)
+                .enter()
+                .append("line")
+                .attr("class", "gridline")
+                .attr("x1", margin.left - 5) // Extended slightly to the left
+                .attr("x2", panelWidth - margin.right + 5) // Extended slightly to the right
+                .attr("y1", d => yScale(d))
+                .attr("y2", d => yScale(d))
+                .attr("stroke", d => d === 0 ? "#999" : "#ddd")
+                .attr("stroke-width", d => d === 0 ? 1.5 : 1)
+                .attr("stroke-dasharray", d => d === 0 ? "none" : "3,3");
+            
+            // Add y-axis labels - improved positioning
+            svg.selectAll(".y-axis-label")
+                .data(gridValues)
+                .enter()
+                .append("text")
+                .attr("class", "y-axis-label")
+                .attr("x", margin.left - 10)
+                .attr("y", d => yScale(d))
+                .attr("dy", "0.32em")
+                .attr("text-anchor", "end")
+                .text(d => {
+                    if (d > 0) return `+${d}%`;
+                    return `${d}%`;
+                });
+            
+            // Add bars - improved handling of zero values
+            svg.selectAll(".bar")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", d => xScale(d.metric))
+                .attr("y", d => d.value > 0 ? yScale(d.value) : yScale(0))
+                .attr("width", xScale.bandwidth())
+                .attr("height", d => {
+                    if (d.value === 0) return 4; // Increased height for zero values
+                    return Math.abs(yScale(0) - yScale(d.value));
+                })
+                .attr("fill", d => d.value === 0 ? "#999" : color);
+            
+            // Special handling for zero values - add a more visible indicator
+            data.forEach(d => {
+                if (d.value === 0) {
+                    svg.append("line")
+                        .attr("class", "zero-value-bar")
+                        .attr("x1", xScale(d.metric))
+                        .attr("x2", xScale(d.metric) + xScale.bandwidth())
+                        .attr("y1", yScale(0))
+                        .attr("y2", yScale(0))
+                        .attr("stroke", "#666")
+                        .attr("stroke-width", 3);
+                }
+            });
+            
+            // Add value labels - improved positioning
+            svg.selectAll(".value-label")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "value-label")
+                .attr("x", d => xScale(d.metric) + xScale.bandwidth() / 2)
+                .attr("y", d => {
+                    if (d.value > 0) return yScale(d.value) - 12; // Moved further above bars
+                    if (d.value < 0) return yScale(d.value) + 20; // Moved further below bars
+                    return yScale(0) - 12; // Better positioning for zero values
+                })
+                .attr("text-anchor", "middle")
+                .attr("font-size", "14px")
+                .attr("fill", "#333")
+                .text(d => {
+                    if (d.value > 0) return `+${d.value}%`;
+                    if (d.value < 0) return `${d.value}%`;
+                    return `${d.value}%`;
+                });
+            
+            // Add metric labels - improved positioning
+            svg.selectAll(".metric-label")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "metric-label")
+                .attr("x", d => xScale(d.metric) + xScale.bandwidth() / 2)
+                .attr("y", chartHeight - margin.bottom + 25)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "12px")
+                .text(d => d.metric);
+            
+            // Add a more prominent zero line
+            svg.append("line")
+                .attr("class", "zero-indicator")
+                .attr("x1", margin.left - 5)
+                .attr("x2", panelWidth - margin.right + 5)
+                .attr("y1", yScale(0))
+                .attr("y2", yScale(0))
+                .attr("stroke", "#999")
+                .attr("stroke-width", 1.5);
+        }
+    </script>
+</body>
+</html>

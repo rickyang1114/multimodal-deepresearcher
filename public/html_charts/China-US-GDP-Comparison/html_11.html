@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>China-US Economic Duopoly Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 10px;
+        }
+        
+        .visualization-container {
+            width: 850px;
+            height: 580px;
+            padding: 10px;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+        
+        .panel {
+            width: 415px;
+        }
+        
+        .panel-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .annotation {
+            font-size: 13px;
+            margin: 20px 10px;
+            padding: 12px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            line-height: 1.5;
+        }
+        
+        .annotation .highlight {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 15px;
+            color: #222;
+        }
+        
+        .source {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
+            margin-top: 10px;
+            padding-right: 10px;
+        }
+        
+        .axis-label {
+            font-size: 12px;
+            text-anchor: middle;
+        }
+        
+        .year-label {
+            font-size: 11px;
+            text-anchor: middle;
+        }
+        
+        .combined-share-label {
+            font-size: 11px;
+            text-anchor: middle;
+            font-weight: bold;
+        }
+        
+        .gridline {
+            stroke: #e0e0e0;
+            stroke-width: 1px;
+        }
+        
+        .divider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 1px;
+            background-color: #ccc;
+            transform: translateX(-50%);
+        }
+        
+        .projection-line {
+            stroke: #666;
+            stroke-width: 2px;
+            stroke-dasharray: 5,4;
+        }
+        
+        .combined-line {
+            stroke: #000;
+            stroke-width: 1.5px;
+            stroke-dasharray: 3,2;
+            fill: none;
+        }
+        
+        .future-area {
+            fill-opacity: 0.6;
+        }
+        
+        .data-point {
+            fill: #000;
+            stroke: #fff;
+            stroke-width: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">The China-US Economic Duopoly: Combined Share of World GDP</div>
+        
+        <div class="chart-container">
+            <div class="panel" id="nominal-panel">
+                <div class="panel-title">Nominal GDP Share</div>
+                <svg id="nominal-chart" width="415" height="430"></svg>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="panel" id="ppp-panel">
+                <div class="panel-title">PPP GDP Share</div>
+                <svg id="ppp-chart" width="415" height="430"></svg>
+            </div>
+        </div>
+        
+        <div class="annotation">
+            While the US share of global GDP is projected to decline and China's to rise, their combined share is expected to increase—from <span class="highlight">40.1%</span> to <span class="highlight">45.7%</span> of nominal GDP and from <span class="highlight">34.0%</span> to <span class="highlight">36.1%</span> of PPP GDP between 2023 and 2035, reinforcing their joint dominance of the global economy.
+        </div>
+        
+        <div class="source">Source: World Bank, StatsTimes, CEBR forecasts</div>
+    </div>
+
+    <script>
+        // Data for Nominal GDP Share
+        const nominalData = [
+            {year: 2000, us: 30.5, china: 3.6, row: 65.9},
+            {year: 2005, us: 28.6, china: 4.9, row: 66.5},
+            {year: 2010, us: 23.2, china: 9.2, row: 67.6},
+            {year: 2015, us: 24.4, china: 14.8, row: 60.8},
+            {year: 2020, us: 24.7, china: 17.4, row: 57.9},
+            {year: 2023, us: 24.5, china: 15.6, row: 59.9},
+            {year: 2025, us: 23.2, china: 18.4, row: 58.4},
+            {year: 2030, us: 20.8, china: 23.1, row: 56.1},
+            {year: 2035, us: 18.9, china: 26.8, row: 54.3}
+        ];
+
+        // Data for PPP GDP Share
+        const pppData = [
+            {year: 2000, us: 20.6, china: 7.4, row: 72.0},
+            {year: 2005, us: 19.8, china: 9.5, row: 70.7},
+            {year: 2010, us: 16.8, china: 13.8, row: 69.4},
+            {year: 2015, us: 15.8, china: 17.1, row: 67.1},
+            {year: 2020, us: 15.9, china: 18.3, row: 65.8},
+            {year: 2023, us: 15.1, china: 18.9, row: 66.0},
+            {year: 2025, us: 14.9, china: 19.5, row: 65.6},
+            {year: 2030, us: 14.6, china: 20.8, row: 64.6},
+            {year: 2035, us: 14.3, china: 21.8, row: 63.9}
+        ];
+
+        // Years to label with combined share
+        const labelYears = [2000, 2010, 2023, 2030, 2035];
+
+        // Create the charts
+        createChart("#nominal-chart", nominalData, labelYears, "nominal");
+        createChart("#ppp-chart", pppData, labelYears, "ppp");
+
+        function createChart(selector, data, labelYears, chartType) {
+            // Set up dimensions
+            const margin = {top: 20, right: 30, bottom: 40, left: 40};
+            const width = 415 - margin.left - margin.right;
+            const height = 430 - margin.top - margin.bottom;
+
+            // Create SVG
+            const svg = d3.select(selector)
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Set up scales
+            const x = d3.scaleLinear()
+                .domain([2000, 2035])
+                .range([0, width]);
+
+            const y = d3.scaleLinear()
+                .domain([0, 100])
+                .range([height, 0]);
+
+            // Stack the data
+            const stack = d3.stack()
+                .keys(["us", "china", "row"])
+                .order(d3.stackOrderNone)
+                .offset(d3.stackOffsetNone);
+
+            const stackedData = stack(data);
+
+            // Create area generators
+            const area = d3.area()
+                .x(d => x(d.data.year))
+                .y0(d => y(d[0]))
+                .y1(d => y(d[1]))
+                .curve(d3.curveMonotoneX);
+
+            // Add gridlines
+            const gridValues = [0, 20, 40, 60, 80, 100];
+            gridValues.forEach(value => {
+                svg.append("line")
+                    .attr("class", "gridline")
+                    .attr("x1", 0)
+                    .attr("x2", width)
+                    .attr("y1", y(value))
+                    .attr("y2", y(value));
+            });
+
+            // Add x-axis
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x)
+                    .tickValues([2000, 2005, 2010, 2015, 2020, 2025, 2030, 2035])
+                    .tickFormat(d3.format("d")));
+
+            // Add y-axis
+            svg.append("g")
+                .call(d3.axisLeft(y)
+                    .tickValues(gridValues)
+                    .tickFormat(d => d + "%"));
+
+            // Draw areas - historical data (before 2023)
+            const colors = ["#004E8C", "#C6002B", "#E0E0E0"];
+            
+            // Split data into historical and projected
+            const historicalData = stackedData.map(layer => {
+                return {
+                    key: layer.key,
+                    values: layer.filter(d => d.data.year <= 2023)
+                };
+            });
+            
+            const projectedData = stackedData.map(layer => {
+                return {
+                    key: layer.key,
+                    values: layer.filter(d => d.data.year >= 2023)
+                };
+            });
+            
+            // Draw historical areas
+            historicalData.forEach((layer, i) => {
+                const historicalArea = d3.area()
+                    .x(d => x(d.data.year))
+                    .y0(d => y(d[0]))
+                    .y1(d => y(d[1]))
+                    .curve(d3.curveMonotoneX);
+                
+                svg.append("path")
+                    .datum(layer.values)
+                    .attr("class", "area")
+                    .attr("d", historicalArea)
+                    .attr("fill", colors[i])
+                    .attr("stroke", "none");
+            });
+            
+            // Draw projected areas with transparency
+            projectedData.forEach((layer, i) => {
+                const projectedArea = d3.area()
+                    .x(d => x(d.data.year))
+                    .y0(d => y(d[0]))
+                    .y1(d => y(d[1]))
+                    .curve(d3.curveMonotoneX);
+                
+                svg.append("path")
+                    .datum(layer.values)
+                    .attr("class", "area future-area")
+                    .attr("d", projectedArea)
+                    .attr("fill", colors[i])
+                    .attr("stroke", "none");
+            });
+
+            // Add projection line at 2023 - make it more visible
+            svg.append("line")
+                .attr("class", "projection-line")
+                .attr("x1", x(2023))
+                .attr("x2", x(2023))
+                .attr("y1", 0)
+                .attr("y2", height);
+
+            // Draw combined line (boundary between China+US and ROW)
+            const combinedLineData = data.map(d => {
+                return {
+                    year: d.year,
+                    value: d.us + d.china
+                };
+            });
+
+            const combinedLine = d3.line()
+                .x(d => x(d.year))
+                .y(d => y(d.value))
+                .curve(d3.curveMonotoneX);
+
+            svg.append("path")
+                .datum(combinedLineData)
+                .attr("class", "combined-line")
+                .attr("d", combinedLine);
+
+            // Custom positioning for labels to avoid overlap
+            const labelPositions = {
+                nominal: {
+                    2000: { yOffset: -10 },
+                    2010: { yOffset: -10 },
+                    2023: { yOffset: -10 },
+                    2030: { yOffset: 15 },  // Move below the line
+                    2035: { yOffset: -10 }
+                },
+                ppp: {
+                    2000: { yOffset: -10 },
+                    2010: { yOffset: -10 },
+                    2023: { yOffset: -10 },
+                    2030: { yOffset: 15 },  // Move below the line
+                    2035: { yOffset: -10 }
+                }
+            };
+
+            // Add combined share labels for specific years with better positioning
+            labelYears.forEach(year => {
+                const yearData = data.find(d => d.year === year);
+                if (yearData) {
+                    const combinedShare = yearData.us + yearData.china;
+                    const position = labelPositions[chartType][year];
+                    
+                    // Add data point circle
+                    svg.append("circle")
+                        .attr("class", "data-point")
+                        .attr("cx", x(year))
+                        .attr("cy", y(combinedShare))
+                        .attr("r", 4);
+                    
+                    // Add label with custom positioning
+                    svg.append("text")
+                        .attr("class", "combined-share-label")
+                        .attr("x", x(year))
+                        .attr("y", y(combinedShare) + position.yOffset)
+                        .text(`${combinedShare.toFixed(1)}%`);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
