@@ -109,7 +109,7 @@ const HTMLRenderer = ({
               padding: 0;
               width: 100%;
               height: auto !important;
-              overflow: visible !important;
+              overflow: hidden !important;
             }
             [style*="position: fixed"] {
               position: relative !important;
@@ -118,10 +118,10 @@ const HTMLRenderer = ({
               height: auto !important;
             }
             svg {
-              overflow: visible !important;
+              overflow: hidden !important;
             }
             text {
-              overflow: visible !important;
+              overflow: hidden !important;
             }
           `
           
@@ -160,7 +160,7 @@ const HTMLRenderer = ({
                 setTimeout(reportSize, 300);
                 
                 // 之后定期检查尺寸变化
-                setInterval(reportSize, 500);
+                // setInterval(reportSize, 500);
               });
               
               // DOM内容加载完成时也尝试上报尺寸
