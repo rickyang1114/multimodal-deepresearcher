@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USMCA Partners: Economic Impact of US Tariffs</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        
+        .visualization-container {
+            width: 800px;
+            height: 600px;
+            background-color: white;
+            position: relative;
+        }
+        
+        .title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16pt;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .panel {
+            position: absolute;
+            width: 380px;
+            height: 250px;
+        }
+        
+        .panel-title {
+            font-weight: bold;
+            font-size: 12pt;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .top-left {
+            top: 50px;
+            left: 10px;
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .top-right {
+            top: 50px;
+            right: 10px;
+            border-left: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .bottom-left {
+            bottom: 30px;
+            left: 10px;
+            border-right: 1px solid #ddd;
+            border-top: 1px solid #ddd;
+        }
+        
+        .bottom-right {
+            bottom: 30px;
+            right: 10px;
+            border-left: 1px solid #ddd;
+            border-top: 1px solid #ddd;
+        }
+        
+        .source {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 8pt;
+            color: #666;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            margin-right: 5px;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">USMCA Partners: Economic Impact of US Tariffs</div>
+        
+        <!-- GDP Contraction Panel -->
+        <div class="panel top-left">
+            <div class="panel-title">Projected GDP Impact (2025)</div>
+            <svg id="gdp-chart" width="380" height="220"></svg>
+        </div>
+        
+        <!-- Household Impact Panel -->
+        <div class="panel top-right">
+            <div class="panel-title">Annual Household Financial Loss</div>
+            <svg id="household-chart" width="380" height="220"></svg>
+        </div>
+        
+        <!-- Currency Depreciation Panel -->
+        <div class="panel bottom-left">
+            <div class="panel-title">Currency Depreciation vs USD (Sep 2024-Apr 2025)</div>
+            <svg id="currency-chart" width="380" height="220"></svg>
+        </div>
+        
+        <!-- Job Losses Panel -->
+        <div class="panel bottom-right">
+            <div class="panel-title">Estimated Job Losses</div>
+            <svg id="jobs-chart" width="380" height="220"></svg>
+        </div>
+        
+        <div class="source">Source: Canadian Chamber of Commerce, IBISWorld, J.P. Morgan Research, 2025</div>
+    </div>
+
+    <script>
+        // GDP Contraction Chart
+        function createGDPChart() {
+            const svg = d3.select("#gdp-chart");
+            const width = +svg.attr("width");
+            const height = +svg.attr("height");
+            const margin = {top: 20, right: 30, bottom: 40, left: 50};
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            const data = [
+                {country: "Canada", value: -2.6},
+                {country: "Mexico", value: -2.6}
+            ];
+            
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.country))
+                .range([0, innerWidth])
+                .padding(0.3);
+                
+            const y = d3.scaleLinear()
+                .domain([0, -3])
+                .range([0, innerHeight]);
+                
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+            
+            // Add grid lines
+            g.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y)
+                    .tickValues([0, -0.5, -1.0, -1.5, -2.0, -2.5, -3.0])
+                    .tickSize(-innerWidth)
+                    .tickFormat(""))
+                .call(g => g.select(".domain").remove());
+                
+            // Y-axis with fewer ticks
+            g.append("g")
+                .call(d3.axisLeft(y)
+                    .tickValues([0, -0.5, -1.0, -1.5, -2.0, -2.5, -3.0])
+                    .tickFormat(d => `${d}%`))
+                .call(g => g.select(".domain").remove());
+                
+            // X-axis
+            g.append("g")
+                .attr("transform", `translate(0, ${innerHeight})`)
+                .call(d3.axisBottom(x))
+                .call(g => g.select(".domain").remove());
+                
+            // Bars
+            g.selectAll(".bar")
+                .data(data)
+                .join("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.country))
+                .attr("y", d => y(0))
+                .attr("width", x.bandwidth())
+                .attr("height", d => y(d.value) - y(0))
+                .attr("fill", "#1a53a4");
+                
+            // Labels
+            g.selectAll(".label")
+                .data(data)
+                .join("text")
+                .attr("class", "label")
+                .attr("x", d => x(d.country) + x.bandwidth() / 2)
+                .attr("y", d => y(d.value) - 5)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "10pt")
+                .html(d => `<tspan class="key-number" font-size="12pt">${d.value}%</tspan>`);
+        }
+        
+        // Household Impact Chart - Improved with bar chart
+        function createHouseholdChart() {
+            const svg = d3.select("#household-chart");
+            const width = +svg.attr("width");
+            const height = +svg.attr("height");
+            const margin = {top: 20, right: 30, bottom: 40, left: 50};
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            const data = [
+                {country: "Canada", value: 1900, currency: "C$"},
+                {country: "Mexico", value: 18400, currency: "MXN"}
+            ];
+            
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.country))
+                .range([0, innerWidth])
+                .padding(0.3);
+            
+            const y = d3.scaleLinear()
+                .domain([0, 20000])
+                .range([innerHeight, 0]);
+                
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+            
+            // Add grid lines
+            g.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y)
+                    .tickValues([0, 5000, 10000, 15000, 20000])
+                    .tickSize(-innerWidth)
+                    .tickFormat(""))
+                .call(g => g.select(".domain").remove());
+                
+            // Y-axis with fewer ticks
+            g.append("g")
+                .call(d3.axisLeft(y)
+                    .tickValues([0, 5000, 10000, 15000, 20000])
+                    .tickFormat(d => d === 0 ? "0" : `${d/1000}k`))
+                .call(g => g.select(".domain").remove());
+                
+            // X-axis
+            g.append("g")
+                .attr("transform", `translate(0, ${innerHeight})`)
+                .call(d3.axisBottom(x))
+                .call(g => g.select(".domain").remove());
+                
+            // Bars
+            g.selectAll(".bar")
+                .data(data)
+                .join("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.country))
+                .attr("y", d => y(d.value))
+                .attr("width", x.bandwidth())
+                .attr("height", d => innerHeight - y(d.value))
+                .attr("fill", "#4a90e2")
+                .attr("opacity", 0.7);
+                
+            // Labels with currency
+            g.selectAll(".label")
+                .data(data)
+                .join("text")
+                .attr("class", "label")
+                .attr("x", d => x(d.country) + x.bandwidth() / 2)
+                .attr("y", d => y(d.value) - 10)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "10pt")
+                .html(d => {
+                    const formattedValue = d.value.toLocaleString();
+                    return `<tspan class="key-number" font-size="12pt">${d.currency} ${formattedValue}</tspan>`;
+                });
+                
+            // Currency symbols inside bars for better visibility
+            g.selectAll(".currency-symbol")
+                .data(data)
+                .join("text")
+                .attr("class", "currency-symbol")
+                .attr("x", d => x(d.country) + x.bandwidth() / 2)
+                .attr("y", d => {
+                    // Position the symbol at 75% height of the bar for better visibility
+                    const barHeight = innerHeight - y(d.value);
+                    return y(d.value) + barHeight * 0.75;
+                })
+                .attr("text-anchor", "middle")
+                .attr("font-size", "18px")
+                .attr("fill", "white")
+                .text("$");
+        }
+        
+        // Currency Depreciation Chart
+        function createCurrencyChart() {
+            const svg = d3.select("#currency-chart");
+            const width = +svg.attr("width");
+            const height = +svg.attr("height");
+            const margin = {top: 30, right: 70, bottom: 40, left: 50};
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            // Generate data points for smooth curves with exact 0 starting point
+            const canadaData = [
+                { month: "Sep 2024", value: 0 },
+                { month: "Oct 2024", value: -1 },
+                { month: "Nov 2024", value: -2 },
+                { month: "Dec 2024", value: -3 },
+                { month: "Jan 2025", value: -4 },
+                { month: "Feb 2025", value: -5 },
+                { month: "Mar 2025", value: -5.5 },
+                { month: "Apr 2025", value: -6 }
+            ];
+            
+            const mexicoData = [
+                { month: "Sep 2024", value: 0 },
+                { month: "Oct 2024", value: -1.5 },
+                { month: "Nov 2024", value: -2.5 },
+                { month: "Dec 2024", value: -3.5 },
+                { month: "Jan 2025", value: -5 },
+                { month: "Feb 2025", value: -6 },
+                { month: "Mar 2025", value: -7 },
+                { month: "Apr 2025", value: -8 }
+            ];
+            
+            const allMonths = ["Sep 2024", "Oct 2024", "Nov 2024", "Dec 2024", "Jan 2025", "Feb 2025", "Mar 2025", "Apr 2025"];
+            
+            const x = d3.scalePoint()
+                .domain(allMonths)
+                .range([0, innerWidth]);
+                
+            const y = d3.scaleLinear()
+                .domain([1, -10])
+                .range([0, innerHeight]);
+                
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+            
+            // Add grid lines with consistent spacing
+            const gridValues = [0, -2, -4, -6, -8, -10];
+            g.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y)
+                    .tickValues(gridValues)
+                    .tickSize(-innerWidth)
+                    .tickFormat(""))
+                .call(g => g.select(".domain").remove());
+                
+            // Y-axis with consistent ticks
+            g.append("g")
+                .call(d3.axisLeft(y)
+                    .tickValues(gridValues)
+                    .tickFormat(d => `${d}%`))
+                .call(g => g.select(".domain").remove());
+                
+            // X-axis with only start and end months
+            g.append("g")
+                .attr("transform", `translate(0, ${innerHeight})`)
+                .call(d3.axisBottom(x)
+                    .tickValues(["Sep 2024", "Apr 2025"]))
+                .call(g => g.select(".domain").remove());
+                
+            // Line generator
+            const line = d3.line()
+                .x(d => x(d.month))
+                .y(d => y(d.value))
+                .curve(d3.curveMonotoneX);
+                
+            // Canadian Dollar line
+            g.append("path")
+                .datum(canadaData)
+                .attr("fill", "none")
+                .attr("stroke", "#1a53a4")
+                .attr("stroke-width", 2)
+                .attr("d", line);
+                
+            // Mexican Peso line
+            g.append("path")
+                .datum(mexicoData)
+                .attr("fill", "none")
+                .attr("stroke", "#2ca02c")
+                .attr("stroke-width", 2)
+                .attr("d", line);
+                
+            // End point labels - properly aligned with line endpoints
+            g.append("text")
+                .attr("x", x("Apr 2025") + 10)
+                .attr("y", y(-6))
+                .attr("fill", "#1a53a4")
+                .attr("font-size", "10pt")
+                .attr("alignment-baseline", "middle")
+                .html(`<tspan class="key-number">-6%</tspan> CAD`);
+                
+            g.append("text")
+                .attr("x", x("Apr 2025") + 10)
+                .attr("y", y(-8))
+                .attr("fill", "#2ca02c")
+                .attr("font-size", "10pt")
+                .attr("alignment-baseline", "middle")
+                .html(`<tspan class="key-number">-8%</tspan> MXN`);
+                
+            // Improved legend with better positioning
+            const legend = g.append("g")
+                .attr("transform", `translate(10, -20)`);
+                
+            // Canadian Dollar legend item
+            const canadaLegend = legend.append("g").attr("class", "legend-item");
+            canadaLegend.append("rect")
+                .attr("class", "legend-color")
+                .attr("width", 20)
+                .attr("height", 3)
+                .attr("fill", "#1a53a4");
+            canadaLegend.append("text")
+                .attr("x", 25)
+                .attr("y", 0)
+                .attr("alignment-baseline", "middle")
+                .attr("font-size", "9pt")
+                .text("Canadian Dollar");
+                
+            // Mexican Peso legend item
+            const mexicoLegend = legend.append("g")
+                .attr("class", "legend-item")
+                .attr("transform", "translate(120, 0)");
+            mexicoLegend.append("rect")
+                .attr("class", "legend-color")
+                .attr("width", 20)
+                .attr("height", 3)
+                .attr("fill", "#2ca02c");
+            mexicoLegend.append("text")
+                .attr("x", 25)
+                .attr("y", 0)
+                .attr("alignment-baseline", "middle")
+                .attr("font-size", "9pt")
+                .text("Mexican Peso");
+        }
+        
+        // Job Losses Chart
+        function createJobsChart() {
+            const svg = d3.select("#jobs-chart");
+            const width = +svg.attr("width");
+            const height = +svg.attr("height");
+            const margin = {top: 20, right: 30, bottom: 40, left: 50};
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            const data = [
+                {country: "Canada", value: 129},
+                {country: "Mexico", value: 140}
+            ];
+            
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.country))
+                .range([0, innerWidth])
+                .padding(0.3);
+                
+            // Adjust y-axis to fit data more tightly
+            const maxValue = Math.max(...data.map(d => d.value));
+            const yMax = Math.ceil(maxValue / 10) * 10 + 20; // Round up to nearest 10k and add padding
+            
+            const y = d3.scaleLinear()
+                .domain([0, yMax])
+                .range([innerHeight, 0]);
+                
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+            
+            // Add grid lines with consistent spacing
+            const gridValues = [0, 30, 60, 90, 120, 150];
+            g.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y)
+                    .tickValues(gridValues)
+                    .tickSize(-innerWidth)
+                    .tickFormat(""))
+                .call(g => g.select(".domain").remove());
+                
+            // Y-axis with adjusted ticks
+            g.append("g")
+                .call(d3.axisLeft(y)
+                    .tickValues(gridValues)
+                    .tickFormat(d => `${d}k`))
+                .call(g => g.select(".domain").remove());
+                
+            // X-axis
+            g.append("g")
+                .attr("transform", `translate(0, ${innerHeight})`)
+                .call(d3.axisBottom(x))
+                .call(g => g.select(".domain").remove());
+                
+            // Bars
+            g.selectAll(".bar")
+                .data(data)
+                .join("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.country))
+                .attr("y", d => y(d.value))
+                .attr("width", x.bandwidth())
+                .attr("height", d => innerHeight - y(d.value))
+                .attr("fill", "#ff4d4d");
+            
+            // Labels - positioned at the top of bars
+            g.selectAll(".label")
+                .data(data)
+                .join("text")
+                .attr("class", "label")
+                .attr("x", d => x(d.country) + x.bandwidth() / 2)
+                .attr("y", d => y(d.value) - 10)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "10pt")
+                .html(d => `<tspan class="key-number" font-size="12pt">${d.value},000</tspan>`);
+                
+            // Add a single worker icon per bar, positioned within the bar
+            data.forEach(d => {
+                const xCenter = x(d.country) + x.bandwidth() / 2;
+                const yPos = y(d.value) + (innerHeight - y(d.value)) / 2; // Center in bar
+                
+                // Create a simplified worker icon
+                g.append("circle")
+                    .attr("cx", xCenter)
+                    .attr("cy", yPos - 10)
+                    .attr("r", 8)
+                    .attr("fill", "white");
+                    
+                g.append("path")
+                    .attr("d", `M${xCenter},${yPos} L${xCenter},${yPos + 15} M${xCenter-10},${yPos + 5} L${xCenter+10},${yPos + 5}`)
+                    .attr("stroke", "white")
+                    .attr("stroke-width", 2)
+                    .attr("fill", "none");
+            });
+        }
+        
+        // Create all charts
+        createGDPChart();
+        createHouseholdChart();
+        createCurrencyChart();
+        createJobsChart();
+    </script>
+</body>
+</html>

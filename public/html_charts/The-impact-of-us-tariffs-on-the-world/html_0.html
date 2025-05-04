@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US Tariff Escalation Timeline</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Open Sans', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            background-color: white;
+            color: #333;
+        }
+        
+        .visualization-container {
+            width: 760px;
+            height: 650px;
+            position: relative;
+            background-color: white;
+            padding: 0;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #1d3557;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        
+        .axis-label {
+            font-size: 12px;
+            fill: #6c757d;
+            font-weight: 500;
+        }
+        
+        .grid line {
+            stroke: #f0f0f0;
+            stroke-width: 1px;
+        }
+        
+        .event-line {
+            stroke: #dcdcdc;
+            stroke-dasharray: 3, 3;
+            stroke-width: 1px;
+        }
+        
+        .event-label {
+            font-size: 11px;
+            fill: #5b5b5b;
+            text-anchor: middle;
+            font-weight: 500;
+        }
+        
+        .legend {
+            font-size: 12px;
+            fill: #5b5b5b;
+        }
+        
+        .source {
+            font-size: 11px;
+            fill: #9e9e9e;
+            text-anchor: end;
+            font-style: italic;
+        }
+        
+        .annotation {
+            font-size: 12px;
+            font-style: italic;
+            fill: #5b5b5b;
+            font-weight: 600;
+        }
+        
+        .key-number {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .x-axis text, .y-axis text, .y-axis-right text {
+            font-size: 11px;
+            fill: #6c757d;
+        }
+        
+        .x-axis path, .y-axis path, .y-axis-right path {
+            stroke: #dcdcdc;
+        }
+        
+        .x-axis line, .y-axis line, .y-axis-right line {
+            stroke: #dcdcdc;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">US Tariff Escalation Timeline</div>
+        <div class="subtitle">February-July 2025</div>
+        <svg id="timeline-chart"></svg>
+    </div>
+
+    <script>
+        // Set up dimensions
+        const margin = {top: 90, right: 100, bottom: 50, left: 70};
+        const width = 960 - margin.left - margin.right;
+        const height = 550 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#timeline-chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Parse dates
+        const parseDate = d3.timeParse("%Y-%m-%d");
+        
+        // Define data
+        const timelineData = {
+            china: [
+                {date: parseDate("2025-02-01"), rate: 25},
+                {date: parseDate("2025-03-09"), rate: 104},
+                {date: parseDate("2025-04-09"), rate: 125},
+                {date: parseDate("2025-07-31"), rate: 125}
+            ],
+            canadaMexico: [
+                {date: parseDate("2025-02-01"), rate: 3},
+                {date: parseDate("2025-04-05"), rate: 25},
+                {date: parseDate("2025-04-10"), rate: 10},
+                {date: parseDate("2025-07-31"), rate: 10}
+            ],
+            globalBase: [
+                {date: parseDate("2025-02-01"), rate: 2},
+                {date: parseDate("2025-04-05"), rate: 10},
+                {date: parseDate("2025-07-31"), rate: 10}
+            ],
+            usWeightedAvg: [
+                {date: parseDate("2025-02-01"), rate: 2},
+                {date: parseDate("2025-03-15"), rate: 15},
+                {date: parseDate("2025-04-15"), rate: 23},
+                {date: parseDate("2025-07-31"), rate: 23}
+            ]
+        };
+
+        // McKinsey-style color palette
+        const colors = {
+            china: "#e6173e",         // McKinsey red
+            canadaMexico: "#00a0df",  // McKinsey blue
+            globalBase: "#2d2d2d",    // Dark gray
+            usWeightedAvg: "#ffb600"  // McKinsey gold
+        };
+
+        // Define key events with carefully positioned labels to prevent overlap
+        const events = [
+            {date: parseDate("2025-03-09"), label: "China tariffs raised to 104%", y: -70},
+            {date: parseDate("2025-04-02"), label: "EO 14257/14266 signed", y: -50},
+            {date: parseDate("2025-04-09"), label: "China tariffs to 125%", y: -70},
+            {date: parseDate("2025-05-02"), label: "De minimis exemption revoked", y: -40},
+            {date: parseDate("2025-07-09"), label: "End of tariff suspension", y: -70}
+        ];
+
+        // Define annotations
+        const annotations = [
+            {date: parseDate("2025-04-20"), y: 110, text: "China reaches highest rate in modern history"}
+        ];
+
+        // Set up scales
+        const xScale = d3.scaleTime()
+            .domain([parseDate("2025-02-01"), parseDate("2025-07-31")])
+            .range([0, width]);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, 150])
+            .range([height, 0]);
+
+        const yScaleRight = d3.scaleLinear()
+            .domain([0, 50])
+            .range([height, 0]);
+
+        // Create axes
+        const xAxis = d3.axisBottom(xScale)
+            .tickFormat(d3.timeFormat("%b %Y"))
+            .ticks(6);
+
+        const yAxis = d3.axisLeft(yScale)
+            .tickValues([0, 25, 50, 75, 100, 125, 150])
+            .tickFormat(d => d + "%");
+
+        const yAxisRight = d3.axisRight(yScaleRight)
+            .tickValues([0, 10, 20, 30, 40, 50])
+            .tickFormat(d => d + "%");
+
+        // Add horizontal grid lines
+        svg.append("g")
+            .attr("class", "grid")
+            .selectAll("line")
+            .data([0, 25, 50, 75, 100, 125, 150])
+            .enter()
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", d => yScale(d))
+            .attr("y2", d => yScale(d));
+
+        // Add X axis
+        svg.append("g")
+            .attr("class", "x-axis")
+            .attr("transform", `translate(0,${height})`)
+            .call(xAxis);
+
+        // Add Y axis
+        svg.append("g")
+            .attr("class", "y-axis")
+            .call(yAxis);
+
+        // Add right Y axis
+        svg.append("g")
+            .attr("class", "y-axis-right")
+            .attr("transform", `translate(${width},0)`)
+            .call(yAxisRight);
+
+        // Add Y axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left + 25)
+            .attr("x", -height / 2)
+            .attr("text-anchor", "middle")
+            .text("Tariff Rate (%)");
+
+        // Add right Y axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("y", width + 60)
+            .attr("x", -height / 2)
+            .attr("text-anchor", "middle")
+            .text("US Weighted Average (%)");
+
+        // Create line generators with curve interpolation
+        const line = d3.line()
+            .x(d => xScale(d.date))
+            .y(d => yScale(d.rate))
+            .curve(d3.curveMonotoneX);
+
+        const lineRight = d3.line()
+            .x(d => xScale(d.date))
+            .y(d => yScaleRight(d.rate))
+            .curve(d3.curveMonotoneX);
+
+        // Add event lines
+        svg.selectAll(".event-line")
+            .data(events)
+            .enter()
+            .append("line")
+            .attr("class", "event-line")
+            .attr("x1", d => xScale(d.date))
+            .attr("x2", d => xScale(d.date))
+            .attr("y1", -40)
+            .attr("y2", height);
+
+        // Add event labels - staggered vertically to prevent overlap
+        svg.selectAll(".event-label")
+            .data(events)
+            .enter()
+            .append("text")
+            .attr("class", "event-label")
+            .attr("x", d => xScale(d.date))
+            .attr("y", d => d.y)
+            .text(d => d.label);
+
+        // Add lines for each data series
+        // China
+        svg.append("path")
+            .datum(timelineData.china)
+            .attr("fill", "none")
+            .attr("stroke", colors.china)
+            .attr("stroke-width", 2.5)
+            .attr("d", line);
+
+        // Canada/Mexico
+        svg.append("path")
+            .datum(timelineData.canadaMexico)
+            .attr("fill", "none")
+            .attr("stroke", colors.canadaMexico)
+            .attr("stroke-width", 2.5)
+            .attr("d", line);
+
+        // Global Base Rate
+        svg.append("path")
+            .datum(timelineData.globalBase)
+            .attr("fill", "none")
+            .attr("stroke", colors.globalBase)
+            .attr("stroke-width", 2.5)
+            .attr("d", line);
+
+        // US Weighted Average
+        svg.append("path")
+            .datum(timelineData.usWeightedAvg)
+            .attr("fill", "none")
+            .attr("stroke", colors.usWeightedAvg)
+            .attr("stroke-width", 2.5)
+            .attr("d", lineRight);
+
+        // Add markers for data points
+        // China markers (circles)
+        svg.selectAll(".china-marker")
+            .data(timelineData.china)
+            .enter()
+            .append("circle")
+            .attr("cx", d => xScale(d.date))
+            .attr("cy", d => yScale(d.rate))
+            .attr("r", 5)
+            .attr("fill", colors.china);
+
+        // Canada/Mexico markers (squares)
+        svg.selectAll(".canada-marker")
+            .data(timelineData.canadaMexico)
+            .enter()
+            .append("rect")
+            .attr("x", d => xScale(d.date) - 4)
+            .attr("y", d => yScale(d.rate) - 4)
+            .attr("width", 8)
+            .attr("height", 8)
+            .attr("fill", colors.canadaMexico);
+
+        // Global Base Rate markers (triangles)
+        svg.selectAll(".global-marker")
+            .data(timelineData.globalBase)
+            .enter()
+            .append("path")
+            .attr("d", d3.symbol().type(d3.symbolTriangle).size(64))
+            .attr("transform", d => `translate(${xScale(d.date)},${yScale(d.rate)})`)
+            .attr("fill", colors.globalBase);
+
+        // US Weighted Average markers (diamonds)
+        svg.selectAll(".us-marker")
+            .data(timelineData.usWeightedAvg)
+            .enter()
+            .append("path")
+            .attr("d", d3.symbol().type(d3.symbolDiamond).size(64))
+            .attr("transform", d => `translate(${xScale(d.date)},${yScaleRight(d.rate)})`)
+            .attr("fill", colors.usWeightedAvg);
+
+        // Add annotations
+        svg.selectAll(".annotation-text")
+            .data(annotations)
+            .enter()
+            .append("text")
+            .attr("class", "annotation")
+            .attr("x", d => xScale(d.date))
+            .attr("y", d => yScale(d.y))
+            .attr("text-anchor", "middle")
+            .text(d => d.text);
+
+        // Add legend - moved to right side to match the reference image
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width - 60}, -65)`);
+
+        // Legend items with McKinsey colors
+        const legendItems = [
+            {label: "China", color: colors.china, symbol: d3.symbolCircle},
+            {label: "Canada/Mexico (Non-USMCA)", color: colors.canadaMexico, symbol: d3.symbolSquare},
+            {label: "Global Base Rate", color: colors.globalBase, symbol: d3.symbolTriangle},
+            {label: "US Weighted Average", color: colors.usWeightedAvg, symbol: d3.symbolDiamond}
+        ];
+
+        // Add legend items - right-aligned to match reference image
+        legendItems.forEach((item, i) => {
+            const legendRow = legend.append("g")
+                .attr("transform", `translate(0, ${i * 20})`);
+            
+            // Add symbol
+            legendRow.append("path")
+                .attr("d", d3.symbol().type(item.symbol).size(64))
+                .attr("fill", item.color)
+                .attr("transform", "translate(-170, 0)");
+            
+            // Add line
+            legendRow.append("line")
+                .attr("x1", -160)
+                .attr("x2", -140)
+                .attr("y1", 0)
+                .attr("y2", 0)
+                .attr("stroke", item.color)
+                .attr("stroke-width", 2.5);
+            
+            // Add text
+            legendRow.append("text")
+                .attr("x", -135)
+                .attr("y", 4)
+                .text(item.label)
+                .style("font-size", "12px");
+        });
+
+        // Add source note
+        svg.append("text")
+            .attr("class", "source")
+            .attr("x", width)
+            .attr("y", height + 35)
+            .text("Source: Trade Compliance Resource Hub, McKinsey, 2025");
+
+        // Add key numbers carefully positioned to avoid overlap
+        // China highest rate
+        svg.append("text")
+            .attr("class", "key-number")
+            .attr("x", width / 2 + 100)
+            .attr("y", yScale(125) - 15)
+            .attr("text-anchor", "middle")
+            .attr("fill", colors.china)
+            .text("125%");
+
+        // US Weighted Average
+        svg.append("text")
+            .attr("class", "key-number")
+            .attr("x", width / 2 + 100)
+            .attr("y", yScaleRight(23) - 10)
+            .attr("text-anchor", "middle")
+            .attr("fill", colors.usWeightedAvg)
+            .text("23%");
+    </script>
+</body>
+</html>
