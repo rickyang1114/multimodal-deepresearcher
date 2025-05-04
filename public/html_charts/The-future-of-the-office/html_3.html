@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workplace Design Evolution Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            background-color: white;
+        }
+        
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #002D5A;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 14pt;
+            color: #4A4A4A;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: 120px 1fr 1fr;
+            grid-auto-rows: auto;
+            border: 1px solid #E0E0E0;
+        }
+        
+        .header-cell {
+            padding: 15px;
+            font-size: 14pt;
+            font-weight: bold;
+            color: #002D5A;
+            background-color: #F5F5F5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-bottom: 1px solid #E0E0E0;
+            border-right: 1px solid #E0E0E0;
+        }
+        
+        .sensory-label {
+            grid-column: 1;
+            background-color: #F5F5F5;
+            border-bottom: 1px solid #E0E0E0;
+            border-right: 1px solid #E0E0E0;
+        }
+        
+        .sensory-header {
+            padding: 15px;
+            font-size: 14pt;
+            font-weight: bold;
+            color: #1F9D8A;
+            display: flex;
+            align-items: center;
+            border-right: 1px solid #E0E0E0;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        
+        .sensory-header i {
+            margin-right: 10px;
+            font-size: 18pt;
+        }
+        
+        .content-cell {
+            padding: 15px;
+            font-size: 11pt;
+            color: #4A4A4A;
+            border-right: 1px solid #E0E0E0;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        
+        .multi-sensory-cell {
+            border-right: 2px solid #1F9D8A;
+            background-color: #F9FDFC;
+        }
+        
+        .source {
+            font-size: 9pt;
+            font-style: italic;
+            color: #777777;
+            text-align: right;
+            margin-top: 10px;
+            padding-right: 10px;
+        }
+        
+        .last-row .content-cell {
+            border-bottom: 1px solid #E0E0E0;
+        }
+        
+        .last-row .multi-sensory-cell {
+            border-bottom: 1px solid #E0E0E0;
+            border-right: 2px solid #1F9D8A;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">The Evolution from Visual-Focused to Multi-Sensory Workplace Design</div>
+        <div class="subtitle">Comparing traditional 'Instagram-friendly' design with immersive multi-sensory environments for 2025</div>
+        
+        <div class="grid-container">
+            <!-- Header Row -->
+            <div class="sensory-label"></div>
+            <div class="header-cell">Traditional Approach</div>
+            <div class="header-cell" style="border-right: 2px solid #1F9D8A;">Multi-Sensory Experience</div>
+            
+            <!-- Sight Row -->
+            <div class="sensory-header"><i class="fas fa-eye"></i>Sight</div>
+            <div class="content-cell">Static, visually appealing backgrounds optimized for photos and brand imagery</div>
+            <div class="content-cell multi-sensory-cell">Dynamic lighting that shifts throughout day to match circadian rhythms; zoned visual experiences for different work modes</div>
+            
+            <!-- Sound Row -->
+            <div class="sensory-header"><i class="fas fa-volume-up"></i>Sound</div>
+            <div class="content-cell">Basic acoustic treatments to reduce noise; generic background music in common areas</div>
+            <div class="content-cell multi-sensory-cell">Zoned soundscapes tailored to activities; nature sounds in relaxation areas; focused white noise in concentration zones</div>
+            
+            <!-- Touch Row -->
+            <div class="sensory-header"><i class="fas fa-hand-paper"></i>Touch</div>
+            <div class="content-cell">Standard ergonomic furniture; consistent materials throughout spaces</div>
+            <div class="content-cell multi-sensory-cell">Varied textures and materials that signal transitions between zones; temperature gradients for different activities; tactile feedback elements</div>
+            
+            <!-- Smell Row (Last Row) -->
+            <div class="sensory-header last-row"><i class="fas fa-wind"></i>Smell</div>
+            <div class="content-cell last-row">Air fresheners or scent marketing limited to reception areas</div>
+            <div class="content-cell multi-sensory-cell last-row">Subtle aromatherapy elements to enhance focus, creativity, or relaxation; integration with ventilation systems for freshness</div>
+        </div>
+        
+        <div class="source">Source: Adapted from Gensler "Transformation Economy" framework (2025)</div>
+    </div>
+</body>
+</html>

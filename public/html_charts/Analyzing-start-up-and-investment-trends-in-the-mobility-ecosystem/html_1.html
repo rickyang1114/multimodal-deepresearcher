@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regional Distribution of Global Mobility Funding</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 600px;
+            background-color: white;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 15px;
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+        }
+        
+        .source {
+            font-size: 11px;
+            color: #888;
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .year-label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .total-label {
+            font-family: 'Georgia', serif;
+            font-size: 20px;
+            font-weight: bold;
+            fill: #333;
+        }
+        
+        .segment-label {
+            font-size: 13px;
+            fill: white;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            pointer-events: none;
+            font-weight: bold;
+        }
+        
+        .annotation {
+            font-size: 12px;
+            background-color: rgba(255, 255, 255, 0.98);
+            border: 1px solid #888;
+            border-radius: 4px;
+            padding: 8px 10px;
+            position: absolute;
+            max-width: 180px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        
+        .annotation-line {
+            stroke: #555;
+            stroke-width: 1.5px;
+            stroke-dasharray: 4,3;
+            fill: none;
+            pointer-events: none;
+        }
+        
+        .annotation-highlight {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 14px;
+            color: #222;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            margin-right: 6px;
+            border: 1px solid rgba(0,0,0,0.2);
+        }
+        
+        .legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.98);
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            z-index: 10;
+        }
+        
+        .axis-label {
+            font-size: 12px;
+            fill: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Regional Distribution of Global Mobility Funding (2021-2023)</div>
+        <div class="subtitle">Percentage share by region and total funding amount</div>
+        <div id="chart"></div>
+        <div class="source">Sources: Dealroom (2024), Oliver Wyman (2024)</div>
+    </div>
+
+    <script>
+        // Data preparation
+        const data = [
+            {
+                year: 2023,
+                total: 39,
+                regions: [
+                    { name: "North America", percentage: 50 },
+                    { name: "Europe", percentage: 28 },
+                    { name: "Asia", percentage: 17 },
+                    { name: "Rest of World", percentage: 5 }
+                ]
+            },
+            {
+                year: 2022,
+                total: 40,
+                regions: [
+                    { name: "North America", percentage: 50 },
+                    { name: "Europe", percentage: 22 },
+                    { name: "Asia", percentage: 23 },
+                    { name: "Rest of World", percentage: 5 }
+                ]
+            },
+            {
+                year: 2021,
+                total: 83,
+                regions: [
+                    { name: "North America", percentage: 50 },
+                    { name: "Europe", percentage: 20 },
+                    { name: "Asia", percentage: 25 },
+                    { name: "Rest of World", percentage: 5 }
+                ]
+            }
+        ];
+
+        // Color mapping
+        const colorScale = d3.scaleOrdinal()
+            .domain(["North America", "Europe", "Asia", "Rest of World"])
+            .range(["#1a4e8c", "#2e7d32", "#e65100", "#9e9e9e"]);
+
+        // Set up dimensions
+        const margin = { top: 60, right: 120, bottom: 50, left: 80 };
+        const width = 900 - margin.left - margin.right;
+        const height = 500 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // Set up scales
+        const yScale = d3.scaleBand()
+            .domain(data.map(d => d.year))
+            .range([0, height])
+            .padding(0.3);
+
+        const xScale = d3.scaleLinear()
+            .domain([0, 100])
+            .range([0, width]);
+
+        // Add X axis
+        svg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(xScale)
+                .tickValues([0, 25, 50, 75, 100])
+                .tickFormat(d => `${d}%`))
+            .selectAll("text")
+            .attr("class", "axis-label");
+
+        // Add Y axis
+        svg.append("g")
+            .call(d3.axisLeft(yScale))
+            .selectAll("text")
+            .attr("class", "year-label");
+
+        // Stack the data
+        data.forEach(yearData => {
+            let cumulative = 0;
+            yearData.regions.forEach(region => {
+                region.start = cumulative;
+                region.end = cumulative + region.percentage;
+                cumulative += region.percentage;
+            });
+        });
+
+        // Draw the stacked bars
+        data.forEach(yearData => {
+            const yearGroup = svg.append("g");
+            
+            yearData.regions.forEach(region => {
+                const segmentWidth = xScale(region.end) - xScale(region.start);
+                
+                yearGroup.append("rect")
+                    .attr("x", xScale(region.start))
+                    .attr("y", yScale(yearData.year))
+                    .attr("width", segmentWidth)
+                    .attr("height", yScale.bandwidth())
+                    .attr("fill", colorScale(region.name))
+                    .attr("stroke", "white")
+                    .attr("stroke-width", 1);
+                
+                // Add percentage labels inside segments (if wide enough)
+                if (segmentWidth > 25) {
+                    yearGroup.append("text")
+                        .attr("class", "segment-label")
+                        .attr("x", xScale(region.start) + segmentWidth / 2)
+                        .attr("y", yScale(yearData.year) + yScale.bandwidth() / 2)
+                        .text(`${region.percentage}%`);
+                }
+            });
+            
+            // Add total funding amount
+            svg.append("text")
+                .attr("class", "total-label")
+                .attr("x", width + 15)
+                .attr("y", yScale(yearData.year) + yScale.bandwidth() / 2)
+                .attr("alignment-baseline", "middle")
+                .text(`$${yearData.total}B`);
+        });
+
+        // Add legend
+        const legend = d3.select(".visualization-container")
+            .append("div")
+            .attr("class", "legend");
+
+        ["North America", "Europe", "Asia", "Rest of World"].forEach(region => {
+            const legendItem = legend.append("div")
+                .attr("class", "legend-item");
+            
+            legendItem.append("div")
+                .attr("class", "legend-color")
+                .style("background-color", colorScale(region));
+            
+            legendItem.append("div")
+                .text(region);
+        });
+
+        // Function to add annotation with SVG path connector
+        function addAnnotation(text, x, y, points) {
+            // Add annotation box
+            const annotation = d3.select(".visualization-container")
+                .append("div")
+                .attr("class", "annotation")
+                .style("left", `${x}px`)
+                .style("top", `${y}px`)
+                .html(text);
+            
+            // Add SVG connector path
+            if (points && points.length > 0) {
+                const pathData = points.map((pt, i) => 
+                    (i === 0 ? "M" : "L") + pt[0] + "," + pt[1]
+                ).join(" ");
+                
+                svg.append("path")
+                    .attr("d", pathData)
+                    .attr("class", "annotation-line");
+            }
+        }
+
+        // Add annotations with proper connectors
+        // North America annotation
+        addAnnotation(
+            "North America maintained a consistent <span class='annotation-highlight'>50%</span> share across all years", 
+            140, 
+            170, 
+            [
+                [220, 170], 
+                [220, 190]
+            ]
+        );
+        
+        // Europe annotation
+        addAnnotation(
+            "Europe's share rose to <span class='annotation-highlight'>28%</span> in 2023, up from <span class='annotation-highlight'>20%</span> in 2021", 
+            450, 
+            110, 
+            [
+                [480, 150], 
+                [480, 170]
+            ]
+        );
+        
+        // Asia annotation
+        addAnnotation(
+            "Asia's share decreased from <span class='annotation-highlight'>25%</span> in 2021 to <span class='annotation-highlight'>17%</span> in 2023", 
+            600, 
+            210, 
+            [
+                [620, 250], 
+                [620, 220]
+            ]
+        );
+        
+        // Total funding annotation
+        addAnnotation(
+            "Total funding decreased by <span class='annotation-highlight'>53%</span> from $83B in 2021 to $39B in 2023", 
+            650, 
+            370, 
+            [
+                [700, 370], 
+                [750, 320], 
+                [750, 220]
+            ]
+        );
+
+        // Add a highlight for the Rest of World consistent 5% share
+        addAnnotation(
+            "Rest of World maintained a consistent <span class='annotation-highlight'>5%</span> share", 
+            700, 
+            280, 
+            [
+                [720, 280], 
+                [720, 250]
+            ]
+        );
+    </script>
+</body>
+</html>

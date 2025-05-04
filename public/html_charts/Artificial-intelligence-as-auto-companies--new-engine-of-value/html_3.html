@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Driven Predictive Maintenance Dashboard</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .dashboard-container {
+            width: 900px;
+            background-color: white;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+        
+        .dashboard-title {
+            font-size: 18pt;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #0E3A63;
+        }
+        
+        .dashboard-subtitle {
+            font-size: 14pt;
+            color: #555;
+            margin-bottom: 25px;
+        }
+        
+        .metrics-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+        
+        .metric-box {
+            width: 280px;
+            height: 150px;
+            background-color: #A9D6E5;
+            border-radius: 3px;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
+        
+        .metric-icon {
+            font-size: 24px;
+            color: #0E3A63;
+            margin-bottom: 15px;
+        }
+        
+        .metric-value {
+            font-family: 'Georgia', serif;
+            font-size: 24pt;
+            font-weight: bold;
+            color: #0E3A63;
+            margin-bottom: 10px;
+        }
+        
+        .metric-description {
+            font-size: 14pt;
+            color: #333;
+        }
+        
+        .secondary-section {
+            border: 1px solid #00B5AD;
+            border-radius: 3px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #0E3A63;
+            margin-bottom: 15px;
+        }
+        
+        ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .highlight {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            color: #0E3A63;
+        }
+        
+        .source {
+            font-size: 10pt;
+            color: #555;
+            margin-top: 15px;
+        }
+        
+        .two-column {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .column {
+            width: 48%;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-title">AI-Driven Predictive Maintenance: Key Performance Metrics</div>
+        <div class="dashboard-subtitle">Quantified impact across maintenance cost, equipment uptime, and breakdown reduction</div>
+        
+        <div class="metrics-container">
+            <div class="metric-box">
+                <div class="metric-icon"><i class="fas fa-wrench"></i></div>
+                <div class="metric-value">25%</div>
+                <div class="metric-description">Maintenance Cost Reduction</div>
+            </div>
+            
+            <div class="metric-box">
+                <div class="metric-icon"><i class="fas fa-arrow-up"></i></div>
+                <div class="metric-value">20%</div>
+                <div class="metric-description">Equipment Uptime Improvement</div>
+            </div>
+            
+            <div class="metric-box">
+                <div class="metric-icon"><i class="fas fa-arrow-down"></i></div>
+                <div class="metric-value">70%</div>
+                <div class="metric-description">Breakdown Reduction</div>
+            </div>
+        </div>
+        
+        <div class="two-column">
+            <div class="column">
+                <div class="secondary-section">
+                    <div class="section-title">Investment Returns</div>
+                    <ul>
+                        <li><span class="highlight">$5M</span> investment → <span class="highlight">$20M</span> annual savings (<span class="highlight">300%</span> ROI)</li>
+                        <li>Typical ROI range: <span class="highlight">10-12×</span> investment</li>
+                        <li>Asset lifespan extension: Up to <span class="highlight">50%</span></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="column">
+                <div class="secondary-section">
+                    <div class="section-title">Key Success Factors</div>
+                    <ul>
+                        <li>Real-time sensor data integration (<span class="highlight">70%</span> of defects detected)</li>
+                        <li>ML model accuracy (<span class="highlight">60%</span> improved fault detection)</li>
+                        <li>Edge computing deployment (<span class="highlight">10×</span> faster decision-making)</li>
+                        <li>Continuous feedback loops to address model drift</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="source">Sources: Deloitte research, MoldStud, NumberAnalytics, and industry case studies</div>
+    </div>
+
+    <script>
+        // D3.js can be used to add interactivity or dynamic elements
+        // For this static dashboard, we're primarily using HTML/CSS
+        // But we can use D3 for any data-driven aspects if needed
+        
+        d3.selectAll(".metric-box")
+            .on("mouseover", function() {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .style("box-shadow", "0 4px 8px rgba(0,0,0,0.1)");
+            })
+            .on("mouseout", function() {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .style("box-shadow", "none");
+            });
+    </script>
+</body>
+</html>

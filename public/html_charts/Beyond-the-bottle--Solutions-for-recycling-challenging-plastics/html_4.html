@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compatibilization Strategies for Mixed Plastic Recyclates</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 680px;
+            background-color: white;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .matrix {
+            display: grid;
+            grid-template-columns: 180px repeat(4, 1fr);
+            grid-template-rows: 60px repeat(4, minmax(120px, 1fr));
+            height: calc(100% - 80px);
+            border: 1px solid #ddd;
+        }
+        
+        .cell {
+            border: 1px solid #ddd;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-cell {
+            font-weight: bold;
+            background-color: #f2f2f2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 5px;
+        }
+        
+        .row-header {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .performance-indicator {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            color: white;
+        }
+        
+        .high {
+            background-color: #4CAF50;
+        }
+        
+        .medium {
+            background-color: #FFC107;
+            color: #333;
+        }
+        
+        .limited {
+            background-color: #FF9800;
+        }
+        
+        .description {
+            font-size: 12px;
+            margin-top: 5px;
+            line-height: 1.5;
+            width: 100%;
+        }
+        
+        .highlight-text {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+            color: #1565C0;
+        }
+        
+        .icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #444;
+        }
+        
+        .source {
+            font-size: 11px;
+            font-style: italic;
+            color: #666;
+            text-align: center;
+            margin-top: 15px;
+            width: 100%;
+        }
+        
+        /* Ensure consistent icon sizing */
+        .fa-circle-half-stroke {
+            font-size: 26px; /* Slightly larger to match visual weight */
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Compatibilization Strategies for Mixed Plastic Recyclates</div>
+        <div id="matrix" class="matrix"></div>
+        <div class="source">Source: Data compiled from Wang et al. 2021, Zhang et al. 2022, Cardinaels 2020, Muzata et al. 2024</div>
+    </div>
+
+    <script>
+        // Data structure for the matrix
+        const data = {
+            columns: [
+                { id: "metrics", label: "Performance Metrics" },
+                { id: "grafted", label: "Grafted Copolymers", icon: "fa-sitemap" },
+                { id: "janus_np", label: "Janus Nanoparticles", icon: "fa-circle-half-stroke" },
+                { id: "janus_ns", label: "Janus Nanosheets", icon: "fa-layer-group" },
+                { id: "reactive", label: "Reactive Blending", icon: "fa-flask" }
+            ],
+            rows: [
+                { id: "adhesion", label: "Interfacial Adhesion" },
+                { id: "mechanical", label: "Mechanical Property Enhancement" },
+                { id: "processing", label: "Processing Complexity" },
+                { id: "commercial", label: "Commercial Readiness" }
+            ],
+            cells: {
+                "grafted_adhesion": { 
+                    performance: "High", 
+                    description: "Comb-like copolymers outperform block copolymers in reducing interfacial tension and dispersed-phase size in LLDPE/PS blends."
+                },
+                "grafted_mechanical": { 
+                    performance: "Medium", 
+                    description: "Effective at improving tensile strength and impact resistance, but performance varies with polymer pairs."
+                },
+                "grafted_processing": { 
+                    performance: "Medium", 
+                    description: "Requires controlled synthesis conditions but can be incorporated during standard extrusion."
+                },
+                "grafted_commercial": { 
+                    performance: "High", 
+                    description: "Most mature technology with commercial products available for specific polymer combinations."
+                },
+                
+                "janus_np_adhesion": { 
+                    performance: "High", 
+                    description: "Superior compatibilization through combined amphiphilicity and Pickering effects compared to homogeneous nanoparticles."
+                },
+                "janus_np_mechanical": { 
+                    performance: "High", 
+                    description: "Significant improvements in tensile strength, modulus and impact resistance at low loading levels (0.5-2%)."
+                },
+                "janus_np_processing": { 
+                    performance: "Limited", 
+                    description: "Complex synthesis procedures and challenges in scale-up limit industrial implementation."
+                },
+                "janus_np_commercial": { 
+                    performance: "Limited", 
+                    description: "Primarily in research phase with few commercial applications due to production complexity."
+                },
+                
+                "janus_ns_adhesion": { 
+                    performance: "High", 
+                    description: "Enhanced interfacial activity due to high aspect ratio and dual-functionality at interfaces."
+                },
+                "janus_ns_mechanical": { 
+                    performance: "High", 
+                    description: "PU-SiO₂-epoxy JNS (1.0 wt%) increased elongation at break from 31.4% to 362.6%, doubled tensile modulus, and enhanced impact strength by ~100%."
+                },
+                "janus_ns_processing": { 
+                    performance: "Limited", 
+                    description: "Most complex synthesis among options; requires specialized equipment and multi-step processes."
+                },
+                "janus_ns_commercial": { 
+                    performance: "Limited", 
+                    description: "Emerging technology with significant scale-up challenges; currently limited to laboratory scale."
+                },
+                
+                "reactive_adhesion": { 
+                    performance: "Medium", 
+                    description: "Forms covalent bonds at interfaces during processing, but effectiveness depends on reaction kinetics and mixing efficiency."
+                },
+                "reactive_mechanical": { 
+                    performance: "Medium", 
+                    description: "Moderate improvements in mechanical properties, but can be limited by side reactions and degradation."
+                },
+                "reactive_processing": { 
+                    performance: "High", 
+                    description: "Can be implemented in standard extrusion equipment with modified processing conditions."
+                },
+                "reactive_commercial": { 
+                    performance: "Medium", 
+                    description: "Established for specific polymer combinations but requires careful process control for consistent results."
+                }
+            }
+        };
+
+        // Create the matrix structure
+        const matrix = d3.select("#matrix");
+        
+        // Add column headers
+        data.columns.forEach((col, i) => {
+            const cell = matrix.append("div")
+                .attr("class", i === 0 ? "header-cell" : "header-cell")
+                .style("grid-row", "1")
+                .style("grid-column", (i + 1).toString());
+            
+            if (i > 0) {
+                cell.append("i")
+                    .attr("class", `icon fas ${col.icon}`);
+            }
+            
+            cell.append("div")
+                .text(col.label);
+        });
+        
+        // Add row headers
+        data.rows.forEach((row, i) => {
+            matrix.append("div")
+                .attr("class", "header-cell row-header")
+                .style("grid-row", (i + 2).toString())
+                .style("grid-column", "1")
+                .text(row.label);
+        });
+        
+        // Add cells with data
+        data.columns.slice(1).forEach((col, colIndex) => {
+            data.rows.forEach((row, rowIndex) => {
+                const cellKey = `${col.id}_${row.id}`;
+                const cellData = data.cells[cellKey];
+                
+                const cell = matrix.append("div")
+                    .attr("class", "cell")
+                    .style("grid-row", (rowIndex + 2).toString())
+                    .style("grid-column", (colIndex + 2).toString());
+                
+                // Add performance indicator
+                cell.append("div")
+                    .attr("class", `performance-indicator ${cellData.performance.toLowerCase()}`)
+                    .text(cellData.performance);
+                
+                // Add description
+                const descDiv = cell.append("div")
+                    .attr("class", "description");
+                
+                // Special handling for the cell with numerical data to highlight
+                if (cellKey === "janus_ns_mechanical") {
+                    // Create a more seamless highlighting approach
+                    const parts = cellData.description.split(/(\d+\.?\d*%|\~\d+%)/g);
+                    
+                    parts.forEach((part, i) => {
+                        if (part.match(/\d+\.?\d*%|\~\d+%/)) {
+                            // This is a percentage value that should be highlighted
+                            descDiv.append("span")
+                                .attr("class", "highlight-text")
+                                .text(part);
+                        } else {
+                            // Regular text
+                            descDiv.append("span")
+                                .text(part);
+                        }
+                    });
+                } else {
+                    // Regular cell without special highlighting
+                    descDiv.text(cellData.description);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative AI in Healthcare Market Growth</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            margin: 0;
+        }
+        
+        .visualization-container {
+            width: 950px;
+            max-width: 100%;
+        }
+        
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            text-align: center;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .axis-label {
+            font-size: 12px;
+            fill: #555;
+        }
+        
+        .y-axis-label {
+            text-anchor: middle;
+            transform: rotate(-90deg);
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        
+        .cagr-annotation {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .cagr-value {
+            font-family: 'Georgia', serif;
+            font-size: 18px;
+            font-weight: bold;
+            color: #0066cc;
+        }
+        
+        .data-point-label {
+            font-size: 12px;
+            fill: #333;
+        }
+        
+        .data-point-value {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+            fill: #0066cc;
+        }
+        
+        .footnote {
+            font-size: 13px;
+            color: #555;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+        
+        .footnote i {
+            color: #555;
+            margin-right: 5px;
+        }
+        
+        .source {
+            font-size: 11px;
+            color: #777;
+            margin-top: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Generative AI in Healthcare Market Projected to Experience Rapid Growth</div>
+        <div class="subtitle">Market size projection, USD billions, 2025-2034</div>
+        
+        <div class="chart-container">
+            <svg id="chart"></svg>
+            <div class="cagr-annotation">
+                <span class="cagr-value">22.52% CAGR</span>
+            </div>
+        </div>
+        
+        <div class="footnote">
+            <i class="fas fa-info-circle"></i> Growth driven by clinical documentation solutions, imaging AI, IoMT integration, and cloud-based EHR adoption
+        </div>
+        
+        <div class="source">
+            Source: EIN News, "Generative AI in Healthcare Market Projected to Hit USD 16.82 Billion by 2034"
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const data = [
+            { year: 2025, value: 2.70 },
+            { year: 2026, value: 3.31 },
+            { year: 2027, value: 4.05 },
+            { year: 2028, value: 4.97 },
+            { year: 2029, value: 6.09 },
+            { year: 2030, value: 7.46 },
+            { year: 2031, value: 9.14 },
+            { year: 2032, value: 11.20 },
+            { year: 2033, value: 13.72 },
+            { year: 2034, value: 16.82 }
+        ];
+
+        // Set up dimensions - increased width and adjusted margins
+        const margin = { top: 40, right: 100, bottom: 60, left: 80 };
+        const width = 950 - margin.left - margin.right;
+        const height = 520 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // Set up scales - adjusted y-axis to start slightly below the minimum value
+        const xScale = d3.scaleLinear()
+            .domain(d3.extent(data, d => d.year))
+            .range([0, width]);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, 18])
+            .range([height, 0]);
+
+        // Create gradient
+        const gradient = svg.append("defs")
+            .append("linearGradient")
+            .attr("id", "area-gradient")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "0%")
+            .attr("y2", "100%");
+
+        gradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "#0066cc")
+            .attr("stop-opacity", 0.7);
+
+        gradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#20c997")
+            .attr("stop-opacity", 0.1);
+
+        // Create grid lines
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(yScale)
+                .tickSize(-width)
+                .tickFormat("")
+                .ticks(9)
+            );
+
+        // Create line generator
+        const line = d3.line()
+            .x(d => xScale(d.year))
+            .y(d => yScale(d.value))
+            .curve(d3.curveMonotoneX);
+
+        // Create area generator
+        const area = d3.area()
+            .x(d => xScale(d.year))
+            .y0(height)
+            .y1(d => yScale(d.value))
+            .curve(d3.curveMonotoneX);
+
+        // Add area
+        svg.append("path")
+            .datum(data)
+            .attr("class", "area")
+            .attr("d", area)
+            .attr("fill", "url(#area-gradient)");
+
+        // Add line
+        svg.append("path")
+            .datum(data)
+            .attr("class", "line")
+            .attr("fill", "none")
+            .attr("stroke", "#0066cc")
+            .attr("stroke-width", 2.5)
+            .attr("d", line);
+
+        // Add data points
+        svg.selectAll(".data-point")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("class", "data-point")
+            .attr("cx", d => xScale(d.year))
+            .attr("cy", d => yScale(d.value))
+            .attr("r", 4)
+            .attr("fill", "#ffffff")
+            .attr("stroke", "#0066cc")
+            .attr("stroke-width", 2);
+
+        // Add x-axis
+        svg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(xScale)
+                .tickFormat(d3.format("d"))
+                .ticks(10)
+            );
+
+        // Add y-axis with dollar sign
+        svg.append("g")
+            .call(d3.axisLeft(yScale)
+                .tickFormat(d => `$${d}`)
+                .ticks(9)
+            );
+
+        // Add x-axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("x", width / 2)
+            .attr("y", height + 40)
+            .attr("text-anchor", "middle")
+            .text("Year");
+
+        // Add y-axis label
+        svg.append("text")
+            .attr("class", "axis-label y-axis-label")
+            .attr("x", -height / 2)
+            .attr("y", -50)
+            .text("Market Size (USD Billions)");
+
+        // Add value labels for key points with improved positioning
+        const labelPoints = [
+            { year: 2025, value: 2.70, offsetX: 0, offsetY: -15, anchor: "middle" },
+            { year: 2030, value: 7.46, offsetX: 0, offsetY: -15, anchor: "middle" },
+            { year: 2034, value: 16.82, offsetX: 0, offsetY: -15, anchor: "middle" }
+        ];
+        
+        // Add value labels with improved positioning
+        svg.selectAll(".value-label")
+            .data(labelPoints)
+            .enter()
+            .append("text")
+            .attr("class", "data-point-value")
+            .attr("x", d => xScale(d.year) + d.offsetX)
+            .attr("y", d => yScale(d.value) + d.offsetY)
+            .attr("text-anchor", d => d.anchor)
+            .text(d => `$${d.value.toFixed(2)}B`);
+            
+        // Add year label only for 2030 (mid-point)
+        svg.append("text")
+            .attr("class", "data-point-label")
+            .attr("x", xScale(2030))
+            .attr("y", yScale(7.46) - 30)
+            .attr("text-anchor", "middle")
+            .text("2030");
+            
+        // Position CAGR annotation properly using JavaScript
+        function positionCagrAnnotation() {
+            const cagrBox = document.querySelector(".cagr-annotation");
+            const chartBox = document.querySelector("#chart");
+            
+            if (cagrBox && chartBox) {
+                const chartRect = chartBox.getBoundingClientRect();
+                
+                // Position in upper right area, avoiding the line
+                cagrBox.style.top = `${chartRect.top + 120}px`;
+                cagrBox.style.left = `${chartRect.left + chartRect.width - 200}px`;
+                cagrBox.style.position = "absolute";
+            }
+        }
+        
+        // Call after DOM is fully loaded to ensure elements exist
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(positionCagrAnnotation, 100);
+        });
+        
+        // Also handle window resize
+        window.addEventListener('resize', () => {
+            setTimeout(positionCagrAnnotation, 100);
+        });
+        
+        // Call immediately as well
+        setTimeout(positionCagrAnnotation, 100);
+    </script>
+</body>
+</html>

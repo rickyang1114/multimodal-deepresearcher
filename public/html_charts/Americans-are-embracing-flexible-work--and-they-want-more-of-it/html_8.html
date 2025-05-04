@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Business Case for Flexible Work</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            width: 900px;
+            height: 700px;
+            background-color: white;
+            position: relative;
+        }
+        
+        .dashboard-title {
+            font-size: 24pt;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0 25px 0;
+        }
+        
+        .quadrant-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            height: 480px;
+            gap: 25px;
+        }
+        
+        .quadrant {
+            border: 1px solid #ddd;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .quadrant-title {
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .key-metric {
+            font-family: 'Georgia', serif;
+            font-size: 20pt;
+            font-weight: bold;
+            color: #003366;
+        }
+        
+        .explanatory-note {
+            background-color: #f5f5f5;
+            padding: 15px;
+            margin-top: 30px;
+            font-size: 12pt;
+            border-radius: 4px;
+            line-height: 1.5;
+        }
+        
+        .source-note {
+            font-size: 10pt;
+            color: #999;
+            margin-top: 15px;
+            text-align: right;
+        }
+        
+        .axis text {
+            font-size: 11pt;
+            fill: #333;
+        }
+        
+        .axis line, .axis path {
+            stroke: #ddd;
+        }
+        
+        .grid line {
+            stroke: #eee;
+            stroke-opacity: 0.7;
+        }
+        
+        .bar-label {
+            font-size: 14pt;
+            text-anchor: start;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 20px;
+        }
+        
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+        }
+        
+        .chart-annotation {
+            font-size: 14pt;
+            text-anchor: middle;
+            fill: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-title">The Business Case for Flexible Work: Key Performance Metrics</div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #708090;"></div>
+                <div>Traditional Schedule</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #003366;"></div>
+                <div>Flexible Schedule</div>
+            </div>
+        </div>
+        
+        <div class="quadrant-container">
+            <div class="quadrant" id="quality-chart">
+                <div class="quadrant-title">Reduction in Quality Defects</div>
+            </div>
+            
+            <div class="quadrant" id="productivity-chart">
+                <div class="quadrant-title">Additional Work Time Per Month</div>
+            </div>
+            
+            <div class="quadrant" id="absenteeism-chart">
+                <div class="quadrant-title">Reduction in Absenteeism</div>
+            </div>
+            
+            <div class="quadrant" id="profitability-chart">
+                <div class="quadrant-title">Profitability Increase</div>
+            </div>
+        </div>
+        
+        <div class="explanatory-note">
+            Flexible work arrangements positively impact multiple business performance metrics, with significant improvements in quality, attendance, and overall profitability when properly implemented.
+        </div>
+        
+        <div class="source-note">
+            Sources: Gallup; Airtasker; Stanford University study
+        </div>
+    </div>
+
+    <script>
+        // Common variables
+        const slateGray = "#708090";
+        const deepNavy = "#003366";
+        const margin = { top: 30, right: 30, bottom: 70, left: 140 };
+        
+        // Quality Improvements Chart (Quadrant 1)
+        function createQualityChart() {
+            const svg = d3.select("#quality-chart")
+                .append("svg")
+                .attr("width", "100%")
+                .attr("height", "85%");
+            
+            const width = parseInt(svg.style("width")) - margin.left - margin.right;
+            const height = parseInt(svg.style("height")) - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // Data
+            const data = [
+                { name: "Traditional Schedule", value: 100 },
+                { name: "Flexible Schedule", value: 60 } // 40% reduction
+            ];
+            
+            // Scales
+            const y = d3.scaleBand()
+                .domain(data.map(d => d.name))
+                .range([0, height])
+                .padding(0.3);
+            
+            const x = d3.scaleLinear()
+                .domain([0, 100])
+                .range([0, width]);
+            
+            // Gridlines - fewer gridlines for better spacing
+            g.append("g")
+                .attr("class", "grid")
+                .call(d3.axisBottom(x)
+                    .tickSize(height)
+                    .tickFormat("")
+                    .ticks(5)
+                );
+            
+            // Axes
+            g.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y).tickSize(0));
+            
+            g.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(5).tickFormat(d => d + "%"));
+            
+            // Bars
+            g.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("y", d => y(d.name))
+                .attr("height", y.bandwidth())
+                .attr("x", 0)
+                .attr("width", d => x(d.value))
+                .attr("fill", (d, i) => i === 0 ? slateGray : deepNavy);
+            
+            // Labels
+            g.selectAll(".bar-label")
+                .data(data)
+                .enter().append("text")
+                .attr("class", "bar-label")
+                .attr("y", d => y(d.name) + y.bandwidth() / 2 + 5)
+                .attr("x", d => x(d.value) + 5)
+                .text(d => d.value + "%")
+                .attr("fill", "#333");
+            
+            // Highlight the 40% reduction - positioned at bottom of chart with more space
+            g.append("text")
+                .attr("class", "chart-annotation")
+                .attr("x", width / 2)
+                .attr("y", height + 50)
+                .attr("text-anchor", "middle")
+                .html("<tspan class='key-metric'>40%</tspan> fewer defects")
+                .attr("fill", "#333");
+        }
+        
+        // Productivity Gains Chart (Quadrant 2)
+        function createProductivityChart() {
+            const svg = d3.select("#productivity-chart")
+                .append("svg")
+                .attr("width", "100%")
+                .attr("height", "85%");
+            
+            const width = parseInt(svg.style("width")) - margin.left - margin.right;
+            const height = parseInt(svg.style("height")) - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // Data
+            const data = [
+                { name: "Office Workers", value: 0 },
+                { name: "Remote Workers", value: 1.4 }
+            ];
+            
+            // Scales
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.name))
+                .range([0, width])
+                .padding(0.3);
+            
+            const y = d3.scaleLinear()
+                .domain([0, 2])
+                .range([height, 0]);
+            
+            // Gridlines - fewer gridlines for better spacing
+            g.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y)
+                    .tickSize(-width)
+                    .tickFormat("")
+                    .ticks(4)
+                );
+            
+            // Axes
+            g.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x));
+            
+            g.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y).ticks(4).tickFormat(d => d));
+            
+            // Y-axis label - improved positioning
+            g.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 70)
+                .attr("x", -height / 2)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "12pt")
+                .text("Days per month")
+                .attr("fill", "#666");
+            
+            // Bars
+            g.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.name))
+                .attr("width", x.bandwidth())
+                .attr("y", d => y(d.value))
+                .attr("height", d => height - y(d.value))
+                .attr("fill", (d, i) => i === 0 ? slateGray : deepNavy);
+            
+            // Labels
+            g.selectAll(".bar-label")
+                .data(data)
+                .enter().append("text")
+                .attr("class", "bar-label")
+                .attr("x", d => x(d.name) + x.bandwidth() / 2)
+                .attr("y", d => y(d.value) - 10)
+                .attr("text-anchor", "middle")
+                .text(d => d.value)
+                .attr("fill", "#333");
+            
+            // Highlight the 1.4 days - positioned at bottom of chart with more space
+            g.append("text")
+                .attr("class", "chart-annotation")
+                .attr("x", width / 2)
+                .attr("y", height + 50)
+                .attr("text-anchor", "middle")
+                .html("<tspan class='key-metric'>1.4</tspan> more days/month")
+                .attr("fill", "#333");
+        }
+        
+        // Absenteeism Chart (Quadrant 3)
+        function createAbsenteeismChart() {
+            const svg = d3.select("#absenteeism-chart")
+                .append("svg")
+                .attr("width", "100%")
+                .attr("height", "85%");
+            
+            const width = parseInt(svg.style("width")) - margin.left - margin.right;
+            const height = parseInt(svg.style("height")) - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // Data
+            const data = [
+                { name: "Traditional Schedule", value: 50 },
+                { name: "Flexible Schedule", value: 29.5 } // 41% reduction
+            ];
+            
+            // Scales
+            const y = d3.scaleBand()
+                .domain(data.map(d => d.name))
+                .range([0, height])
+                .padding(0.3);
+            
+            const x = d3.scaleLinear()
+                .domain([0, 50])
+                .range([0, width]);
+            
+            // Gridlines - fewer gridlines for better spacing
+            g.append("g")
+                .attr("class", "grid")
+                .call(d3.axisBottom(x)
+                    .tickSize(height)
+                    .tickFormat("")
+                    .ticks(5)
+                );
+            
+            // Axes
+            g.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y).tickSize(0));
+            
+            g.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(5).tickFormat(d => d + "%"));
+            
+            // Bars
+            g.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("y", d => y(d.name))
+                .attr("height", y.bandwidth())
+                .attr("x", 0)
+                .attr("width", d => x(d.value))
+                .attr("fill", (d, i) => i === 0 ? slateGray : deepNavy);
+            
+            // Labels
+            g.selectAll(".bar-label")
+                .data(data)
+                .enter().append("text")
+                .attr("class", "bar-label")
+                .attr("y", d => y(d.name) + y.bandwidth() / 2 + 5)
+                .attr("x", d => x(d.value) + 5)
+                .text(d => d.value + "%")
+                .attr("fill", "#333");
+            
+            // Highlight the 41% reduction - positioned at bottom of chart with more space
+            g.append("text")
+                .attr("class", "chart-annotation")
+                .attr("x", width / 2)
+                .attr("y", height + 50)
+                .attr("text-anchor", "middle")
+                .html("<tspan class='key-metric'>41%</tspan> less absenteeism")
+                .attr("fill", "#333");
+        }
+        
+        // Profitability Chart (Quadrant 4)
+        function createProfitabilityChart() {
+            const svg = d3.select("#profitability-chart")
+                .append("svg")
+                .attr("width", "100%")
+                .attr("height", "85%");
+            
+            const width = parseInt(svg.style("width")) - margin.left - margin.right;
+            const height = parseInt(svg.style("height")) - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // Data
+            const data = [
+                { name: "Traditional", value: 20 },  // Shortened label to prevent overlap
+                { name: "Flexible", value: 24.2 }    // Shortened label to prevent overlap
+            ];
+            
+            // Scales
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.name))
+                .range([0, width])
+                .padding(0.3);
+            
+            const y = d3.scaleLinear()
+                .domain([0, 30])
+                .range([height, 0]);
+            
+            // Gridlines - fewer gridlines for better spacing
+            g.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y)
+                    .tickSize(-width)
+                    .tickFormat("")
+                    .ticks(5)  // Reduced number of ticks to prevent crowding
+                );
+            
+            // Axes with consistent percentage formatting
+            g.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x));
+            
+            g.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y).ticks(5).tickFormat(d => d + "%"));  // Reduced ticks
+            
+            // Bars
+            g.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.name))
+                .attr("width", x.bandwidth())
+                .attr("y", d => y(d.value))
+                .attr("height", d => height - y(d.value))
+                .attr("fill", (d, i) => i === 0 ? slateGray : deepNavy);
+            
+            // Labels
+            g.selectAll(".bar-label")
+                .data(data)
+                .enter().append("text")
+                .attr("class", "bar-label")
+                .attr("x", d => x(d.name) + x.bandwidth() / 2)
+                .attr("y", d => y(d.value) - 10)
+                .attr("text-anchor", "middle")
+                .text(d => d.value + "%")
+                .attr("fill", "#333");
+            
+            // Add "Schedule" label below x-axis to clarify shortened labels
+            g.append("text")
+                .attr("x", width / 2)
+                .attr("y", height + 30)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "12pt")
+                .text("Schedule Type")
+                .attr("fill", "#666");
+            
+            // Highlight the 21% increase - positioned at bottom of chart with more space
+            g.append("text")
+                .attr("class", "chart-annotation")
+                .attr("x", width / 2)
+                .attr("y", height + 50)
+                .attr("text-anchor", "middle")
+                .html("<tspan class='key-metric'>21%</tspan> higher profitability")
+                .attr("fill", "#333");
+        }
+        
+        // Create all charts when the page loads
+        document.addEventListener("DOMContentLoaded", function() {
+            createQualityChart();
+            createProductivityChart();
+            createAbsenteeismChart();
+            createProfitabilityChart();
+        });
+    </script>
+</body>
+</html>

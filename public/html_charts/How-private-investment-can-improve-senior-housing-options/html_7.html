@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alternative Senior Housing Models</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .visualization-container {
+            width: 800px;
+            height: 720px; /* Increased height to ensure all content is visible */
+            position: relative;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .columns-container {
+            display: flex;
+            height: calc(100% - 80px); /* Adjusted to leave room for source */
+            border: 1px solid #ddd;
+        }
+        
+        .column {
+            flex: 1;
+            padding: 15px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .column:not(:last-child) {
+            border-right: 1px solid #ddd;
+        }
+        
+        .column-header {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid;
+        }
+        
+        .icon-container {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 15px;
+            height: 50px; /* Increased height for icon container */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        /* Improved icon positioning */
+        .icon-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 50px;
+        }
+        
+        .icon-primary {
+            position: absolute;
+            left: 0;
+            top: 5px;
+            z-index: 1;
+        }
+        
+        .icon-secondary {
+            position: absolute;
+            right: 0;
+            bottom: 5px;
+            font-size: 22px;
+            z-index: 2;
+        }
+        
+        .section-header {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            color: #555;
+        }
+        
+        .stats-container {
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .stat-item {
+            margin-bottom: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .stat-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .highlight {
+            font-family: 'Georgia', serif;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .list-item i {
+            margin-right: 8px;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        
+        .list-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .example-container {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: auto; /* Push to bottom of column */
+            font-style: italic;
+            font-size: 13px;
+            line-height: 1.5;
+            background-color: rgba(0, 0, 0, 0.02);
+            min-height: 90px; /* Increased minimum height for examples */
+        }
+        
+        .source {
+            text-align: right;
+            font-size: 11px;
+            color: #777;
+            margin-top: 15px;
+            padding-right: 5px;
+        }
+        
+        /* Column specific colors */
+        .age-in-place .column-header {
+            color: #002D62;
+            border-color: #002D62;
+        }
+        
+        .age-in-place .icon-container {
+            color: #002D62;
+        }
+        
+        .age-in-place .stats-container {
+            background-color: rgba(0, 45, 98, 0.08);
+        }
+        
+        .land-lease .column-header {
+            color: #008080;
+            border-color: #008080;
+        }
+        
+        .land-lease .icon-container {
+            color: #008080;
+        }
+        
+        .land-lease .stats-container {
+            background-color: rgba(0, 128, 128, 0.08);
+        }
+        
+        .hybrid .column-header {
+            color: #708090;
+            border-color: #708090;
+        }
+        
+        .hybrid .icon-container {
+            color: #708090;
+        }
+        
+        .hybrid .stats-container {
+            background-color: rgba(112, 128, 144, 0.08);
+        }
+        
+        .advantage i {
+            color: #2E8B57;
+        }
+        
+        .challenge i {
+            color: #DAA520;
+        }
+        
+        /* Added to ensure content sections have appropriate spacing */
+        .content-section {
+            margin-bottom: 15px;
+        }
+        
+        /* Added spacer to ensure proper spacing between sections */
+        .spacer {
+            flex-grow: 1;
+            min-height: 15px;
+        }
+        
+        /* Improved example styling */
+        .example-text {
+            display: inline-block;
+            width: 100%;
+        }
+        
+        /* Ensure no word breaks for percentage values */
+        .no-break {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Alternative Models: Expanding Senior Housing Options Beyond Traditional Facilities</div>
+        
+        <div class="columns-container">
+            <!-- Age-in-Place Retrofits Column -->
+            <div class="column age-in-place">
+                <div class="column-header">Age-in-Place Retrofits</div>
+                <div class="icon-container">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-home icon-primary"></i>
+                        <i class="fas fa-tools icon-secondary"></i>
+                    </div>
+                </div>
+                
+                <div class="section-header">KEY STATISTICS</div>
+                <div class="stats-container">
+                    <div class="stat-item">Market: <span class="highlight">95%</span> of seniors remain at home</div>
+                    <div class="stat-item">Average cost: <span class="highlight">£7,000</span> (UK), <span class="highlight">$15,000</span> (US)</div>
+                    <div class="stat-item">Adoption rate: Growing rapidly with aging population</div>
+                </div>
+                
+                <div class="content-section">
+                    <div class="section-header">ADVANTAGES</div>
+                    <div class="list-item advantage">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Preserves familiar environment</div>
+                    </div>
+                    <div class="list-item advantage">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Significantly lower cost than facility-based care</div>
+                    </div>
+                    <div class="list-item advantage">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Maintains community connections</div>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <div class="section-header">CHALLENGES</div>
+                    <div class="list-item challenge">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Limited care coordination</div>
+                    </div>
+                    <div class="list-item challenge">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Potential for social isolation</div>
+                    </div>
+                    <div class="list-item challenge">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Home may not accommodate all future needs</div>
+                    </div>
+                </div>
+                
+                <div class="spacer"></div>
+                
+                <div class="section-header">EXAMPLE</div>
+                <div class="example-container">
+                    <div class="example-text">
+                        Home modification partnerships with healthcare providers showing <span class="highlight no-break">>10%</span> reduction in hospitalization rates
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Land-Lease Communities Column -->
+            <div class="column land-lease">
+                <div class="column-header">Land-Lease Communities</div>
+                <div class="icon-container">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-home icon-primary"></i>
+                        <i class="fas fa-map-marked-alt icon-secondary"></i>
+                    </div>
+                </div>
+                
+                <div class="section-header">KEY STATISTICS</div>
+                <div class="stats-container">
+                    <div class="stat-item">Residents own homes but lease land</div>
+                    <div class="stat-item">Significant reduction in upfront purchase costs</div>
+                    <div class="stat-item">Growing adoption in Australia</div>
+                </div>
+                
+                <div class="content-section">
+                    <div class="section-header">ADVANTAGES</div>
+                    <div class="list-item advantage">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Lower entry cost barrier</div>
+                    </div>
+                    <div class="list-item advantage">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Community amenities and services</div>
+                    </div>
+                    <div class="list-item advantage">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Potential for equity growth in home portion</div>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <div class="section-header">CHALLENGES</div>
+                    <div class="list-item challenge">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Ongoing lease payments</div>
+                    </div>
+                    <div class="list-item challenge">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Limited control over community governance</div>
+                    </div>
+                    <div class="list-item challenge">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Potential for lease rate increases</div>
+                    </div>
+                </div>
+                
+                <div class="spacer"></div>
+                
+                <div class="section-header">EXAMPLE</div>
+                <div class="example-container">
+                    <div class="example-text">
+                        Australian land-lease communities growing as affordable alternative to full-ownership retirement villages
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hybrid Rental/For-Sale Units Column -->
+            <div class="column hybrid">
+                <div class="column-header">Hybrid Rental/For-Sale Units</div>
+                <div class="icon-container">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-building icon-primary"></i>
+                        <i class="fas fa-exchange-alt icon-secondary"></i>
+                    </div>
+                </div>
+                
+                <div class="section-header">KEY STATISTICS</div>
+                <div class="stats-container">
+                    <div class="stat-item">McCarthy Stone model: co-located rental and for-sale units</div>
+                    <div class="stat-item">Rentals grew to <span class="highlight">~30%</span> of transactions by 2021</div>
+                    <div class="stat-item">Demonstrates strong demand for flexible ownership</div>
+                </div>
+                
+                <div class="content-section">
+                    <div class="section-header">ADVANTAGES</div>
+                    <div class="list-item advantage">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Flexibility in financial commitment</div>
+                    </div>
+                    <div class="list-item advantage">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Easier entry/exit</div>
+                    </div>
+                    <div class="list-item advantage">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Same amenities and services regardless of tenure</div>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <div class="section-header">CHALLENGES</div>
+                    <div class="list-item challenge">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Potential tension between owner/renter residents</div>
+                    </div>
+                    <div class="list-item challenge">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Complex operational model</div>
+                    </div>
+                    <div class="list-item challenge">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Different resident expectations</div>
+                    </div>
+                </div>
+                
+                <div class="spacer"></div>
+                
+                <div class="section-header">EXAMPLE</div>
+                <div class="example-container">
+                    <div class="example-text">
+                        McCarthy Stone's 2019 introduction drove rentals to <span class="highlight no-break">~30%</span> of transactions by 2021
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="source">Source: McKinsey analysis; company reports</div>
+    </div>
+
+    <script>
+        // D3.js is included for potential future enhancements or animations
+        // This implementation primarily uses CSS for styling and layout
+        d3.select('.visualization-container')
+          .style('opacity', 0)
+          .transition()
+          .duration(800)
+          .style('opacity', 1);
+    </script>
+</body>
+</html>

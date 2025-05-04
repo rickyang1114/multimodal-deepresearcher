@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare AI Hallucination Management</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        .visualization-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+        }
+        
+        .title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .charts-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .chart-container {
+            flex: 1;
+            min-width: 45%;
+        }
+        
+        .bar-chart-container {
+            background-color: white;
+            border-radius: 5px;
+            padding: 10px;
+            height: 520px;
+        }
+        
+        .flowchart-container {
+            background-color: white;
+            border-radius: 5px;
+            padding: 10px;
+            height: 520px;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+        
+        .note {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            line-height: 1.5;
+        }
+        
+        .source {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 10px;
+            font-style: italic;
+            padding: 0 15px;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .strategy-box {
+            fill: #fff;
+            stroke-width: 1.5px;
+            rx: 5;
+            ry: 5;
+        }
+        
+        .strategy-text {
+            font-size: 14px;
+            text-anchor: middle;
+            font-weight: bold;
+        }
+        
+        .strategy-subtext {
+            font-size: 12px;
+            text-anchor: middle;
+            fill: #333;
+        }
+        
+        .arrow {
+            fill: none;
+            stroke-width: 2px;
+        }
+        
+        .reference-line {
+            stroke: #e74c3c;
+            stroke-width: 2px;
+            stroke-dasharray: 5,5;
+        }
+        
+        .reference-text {
+            fill: #e74c3c;
+            font-size: 12px;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-container {
+                flex-direction: column;
+            }
+            
+            .chart-container {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Managing Hallucinations in Healthcare AI: Detection Benchmarks and Mitigation Strategies</div>
+        
+        <div class="charts-container">
+            <div class="chart-container">
+                <div class="subtitle">Model performance on medical hallucination detection benchmarks</div>
+                <div class="bar-chart-container">
+                    <svg id="bar-chart"></svg>
+                </div>
+                <div class="legend" id="bar-legend"></div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="subtitle">Hallucination mitigation strategies</div>
+                <div class="flowchart-container">
+                    <svg id="flowchart"></svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="note">
+            <strong>Benchmark descriptions:</strong> Med-HALT (Pal et al. 2023) tests reasoning-based hallucination detection; MedSafetyBench (Han et al. 2024b) evaluates responses to harmful medical queries; PubHealthTab (Akhtar et al. 2022) focuses on table-based public health fact-checking
+        </div>
+        
+        <div class="source">
+            <strong>Sources:</strong> Aljohani et al. 2025, Pal et al. 2023, Han et al. 2024b, Akhtar et al. 2022
+        </div>
+    </div>
+    
+    <script>
+        // Data for the bar chart
+        const barData = [
+            {
+                model: "General LLM\n(GPT-3.5)",
+                scores: [
+                    { benchmark: "Med-HALT", value: 65 },
+                    { benchmark: "MedSafetyBench", value: 58 },
+                    { benchmark: "PubHealthTab", value: 60 }
+                ]
+            },
+            {
+                model: "Healthcare-tuned\nLLM",
+                scores: [
+                    { benchmark: "Med-HALT", value: 78 },
+                    { benchmark: "MedSafetyBench", value: 72 },
+                    { benchmark: "PubHealthTab", value: 75 }
+                ]
+            },
+            {
+                model: "Specialized\nMedical LLM",
+                scores: [
+                    { benchmark: "Med-HALT", value: 89 },
+                    { benchmark: "MedSafetyBench", value: 86 },
+                    { benchmark: "PubHealthTab", value: 83 }
+                ]
+            }
+        ];
+        
+        // Data for the flowchart
+        const flowchartData = {
+            strategies: [
+                {
+                    id: 1,
+                    name: "Domain Fine-tuning",
+                    description: "Using 6,000+ medical annotators for RLHF",
+                    color: "#3498db",
+                    x: 250,
+                    y: 30,
+                    width: 220,
+                    height: 80
+                },
+                {
+                    id: 2,
+                    name: "Retrieval Augmentation",
+                    description: "Linking model outputs to verified medical sources",
+                    color: "#1a5276", // Darker blue for better distinction
+                    x: 50,
+                    y: 160,
+                    width: 200,
+                    height: 80
+                },
+                {
+                    id: 3,
+                    name: "Real-time Factuality Checking",
+                    description: "Validating outputs against trusted knowledge bases",
+                    color: "#1abc9c",
+                    x: 270,
+                    y: 160,
+                    width: 200,
+                    height: 80
+                },
+                {
+                    id: 4,
+                    name: "Human-in-the-Loop Review",
+                    description: "Clinical expert verification for high-risk applications",
+                    color: "#16a085",
+                    x: 490,
+                    y: 160,
+                    width: 200,
+                    height: 80
+                },
+                {
+                    id: 5,
+                    name: "Confidence Scoring",
+                    description: "Requiring minimum confidence thresholds for clinical use",
+                    color: "#27ae60",
+                    x: 270,
+                    y: 290,
+                    width: 200,
+                    height: 80
+                }
+            ],
+            connections: [
+                { source: 1, target: 2 },
+                { source: 1, target: 3 },
+                { source: 1, target: 4 },
+                { source: 2, target: 5 },
+                { source: 3, target: 5 },
+                { source: 4, target: 5 }
+            ]
+        };
+        
+        // Color scale for the benchmarks - improved color distinction
+        const benchmarkColors = {
+            "Med-HALT": "#3498db", // Bright blue
+            "MedSafetyBench": "#1a5276", // Dark blue
+            "PubHealthTab": "#1abc9c" // Teal
+        };
+        
+        // Create the bar chart
+        function createBarChart() {
+            const svg = d3.select("#bar-chart");
+            const margin = { top: 50, right: 30, bottom: 100, left: 60 };
+            const containerWidth = parseInt(d3.select(".bar-chart-container").style("width"));
+            const containerHeight = parseInt(d3.select(".bar-chart-container").style("height"));
+            const width = containerWidth - margin.left - margin.right;
+            const height = containerHeight - margin.top - margin.bottom;
+            
+            svg.attr("width", containerWidth)
+               .attr("height", containerHeight);
+            
+            const chart = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // Extract all benchmarks
+            const benchmarks = barData[0].scores.map(d => d.benchmark);
+            
+            // X scale for models
+            const x0 = d3.scaleBand()
+                .domain(barData.map(d => d.model))
+                .rangeRound([0, width])
+                .paddingInner(0.3);
+            
+            // X scale for benchmarks within each model
+            const x1 = d3.scaleBand()
+                .domain(benchmarks)
+                .rangeRound([0, x0.bandwidth()])
+                .padding(0.1);
+            
+            // Y scale
+            const y = d3.scaleLinear()
+                .domain([0, 100])
+                .range([height, 0]);
+            
+            // Add X axis with multiline labels
+            const xAxis = chart.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x0).tickSize(0))
+                .selectAll(".tick text")
+                .style("text-anchor", "middle")
+                .style("font-size", "12px")
+                .call(wrap, x0.bandwidth());
+            
+            // Function to wrap text
+            function wrap(text, width) {
+                text.each(function() {
+                    const text = d3.select(this);
+                    const words = text.text().split(/\n+/);
+                    const lineHeight = 1.1; // ems
+                    
+                    text.text(null);
+                    
+                    words.forEach((word, i) => {
+                        text.append("tspan")
+                            .attr("x", 0)
+                            .attr("dy", i ? lineHeight + "em" : "0.7em")
+                            .text(word);
+                    });
+                    
+                    const tspans = text.selectAll("tspan");
+                    
+                    tspans.attr("y", function(d, i) {
+                        return 8 + i * 15; // Adjust vertical position
+                    });
+                });
+            }
+            
+            // Remove x-axis line
+            chart.select(".domain").remove();
+            
+            // Add Y axis
+            chart.append("g")
+                .call(d3.axisLeft(y).tickFormat(d => d + "%").ticks(5))
+                .call(g => g.selectAll(".tick line").clone()
+                    .attr("x2", width)
+                    .attr("stroke-opacity", 0.1));
+            
+            // Y axis label
+            chart.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 15)
+                .attr("x", -height / 2)
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .style("font-size", "12px")
+                .text("Performance Score (%)");
+            
+            // Add reference line at 80%
+            chart.append("line")
+                .attr("class", "reference-line")
+                .attr("x1", 0)
+                .attr("x2", width)
+                .attr("y1", y(80))
+                .attr("y2", y(80));
+            
+            // Fixed reference text positioning to avoid overlap
+            chart.append("text")
+                .attr("class", "reference-text")
+                .attr("x", width - 250)
+                .attr("y", y(80) - 8)
+                .style("text-anchor", "start")
+                .text("Clinically acceptable threshold (80%)");
+            
+            // Create the grouped bars
+            const modelGroups = chart.selectAll(".model-group")
+                .data(barData)
+                .enter().append("g")
+                .attr("class", "model-group")
+                .attr("transform", d => `translate(${x0(d.model)},0)`);
+            
+            modelGroups.selectAll(".bar")
+                .data(d => d.scores)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x1(d.benchmark))
+                .attr("y", d => y(d.value))
+                .attr("width", x1.bandwidth())
+                .attr("height", d => height - y(d.value))
+                .attr("fill", d => benchmarkColors[d.benchmark])
+                .attr("rx", 3)
+                .attr("ry", 3);
+            
+            // Add value labels on top of bars
+            modelGroups.selectAll(".bar-label")
+                .data(d => d.scores)
+                .enter().append("text")
+                .attr("class", "bar-label key-number")
+                .attr("x", d => x1(d.benchmark) + x1.bandwidth() / 2)
+                .attr("y", d => y(d.value) - 5)
+                .attr("text-anchor", "middle")
+                .text(d => d.value + "%")
+                .style("font-size", "12px");
+            
+            // Create legend
+            const legend = d3.select("#bar-legend");
+            legend.html(""); // Clear existing content
+            
+            benchmarks.forEach(benchmark => {
+                const legendItem = legend.append("div")
+                    .attr("class", "legend-item");
+                
+                legendItem.append("div")
+                    .attr("class", "legend-color")
+                    .style("background-color", benchmarkColors[benchmark]);
+                
+                legendItem.append("div")
+                    .text(benchmark);
+            });
+        }
+        
+        // Create the flowchart
+        function createFlowchart() {
+            const svg = d3.select("#flowchart");
+            const containerWidth = parseInt(d3.select(".flowchart-container").style("width"));
+            const containerHeight = parseInt(d3.select(".flowchart-container").style("height"));
+            
+            svg.attr("width", containerWidth)
+               .attr("height", containerHeight);
+            
+            // Scale the flowchart to fit the available width
+            const scale = Math.min(containerWidth / 750, containerHeight / 400);
+            const translateX = (containerWidth - (750 * scale)) / 2;
+            const translateY = (containerHeight - (400 * scale)) / 2;
+            
+            const chart = svg.append("g")
+                .attr("transform", `translate(${translateX},${translateY}) scale(${scale})`);
+            
+            // Add arrowhead marker
+            svg.append("defs").append("marker")
+                .attr("id", "arrow")
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", 10)
+                .attr("refY", 0)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 6)
+                .attr("orient", "auto")
+                .append("path")
+                .attr("d", "M0,-5L10,0L0,5")
+                .attr("fill", "#7f8c8d");
+            
+            // Improved arrow path calculation and positioning
+            flowchartData.connections.forEach(conn => {
+                const source = flowchartData.strategies.find(s => s.id === conn.source);
+                const target = flowchartData.strategies.find(s => s.id === conn.target);
+                
+                // Calculate start and end points with better positioning
+                let startX, startY, endX, endY;
+                
+                if (source.y < target.y) {
+                    // Downward connection
+                    startX = source.x + source.width / 2;
+                    startY = source.y + source.height;
+                    endX = target.x + target.width / 2;
+                    endY = target.y;
+                } else if (source.x + source.width / 2 < target.x + target.width / 2) {
+                    // Rightward connection
+                    startX = source.x + source.width;
+                    startY = source.y + source.height / 2;
+                    endX = target.x;
+                    endY = target.y + target.height / 2;
+                } else {
+                    // Leftward connection
+                    startX = source.x;
+                    startY = source.y + source.height / 2;
+                    endX = target.x + target.width;
+                    endY = target.y + target.height / 2;
+                }
+                
+                // Create path for arrow with improved routing
+                let path;
+                
+                if (source.y < target.y) {
+                    // Downward connection with curve
+                    const midY = (startY + endY) / 2;
+                    path = `M${startX},${startY} C${startX},${midY} ${endX},${midY} ${endX},${endY}`;
+                } else {
+                    // Horizontal connection with slight curve
+                    const midX = (startX + endX) / 2;
+                    const controlY = (startY + endY) / 2 - 20;
+                    path = `M${startX},${startY} Q${midX},${controlY} ${endX},${endY}`;
+                }
+                
+                chart.append("path")
+                    .attr("d", path)
+                    .attr("class", "arrow")
+                    .attr("stroke", "#7f8c8d")
+                    .attr("marker-end", "url(#arrow)");
+            });
+            
+            // Draw strategy boxes with improved layout
+            flowchartData.strategies.forEach(strategy => {
+                const group = chart.append("g")
+                    .attr("transform", `translate(${strategy.x},${strategy.y})`);
+                
+                // Box with consistent color
+                group.append("rect")
+                    .attr("width", strategy.width)
+                    .attr("height", strategy.height)
+                    .attr("class", "strategy-box")
+                    .style("fill", strategy.color)
+                    .style("fill-opacity", 0.2)
+                    .style("stroke", strategy.color);
+                
+                // Strategy name
+                group.append("text")
+                    .attr("x", strategy.width / 2)
+                    .attr("y", 25)
+                    .attr("class", "strategy-text")
+                    .style("fill", "#2c3e50")
+                    .text(strategy.name);
+                
+                // Strategy description - improved text wrapping
+                const descriptionText = strategy.description;
+                const words = descriptionText.split(' ');
+                let lines = [];
+                let currentLine = '';
+                
+                // Simple text wrapping algorithm
+                words.forEach(word => {
+                    const testLine = currentLine ? `${currentLine} ${word}` : word;
+                    if (testLine.length > 30) { // Approximate character limit per line
+                        lines.push(currentLine);
+                        currentLine = word;
+                    } else {
+                        currentLine = testLine;
+                    }
+                });
+                if (currentLine) lines.push(currentLine);
+                
+                // Add each line of the description
+                lines.forEach((line, i) => {
+                    group.append("text")
+                        .attr("x", strategy.width / 2)
+                        .attr("y", 45 + (i * 15))
+                        .attr("class", "strategy-subtext")
+                        .style("text-anchor", "middle")
+                        .text(line);
+                });
+                
+                // Add a colored circle indicator properly aligned with text
+                group.append("circle")
+                    .attr("cx", 15)
+                    .attr("cy", 25)
+                    .attr("r", 6)
+                    .attr("fill", strategy.color);
+            });
+            
+            // Add a title for the flowchart explaining the color coding
+            chart.append("text")
+                .attr("x", 350)
+                .attr("y", 400)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "12px")
+                .attr("fill", "#7f8c8d")
+                .text("Strategy effectiveness (darker = more effective)");
+        }
+        
+        // Initialize the visualizations when the page loads
+        window.addEventListener('load', function() {
+            createBarChart();
+            createFlowchart();
+        });
+        
+        // Redraw on window resize for responsiveness
+        window.addEventListener('resize', function() {
+            d3.select("#bar-chart").html("");
+            d3.select("#bar-legend").html("");
+            d3.select("#flowchart").html("");
+            createBarChart();
+            createFlowchart();
+        });
+    </script>
+</body>
+</html>

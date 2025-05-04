@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environmental Performance Comparison of Mixed Plastic Recycling Technologies</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            background-color: white;
+            padding: 20px;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #aaa;
+            padding-bottom: 8px;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 40px;
+        }
+        
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            border: 1px solid #999;
+        }
+        
+        .bar-label {
+            font-size: 13px;
+            alignment-baseline: middle;
+        }
+        
+        .value-label {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .grid-line {
+            stroke: #e0e0e0;
+            stroke-dasharray: 3,3;
+        }
+        
+        .zero-line {
+            stroke: #555;
+            stroke-width: 2;
+        }
+        
+        .notes {
+            font-size: 12px;
+            color: #666;
+            margin-top: 40px;
+        }
+        
+        .source {
+            font-size: 11px;
+            color: #999;
+            font-style: italic;
+            margin-top: 8px;
+        }
+        
+        .tech-icon {
+            margin-right: 8px;
+            width: 16px;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .savings-label {
+            font-size: 12px;
+            fill: #2E7D32;
+            font-style: italic;
+        }
+        
+        .reference-line {
+            stroke: #9E9E9E;
+            stroke-width: 1;
+            stroke-dasharray: 5,3;
+        }
+        
+        .chart-container {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Environmental Performance Comparison of Mixed Plastic Recycling Technologies</div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #4CAF50;"></div>
+                <span>Mechanical</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #2196F3;"></div>
+                <span>Chemical</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #FF9800;"></div>
+                <span>Thermal</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #9E9E9E;"></div>
+                <span>Reference</span>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <div id="ghg-chart" class="section-header">Greenhouse Gas Impact (kg CO<sub>2</sub> eq./kg waste)</div>
+        </div>
+        
+        <div class="chart-container">
+            <div id="energy-chart" class="section-header">Energy Use Comparison (MJ/kg)</div>
+        </div>
+        
+        <div class="notes">
+            <p>Values represent net impacts including avoided virgin production credits where applicable.</p>
+            <p>Energy values for pyrolysis include recovery credits from process gas utilization.</p>
+        </div>
+        
+        <div class="source">
+            Sources: Data compiled from Science Advances, Jeswani et al. 2021, Hermanns et al. 2023
+        </div>
+    </div>
+
+    <script>
+        // Data preparation
+        const technologies = [
+            { name: "Mechanical Recycling", type: "mechanical", icon: "fa-recycle" },
+            { name: "STRAP Process", type: "chemical", icon: "fa-flask" },
+            { name: "STRAP-B Process", type: "chemical", icon: "fa-flask" },
+            { name: "Pyrolysis", type: "thermal", icon: "fa-fire" },
+            { name: "Pyrolysis with HCl Removal", type: "thermal", icon: "fa-fire" },
+            { name: "Incineration with Energy Recovery", type: "thermal", icon: "fa-fire" },
+            { name: "Virgin PET Production", type: "reference", icon: "fa-industry" }
+        ];
+        
+        const ghgData = [
+            { tech: "Mechanical Recycling", value: 1.99, error: 0.2 },
+            { tech: "STRAP Process", value: 1.30, error: 0.15 },
+            { tech: "STRAP-B Process", value: 1.10, error: 0.15 },
+            { tech: "Pyrolysis", value: 0.74, error: 0.1 },
+            { tech: "Pyrolysis with HCl Removal", value: 0.89, error: 0.1 },
+            { tech: "Incineration with Energy Recovery", value: 1.80, error: 0.15 }
+        ];
+        
+        const energyData = [
+            { tech: "Mechanical Recycling", value: 37.5, min: 30, max: 45 },
+            { tech: "STRAP Process", value: 79.1, error: 5 },
+            { tech: "STRAP-B Process", value: 63.0, error: 4 },
+            { tech: "Pyrolysis", value: 50.0, min: 45, max: 55, savings: 26.6 },
+            { tech: "Pyrolysis with HCl Removal", value: 60.0, min: 55, max: 65 },
+            { tech: "Incineration with Energy Recovery", value: 70.0, error: 5 },
+            { tech: "Virgin PET Production", value: 125.0, error: 10 }
+        ];
+        
+        // Color mapping
+        const colorScale = d3.scaleOrdinal()
+            .domain(["mechanical", "chemical", "thermal", "reference"])
+            .range(["#4CAF50", "#2196F3", "#FF9800", "#9E9E9E"]);
+        
+        // GHG Impact Chart
+        const ghgMargin = { top: 20, right: 120, bottom: 40, left: 240 };
+        const ghgWidth = 900 - ghgMargin.left - ghgMargin.right;
+        const ghgHeight = 280 - ghgMargin.top - ghgMargin.bottom;
+        
+        const ghgSvg = d3.select("#ghg-chart")
+            .append("svg")
+            .attr("width", ghgWidth + ghgMargin.left + ghgMargin.right)
+            .attr("height", ghgHeight + ghgMargin.top + ghgMargin.bottom)
+            .append("g")
+            .attr("transform", `translate(${ghgMargin.left},${ghgMargin.top})`);
+        
+        // GHG Scales
+        const ghgX = d3.scaleLinear()
+            .domain([-2, 4])
+            .range([0, ghgWidth]);
+        
+        const ghgY = d3.scaleBand()
+            .domain(ghgData.map(d => d.tech))
+            .range([0, ghgHeight])
+            .padding(0.3);
+        
+        // GHG Axes
+        ghgSvg.append("g")
+            .attr("transform", `translate(0,${ghgHeight})`)
+            .call(d3.axisBottom(ghgX).ticks(6));
+        
+        // Y-axis with icons
+        const ghgYAxis = ghgSvg.append("g")
+            .call(d3.axisLeft(ghgY).tickSize(0));
+            
+        ghgYAxis.selectAll(".tick text").remove();
+        
+        // Add custom labels with icons
+        ghgYAxis.selectAll(".tech-label")
+            .data(ghgData)
+            .enter()
+            .append("foreignObject")
+            .attr("x", -220)
+            .attr("y", d => ghgY(d.tech) + ghgY.bandwidth() / 2 - 12)
+            .attr("width", 210)
+            .attr("height", 24)
+            .html(d => {
+                const tech = technologies.find(t => t.name === d.tech);
+                return `<div style="display: flex; align-items: center; height: 100%;">
+                    <i class="fa ${tech.icon} tech-icon" style="color: ${colorScale(tech.type)}"></i>
+                    <span style="font-size: 13px;">${d.tech}</span>
+                </div>`;
+            });
+        
+        // GHG Grid lines
+        ghgSvg.selectAll("ghg-gridline")
+            .data(ghgX.ticks(6))
+            .enter()
+            .append("line")
+            .attr("class", "grid-line")
+            .attr("x1", d => ghgX(d))
+            .attr("x2", d => ghgX(d))
+            .attr("y1", 0)
+            .attr("y2", ghgHeight);
+        
+        // GHG Zero line
+        ghgSvg.append("line")
+            .attr("class", "zero-line")
+            .attr("x1", ghgX(0))
+            .attr("x2", ghgX(0))
+            .attr("y1", 0)
+            .attr("y2", ghgHeight);
+        
+        // GHG Bars
+        ghgSvg.selectAll(".ghg-bar")
+            .data(ghgData)
+            .enter()
+            .append("rect")
+            .attr("class", "ghg-bar")
+            .attr("x", d => d.value < 0 ? ghgX(d.value) : ghgX(0))
+            .attr("y", d => ghgY(d.tech))
+            .attr("width", d => Math.abs(ghgX(d.value) - ghgX(0)))
+            .attr("height", ghgY.bandwidth())
+            .attr("fill", d => {
+                const techObj = technologies.find(t => t.name === d.tech);
+                return colorScale(techObj.type);
+            });
+        
+        // GHG Error bars
+        ghgSvg.selectAll(".ghg-error")
+            .data(ghgData)
+            .enter()
+            .append("g")
+            .attr("class", "error-bar")
+            .each(function(d) {
+                const g = d3.select(this);
+                const errorColor = d3.color(colorScale(technologies.find(t => t.name === d.tech).type)).darker(0.5);
+                
+                // Main horizontal line
+                g.append("line")
+                    .attr("x1", ghgX(d.value - d.error))
+                    .attr("x2", ghgX(d.value + d.error))
+                    .attr("y1", ghgY(d.tech) + ghgY.bandwidth() / 2)
+                    .attr("y2", ghgY(d.tech) + ghgY.bandwidth() / 2)
+                    .attr("stroke", errorColor)
+                    .attr("stroke-width", 1.5);
+                
+                // Left cap
+                g.append("line")
+                    .attr("x1", ghgX(d.value - d.error))
+                    .attr("x2", ghgX(d.value - d.error))
+                    .attr("y1", ghgY(d.tech) + ghgY.bandwidth() / 2 - 5)
+                    .attr("y2", ghgY(d.tech) + ghgY.bandwidth() / 2 + 5)
+                    .attr("stroke", errorColor);
+                
+                // Right cap
+                g.append("line")
+                    .attr("x1", ghgX(d.value + d.error))
+                    .attr("x2", ghgX(d.value + d.error))
+                    .attr("y1", ghgY(d.tech) + ghgY.bandwidth() / 2 - 5)
+                    .attr("y2", ghgY(d.tech) + ghgY.bandwidth() / 2 + 5)
+                    .attr("stroke", errorColor);
+            });
+        
+        // GHG Value labels
+        ghgSvg.selectAll(".ghg-value")
+            .data(ghgData)
+            .enter()
+            .append("text")
+            .attr("class", "value-label")
+            .attr("x", d => {
+                // Adjust position to prevent overlap with bar end
+                const xPos = d.value >= 0 ? ghgX(d.value) + 10 : ghgX(d.value) - 10;
+                return xPos;
+            })
+            .attr("y", d => ghgY(d.tech) + ghgY.bandwidth() / 2)
+            .attr("text-anchor", d => d.value >= 0 ? "start" : "end")
+            .attr("dy", "0.35em")
+            .text(d => d.value.toFixed(2));
+        
+        // Energy Use Chart
+        const energyMargin = { top: 20, right: 180, bottom: 40, left: 240 };
+        const energyWidth = 900 - energyMargin.left - energyMargin.right;
+        const energyHeight = 320 - energyMargin.top - energyMargin.bottom;
+        
+        const energySvg = d3.select("#energy-chart")
+            .append("svg")
+            .attr("width", energyWidth + energyMargin.left + energyMargin.right)
+            .attr("height", energyHeight + energyMargin.top + energyMargin.bottom)
+            .append("g")
+            .attr("transform", `translate(${energyMargin.left},${energyMargin.top})`);
+        
+        // Energy Scales
+        const energyX = d3.scaleLinear()
+            .domain([0, 140])
+            .range([0, energyWidth]);
+        
+        const energyY = d3.scaleBand()
+            .domain(energyData.map(d => d.tech))
+            .range([0, energyHeight])
+            .padding(0.3);
+        
+        // Energy Axes
+        energySvg.append("g")
+            .attr("transform", `translate(0,${energyHeight})`)
+            .call(d3.axisBottom(energyX).ticks(7));
+        
+        // Y-axis with icons
+        const energyYAxis = energySvg.append("g")
+            .call(d3.axisLeft(energyY).tickSize(0));
+            
+        energyYAxis.selectAll(".tick text").remove();
+        
+        // Add custom labels with icons
+        energyYAxis.selectAll(".tech-label")
+            .data(energyData)
+            .enter()
+            .append("foreignObject")
+            .attr("x", -220)
+            .attr("y", d => energyY(d.tech) + energyY.bandwidth() / 2 - 12)
+            .attr("width", 210)
+            .attr("height", 24)
+            .html(d => {
+                const tech = technologies.find(t => t.name === d.tech);
+                return `<div style="display: flex; align-items: center; height: 100%;">
+                    <i class="fa ${tech.icon} tech-icon" style="color: ${colorScale(tech.type)}"></i>
+                    <span style="font-size: 13px;">${d.tech}</span>
+                </div>`;
+            });
+        
+        // Energy Grid lines
+        energySvg.selectAll("energy-gridline")
+            .data(energyX.ticks(7))
+            .enter()
+            .append("line")
+            .attr("class", "grid-line")
+            .attr("x1", d => energyX(d))
+            .attr("x2", d => energyX(d))
+            .attr("y1", 0)
+            .attr("y2", energyHeight);
+        
+        // Reference line for Virgin PET
+        energySvg.append("line")
+            .attr("class", "reference-line")
+            .attr("x1", 0)
+            .attr("x2", energyWidth)
+            .attr("y1", energyY("Virgin PET Production") + energyY.bandwidth() / 2)
+            .attr("y2", energyY("Virgin PET Production") + energyY.bandwidth() / 2);
+        
+        // Energy Bars
+        energySvg.selectAll(".energy-bar")
+            .data(energyData)
+            .enter()
+            .append("rect")
+            .attr("class", "energy-bar")
+            .attr("x", 0)
+            .attr("y", d => energyY(d.tech))
+            .attr("width", d => energyX(d.value))
+            .attr("height", energyY.bandwidth())
+            .attr("fill", d => {
+                const techObj = technologies.find(t => t.name === d.tech);
+                return colorScale(techObj.type);
+            })
+            .attr("opacity", d => d.tech === "Virgin PET Production" ? 0.8 : 1);
+        
+        // Energy Range bars for min-max values
+        energySvg.selectAll(".energy-range")
+            .data(energyData.filter(d => d.min && d.max))
+            .enter()
+            .append("g")
+            .attr("class", "error-bar")
+            .each(function(d) {
+                const g = d3.select(this);
+                const errorColor = d3.color(colorScale(technologies.find(t => t.name === d.tech).type)).darker(0.5);
+                
+                // Main horizontal line
+                g.append("line")
+                    .attr("x1", energyX(d.min))
+                    .attr("x2", energyX(d.max))
+                    .attr("y1", energyY(d.tech) + energyY.bandwidth() / 2)
+                    .attr("y2", energyY(d.tech) + energyY.bandwidth() / 2)
+                    .attr("stroke", errorColor)
+                    .attr("stroke-width", 1.5);
+                
+                // Left cap
+                g.append("line")
+                    .attr("x1", energyX(d.min))
+                    .attr("x2", energyX(d.min))
+                    .attr("y1", energyY(d.tech) + energyY.bandwidth() / 2 - 5)
+                    .attr("y2", energyY(d.tech) + energyY.bandwidth() / 2 + 5)
+                    .attr("stroke", errorColor);
+                
+                // Right cap
+                g.append("line")
+                    .attr("x1", energyX(d.max))
+                    .attr("x2", energyX(d.max))
+                    .attr("y1", energyY(d.tech) + energyY.bandwidth() / 2 - 5)
+                    .attr("y2", energyY(d.tech) + energyY.bandwidth() / 2 + 5)
+                    .attr("stroke", errorColor);
+            });
+        
+        // Energy Error bars for single values with error
+        energySvg.selectAll(".energy-error")
+            .data(energyData.filter(d => d.error && !d.min))
+            .enter()
+            .append("g")
+            .attr("class", "error-bar")
+            .each(function(d) {
+                const g = d3.select(this);
+                const errorColor = d3.color(colorScale(technologies.find(t => t.name === d.tech).type)).darker(0.5);
+                
+                // Main horizontal line
+                g.append("line")
+                    .attr("x1", energyX(d.value - d.error))
+                    .attr("x2", energyX(d.value + d.error))
+                    .attr("y1", energyY(d.tech) + energyY.bandwidth() / 2)
+                    .attr("y2", energyY(d.tech) + energyY.bandwidth() / 2)
+                    .attr("stroke", errorColor)
+                    .attr("stroke-width", 1.5);
+                
+                // Left cap
+                g.append("line")
+                    .attr("x1", energyX(d.value - d.error))
+                    .attr("x2", energyX(d.value - d.error))
+                    .attr("y1", energyY(d.tech) + energyY.bandwidth() / 2 - 5)
+                    .attr("y2", energyY(d.tech) + energyY.bandwidth() / 2 + 5)
+                    .attr("stroke", errorColor);
+                
+                // Right cap
+                g.append("line")
+                    .attr("x1", energyX(d.value + d.error))
+                    .attr("x2", energyX(d.value + d.error))
+                    .attr("y1", energyY(d.tech) + energyY.bandwidth() / 2 - 5)
+                    .attr("y2", energyY(d.tech) + energyY.bandwidth() / 2 + 5)
+                    .attr("stroke", errorColor);
+            });
+        
+        // Energy Value labels
+        energySvg.selectAll(".energy-value")
+            .data(energyData)
+            .enter()
+            .append("text")
+            .attr("class", "value-label")
+            .attr("x", d => {
+                // For items with min-max range, position label after the max value
+                if (d.min && d.max) {
+                    return energyX(d.max) + 10;
+                } else {
+                    return energyX(d.value) + 10;
+                }
+            })
+            .attr("y", d => energyY(d.tech) + energyY.bandwidth() / 2)
+            .attr("text-anchor", "start")
+            .attr("dy", "0.35em")
+            .text(d => {
+                if (d.min && d.max) {
+                    return `${d.min.toFixed(1)}-${d.max.toFixed(1)}`;
+                } else {
+                    return d.value.toFixed(1);
+                }
+            });
+        
+        // Energy savings annotations - positioned to avoid overlap
+        energySvg.selectAll(".energy-savings")
+            .data(energyData.filter(d => d.savings))
+            .enter()
+            .append("text")
+            .attr("class", "savings-label")
+            .attr("x", d => energyX(d.max || d.value) + 100)
+            .attr("y", d => energyY(d.tech) + energyY.bandwidth() / 2)
+            .attr("text-anchor", "start")
+            .attr("dy", "0.35em")
+            .text(d => `(savings: ${d.savings.toFixed(1)} MJ/kg)`);
+    </script>
+</body>
+</html>

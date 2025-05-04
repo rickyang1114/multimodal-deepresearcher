@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Impact of AI-Powered Driving Technologies</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: white;
+            color: #333;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .visualization-container {
+            width: 850px; /* Increased width to prevent truncation */
+            padding: 20px;
+        }
+        
+        .title {
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 14pt;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        
+        .metric-container {
+            margin-bottom: 40px; /* Increased spacing between metrics */
+        }
+        
+        .metric-label {
+            font-weight: bold;
+            margin-bottom: 15px; /* Increased spacing */
+            font-size: 14px;
+        }
+        
+        .bar-value {
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            font-weight: bold;
+            fill: #0E3A63;
+        }
+        
+        .axis-label {
+            font-size: 11px !important; /* Increased font size for better readability */
+            fill: #666 !important;
+        }
+        
+        .annotation {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px; /* Increased padding */
+            margin: 20px 0; /* Increased margin for better spacing */
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .annotation i {
+            color: #0E3A63;
+            margin-right: 8px;
+            font-size: 16px; /* Increased icon size */
+        }
+        
+        .source {
+            font-size: 10pt;
+            color: #666;
+            margin-top: 30px;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            color: #0E3A63;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Safety Impact of AI-Powered Driving Technologies</div>
+        <div class="subtitle">Potential impact of ADAS and self-driving technologies on road safety</div>
+        
+        <div class="metric-container">
+            <div class="metric-label">Potential reduction in road fatalities:</div>
+            <svg id="fatality-reduction-chart" width="850" height="70"></svg> <!-- Increased height and width -->
+        </div>
+        
+        <div class="metric-container">
+            <div class="metric-label">Estimated annual lives saved (US):</div>
+            <svg id="lives-saved-chart" width="850" height="70"></svg> <!-- Increased height and width -->
+        </div>
+        
+        <div class="annotation">
+            <i class="fas fa-globe"></i> <strong>Global Impact:</strong> Globally, this could save approximately <span class="key-number">10 million lives per decade</span>
+        </div>
+        
+        <div class="annotation">
+            <i class="fas fa-car"></i> <strong>Technology Progression:</strong> Progressive deployment from ADAS (L1-L2) to fully autonomous systems (L4-L5) over the next decade
+        </div>
+        
+        <div class="source">Source: Analysis based on NCBI research data</div>
+    </div>
+
+    <script>
+        // Configuration
+        const margin = { top: 10, right: 60, bottom: 25, left: 10 }; // Increased right margin for value labels and bottom margin for axis labels
+        const width = 850 - margin.left - margin.right;
+        const barHeight = 35; // Increased bar height
+        
+        // Create the fatality reduction chart
+        const fatalityReductionSvg = d3.select("#fatality-reduction-chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", barHeight + margin.top + margin.bottom);
+            
+        const fatalityReductionG = fatalityReductionSvg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+        // Create scale for fatality reduction
+        const fatalityScale = d3.scaleLinear()
+            .domain([0, 100])
+            .range([0, width]);
+            
+        // Add gridlines
+        fatalityReductionG.selectAll(".gridline")
+            .data([0, 25, 50, 75, 100])
+            .enter()
+            .append("line")
+            .attr("class", "gridline")
+            .attr("x1", d => fatalityScale(d))
+            .attr("x2", d => fatalityScale(d))
+            .attr("y1", 0)
+            .attr("y2", barHeight)
+            .attr("stroke", "#e0e0e0")
+            .attr("stroke-width", 1);
+            
+        // Add axis labels
+        fatalityReductionG.selectAll(".axis-label")
+            .data([0, 25, 50, 75, 100])
+            .enter()
+            .append("text")
+            .attr("class", "axis-label")
+            .attr("x", d => fatalityScale(d))
+            .attr("y", barHeight + 20) // Increased distance from bar
+            .attr("text-anchor", "middle")
+            .attr("font-size", "11px")
+            .attr("fill", "#666")
+            .text(d => d + "%");
+            
+        // Create gradient
+        const fatalityGradient = fatalityReductionSvg.append("defs")
+            .append("linearGradient")
+            .attr("id", "fatality-gradient")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "100%")
+            .attr("y2", "0%");
+            
+        fatalityGradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "#A9D6E5");
+            
+        fatalityGradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#0E3A63");
+            
+        // Add the bar
+        fatalityReductionG.append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", fatalityScale(90))
+            .attr("height", barHeight)
+            .attr("rx", 3)
+            .attr("ry", 3)
+            .attr("fill", "url(#fatality-gradient)");
+            
+        // Add the value label
+        fatalityReductionG.append("text")
+            .attr("class", "bar-value")
+            .attr("x", fatalityScale(90) + 10) // Increased spacing from bar end
+            .attr("y", barHeight / 2 + 5)
+            .text("90%");
+            
+        // Create the lives saved chart
+        const livesSavedSvg = d3.select("#lives-saved-chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", barHeight + margin.top + margin.bottom);
+            
+        const livesSavedG = livesSavedSvg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+        // Create scale for lives saved
+        const livesScale = d3.scaleLinear()
+            .domain([0, 30000])
+            .range([0, width]);
+            
+        // Add gridlines
+        livesSavedG.selectAll(".gridline")
+            .data([0, 10000, 20000, 30000])
+            .enter()
+            .append("line")
+            .attr("class", "gridline")
+            .attr("x1", d => livesScale(d))
+            .attr("x2", d => livesScale(d))
+            .attr("y1", 0)
+            .attr("y2", barHeight)
+            .attr("stroke", "#e0e0e0")
+            .attr("stroke-width", 1);
+            
+        // Add axis labels
+        livesSavedG.selectAll(".axis-label")
+            .data([0, 10000, 20000, 30000])
+            .enter()
+            .append("text")
+            .attr("class", "axis-label")
+            .attr("x", d => livesScale(d))
+            .attr("y", barHeight + 20) // Increased distance from bar
+            .attr("text-anchor", "middle")
+            .attr("font-size", "11px")
+            .attr("fill", "#666")
+            .text(d => d.toLocaleString());
+            
+        // Create gradient
+        const livesGradient = livesSavedSvg.append("defs")
+            .append("linearGradient")
+            .attr("id", "lives-gradient")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "100%")
+            .attr("y2", "0%");
+            
+        livesGradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "#A9D6E5");
+            
+        livesGradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#0E3A63");
+            
+        // Add the bar
+        livesSavedG.append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", livesScale(29000))
+            .attr("height", barHeight)
+            .attr("rx", 3)
+            .attr("ry", 3)
+            .attr("fill", "url(#lives-gradient)");
+            
+        // Add the value label
+        livesSavedG.append("text")
+            .attr("class", "bar-value")
+            .attr("x", livesScale(29000) + 10) // Increased spacing from bar end
+            .attr("y", barHeight / 2 + 5)
+            .text("~29,000");
+    </script>
+</body>
+</html>

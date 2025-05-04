@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global EdTech Market Dashboard</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .dashboard-container {
+            width: 950px;
+            height: 700px;
+            background-color: white;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .dashboard-title {
+            text-align: center;
+            color: #0A3D62;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+            height: calc(100% - 80px);
+        }
+        
+        .chart-panel {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .chart-area {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .footnote {
+            text-align: center;
+            font-size: 11px;
+            color: #777;
+            margin-top: 15px;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            color: #0A3D62;
+        }
+        
+        .cagr-callout {
+            position: absolute;
+            background-color: rgba(240, 140, 0, 0.1);
+            border: 2px solid #F08C00;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-weight: bold;
+            color: #F08C00;
+            font-size: 14px;
+        }
+        
+        .pie-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .bar-label {
+            font-size: 12px;
+            fill: #333;
+            font-weight: 500;
+        }
+        
+        .year-label {
+            font-size: 12px;
+            fill: #333;
+            text-anchor: middle;
+            font-weight: 500;
+        }
+        
+        .value-label {
+            font-size: 13px;
+            font-weight: bold;
+            fill: #0A3D62;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-title">Global EdTech Market: Segmentation and Growth Projections</div>
+        
+        <div class="charts-grid">
+            <div class="chart-panel">
+                <div class="chart-title">Market Share by Educational Segment (2023)</div>
+                <div class="chart-area" id="education-segment-chart"></div>
+            </div>
+            
+            <div class="chart-panel">
+                <div class="chart-title">Regional Market Distribution (2023)</div>
+                <div class="chart-area" id="regional-distribution-chart"></div>
+            </div>
+            
+            <div class="chart-panel">
+                <div class="chart-title">Mobile Learning Market Growth</div>
+                <div class="chart-area" id="market-growth-chart"></div>
+            </div>
+            
+            <div class="chart-panel">
+                <div class="chart-title">Deployment Type Market Share (2024)</div>
+                <div class="chart-area" id="deployment-type-chart"></div>
+            </div>
+        </div>
+        
+        <div class="footnote">Sources: Grand View Research, MarketsandMarkets (2023-2024)</div>
+    </div>
+
+    <script>
+        // Color palette
+        const colors = {
+            indigoBlue: "#0A3D62",
+            emeraldGreen: "#1E8F7A",
+            orange: "#F08C00",
+            gray1: "#555555",
+            gray2: "#777777"
+        };
+
+        // 1. Education Segment Pie Chart (Top Left)
+        function createEducationSegmentChart() {
+            const data = [
+                { segment: "K-12", value: 39 },
+                { segment: "Higher Education", value: 25 },
+                { segment: "Corporate Learning", value: 28 },
+                { segment: "Other", value: 8 }
+            ];
+            
+            const width = 350;
+            const height = 250;
+            const radius = Math.min(width, height) / 2 * 0.65;
+            
+            const svg = d3.select("#education-segment-chart")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${width / 2}, ${height / 2})`);
+            
+            const color = d3.scaleOrdinal()
+                .domain(data.map(d => d.segment))
+                .range([colors.indigoBlue, colors.emeraldGreen, colors.orange, colors.gray1]);
+            
+            const pie = d3.pie()
+                .value(d => d.value)
+                .sort(null);
+            
+            const arc = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+            
+            const arcs = svg.selectAll("arc")
+                .data(pie(data))
+                .enter()
+                .append("g")
+                .attr("class", "arc");
+            
+            arcs.append("path")
+                .attr("d", arc)
+                .attr("fill", d => color(d.data.segment))
+                .attr("stroke", "white")
+                .style("stroke-width", "2px");
+            
+            // Fixed approach for labels - using fixed positions instead of dynamic calculations
+            const labelPositions = [
+                { segment: "K-12", x: 70, y: -50, anchor: "start" },
+                { segment: "Higher Education", x: -20, y: 90, anchor: "end" },
+                { segment: "Corporate Learning", x: -120, y: -20, anchor: "end" },
+                { segment: "Other", x: 0, y: -90, anchor: "middle" }
+            ];
+            
+            // Add segment labels with fixed positioning
+            arcs.each(function(d) {
+                const position = labelPositions.find(pos => pos.segment === d.data.segment);
+                if (position) {
+                    svg.append("text")
+                        .attr("x", position.x)
+                        .attr("y", position.y)
+                        .attr("text-anchor", position.anchor)
+                        .attr("class", "pie-label")
+                        .attr("font-size", "12px")
+                        .attr("font-weight", "bold")
+                        .text(`${d.data.segment}: ${d.data.value}%`);
+                    
+                    // Add connecting lines with better visibility
+                    const centroid = arc.centroid(d);
+                    svg.append("line")
+                        .attr("x1", centroid[0])
+                        .attr("y1", centroid[1])
+                        .attr("x2", position.x - (position.anchor === "end" ? -5 : position.anchor === "start" ? 5 : 0))
+                        .attr("y2", position.y)
+                        .attr("stroke", "#555")
+                        .attr("stroke-width", 1);
+                }
+            });
+        }
+
+        // 2. Regional Distribution Horizontal Bar Chart (Top Right)
+        function createRegionalDistributionChart() {
+            const data = [
+                { region: "North America", value: 62.5 },
+                { region: "Asia-Pacific", value: 45.8 },
+                { region: "Europe", value: 21.5 },
+                { region: "Rest of World", value: 12.6 }
+            ];
+            
+            const width = 350;
+            const height = 250;
+            const margin = { top: 20, right: 90, bottom: 20, left: 110 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+            
+            const svg = d3.select("#regional-distribution-chart")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+            
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.value) * 1.1])
+                .range([0, chartWidth]);
+            
+            const y = d3.scaleBand()
+                .domain(data.map(d => d.region))
+                .range([0, chartHeight])
+                .padding(0.3);
+            
+            const colorScale = d3.scaleOrdinal()
+                .domain(data.map(d => d.region))
+                .range([colors.indigoBlue, colors.emeraldGreen, colors.gray1, colors.gray2]);
+            
+            svg.selectAll(".bar")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("y", d => y(d.region))
+                .attr("height", y.bandwidth())
+                .attr("x", 0)
+                .attr("width", d => x(d.value))
+                .attr("fill", d => colorScale(d.region));
+            
+            svg.selectAll(".bar-value")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "value-label")
+                .attr("y", d => y(d.region) + y.bandwidth() / 2)
+                .attr("x", d => x(d.value) + 5)
+                .attr("dy", ".35em")
+                .text(d => `$${d.value}B`);
+            
+            svg.selectAll(".region-label")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "bar-label")
+                .attr("y", d => y(d.region) + y.bandwidth() / 2)
+                .attr("x", -8)
+                .attr("dy", ".35em")
+                .attr("text-anchor", "end")
+                .text(d => d.region);
+        }
+
+        // 3. Market Growth Bar Chart (Bottom Left)
+        function createMarketGrowthChart() {
+            const data = [
+                { year: "2023", value: 68.36 },
+                { year: "2028", value: 254.52 }
+            ];
+            
+            const width = 350;
+            const height = 250;
+            const margin = { top: 30, right: 40, bottom: 50, left: 60 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+            
+            const svg = d3.select("#market-growth-chart")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+            
+            // Create diagonal pattern for the projected bar
+            const defs = svg.append("defs");
+            const pattern = defs.append("pattern")
+                .attr("id", "diagonalHatch")
+                .attr("patternUnits", "userSpaceOnUse")
+                .attr("width", 8)
+                .attr("height", 8);
+            
+            pattern.append("path")
+                .attr("d", "M-2,2 l4,-4 M0,8 l8,-8 M6,10 l4,-4")
+                .attr("stroke", "white")
+                .attr("stroke-width", 2)
+                .attr("stroke-opacity", 0.7);
+            
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.year))
+                .range([0, chartWidth])
+                .padding(0.4);
+            
+            // Adjust y scale to start from 0 and have proper height ratio
+            const y = d3.scaleLinear()
+                .domain([0, 280]) // Slightly higher than max value for better visualization
+                .range([chartHeight, 0]);
+            
+            // Add bars with improved height ratio
+            svg.selectAll(".bar")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.year))
+                .attr("width", x.bandwidth())
+                .attr("y", d => y(d.value))
+                .attr("height", d => chartHeight - y(d.value))
+                .attr("fill", (d, i) => i === 0 ? colors.indigoBlue : colors.emeraldGreen)
+                .attr("stroke", (d, i) => i === 0 ? "none" : colors.emeraldGreen)
+                .attr("stroke-width", 1);
+            
+            // Add pattern to the second bar (2028)
+            svg.append("rect")
+                .attr("x", x(data[1].year))
+                .attr("width", x.bandwidth())
+                .attr("y", y(data[1].value))
+                .attr("height", chartHeight - y(data[1].value))
+                .attr("fill", "url(#diagonalHatch)")
+                .attr("stroke", colors.emeraldGreen)
+                .attr("stroke-width", 1);
+            
+            // Add value labels
+            svg.selectAll(".bar-value")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "value-label")
+                .attr("x", d => x(d.year) + x.bandwidth() / 2)
+                .attr("y", d => y(d.value) - 10)
+                .attr("text-anchor", "middle")
+                .text(d => `$${d.value}B`);
+            
+            // Add year labels
+            svg.selectAll(".year-label")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "year-label")
+                .attr("x", d => x(d.year) + x.bandwidth() / 2)
+                .attr("y", chartHeight + 25)
+                .attr("text-anchor", "middle")
+                .text((d, i) => i === 1 ? d.year + " (Projected)" : d.year);
+            
+            // Fixed CAGR callout with proper text handling
+            svg.append("rect")
+                .attr("x", chartWidth / 2 - 45)
+                .attr("y", chartHeight / 2 - 10)
+                .attr("width", 90)
+                .attr("height", 30)
+                .attr("rx", 5)
+                .attr("ry", 5)
+                .attr("fill", "rgba(240, 140, 0, 0.15)")
+                .attr("stroke", colors.orange)
+                .attr("stroke-width", 2);
+            
+            // Fixed CAGR text as a single unit
+            svg.append("text")
+                .attr("x", chartWidth / 2)
+                .attr("y", chartHeight / 2 + 8)
+                .attr("text-anchor", "middle")
+                .attr("fill", colors.orange)
+                .attr("font-size", "16px")
+                .attr("font-weight", "bold")
+                .text("CAGR: 30.4%");
+            
+            // Add arrow connecting bars with better visibility
+            const arrow = d3.linkHorizontal()
+                .source(() => [x(data[0].year) + x.bandwidth(), y(data[0].value) + (chartHeight - y(data[0].value)) / 2])
+                .target(() => [x(data[1].year), y(data[1].value) + (chartHeight - y(data[1].value)) / 2 + 20]);
+            
+            svg.append("path")
+                .attr("d", arrow)
+                .attr("fill", "none")
+                .attr("stroke", colors.gray1)
+                .attr("stroke-width", 2)
+                .attr("stroke-dasharray", "5,3");
+        }
+
+        // 4. Deployment Type Pie Chart (Bottom Right)
+        function createDeploymentTypeChart() {
+            const data = [
+                { type: "Hardware", value: 39.4 },
+                { type: "Cloud", value: 60.6 }
+            ];
+            
+            const width = 350;
+            const height = 250;
+            const radius = Math.min(width, height) / 2 * 0.65;
+            
+            const svg = d3.select("#deployment-type-chart")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${width / 2}, ${height / 2})`);
+            
+            const color = d3.scaleOrdinal()
+                .domain(data.map(d => d.type))
+                .range([colors.indigoBlue, colors.emeraldGreen]);
+            
+            const pie = d3.pie()
+                .value(d => d.value)
+                .sort(null);
+            
+            const arc = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+            
+            const arcs = svg.selectAll("arc")
+                .data(pie(data))
+                .enter()
+                .append("g")
+                .attr("class", "arc");
+            
+            arcs.append("path")
+                .attr("d", arc)
+                .attr("fill", d => color(d.data.type))
+                .attr("stroke", "white")
+                .style("stroke-width", "2px");
+            
+            // Add percentage labels inside pie with better positioning
+            arcs.append("text")
+                .attr("transform", d => {
+                    const centroid = arc.centroid(d);
+                    return `translate(${centroid[0] * 0.7}, ${centroid[1] * 0.7})`;
+                })
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .attr("fill", "white")
+                .attr("font-weight", "bold")
+                .attr("font-size", "18px")
+                .text(d => `${d.data.value}%`);
+            
+            // Fixed positioning for type labels
+            const labelPositions = [
+                { type: "Hardware", x: -80, y: -30, anchor: "end" },
+                { type: "Cloud", x: 80, y: 30, anchor: "start" }
+            ];
+            
+            // Add type labels with fixed positioning
+            arcs.each(function(d) {
+                const position = labelPositions.find(pos => pos.type === d.data.type);
+                if (position) {
+                    svg.append("text")
+                        .attr("x", position.x)
+                        .attr("y", position.y)
+                        .attr("text-anchor", position.anchor)
+                        .attr("class", "pie-label")
+                        .attr("font-size", "14px")
+                        .attr("font-weight", "bold")
+                        .text(d.data.type);
+                    
+                    // Add connecting lines
+                    const centroid = arc.centroid(d);
+                    svg.append("line")
+                        .attr("x1", centroid[0])
+                        .attr("y1", centroid[1])
+                        .attr("x2", position.x - (position.anchor === "end" ? -5 : position.anchor === "start" ? 5 : 0))
+                        .attr("y2", position.y)
+                        .attr("stroke", "#555")
+                        .attr("stroke-width", 1);
+                }
+            });
+        }
+
+        // Initialize all charts
+        document.addEventListener("DOMContentLoaded", function() {
+            createEducationSegmentChart();
+            createRegionalDistributionChart();
+            createMarketGrowthChart();
+            createDeploymentTypeChart();
+        });
+    </script>
+</body>
+</html>

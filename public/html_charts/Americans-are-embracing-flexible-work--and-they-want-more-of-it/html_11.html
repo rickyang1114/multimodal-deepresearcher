@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Framework for Mental Health Support in Flexible Work Environments</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        .framework-container {
+            width: 800px;
+            background-color: white;
+            position: relative;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .main-title {
+            font-size: 18pt;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .columns-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .column {
+            width: calc(33.33% - 10px);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .column-header {
+            color: white;
+            font-size: 16pt;
+            font-weight: bold;
+            padding: 10px;
+            text-align: center;
+            border-radius: 4px 4px 0 0;
+        }
+        
+        .psychosocial .column-header {
+            background-color: #003366;
+        }
+        
+        .organizational .column-header {
+            background-color: #008080;
+        }
+        
+        .environmental .column-header {
+            background-color: #556B2F;
+        }
+        
+        .interventions-box {
+            padding: 10px;
+            font-size: 12pt;
+            line-height: 1.5;
+            flex-grow: 1;
+            border-radius: 4px;
+            background-color: white;
+            color: #333;
+        }
+        
+        .psychosocial .interventions-box {
+            border: 1px solid #003366;
+        }
+        
+        .organizational .interventions-box {
+            border: 1px solid #008080;
+        }
+        
+        .environmental .interventions-box {
+            border: 1px solid #556B2F;
+        }
+        
+        .results-box {
+            padding: 10px;
+            font-size: 12pt;
+            line-height: 1.5;
+            border-radius: 4px;
+            color: #333;
+        }
+        
+        .psychosocial .results-box {
+            background-color: rgba(0, 51, 102, 0.1);
+        }
+        
+        .organizational .results-box {
+            background-color: rgba(0, 128, 128, 0.1);
+        }
+        
+        .environmental .results-box {
+            background-color: rgba(85, 107, 47, 0.1);
+        }
+        
+        .bullet-item {
+            margin-bottom: 8px;
+        }
+        
+        .source {
+            font-size: 10pt;
+            color: #555;
+            text-align: center;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .reduces {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="framework-container">
+        <div class="main-title">Framework for Mental Health Support in Flexible Work Environments</div>
+        
+        <div class="columns-container">
+            <!-- Psychosocial Interventions Column -->
+            <div class="column psychosocial">
+                <div class="column-header">Psychosocial Interventions</div>
+                <div class="interventions-box">
+                    <div class="bullet-item">• Self-care training and resources</div>
+                    <div class="bullet-item">• Virtual social connection activities</div>
+                    <div class="bullet-item">• Work-life boundary training</div>
+                    <div class="bullet-item">• Peer support networks</div>
+                    <div class="bullet-item">• Family engagement resources</div>
+                </div>
+                <div class="results-box">
+                    <span class="reduces">Reduces:</span> Psychological distress, burnout, social isolation, work-family conflict
+                </div>
+            </div>
+            
+            <!-- Organizational Interventions Column -->
+            <div class="column organizational">
+                <div class="column-header">Organizational Interventions</div>
+                <div class="interventions-box">
+                    <div class="bullet-item">• Enhanced communication protocols</div>
+                    <div class="bullet-item">• Workload management tools</div>
+                    <div class="bullet-item">• Flexible scheduling options</div>
+                    <div class="bullet-item">• Career development for remote workers</div>
+                    <div class="bullet-item">• Financial assistance programs</div>
+                </div>
+                <div class="results-box">
+                    <span class="reduces">Reduces:</span> Job insecurity, turnover intentions, communication gaps, career growth concerns
+                </div>
+            </div>
+            
+            <!-- Environmental Interventions Column -->
+            <div class="column environmental">
+                <div class="column-header">Environmental Interventions</div>
+                <div class="interventions-box">
+                    <div class="bullet-item">• Home office setup assistance</div>
+                    <div class="bullet-item">• Ergonomic assessment tools</div>
+                    <div class="bullet-item">• Technology support resources</div>
+                    <div class="bullet-item">• Digital disconnection policies</div>
+                    <div class="bullet-item">• Neighborhood workspace options</div>
+                </div>
+                <div class="results-box">
+                    <span class="reduces">Reduces:</span> Physical discomfort, technology stress, boundary challenges, isolation
+                </div>
+            </div>
+        </div>
+        
+        <div class="source">Source: Adapted from Zhang et al. (Johns Hopkins, 2022)</div>
+    </div>
+</body>
+</html>

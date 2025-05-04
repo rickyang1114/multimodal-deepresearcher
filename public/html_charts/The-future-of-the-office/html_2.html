@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Workplace Space Optimization and Cost Efficiency</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            color: #4A4A4A;
+            background-color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .visualization-container {
+            width: 1000px;
+            padding: 20px;
+            background-color: white;
+        }
+        
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #002D5A;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .sections-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .section {
+            flex: 1;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .section:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            right: -10px;
+            top: 0;
+            height: 100%;
+            width: 1px;
+            background-color: #ddd;
+        }
+        
+        .section-header {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #4A4A4A;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .section-content {
+            height: 400px;
+        }
+        
+        .explanatory-text {
+            font-size: 10pt;
+            color: #4A4A4A;
+            margin: 10px 0;
+        }
+        
+        .source {
+            font-size: 9pt;
+            font-style: italic;
+            color: #777;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-size: 16pt;
+            font-weight: bold;
+            color: #002D5A;
+        }
+        
+        .office-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .office-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .desk {
+            width: 20px;
+            height: 15px;
+            background-color: #7EB26D;
+            margin: 3px;
+            border-radius: 2px;
+        }
+        
+        .desk-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        
+        .employee-icon {
+            color: #002D5A;
+            font-size: 10pt;
+            margin-right: 2px;
+        }
+        
+        .employee-count {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        
+        .savings-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .savings-table td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .savings-table .label {
+            font-weight: normal;
+        }
+        
+        .savings-table .value {
+            text-align: right;
+            font-weight: bold;
+        }
+        
+        .bar-label {
+            font-size: 12pt;
+            font-weight: bold;
+        }
+        
+        .category-label {
+            font-size: 10pt;
+            fill: #4A4A4A;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Hybrid Workplace Space Optimization and Cost Efficiency</div>
+        
+        <div class="sections-container">
+            <!-- Section 1: Potential Space Savings -->
+            <div class="section">
+                <div class="section-header">Potential Space Savings</div>
+                <div class="section-content" id="space-savings-chart"></div>
+                <div class="explanatory-text">
+                    Space savings vary by implementation scale, with site-specific 
+                    optimizations yielding the highest returns. Maximum potential 
+                    requires optimal conditions across all variables.
+                </div>
+            </div>
+            
+            <!-- Section 2: Seat-Sharing Models -->
+            <div class="section">
+                <div class="section-header">Seat-Sharing Models</div>
+                <div class="section-content">
+                    <div class="office-layout">
+                        <div class="office-title">Traditional 1:1 Ratio</div>
+                        <div class="desk-grid" id="traditional-layout"></div>
+                        <div class="employee-count">
+                            <span class="employee-icon"><i class="fas fa-user"></i> × 100 employees</span>
+                            = 100 desks
+                        </div>
+                    </div>
+                    
+                    <div class="office-layout">
+                        <div class="office-title">Hybrid 1.5:1 Ratio</div>
+                        <div class="desk-grid" id="hybrid-layout"></div>
+                        <div class="employee-count">
+                            <span class="employee-icon"><i class="fas fa-user"></i> × 100 employees</span>
+                            = <span class="key-number">~67</span> desks
+                        </div>
+                        <div class="explanatory-text" style="text-align: center;">
+                            <strong>20% reduction</strong> in required desk space
+                        </div>
+                    </div>
+                    
+                    <div class="explanatory-text">
+                        Hybrid models allow multiple employees to share the same desk 
+                        on different days, reducing the total number of workstations needed.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 3: Annual Cost Savings -->
+            <div class="section">
+                <div class="section-header">Annual Cost Savings (U.S. Market Rates)</div>
+                <div class="section-content">
+                    <div class="explanatory-text">
+                        Based on average U.S. commercial real estate costs, organizations 
+                        can realize significant savings by implementing hybrid workplace models:
+                    </div>
+                    
+                    <table class="savings-table">
+                        <tr>
+                            <td class="label">Average managed portfolio size:</td>
+                            <td class="value"><span class="key-number">7.5</span> million RSF</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Annual rent savings range:</td>
+                            <td class="value"><span class="key-number">$25-30</span> million</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="explanatory-text" style="margin-top: 20px;">
+                        Additional benefits include:
+                        <ul>
+                            <li>Reduced utility costs</li>
+                            <li>Lower maintenance expenses</li>
+                            <li>Decreased furniture and equipment needs</li>
+                            <li>Enhanced employee satisfaction and productivity</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="source">Source: CBRE "The Math Behind the Hybrid Workplace" (2024)</div>
+    </div>
+    
+    <script>
+        // Section 1: Space Savings Bar Chart
+        const savingsData = [
+            { category: "Macro/economy level", value: 10, group: "macro" },
+            { category: "Large portfolio adjustments", value: 15, group: "macro" },
+            { category: "Site-specific new builds", value: 30, group: "site" },
+            { category: "Maximum potential with optimal conditions", value: 50, group: "site" }
+        ];
+        
+        const margin = { top: 40, right: 20, bottom: 80, left: 40 };
+        const width = 300 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+        
+        const svg = d3.select("#space-savings-chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+        
+        // Y scale
+        const y = d3.scaleLinear()
+            .domain([0, 50])
+            .range([height, 0]);
+        
+        // X scale
+        const x = d3.scaleBand()
+            .domain(savingsData.map(d => d.category))
+            .range([0, width])
+            .padding(0.3);
+        
+        // Add Y axis
+        svg.append("g")
+            .call(d3.axisLeft(y).ticks(5).tickFormat(d => d + "%"));
+        
+        // Add Y axis label
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left + 10)
+            .attr("x", -height / 2)
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .style("font-size", "10pt")
+            .text("Space Savings (%)");
+        
+        // Add bars
+        svg.selectAll(".bar")
+            .data(savingsData)
+            .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("x", d => x(d.category))
+            .attr("width", x.bandwidth())
+            .attr("y", d => y(d.value))
+            .attr("height", d => height - y(d.value))
+            .attr("fill", d => d.group === "macro" ? "#7EB26D" : "#5A8F4B");
+        
+        // Add value labels on top of bars
+        svg.selectAll(".bar-label")
+            .data(savingsData)
+            .enter()
+            .append("text")
+            .attr("class", "bar-label")
+            .attr("x", d => x(d.category) + x.bandwidth() / 2)
+            .attr("y", d => y(d.value) - 5)
+            .attr("text-anchor", "middle")
+            .text(d => d.value + "%");
+        
+        // Add X axis labels (rotated)
+        svg.selectAll(".category-label")
+            .data(savingsData)
+            .enter()
+            .append("text")
+            .attr("class", "category-label")
+            .attr("x", d => x(d.category) + x.bandwidth() / 2)
+            .attr("y", height + 10)
+            .attr("text-anchor", "end")
+            .attr("transform", d => `translate(0,0) rotate(-45, ${x(d.category) + x.bandwidth() / 2}, ${height + 10})`)
+            .text(d => d.category);
+        
+        // Create office layouts
+        function createDeskLayout(containerId, deskCount) {
+            const container = d3.select(`#${containerId}`);
+            
+            for (let i = 0; i < deskCount; i++) {
+                container.append("div")
+                    .attr("class", "desk")
+                    .style("opacity", containerId === "hybrid-layout" ? 0.9 : 0.8);
+            }
+        }
+        
+        createDeskLayout("traditional-layout", 20);
+        createDeskLayout("hybrid-layout", 14);
+    </script>
+</body>
+</html>

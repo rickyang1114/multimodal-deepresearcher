@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Integration in Education</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 650px;
+            background-color: white;
+            position: relative;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .main-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0 30px 0;
+        }
+        
+        .section {
+            position: absolute;
+            width: 280px;
+            height: 450px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #4D4D4D;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .left-section {
+            left: 20px;
+            top: 80px;
+        }
+        
+        .center-section {
+            left: 50%;
+            transform: translateX(-50%);
+            top: 80px;
+        }
+        
+        .right-section {
+            right: 20px;
+            top: 80px;
+        }
+        
+        .bar-label {
+            font-size: 11px;
+            fill: black;
+        }
+        
+        .value-label {
+            font-size: 12px;
+            font-weight: bold;
+            fill: #333;
+        }
+        
+        .highlight-value {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+            fill: #1E8F7A;
+        }
+        
+        .platform-icon {
+            font-size: 40px;
+            color: #0A3D62;
+            text-align: center;
+            display: block;
+            margin-bottom: 15px;
+        }
+        
+        .platform-container {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+        
+        .platform-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #0A3D62;
+            font-size: 16px;
+        }
+        
+        .platform-metric {
+            font-size: 12px;
+            margin: 6px 0;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 14px;
+            color: #1E8F7A;
+        }
+        
+        .callout {
+            position: absolute;
+            background-color: #F08C00;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            right: 30px;
+            top: 120px;
+            z-index: 10;
+        }
+        
+        .callout:after {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 50%;
+            margin-top: -10px;
+            border-width: 10px 10px 10px 0;
+            border-style: solid;
+            border-color: transparent #F08C00 transparent transparent;
+        }
+        
+        .connector {
+            stroke: #aaa;
+            stroke-dasharray: 5;
+            stroke-width: 2.5;
+        }
+        
+        .source-citation {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 10px;
+            color: #777;
+        }
+        
+        .annotation {
+            font-size: 10px;
+            font-style: italic;
+            fill: #666;
+        }
+        
+        .grid-line {
+            stroke: #eee;
+            stroke-width: 1;
+        }
+        
+        .axis-label {
+            font-size: 10px;
+            fill: #666;
+        }
+        
+        .x-axis-label {
+            font-size: 11px;
+            fill: #666;
+            text-anchor: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <h1 class="main-title">AI Integration in Education: Adoption, Platforms, and Outcomes</h1>
+        
+        <!-- Left Section: AI Adoption Rates -->
+        <div class="section left-section">
+            <h2 class="section-title">AI Adoption Rates</h2>
+            <svg id="adoption-chart" width="280" height="400"></svg>
+        </div>
+        
+        <!-- Center Section: Leading AI Platforms -->
+        <div class="section center-section">
+            <h2 class="section-title">Leading AI Platforms in Education</h2>
+            <div class="platform-container">
+                <i class="fas fa-robot platform-icon"></i>
+                <div class="platform-name">Squirrel AI</div>
+                <div class="platform-metric"><span class="key-number">24+ million</span> students trained</div>
+            </div>
+            
+            <div class="platform-container">
+                <i class="fas fa-graduation-cap platform-icon"></i>
+                <div class="platform-name">Ivy.ai</div>
+                <div class="platform-metric"><span class="key-number">800+</span> bots</div>
+                <div class="platform-metric"><span class="key-number">6.2 million</span> conversations</div>
+                <div class="platform-metric"><span class="key-number">97%</span> retention rate</div>
+            </div>
+            
+            <div class="platform-container">
+                <i class="fas fa-search platform-icon"></i>
+                <div class="platform-name">Copyleaks</div>
+                <div class="platform-metric">Search interest up <span class="key-number">789%</span> in 2 years</div>
+            </div>
+        </div>
+        
+        <!-- Right Section: Learning Outcomes -->
+        <div class="section right-section">
+            <h2 class="section-title">Learning Outcome Improvements</h2>
+            <svg id="outcomes-chart" width="280" height="400"></svg>
+            <div class="callout">Key Finding: 31% Achievement Gain!</div>
+        </div>
+        
+        <!-- Connectors SVG -->
+        <svg id="connectors" width="900" height="650" style="position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none;">
+            <!-- Left to center connector -->
+            <path class="connector" d="M300,250 C370,250 400,250 450,250"></path>
+            <!-- Center to right connector -->
+            <path class="connector" d="M600,250 C650,250 680,250 730,250"></path>
+        </svg>
+        
+        <!-- Source Citation -->
+        <div class="source-citation">Sources: Forbes, Statista, SETDA Trends Report (2023-2024)</div>
+    </div>
+
+    <script>
+        // Left Section: AI Adoption Rates Bar Chart
+        const adoptionData = [
+            { label: "US Teachers Using AI in Class", value: 60 },
+            { label: "US Undergrads Believing AI Improves Learning", value: 65, highlight: true },
+            { label: "State Education Departments with AI Guidance", value: 54 }
+        ];
+
+        const adoptionSvg = d3.select("#adoption-chart");
+        const chartHeight = 280;
+        const chartMargin = { top: 20, right: 20, bottom: 100, left: 40 };
+        const chartWidth = 280 - chartMargin.left - chartMargin.right;
+        
+        // Create scales
+        const xScaleAdoption = d3.scaleBand()
+            .domain(adoptionData.map(d => d.label))
+            .range([0, chartWidth])
+            .padding(0.4);
+            
+        const yScaleAdoption = d3.scaleLinear()
+            .domain([0, 100])
+            .range([chartHeight, 0]);
+            
+        // Create a group for the chart elements
+        const adoptionGroup = adoptionSvg.append("g")
+            .attr("transform", `translate(${chartMargin.left}, ${chartMargin.top})`);
+            
+        // Add y-axis grid lines
+        adoptionGroup.selectAll(".grid-line")
+            .data([0, 25, 50, 75, 100])
+            .enter()
+            .append("line")
+            .attr("class", "grid-line")
+            .attr("x1", 0)
+            .attr("x2", chartWidth)
+            .attr("y1", d => yScaleAdoption(d))
+            .attr("y2", d => yScaleAdoption(d));
+            
+        // Add y-axis labels
+        adoptionGroup.selectAll(".y-label")
+            .data([0, 25, 50, 75, 100])
+            .enter()
+            .append("text")
+            .attr("class", "axis-label")
+            .attr("x", -5)
+            .attr("y", d => yScaleAdoption(d))
+            .attr("text-anchor", "end")
+            .attr("alignment-baseline", "middle")
+            .text(d => d + "%");
+            
+        // Add bars
+        adoptionGroup.selectAll(".bar")
+            .data(adoptionData)
+            .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("x", d => xScaleAdoption(d.label))
+            .attr("y", d => yScaleAdoption(d.value))
+            .attr("width", xScaleAdoption.bandwidth())
+            .attr("height", d => chartHeight - yScaleAdoption(d.value))
+            .attr("fill", d => d.highlight ? "#1E8F7A" : "#0A3D62");
+            
+        // Add value labels
+        adoptionGroup.selectAll(".value-label")
+            .data(adoptionData)
+            .enter()
+            .append("text")
+            .attr("class", d => d.highlight ? "highlight-value" : "value-label")
+            .attr("x", d => xScaleAdoption(d.label) + xScaleAdoption.bandwidth() / 2)
+            .attr("y", d => yScaleAdoption(d.value) - 5)
+            .attr("text-anchor", "middle")
+            .text(d => d.value + "%");
+            
+        // Create clear labels for x-axis
+        const xLabels = [
+            "US Teachers",
+            "US Undergrads",
+            "State Depts"
+        ];
+        
+        // Add x-axis labels with better spacing
+        adoptionGroup.selectAll(".x-axis-label")
+            .data(adoptionData)
+            .enter()
+            .append("text")
+            .attr("class", "x-axis-label")
+            .attr("x", d => xScaleAdoption(d.label) + xScaleAdoption.bandwidth() / 2)
+            .attr("y", chartHeight + 20)
+            .text((d, i) => xLabels[i]);
+            
+        // Add explanations for the shortened labels
+        adoptionSvg.append("text")
+            .attr("class", "annotation")
+            .attr("x", chartMargin.left)
+            .attr("y", chartHeight + chartMargin.top + 45)
+            .text("US Teachers: Using AI in Class");
+            
+        adoptionSvg.append("text")
+            .attr("class", "annotation")
+            .attr("x", chartMargin.left)
+            .attr("y", chartHeight + chartMargin.top + 60)
+            .text("US Undergrads: Believing AI Improves Learning");
+            
+        adoptionSvg.append("text")
+            .attr("class", "annotation")
+            .attr("x", chartMargin.left)
+            .attr("y", chartHeight + chartMargin.top + 75)
+            .text("State Depts: With AI Guidance");
+            
+        // Right Section: Learning Outcomes Bar Chart
+        const outcomesData = [
+            { label: "Achievement Score Gains", value: 31, range: "20-31%" },
+            { label: "Student Engagement", value: 27, range: "27%" },
+            { label: "Content Retention", value: 23, range: "23%" }
+        ];
+        
+        const outcomesSvg = d3.select("#outcomes-chart");
+        const outcomeChartWidth = 280 - chartMargin.left - chartMargin.right;
+        
+        // Create a group for the chart elements
+        const outcomesGroup = outcomesSvg.append("g")
+            .attr("transform", `translate(${chartMargin.left}, ${chartMargin.top})`);
+        
+        // Create scales
+        const xScaleOutcomes = d3.scaleLinear()
+            .domain([0, 35])
+            .range([0, outcomeChartWidth]);
+            
+        const yScaleOutcomes = d3.scaleBand()
+            .domain(outcomesData.map(d => d.label))
+            .range([0, chartHeight])
+            .padding(0.3);
+            
+        // Add x-axis grid lines
+        outcomesGroup.selectAll(".x-grid-line")
+            .data([0, 10, 20, 30])
+            .enter()
+            .append("line")
+            .attr("class", "grid-line")
+            .attr("x1", d => xScaleOutcomes(d))
+            .attr("x2", d => xScaleOutcomes(d))
+            .attr("y1", 0)
+            .attr("y2", chartHeight);
+            
+        // Add x-axis labels
+        outcomesGroup.selectAll(".x-label")
+            .data([0, 10, 20, 30])
+            .enter()
+            .append("text")
+            .attr("class", "axis-label")
+            .attr("x", d => xScaleOutcomes(d))
+            .attr("y", chartHeight + 15)
+            .attr("text-anchor", "middle")
+            .text(d => d + "%");
+            
+        // Add bars
+        outcomesGroup.selectAll(".outcome-bar")
+            .data(outcomesData)
+            .enter()
+            .append("rect")
+            .attr("class", "outcome-bar")
+            .attr("x", 0)
+            .attr("y", d => yScaleOutcomes(d.label))
+            .attr("width", d => xScaleOutcomes(d.value))
+            .attr("height", yScaleOutcomes.bandwidth())
+            .attr("fill", (d, i) => {
+                const colors = ["#1E8F7A", "#0A3D62", "#2980B9"];
+                return colors[i % colors.length];
+            });
+            
+        // Add value labels with ranges
+        outcomesGroup.selectAll(".outcome-value")
+            .data(outcomesData)
+            .enter()
+            .append("text")
+            .attr("class", "highlight-value")
+            .attr("x", d => xScaleOutcomes(d.value) + 5)
+            .attr("y", d => yScaleOutcomes(d.label) + yScaleOutcomes.bandwidth() / 2)
+            .attr("alignment-baseline", "middle")
+            .text(d => d.range);
+            
+        // Add bar labels
+        outcomesGroup.selectAll(".outcome-label")
+            .data(outcomesData)
+            .enter()
+            .append("text")
+            .attr("class", "bar-label")
+            .attr("x", 0)
+            .attr("y", d => yScaleOutcomes(d.label) - 5)
+            .text(d => d.label);
+            
+        // Add annotation
+        outcomesSvg.append("text")
+            .attr("class", "annotation")
+            .attr("x", chartMargin.left)
+            .attr("y", chartHeight + chartMargin.top + 45)
+            .text("Based on comparative studies across 200+ schools");
+    </script>
+</body>
+</html>

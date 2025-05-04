@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Mobility Investment by Segment (2022-2023)</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 700px;
+            background-color: white;
+            position: relative;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 20px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 3px;
+        }
+        
+        .y-axis-label {
+            font-size: 14px;
+            font-weight: bold;
+            fill: #555;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-width: 1px;
+        }
+        
+        .bar-label {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+            text-anchor: middle;
+            fill: #333;
+        }
+        
+        .annotation {
+            font-size: 12px;
+            fill: #333;
+            font-weight: 500;
+            text-anchor: middle;
+        }
+        
+        .annotation-box {
+            fill: rgba(255, 255, 255, 0.95);
+            stroke: #888;
+            stroke-width: 1px;
+            rx: 4;
+            ry: 4;
+            filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.1));
+        }
+        
+        .source {
+            font-size: 11px;
+            fill: #777;
+            text-anchor: start;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            font-weight: bold;
+            fill: #222;
+        }
+        
+        .connector {
+            stroke: #888;
+            stroke-width: 1.5px;
+            stroke-dasharray: 3,2;
+        }
+        
+        .x-axis-label {
+            font-size: 13px;
+            text-anchor: middle;
+            fill: #333;
+            font-weight: 500;
+        }
+        
+        .tick text {
+            font-size: 12px;
+            fill: #555;
+        }
+        
+        .percent-change {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            fill: #222;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Global Mobility Investment by Segment (2022-2023)</div>
+        <div class="subtitle">Annual funding in billions of dollars</div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #2e8b57;"></div>
+                <div>2022</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #20b2aa;"></div>
+                <div>2023</div>
+            </div>
+        </div>
+        <svg id="chart"></svg>
+    </div>
+
+    <script>
+        // Data
+        const data = [
+            { segment: "EV & Batteries", year2022: 8.5, year2023: 10.1, change: "+19%" },
+            { segment: "Charging Infrastructure", year2022: 3.5, year2023: 4.9, change: "+40%" },
+            { segment: "Connected & Autonomous", year2022: 9.2, year2023: 7.0, change: "-24%" },
+            { segment: "Mobility SaaS", year2022: 8.3, year2023: 4.0, change: "-52%" },
+            { segment: "Micromobility", year2022: 2.8, year2023: 2.0, change: "-29%" }
+        ];
+
+        // Set up dimensions - increased for better spacing
+        const margin = { top: 60, right: 60, bottom: 120, left: 80 };
+        const width = 900 - margin.left - margin.right;
+        const height = 550 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // Set up scales
+        const x0Scale = d3.scaleBand()
+            .domain(data.map(d => d.segment))
+            .rangeRound([0, width])
+            .paddingInner(0.3);
+
+        const x1Scale = d3.scaleBand()
+            .domain(["year2022", "year2023"])
+            .rangeRound([0, x0Scale.bandwidth()])
+            .padding(0.15);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, 12])
+            .range([height, 0]);
+
+        // Add gridlines
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(yScale)
+                .tickSize(-width)
+                .tickFormat("")
+                .ticks(6)
+            );
+
+        // Add X axis with improved spacing for long labels
+        svg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(x0Scale).tickSize(0))
+            .selectAll("text")
+            .remove(); // Remove default labels to add custom ones
+
+        // Add custom X axis labels with proper formatting
+        data.forEach((d, i) => {
+            const xPos = x0Scale(d.segment) + x0Scale.bandwidth() / 2;
+            
+            // First line of the label
+            svg.append("text")
+                .attr("class", "x-axis-label")
+                .attr("x", xPos)
+                .attr("y", height + 25)
+                .text(function() {
+                    if (d.segment === "EV & Batteries") return "EV &";
+                    if (d.segment === "Charging Infrastructure") return "Charging";
+                    if (d.segment === "Connected & Autonomous") return "Connected &";
+                    if (d.segment === "Mobility SaaS") return "Mobility";
+                    if (d.segment === "Micromobility") return "Micromobility";
+                });
+            
+            // Second line of the label (if needed)
+            if (d.segment !== "Micromobility") {
+                svg.append("text")
+                    .attr("class", "x-axis-label")
+                    .attr("x", xPos)
+                    .attr("y", height + 45)
+                    .text(function() {
+                        if (d.segment === "EV & Batteries") return "Batteries";
+                        if (d.segment === "Charging Infrastructure") return "Infrastructure";
+                        if (d.segment === "Connected & Autonomous") return "Autonomous";
+                        if (d.segment === "Mobility SaaS") return "SaaS";
+                    });
+            }
+        });
+
+        // Add Y axis
+        svg.append("g")
+            .call(d3.axisLeft(yScale).ticks(6).tickFormat(d => `$${d}B`))
+            .selectAll("text")
+            .attr("class", "tick text");
+
+        // Add Y axis label - fixed positioning
+        svg.append("text")
+            .attr("class", "y-axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left + 30)
+            .attr("x", -height / 2)
+            .attr("text-anchor", "middle")
+            .text("Funding ($ Billions)");
+
+        // Color scale
+        const colorScale = d3.scaleOrdinal()
+            .domain(["year2022", "year2023"])
+            .range(["#2e8b57", "#20b2aa"]);
+
+        // Create bar groups
+        const barGroups = svg.selectAll(".bar-group")
+            .data(data)
+            .join("g")
+            .attr("class", "bar-group")
+            .attr("transform", d => `translate(${x0Scale(d.segment)}, 0)`);
+
+        // Add bars for 2022
+        barGroups.append("rect")
+            .attr("class", "bar")
+            .attr("x", d => x1Scale("year2022"))
+            .attr("y", d => yScale(d.year2022))
+            .attr("width", x1Scale.bandwidth())
+            .attr("height", d => height - yScale(d.year2022))
+            .attr("fill", colorScale("year2022"));
+
+        // Add bars for 2023
+        barGroups.append("rect")
+            .attr("class", "bar")
+            .attr("x", d => x1Scale("year2023"))
+            .attr("y", d => yScale(d.year2023))
+            .attr("width", x1Scale.bandwidth())
+            .attr("height", d => height - yScale(d.year2023))
+            .attr("fill", colorScale("year2023"));
+
+        // Add data labels for 2022 with improved styling
+        barGroups.append("text")
+            .attr("class", "key-number")
+            .attr("x", d => x1Scale("year2022") + x1Scale.bandwidth() / 2)
+            .attr("y", d => yScale(d.year2022) - 10)
+            .text(d => `$${d.year2022}B`)
+            .attr("text-anchor", "middle");
+
+        // Add data labels for 2023 with improved styling
+        barGroups.append("text")
+            .attr("class", "key-number")
+            .attr("x", d => x1Scale("year2023") + x1Scale.bandwidth() / 2)
+            .attr("y", d => yScale(d.year2023) - 10)
+            .text(d => `$${d.year2023}B`)
+            .attr("text-anchor", "middle");
+
+        // Add percentage change indicators with connectors
+        barGroups.each(function(d, i) {
+            const group = d3.select(this);
+            
+            // Determine position based on whether it's an increase or decrease
+            let x, y, barX, barY, targetX, targetY;
+            
+            if (d.year2023 > d.year2022) {
+                // For increases, position above the 2023 bar
+                barX = x1Scale("year2023") + x1Scale.bandwidth() / 2;
+                barY = yScale(d.year2023);
+                x = barX;
+                y = barY - 35;
+                targetX = barX;
+                targetY = barY - 5;
+            } else {
+                // For decreases, position above the 2022 bar
+                barX = x1Scale("year2022") + x1Scale.bandwidth() / 2;
+                barY = yScale(d.year2022);
+                x = barX;
+                y = barY - 35;
+                targetX = x1Scale("year2023") + x1Scale.bandwidth() / 2;
+                targetY = yScale(d.year2023) - 5;
+            }
+            
+            // Add the percentage change text
+            group.append("text")
+                .attr("class", "percent-change")
+                .attr("x", x)
+                .attr("y", y)
+                .attr("text-anchor", "middle")
+                .text(d.change)
+                .attr("fill", d.change.includes("+") ? "#006400" : "#8B0000");
+                
+            // Add connector line
+            group.append("line")
+                .attr("class", "connector")
+                .attr("x1", x)
+                .attr("y1", y + 5)
+                .attr("x2", targetX)
+                .attr("y2", targetY)
+                .attr("stroke", d.change.includes("+") ? "#006400" : "#8B0000")
+                .attr("stroke-width", 1.5)
+                .attr("stroke-dasharray", "3,2");
+        });
+
+        // Add descriptive annotations with connectors for key segments
+        const descriptiveAnnotations = [
+            {
+                segment: "EV & Batteries",
+                text: "EV sector continues to grow despite market challenges",
+                x: x0Scale("EV & Batteries") + x0Scale.bandwidth() / 2,
+                y: 20,
+                width: 180,
+                height: 45,
+                targetX: x0Scale("EV & Batteries") + x0Scale.bandwidth() / 2,
+                targetY: yScale(10.1) - 5
+            },
+            {
+                segment: "Connected & Autonomous",
+                text: "Autonomous tech funding contracted as investors became more selective",
+                x: x0Scale("Connected & Autonomous") + x0Scale.bandwidth() / 2,
+                y: 20,
+                width: 200,
+                height: 55,
+                targetX: x0Scale("Connected & Autonomous") + x0Scale.bandwidth() / 2,
+                targetY: yScale(9.2) - 5
+            },
+            {
+                segment: "Mobility SaaS",
+                text: "SaaS saw the largest percentage decline",
+                x: x0Scale("Mobility SaaS") + x0Scale.bandwidth() / 2,
+                y: 20,
+                width: 180,
+                height: 40,
+                targetX: x0Scale("Mobility SaaS") + x0Scale.bandwidth() / 2,
+                targetY: yScale(8.3) - 5
+            }
+        ];
+
+        // Add descriptive annotations with connectors
+        descriptiveAnnotations.forEach(annotation => {
+            const annotationGroup = svg.append("g");
+                
+            // Add annotation box
+            annotationGroup.append("rect")
+                .attr("class", "annotation-box")
+                .attr("x", annotation.x - annotation.width / 2)
+                .attr("y", annotation.y - annotation.height / 2)
+                .attr("width", annotation.width)
+                .attr("height", annotation.height);
+                
+            // Add annotation text with word wrapping
+            const words = annotation.text.split(' ');
+            let line = '';
+            let lineNumber = 0;
+            const lineHeight = 1.2;
+            const y = annotation.y - annotation.height / 2 + 15;
+            const x = annotation.x;
+            
+            const text = annotationGroup.append("text")
+                .attr("class", "annotation")
+                .attr("x", x)
+                .attr("y", y);
+                
+            for (let i = 0; i < words.length; i++) {
+                let testLine = line + words[i] + ' ';
+                if (testLine.length * 6 > annotation.width - 20) {
+                    text.append("tspan")
+                        .attr("x", x)
+                        .attr("dy", lineNumber === 0 ? 0 : lineHeight + "em")
+                        .text(line);
+                    line = words[i] + ' ';
+                    lineNumber++;
+                } else {
+                    line = testLine;
+                }
+            }
+            
+            text.append("tspan")
+                .attr("x", x)
+                .attr("dy", lineNumber === 0 ? 0 : lineHeight + "em")
+                .text(line);
+                
+            // Add connector line from annotation to data point
+            annotationGroup.append("line")
+                .attr("class", "connector")
+                .attr("x1", annotation.x)
+                .attr("y1", annotation.y + annotation.height / 2)
+                .attr("x2", annotation.targetX)
+                .attr("y2", annotation.targetY)
+                .attr("stroke", "#888")
+                .attr("stroke-width", 1.5)
+                .attr("stroke-dasharray", "3,2");
+        });
+
+        // Add source information with improved styling
+        svg.append("text")
+            .attr("class", "source")
+            .attr("x", 0)
+            .attr("y", height + 80)
+            .text("Sources: Oliver Wyman (2024), IEA (2024), Dealroom (2024), Crunchbase (2024)");
+    </script>
+</body>
+</html>

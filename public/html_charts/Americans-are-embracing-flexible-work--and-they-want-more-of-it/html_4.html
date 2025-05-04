@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Arrangement Wage Gap Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 750px;
+            height: 520px;
+            background-color: white;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .source {
+            font-size: 10px;
+            text-align: left;
+            margin-top: 5px;
+            color: #999;
+            padding-left: 70px;
+        }
+        
+        .bar-value {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .annotation {
+            background-color: rgba(240, 240, 240, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-width: 250px;
+            line-height: 1.4;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .annotation .highlight {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            color: #003366;
+        }
+        
+        .y-axis text {
+            font-size: 12px;
+        }
+        
+        .x-axis text {
+            font-size: 14px;
+            transform: translateY(5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">The Emerging Wage Gap Between Work Arrangements (2025)</div>
+        <div class="subtitle">Average annual salary by work arrangement type</div>
+        <div id="chart"></div>
+        <div class="source">Source: Madison-Davis, April 2025 (based on WFH Research data)</div>
+    </div>
+
+    <script>
+        // Data
+        const data = [
+            { category: "Hybrid", value: 80000, color: "#003366" },
+            { category: "Fully Remote", value: 74000, color: "#008080" },
+            { category: "Fully In-Office", value: 55000, color: "#708090" }
+        ];
+
+        // Sort data in descending order
+        data.sort((a, b) => b.value - a.value);
+
+        // Set up dimensions and margins
+        const margin = { top: 30, right: 60, bottom: 70, left: 70 };
+        const width = 750 - margin.left - margin.right;
+        const height = 420 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Set up scales
+        const x = d3.scaleBand()
+            .domain(data.map(d => d.category))
+            .range([0, width])
+            .padding(0.5);
+
+        const y = d3.scaleLinear()
+            .domain([0, 90000])
+            .range([height, 0]);
+
+        // Add horizontal gridlines
+        svg.selectAll("line.grid")
+            .data(y.ticks(9))
+            .enter()
+            .append("line")
+            .attr("class", "grid")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", d => y(d))
+            .attr("y2", d => y(d))
+            .attr("stroke", "#e0e0e0")
+            .attr("stroke-width", 1);
+
+        // Add y-axis with improved positioning
+        svg.append("g")
+            .attr("class", "y-axis")
+            .call(d3.axisLeft(y)
+                .tickFormat(d => `$${d/1000}k`)
+                .tickSize(0)
+                .ticks(9))
+            .call(g => g.select(".domain").remove())
+            .selectAll("text")
+            .attr("font-size", "12px")
+            .attr("dy", "0.32em") // Adjusted for better alignment with gridlines
+            .attr("x", -8); // Adjusted for better spacing from axis
+
+        // Add x-axis with more space from bars
+        svg.append("g")
+            .attr("class", "x-axis")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x).tickSize(0))
+            .call(g => g.select(".domain").remove())
+            .selectAll("text")
+            .attr("font-size", "14px")
+            .attr("text-anchor", "middle")
+            .attr("dy", "1.5em"); // Add more space between x-axis labels and axis line
+
+        // Create bars
+        svg.selectAll(".bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("x", d => x(d.category))
+            .attr("y", d => y(d.value))
+            .attr("width", x.bandwidth())
+            .attr("height", d => height - y(d.value))
+            .attr("fill", d => d.color)
+            .attr("rx", 3)
+            .attr("ry", 3);
+
+        // Add value labels on top of bars - ensuring all values are displayed
+        svg.selectAll(".bar-value")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "bar-value")
+            .attr("x", d => x(d.category) + x.bandwidth() / 2)
+            .attr("y", d => y(d.value) - 10)
+            .attr("text-anchor", "middle")
+            .text(d => `$${d.value.toLocaleString()}`);
+
+        // Improved annotation positioning
+        const annotationX = x("Hybrid") + x.bandwidth() + 15;
+        const annotationY = y(85000); // Positioned higher to be more clearly associated with Hybrid bar
+
+        const annotation = svg.append("foreignObject")
+            .attr("x", annotationX)
+            .attr("y", annotationY)
+            .attr("width", 250)
+            .attr("height", 100)
+            .append("xhtml:div")
+            .attr("class", "annotation")
+            .html(`Hybrid employees earn <span class="highlight">45%</span> more than fully in-office workers and <span class="highlight">8%</span> more than fully remote workers`);
+
+        // Improved connecting line from annotation to the top of the hybrid bar
+        svg.append("line")
+            .attr("x1", x("Hybrid") + x.bandwidth() / 2) // Start from the top center of the bar
+            .attr("y1", y(80000)) // Start exactly from the top of the bar
+            .attr("x2", annotationX - 5)
+            .attr("y2", annotationY + 25) // Better positioned to point to the annotation
+            .attr("stroke", "#666")
+            .attr("stroke-width", 1)
+            .attr("stroke-dasharray", "3,3");
+    </script>
+</body>
+</html>

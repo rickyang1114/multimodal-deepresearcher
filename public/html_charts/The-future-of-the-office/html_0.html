@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Hybrid Work Imperative</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .visualization-container {
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .title {
+            font-size: 22pt;
+            font-weight: bold;
+            color: #002D5A;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 14pt;
+            color: #4A4A4A;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .section {
+            flex: 1;
+        }
+        
+        .section-header {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #4A4A4A;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .axis-container {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+        
+        .grid-line {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 1px;
+            background-color: #e0e0e0;
+        }
+        
+        .bar-container {
+            position: relative;
+            height: 40px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .label-container {
+            width: 100%;
+            position: absolute;
+            left: 0;
+            top: -20px;
+            font-size: 10pt;
+            color: #4A4A4A;
+            text-align: left;
+            padding-right: 10px;
+            white-space: normal;
+        }
+        
+        .bar {
+            height: 30px;
+            position: relative;
+        }
+        
+        .percentage {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 12pt;
+            position: absolute;
+            right: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+        }
+        
+        .x-axis {
+            position: relative;
+            height: 20px;
+            margin-top: 10px;
+            border-top: 1px solid #e0e0e0;
+            width: 100%;
+        }
+        
+        .tick {
+            position: absolute;
+            font-size: 9pt;
+            color: #4A4A4A;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+        
+        .tick::before {
+            content: '';
+            position: absolute;
+            height: 5px;
+            width: 1px;
+            background-color: #4A4A4A;
+            top: -5px;
+            left: 50%;
+        }
+        
+        .source {
+            font-size: 9pt;
+            font-style: italic;
+            color: #4A4A4A;
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">The Hybrid Work Imperative: Adoption and Recognition Across Stakeholders</div>
+        <div class="subtitle">Key metrics showing how hybrid work is viewed by organizations, employees, and employers</div>
+        
+        <div class="dashboard">
+            <!-- Organization Adoption Section -->
+            <div class="section">
+                <div class="section-header">Organization Adoption</div>
+                <div class="chart-container">
+                    <div class="axis-container">
+                        <!-- Grid Lines -->
+                        <div class="grid-line" style="left: 20%"></div>
+                        <div class="grid-line" style="left: 40%"></div>
+                        <div class="grid-line" style="left: 60%"></div>
+                        <div class="grid-line" style="left: 80%"></div>
+                        <div class="grid-line" style="left: 100%"></div>
+                        
+                        <!-- Bar 1 -->
+                        <div class="bar-container" style="top: 0%">
+                            <div class="label-container">Organizations using hybrid models</div>
+                            <div class="bar" style="width: 64%; background-color: #1F9D8A;">
+                                <span class="percentage">64%</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Bar 2 -->
+                        <div class="bar-container" style="top: 20%">
+                            <div class="label-container">Planning to revise work models within 2 years</div>
+                            <div class="bar" style="width: 75%; background-color: #1F9D8A;">
+                                <span class="percentage">75%</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Bar 3 -->
+                        <div class="bar-container" style="top: 40%">
+                            <div class="label-container">Have made spaces more flexible</div>
+                            <div class="bar" style="width: 95%; background-color: #1F9D8A;">
+                                <span class="percentage">95%</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Bar 4 -->
+                        <div class="bar-container" style="top: 60%">
+                            <div class="label-container">Will continue with flexible spaces</div>
+                            <div class="bar" style="width: 82%; background-color: #1F9D8A;">
+                                <span class="percentage">82%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- X-Axis -->
+                    <div class="x-axis">
+                        <div class="tick" style="left: 0%">0%</div>
+                        <div class="tick" style="left: 20%">20%</div>
+                        <div class="tick" style="left: 40%">40%</div>
+                        <div class="tick" style="left: 60%">60%</div>
+                        <div class="tick" style="left: 80%">80%</div>
+                        <div class="tick" style="left: 100%">100%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Employee Perception Section -->
+            <div class="section">
+                <div class="section-header">Employee Perception</div>
+                <div class="chart-container">
+                    <div class="axis-container">
+                        <!-- Grid Lines -->
+                        <div class="grid-line" style="left: 20%"></div>
+                        <div class="grid-line" style="left: 40%"></div>
+                        <div class="grid-line" style="left: 60%"></div>
+                        <div class="grid-line" style="left: 80%"></div>
+                        <div class="grid-line" style="left: 100%"></div>
+                        
+                        <!-- Bar 1 -->
+                        <div class="bar-container" style="top: 0%">
+                            <div class="label-container">Self-report higher productivity in hybrid/remote</div>
+                            <div class="bar" style="width: 84%; background-color: #F5A623;">
+                                <span class="percentage">84%</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Bar 2 -->
+                        <div class="bar-container" style="top: 20%">
+                            <div class="label-container">Report being as or more productive than in-office</div>
+                            <div class="bar" style="width: 90%; background-color: #F5A623;">
+                                <span class="percentage">90%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- X-Axis -->
+                    <div class="x-axis">
+                        <div class="tick" style="left: 0%">0%</div>
+                        <div class="tick" style="left: 20%">20%</div>
+                        <div class="tick" style="left: 40%">40%</div>
+                        <div class="tick" style="left: 60%">60%</div>
+                        <div class="tick" style="left: 80%">80%</div>
+                        <div class="tick" style="left: 100%">100%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Employer Recognition Section -->
+            <div class="section">
+                <div class="section-header">Employer Recognition</div>
+                <div class="chart-container">
+                    <div class="axis-container">
+                        <!-- Grid Lines -->
+                        <div class="grid-line" style="left: 20%"></div>
+                        <div class="grid-line" style="left: 40%"></div>
+                        <div class="grid-line" style="left: 60%"></div>
+                        <div class="grid-line" style="left: 80%"></div>
+                        <div class="grid-line" style="left: 100%"></div>
+                        
+                        <!-- Bar 1 -->
+                        <div class="bar-container" style="top: 0%">
+                            <div class="label-container">Recognize hybrid work boosts productivity</div>
+                            <div class="bar" style="width: 66%; background-color: #8C50FF;">
+                                <span class="percentage">66%</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Bar 2 -->
+                        <div class="bar-container" style="top: 20%">
+                            <div class="label-container">Cite well-being improvements</div>
+                            <div class="bar" style="width: 65%; background-color: #8C50FF;">
+                                <span class="percentage">65%</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Bar 3 -->
+                        <div class="bar-container" style="top: 40%">
+                            <div class="label-container">Observe cost savings</div>
+                            <div class="bar" style="width: 65%; background-color: #8C50FF;">
+                                <span class="percentage">65%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- X-Axis -->
+                    <div class="x-axis">
+                        <div class="tick" style="left: 0%">0%</div>
+                        <div class="tick" style="left: 20%">20%</div>
+                        <div class="tick" style="left: 40%">40%</div>
+                        <div class="tick" style="left: 60%">60%</div>
+                        <div class="tick" style="left: 80%">80%</div>
+                        <div class="tick" style="left: 100%">100%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="source">Source: ArchieApp (2023), Global Workplace Analytics (2023), Owl Labs State of Hybrid Work (2024)</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // This ensures all charts have consistent heights
+            const sections = document.querySelectorAll('.section');
+            let maxHeight = 0;
+            
+            sections.forEach(section => {
+                const height = section.querySelector('.chart-container').offsetHeight;
+                if (height > maxHeight) {
+                    maxHeight = height;
+                }
+            });
+            
+            sections.forEach(section => {
+                section.querySelector('.chart-container').style.height = maxHeight + 'px';
+            });
+        });
+    </script>
+</body>
+</html>

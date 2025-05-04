@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senior Housing Capital Stack Evolution</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 650px;
+            position: relative;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .source {
+            position: absolute;
+            bottom: 10px;
+            left: 20px;
+            font-size: 11px;
+            color: #777;
+        }
+        
+        .legend {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            border: 1px solid #eee;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+        
+        .annotation {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            font-size: 11px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            line-height: 1.4;
+            max-width: 180px;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .waterfall-label {
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .segment-label {
+            font-size: 12px;
+            font-weight: bold;
+            fill: white;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        
+        .y-axis-label {
+            font-size: 10px;
+            fill: #666;
+        }
+        
+        .connector-label {
+            font-size: 11px;
+            fill: #555;
+            text-anchor: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Senior Housing Capital Stack Evolution: Pre-COVID vs. Current</div>
+        <div id="chart"></div>
+        <div class="source">Source: Senior Housing News; CBRE National Senior Housing data, 2021</div>
+    </div>
+
+    <script>
+        // Set up dimensions
+        const margin = {top: 70, right: 180, bottom: 50, left: 60};
+        const width = 900 - margin.left - margin.right;
+        const height = 550 - margin.top - margin.bottom;
+        
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+        
+        // Define data
+        const preCovidData = [
+            {name: "Senior Bank Debt", value: 62.5, color: "#002D62", start: 0, end: 62.5},
+            {name: "Developer Equity", value: 37.5, color: "#708090", start: 62.5, end: 100}
+        ];
+        
+        const currentData = [
+            {name: "Senior Bank Debt", value: 55, color: "#002D62", start: 0, end: 55},
+            {name: "Mezzanine/Preferred Equity", value: 7.5, color: "#008080", start: 55, end: 62.5},
+            {name: "C-PACE", value: 12.5, color: "#E67E22", start: 62.5, end: 75},
+            {name: "Developer Equity", value: 25, color: "#708090", start: 75, end: 100}
+        ];
+        
+        // Set up scales
+        const waterfallWidth = (width - 80) / 2;
+        
+        const y = d3.scaleLinear()
+            .domain([0, 100])
+            .range([height, 0]);
+        
+        // Add arrow marker
+        svg.append("defs").append("marker")
+            .attr("id", "arrowhead")
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 8)
+            .attr("refY", 0)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M0,-5L10,0L0,5")
+            .attr("fill", "#666");
+        
+        // Draw grid lines
+        const gridValues = [0, 25, 50, 75, 100];
+        gridValues.forEach(value => {
+            svg.append("line")
+                .attr("x1", 0)
+                .attr("x2", width - margin.right + 30)
+                .attr("y1", y(value))
+                .attr("y2", y(value))
+                .attr("stroke", value === 0 || value === 100 ? "#aaa" : "#ddd")
+                .attr("stroke-width", value === 0 || value === 100 ? 1 : 0.5)
+                .attr("stroke-dasharray", value === 0 || value === 100 ? "none" : "3,3");
+                
+            svg.append("text")
+                .attr("class", "y-axis-label")
+                .attr("x", -10)
+                .attr("y", y(value) + 4)
+                .attr("text-anchor", "end")
+                .text(`${value}%`);
+        });
+        
+        // Draw waterfall labels
+        svg.append("text")
+            .attr("class", "waterfall-label")
+            .attr("x", waterfallWidth / 2)
+            .attr("y", -30)
+            .attr("text-anchor", "middle")
+            .text("Pre-COVID");
+            
+        svg.append("text")
+            .attr("class", "waterfall-label")
+            .attr("x", waterfallWidth + 80 + waterfallWidth / 2)
+            .attr("y", -30)
+            .attr("text-anchor", "middle")
+            .text("Current");
+        
+        // Function to create gradient
+        function createGradient(id, color) {
+            const gradient = svg.append("defs")
+                .append("linearGradient")
+                .attr("id", id)
+                .attr("x1", "0%")
+                .attr("y1", "0%")
+                .attr("x2", "100%")
+                .attr("y2", "0%");
+                
+            gradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", d3.rgb(color).darker(0.2))
+                .attr("stop-opacity", 1);
+                
+            gradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", color)
+                .attr("stop-opacity", 1);
+                
+            return `url(#${id})`;
+        }
+        
+        // Draw pre-COVID waterfall
+        preCovidData.forEach((d, i) => {
+            const gradientId = `gradient-pre-${i}`;
+            const fillColor = createGradient(gradientId, d.color);
+            
+            svg.append("rect")
+                .attr("x", 0)
+                .attr("y", y(d.end))
+                .attr("width", waterfallWidth)
+                .attr("height", y(d.start) - y(d.end))
+                .attr("fill", fillColor)
+                .attr("stroke", "#fff")
+                .attr("stroke-width", 1);
+                
+            svg.append("text")
+                .attr("class", "segment-label")
+                .attr("x", waterfallWidth / 2)
+                .attr("y", y(d.start - (d.end - d.start) / 2))
+                .html(() => {
+                    if (d.name === "Senior Bank Debt") {
+                        return `<tspan class="key-number">${d.value}%</tspan>`;
+                    }
+                    return `${d.value}%`;
+                });
+        });
+        
+        // Draw current waterfall
+        currentData.forEach((d, i) => {
+            const gradientId = `gradient-current-${i}`;
+            const fillColor = createGradient(gradientId, d.color);
+            
+            svg.append("rect")
+                .attr("x", waterfallWidth + 80)
+                .attr("y", y(d.end))
+                .attr("width", waterfallWidth)
+                .attr("height", y(d.start) - y(d.end))
+                .attr("fill", fillColor)
+                .attr("stroke", "#fff")
+                .attr("stroke-width", 1);
+                
+            svg.append("text")
+                .attr("class", "segment-label")
+                .attr("x", waterfallWidth + 80 + waterfallWidth / 2)
+                .attr("y", y(d.start - (d.end - d.start) / 2))
+                .html(() => {
+                    if (d.name === "Senior Bank Debt" || d.name === "C-PACE") {
+                        return `<tspan class="key-number">${d.value}%</tspan>`;
+                    }
+                    return `${d.value}%`;
+                });
+        });
+        
+        // Draw connecting arrows with labels
+        // Senior Bank Debt arrow
+        svg.append("path")
+            .attr("d", `M${waterfallWidth} ${y(62.5)} L${waterfallWidth + 40} ${y(62.5)} L${waterfallWidth + 40} ${y(55)} L${waterfallWidth + 80} ${y(55)}`)
+            .attr("fill", "none")
+            .attr("stroke", "#002D62")
+            .attr("stroke-width", 1.5)
+            .attr("stroke-dasharray", "5,3")
+            .attr("marker-end", "url(#arrowhead)");
+            
+        // Developer Equity arrow
+        svg.append("path")
+            .attr("d", `M${waterfallWidth} ${y(100)} L${waterfallWidth + 40} ${y(100)} L${waterfallWidth + 40} ${y(75)} L${waterfallWidth + 80} ${y(75)}`)
+            .attr("fill", "none")
+            .attr("stroke", "#708090")
+            .attr("stroke-width", 1.5)
+            .attr("stroke-dasharray", "5,3")
+            .attr("marker-end", "url(#arrowhead)");
+            
+        // Add connector labels
+        svg.append("text")
+            .attr("class", "connector-label")
+            .attr("x", waterfallWidth + 40)
+            .attr("y", y(55) - 10)
+            .text("Reduced");
+            
+        svg.append("text")
+            .attr("class", "connector-label")
+            .attr("x", waterfallWidth + 40)
+            .attr("y", y(100) + 15)
+            .text("Developer Equity");
+            
+        // Add annotations
+        // Bank debt annotation
+        const bankAnnotation = svg.append("foreignObject")
+            .attr("x", waterfallWidth + 80 + waterfallWidth + 20)
+            .attr("y", y(55) - 40)
+            .attr("width", 170)
+            .attr("height", 80);
+            
+        bankAnnotation.append("xhtml:div")
+            .attr("class", "annotation")
+            .html("Banks have pulled back to underwriting <span class='key-number'>~55%</span> loan-to-cost (LTC) on senior housing acquisitions/construction (down from 60-65% pre-Covid)");
+            
+        // C-PACE annotation
+        const cpaceAnnotation = svg.append("foreignObject")
+            .attr("x", waterfallWidth + 80 + waterfallWidth + 20)
+            .attr("y", y(70) - 30)
+            .attr("width", 170)
+            .attr("height", 100);
+            
+        cpaceAnnotation.append("xhtml:div")
+            .attr("class", "annotation")
+            .html("<i class='fas fa-info-circle'></i> C-PACE financing is available in 35 states + DC, offering <span class='key-number'>~5%</span> interest over 20-30 years—roughly half the cost of mezzanine/preferred equity");
+            
+        // Add legend
+        const legend = svg.append("g")
+            .attr("transform", `translate(${width - 150}, 0)`);
+            
+        const legendData = [
+            {name: "Senior Bank Debt", color: "#002D62"},
+            {name: "Mezzanine/Preferred Equity", color: "#008080"},
+            {name: "C-PACE", color: "#E67E22"},
+            {name: "Developer Equity", color: "#708090"}
+        ];
+        
+        legendData.forEach((d, i) => {
+            const lg = legend.append("g")
+                .attr("transform", `translate(0, ${i * 25})`);
+                
+            lg.append("rect")
+                .attr("width", 15)
+                .attr("height", 15)
+                .attr("fill", d.color);
+                
+            lg.append("text")
+                .attr("x", 25)
+                .attr("y", 12)
+                .attr("font-size", "12px")
+                .text(d.name);
+        });
+        
+        // Add segment labels to the right side
+        preCovidData.forEach((d, i) => {
+            if (i === 0) { // Only for Senior Bank Debt
+                svg.append("text")
+                    .attr("x", -10)
+                    .attr("y", y(d.start - (d.end - d.start) / 2))
+                    .attr("text-anchor", "end")
+                    .attr("font-size", "11px")
+                    .attr("fill", "#333")
+                    .text(d.name);
+            }
+        });
+    </script>
+</body>
+</html>

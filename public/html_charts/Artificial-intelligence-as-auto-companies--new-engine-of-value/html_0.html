@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automotive AI Maturity Model</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: white;
+            color: #333;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        
+        .maturity-model {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .phase {
+            flex: 1;
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .phase-1 {
+            background-color: #A9D6E5;
+        }
+        
+        .phase-2 {
+            background-color: #00B5AD;
+        }
+        
+        .phase-3 {
+            background-color: #0E3A63;
+            color: white;
+        }
+        
+        .phase-header {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .phase-timeline {
+            font-size: 16px;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .roi {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .roi-value {
+            font-family: 'Georgia', serif;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .focus {
+            font-style: italic;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .activities {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 15px;
+        }
+        
+        .activities li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.4;
+        }
+        
+        .activities li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+        }
+        
+        .example {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: auto;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .example-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+        
+        .footnote {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+            font-style: italic;
+            line-height: 1.4;
+        }
+        
+        .phase-icon {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        
+        @media (max-width: 768px) {
+            .maturity-model {
+                flex-direction: column;
+            }
+            
+            .phase {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">Automotive AI Maturity: From Pilots to Enterprise Integration</div>
+            <div class="subtitle">A three-phase roadmap with validated ROI metrics from industry deployments</div>
+        </div>
+        
+        <div class="maturity-model">
+            <!-- Phase 1 -->
+            <div class="phase phase-1">
+                <div class="phase-header">
+                    <i class="phase-icon fas fa-rocket"></i>
+                    Phase 1: Pilot Phase
+                </div>
+                <div class="phase-timeline">6-12 months</div>
+                
+                <div class="section">
+                    <div class="roi">
+                        <span class="roi-value">10-15×</span> ROI for targeted use cases
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">FOCUS</div>
+                    <div class="focus">Proof-of-concept projects, limited scope deployments, problem identification</div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">KEY ACTIVITIES</div>
+                    <ul class="activities">
+                        <li>Use case identification</li>
+                        <li>Small-scale deployments</li>
+                        <li>Initial ROI validation</li>
+                        <li>Technical feasibility testing</li>
+                        <li>Change management planning</li>
+                    </ul>
+                </div>
+                
+                <div class="example">
+                    <div class="example-title">CASE EXAMPLE</div>
+                    $5M investment in predictive maintenance → $20M annual savings (<span class="roi-value">300%</span> ROI)
+                </div>
+            </div>
+            
+            <!-- Phase 2 -->
+            <div class="phase phase-2">
+                <div class="phase-header">
+                    <i class="phase-icon fas fa-chart-line"></i>
+                    Phase 2: Departmental Scale
+                </div>
+                <div class="phase-timeline">12-24 months</div>
+                
+                <div class="section">
+                    <div class="roi">
+                        <span class="roi-value">120-185%</span> ROI within 2 years
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">FOCUS</div>
+                    <div class="focus">Function-wide implementations, process redesign, workflow integration</div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">KEY ACTIVITIES</div>
+                    <ul class="activities">
+                        <li>Cross-functional integration</li>
+                        <li>Process redesign</li>
+                        <li>10/20/70 adoption approach</li>
+                        <li>ROI measurement infrastructure</li>
+                        <li>AI skills development</li>
+                    </ul>
+                </div>
+                
+                <div class="example">
+                    <div class="example-title">CASE EXAMPLE</div>
+                    $7M ML model reduced downtime by 45%, saving $20M annually (<span class="roi-value">185%</span> ROI in 2 years)
+                </div>
+            </div>
+            
+            <!-- Phase 3 -->
+            <div class="phase phase-3">
+                <div class="phase-header">
+                    <i class="phase-icon fas fa-building"></i>
+                    Phase 3: Enterprise Integration
+                </div>
+                <div class="phase-timeline">24-36 months</div>
+                
+                <div class="section">
+                    <div class="roi">
+                        <span class="roi-value">8-12%</span> cost reduction vs. baseline; <span class="roi-value">300-400%</span> ROI
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">FOCUS</div>
+                    <div class="focus">Enterprise-wide deployment, AI-driven business model innovation, systematic scaling</div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">KEY ACTIVITIES</div>
+                    <ul class="activities">
+                        <li>Cross-enterprise orchestration</li>
+                        <li>Multi-agent AI architectures</li>
+                        <li>Self-service AI platforms</li>
+                        <li>Business model transformation</li>
+                        <li>Direct P&L impact measurement</li>
+                    </ul>
+                </div>
+                
+                <div class="example">
+                    <div class="example-title">CASE EXAMPLE</div>
+                    $12M supply-chain AI reduced inventory costs by 30% (<span class="roi-value">120%</span> ROI in 3 years)
+                </div>
+            </div>
+        </div>
+        
+        <div class="footnote">
+            Source: Synthesized from BCG "GenAI stairway" framework and Anand Ramachandran's three-phase roadmap, with ROI data from industry case studies.
+        </div>
+    </div>
+
+    <script>
+        // D3.js could be used for more dynamic visualizations or data loading
+        // This implementation primarily uses HTML/CSS for the static visualization
+        d3.select('.container')
+            .style('opacity', 0)
+            .transition()
+            .duration(800)
+            .style('opacity', 1);
+    </script>
+</body>
+</html>

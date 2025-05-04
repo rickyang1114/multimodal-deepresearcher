@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR/VR Workplace Collaboration: Benefits vs Barriers</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f9f9f9;
+        }
+        
+        .visualization-container {
+            width: 1200px;
+            background-color: white;
+            padding: 30px;
+        }
+        
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #002D5A;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 14pt;
+            color: #4A4A4A;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .section {
+            width: 48%;
+        }
+        
+        .section-header {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #002D5A;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .divider {
+            width: 2px;
+            background-color: #ccc;
+            margin: 0 15px;
+            height: 450px;
+        }
+        
+        .bar-label {
+            font-size: 12pt;
+            fill: #4A4A4A;
+        }
+        
+        .value-label {
+            font-size: 14pt;
+            font-weight: bold;
+            font-family: 'Georgia', serif;
+            fill: #000;
+        }
+        
+        .case-study {
+            background-color: #e6dbff;
+            padding: 15px;
+            margin-top: 30px;
+            border-radius: 5px;
+            font-size: 11pt;
+            line-height: 1.4;
+            border-left: 4px solid #8C50FF;
+        }
+        
+        .source {
+            font-size: 9pt;
+            font-style: italic;
+            color: #666;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .tick line {
+            stroke: #e0e0e0;
+        }
+        
+        .domain {
+            stroke: #e0e0e0;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        
+        .grid path {
+            stroke-width: 0;
+        }
+        
+        .lightbulb-icon {
+            color: #8C50FF;
+            margin-right: 8px;
+        }
+        
+        .axis-label {
+            font-size: 10pt;
+            fill: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Immersive Technologies in the Workplace: Benefits and Barriers</div>
+        <div class="subtitle">Quantifying the impact of AR/VR collaboration tools alongside implementation challenges</div>
+        
+        <div class="dashboard">
+            <div class="section" id="benefits-section">
+                <div class="section-header">Measurable Benefits</div>
+                <div id="benefits-chart"></div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="section" id="barriers-section">
+                <div class="section-header">Adoption Barriers</div>
+                <div id="barriers-chart"></div>
+            </div>
+        </div>
+        
+        <div class="case-study">
+            <i class="fas fa-lightbulb lightbulb-icon"></i>
+            <strong>Case Study:</strong> In 2023, Siemens integrated VR into its Xcelerator platform, enabling executives to simulate 3D production systems, identify bottlenecks, and align teams worldwide—reducing development cycles significantly.
+        </div>
+        
+        <div class="source">
+            Sources: IBM Research (2023), Perceived.Design (2023), Capgemini (2018), Owl Labs (2023)
+        </div>
+    </div>
+
+    <script>
+        // Benefits data
+        const benefitsData = [
+            { metric: "Productivity boost", value: 32 },
+            { metric: "Task completion time reduction", value: 46 },
+            { metric: "Remote worker happiness increase", value: 22 },
+            { metric: "Benefits meeting expectations", value: 82 }
+        ];
+        
+        // Barriers data
+        const barriersData = [
+            { barrier: "High hardware/software cost", value: 43 },
+            { barrier: "Integration challenges with legacy systems", value: 64 },
+            { barrier: "Lack of in-house technical expertise", value: 52 },
+            { barrier: "Scarce high-quality content", value: 38 },
+            { barrier: "Health and safety concerns", value: 35 }
+        ];
+        
+        // Benefits chart
+        function createBenefitsChart() {
+            const margin = { top: 40, right: 30, bottom: 140, left: 60 };
+            const width = 520 - margin.left - margin.right;
+            const height = 450 - margin.top - margin.bottom;
+            
+            const svg = d3.select("#benefits-chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // X scale
+            const x = d3.scaleBand()
+                .domain(benefitsData.map(d => d.metric))
+                .range([0, width])
+                .padding(0.4);
+            
+            // Y scale - adjusted to max 90% for better visualization
+            const y = d3.scaleLinear()
+                .domain([0, 90])
+                .range([height, 0]);
+            
+            // Add X axis
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "translate(-10,10)rotate(-35)")
+                .style("text-anchor", "end")
+                .style("font-size", "11px");
+            
+            // Add Y axis
+            svg.append("g")
+                .call(d3.axisLeft(y).tickFormat(d => d + "%").ticks(9));
+            
+            // Add Y grid lines
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y)
+                    .tickSize(-width)
+                    .tickFormat("")
+                    .ticks(9)
+                );
+            
+            // Create gradient for bars
+            const defs = svg.append("defs");
+            
+            const gradient = defs.append("linearGradient")
+                .attr("id", "benefits-gradient")
+                .attr("x1", "0%")
+                .attr("y1", "0%")
+                .attr("x2", "0%")
+                .attr("y2", "100%");
+                
+            gradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", "#8C50FF");
+                
+            gradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", "#6830D9");
+            
+            // Add bars
+            svg.selectAll(".bar")
+                .data(benefitsData)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.metric))
+                .attr("width", x.bandwidth())
+                .attr("y", d => y(d.value))
+                .attr("height", d => height - y(d.value))
+                .attr("fill", "url(#benefits-gradient)")
+                .attr("rx", 3)
+                .attr("ry", 3);
+            
+            // Add value labels
+            svg.selectAll(".value-label")
+                .data(benefitsData)
+                .enter()
+                .append("text")
+                .attr("class", "value-label")
+                .attr("x", d => x(d.metric) + x.bandwidth() / 2)
+                .attr("y", d => y(d.value) - 10)
+                .attr("text-anchor", "middle")
+                .text(d => d.value + "%");
+                
+            // Add Y axis label
+            svg.append("text")
+                .attr("class", "axis-label")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 20)
+                .attr("x", -height / 2)
+                .attr("text-anchor", "middle")
+                .text("Improvement Percentage");
+        }
+        
+        // Barriers chart
+        function createBarriersChart() {
+            const margin = { top: 40, right: 100, bottom: 40, left: 220 };
+            const width = 520 - margin.left - margin.right;
+            const height = 450 - margin.top - margin.bottom;
+            
+            const svg = d3.select("#barriers-chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // X scale
+            const x = d3.scaleLinear()
+                .domain([0, 70])
+                .range([0, width]);
+            
+            // Y scale
+            const y = d3.scaleBand()
+                .domain(barriersData.map(d => d.barrier))
+                .range([0, height])
+                .padding(0.3);
+            
+            // Add X axis
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).tickFormat(d => d + "%").ticks(7));
+            
+            // Add Y axis
+            svg.append("g")
+                .call(d3.axisLeft(y))
+                .selectAll("text")
+                .style("font-size", "11px");
+            
+            // Add X grid lines
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisBottom(x)
+                    .tickSize(height)
+                    .tickFormat("")
+                    .ticks(7)
+                );
+            
+            // Create gradient for bars
+            const defs = svg.append("defs");
+            
+            const gradient = defs.append("linearGradient")
+                .attr("id", "barriers-gradient")
+                .attr("x1", "0%")
+                .attr("y1", "0%")
+                .attr("x2", "100%")
+                .attr("y2", "0%");
+                
+            gradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", "#F5A623");
+                
+            gradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", "#E09010");
+            
+            // Add bars
+            svg.selectAll(".bar")
+                .data(barriersData)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", 0)
+                .attr("y", d => y(d.barrier))
+                .attr("width", d => x(d.value))
+                .attr("height", y.bandwidth())
+                .attr("fill", "url(#barriers-gradient)")
+                .attr("rx", 3)
+                .attr("ry", 3);
+            
+            // Add value labels with consistent positioning
+            svg.selectAll(".value-label")
+                .data(barriersData)
+                .enter()
+                .append("text")
+                .attr("class", "value-label")
+                .attr("x", d => x(d.value) + 10)
+                .attr("y", d => y(d.barrier) + y.bandwidth() / 2 + 5)
+                .text(d => d.value + "%");
+                
+            // Add X axis label
+            svg.append("text")
+                .attr("class", "axis-label")
+                .attr("x", width / 2)
+                .attr("y", height + margin.bottom - 10)
+                .attr("text-anchor", "middle")
+                .text("Percentage of Businesses");
+        }
+        
+        // Create both charts
+        createBenefitsChart();
+        createBarriersChart();
+    </script>
+</body>
+</html>

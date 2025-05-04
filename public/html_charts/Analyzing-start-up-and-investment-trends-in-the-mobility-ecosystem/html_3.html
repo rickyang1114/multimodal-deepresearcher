@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VC vs CVC Investment Patterns in Mobility</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 700px;
+            background-color: white;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 0;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            text-align: center;
+            color: #666;
+            margin-top: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .axis-label {
+            font-size: 12px;
+            fill: #333;
+            font-weight: bold;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        
+        .annotation-text {
+            font-size: 12px;
+            fill: #333;
+        }
+        
+        .annotation-box {
+            fill: rgba(255, 255, 255, 0.9);
+            stroke: #999;
+            stroke-width: 1px;
+            rx: 3;
+            ry: 3;
+        }
+        
+        .annotation-connector {
+            stroke: #999;
+            stroke-width: 1.5px;
+            stroke-dasharray: 3,3;
+        }
+        
+        .source {
+            font-size: 10px;
+            fill: #666;
+        }
+        
+        .legend-item text {
+            font-size: 12px;
+            fill: #333;
+        }
+        
+        .highlight-value {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .cluster-region {
+            opacity: 0.15;
+        }
+        
+        .investor-label {
+            font-size: 11px;
+            pointer-events: none;
+            font-weight: bold;
+            fill: #333;
+        }
+
+        .key-investor-label {
+            font-family: 'Georgia', serif;
+            font-size: 12px;
+            font-weight: bold;
+            fill: #333;
+        }
+        
+        .label-bg {
+            fill: white;
+            fill-opacity: 0.9;
+            rx: 2;
+            ry: 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <h1 class="title">VC vs CVC Investment Patterns in Mobility (2024-2025)</h1>
+        <h2 class="subtitle">Average deal size versus number of deals</h2>
+        <svg id="chart"></svg>
+    </div>
+
+    <script>
+        // Set up dimensions
+        const margin = {top: 50, right: 100, bottom: 60, left: 80};
+        const width = 900 - margin.left - margin.right;
+        const height = 700 - margin.top - margin.bottom - 60; // Adjust for title/subtitle
+        
+        // Create SVG
+        const svg = d3.select("#chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+            
+        // Data
+        const data = [
+            { name: "SFC Capital", type: "VC", deals: 62, avgDealSize: 2, totalInvestment: 124, labelOffset: {x: 5, y: -10}, showLabel: true },
+            { name: "Genesis Ventures", type: "VC", deals: 45, avgDealSize: 0.775, totalInvestment: 35, labelOffset: {x: 5, y: -10}, showLabel: true },
+            { name: "HV Capital", type: "VC", deals: 15, avgDealSize: 35, totalInvestment: 525, labelOffset: {x: 5, y: -15}, showLabel: true },
+            { name: "BlackRock", type: "CVC", deals: 8, avgDealSize: 63, totalInvestment: 504, labelOffset: {x: 0, y: -15}, showLabel: true },
+            { name: "GV", type: "CVC", deals: 12, avgDealSize: 56, totalInvestment: 672, labelOffset: {x: -25, y: -15}, showLabel: true },
+            { name: "Novo Holdings", type: "CVC", deals: 29, avgDealSize: 55, totalInvestment: 1595, labelOffset: {x: 15, y: -5}, showLabel: true },
+            { name: "BNP Paribas", type: "CVC", deals: 31, avgDealSize: 23, totalInvestment: 713, labelOffset: {x: 15, y: 0}, showLabel: true },
+            { name: "Crédit Agricole", type: "CVC", deals: 14, avgDealSize: 17.5, totalInvestment: 245, labelOffset: {x: -15, y: 15}, showLabel: true },
+            // Add some additional data points to make the visualization more realistic
+            { name: "Sequoia", type: "VC", deals: 25, avgDealSize: 12, totalInvestment: 300, labelOffset: {x: 0, y: 0}, showLabel: false },
+            { name: "Accel", type: "VC", deals: 35, avgDealSize: 8, totalInvestment: 280, labelOffset: {x: 0, y: 0}, showLabel: false },
+            { name: "Index", type: "VC", deals: 40, avgDealSize: 5, totalInvestment: 200, labelOffset: {x: 0, y: 0}, showLabel: false },
+            { name: "Atomico", type: "VC", deals: 18, avgDealSize: 15, totalInvestment: 270, labelOffset: {x: 0, y: 0}, showLabel: false },
+            { name: "Toyota Ventures", type: "CVC", deals: 22, avgDealSize: 28, totalInvestment: 616, labelOffset: {x: 0, y: 0}, showLabel: false },
+            { name: "BMW i Ventures", type: "CVC", deals: 16, avgDealSize: 32, totalInvestment: 512, labelOffset: {x: 0, y: 0}, showLabel: false },
+            { name: "GM Ventures", type: "CVC", deals: 10, avgDealSize: 45, totalInvestment: 450, labelOffset: {x: 0, y: 0}, showLabel: false }
+        ];
+        
+        // Scales
+        const xScale = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.deals) * 1.1])
+            .range([0, width]);
+            
+        const yScale = d3.scaleLog()
+            .domain([0.7, 100])
+            .range([height, 0]);
+            
+        const sizeScale = d3.scaleSqrt()
+            .domain([0, d3.max(data, d => d.totalInvestment)])
+            .range([5, 20]);
+            
+        const colorScale = d3.scaleOrdinal()
+            .domain(["VC", "CVC"])
+            .range(["#e67e22", "#8e44ad"]);
+            
+        // Axes
+        const xAxis = d3.axisBottom(xScale)
+            .ticks(8)
+            .tickSize(-height);
+            
+        const yAxis = d3.axisLeft(yScale)
+            .tickValues([0.7, 1, 2, 5, 10, 20, 50, 100])
+            .tickFormat(d => `€${d}M`)
+            .tickSize(-width);
+            
+        // Add X axis
+        svg.append("g")
+            .attr("class", "grid")
+            .attr("transform", `translate(0, ${height})`)
+            .call(xAxis);
+            
+        // Add Y axis
+        svg.append("g")
+            .attr("class", "grid")
+            .call(yAxis);
+            
+        // Add X axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("x", width / 2)
+            .attr("y", height + 40)
+            .attr("text-anchor", "middle")
+            .text("Number of Deals");
+            
+        // Add Y axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", -60)
+            .attr("text-anchor", "middle")
+            .text("Average Deal Size (€M)");
+            
+        // Cluster regions
+        const vcCluster = {
+            cx: xScale(45),
+            cy: yScale(3),
+            rx: 150,
+            ry: 100
+        };
+        
+        const cvcCluster = {
+            cx: xScale(18),
+            cy: yScale(45),
+            rx: 120,
+            ry: 80
+        };
+        
+        // Add cluster regions
+        svg.append("ellipse")
+            .attr("class", "cluster-region")
+            .attr("cx", vcCluster.cx)
+            .attr("cy", vcCluster.cy)
+            .attr("rx", vcCluster.rx)
+            .attr("ry", vcCluster.ry)
+            .attr("fill", colorScale("VC"));
+            
+        svg.append("ellipse")
+            .attr("class", "cluster-region")
+            .attr("cx", cvcCluster.cx)
+            .attr("cy", cvcCluster.cy)
+            .attr("rx", cvcCluster.rx)
+            .attr("ry", cvcCluster.ry)
+            .attr("fill", colorScale("CVC"));
+            
+        // Add data points
+        svg.selectAll(".investor-point")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("class", "investor-point")
+            .attr("cx", d => xScale(d.deals))
+            .attr("cy", d => yScale(d.avgDealSize))
+            .attr("r", d => sizeScale(d.totalInvestment))
+            .attr("fill", d => colorScale(d.type))
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 1)
+            .attr("opacity", 0.8);
+            
+        // Add labels for key investors
+        // First create label backgrounds
+        const labelGroups = svg.selectAll(".label-group")
+            .data(data.filter(d => d.showLabel))
+            .enter()
+            .append("g")
+            .attr("class", "label-group");
+        
+        // Add background rectangles for labels
+        labelGroups.append("rect")
+            .attr("class", "label-bg")
+            .attr("x", d => xScale(d.deals) + d.labelOffset.x - (d.labelOffset.x < 0 ? d.name.length * 6 : 0))
+            .attr("y", d => yScale(d.avgDealSize) + d.labelOffset.y - 12)
+            .attr("width", d => d.name.length * 6 + 6)
+            .attr("height", 16);
+            
+        // Add the text labels
+        labelGroups.append("text")
+            .attr("class", d => (d.name === "Genesis Ventures" || d.name === "SFC Capital") ? "key-investor-label" : "investor-label")
+            .attr("x", d => xScale(d.deals) + d.labelOffset.x)
+            .attr("y", d => yScale(d.avgDealSize) + d.labelOffset.y)
+            .attr("text-anchor", d => d.labelOffset.x < 0 ? "end" : "start")
+            .text(d => d.name);
+            
+        // Add annotations with connectors
+        const annotations = [
+            {
+                text: "VCs focus on high-volume, early-stage deals (<€5M)",
+                x: xScale(45),
+                y: yScale(3),
+                width: 160,
+                height: 40,
+                align: "middle",
+                targetX: xScale(50),
+                targetY: yScale(4)
+            },
+            {
+                text: "CVCs dominate strategic mega-rounds (>€50M)",
+                x: xScale(18),
+                y: yScale(45),
+                width: 160,
+                height: 40,
+                align: "middle",
+                targetX: xScale(15),
+                targetY: yScale(55)
+            }
+        ];
+        
+        // Create annotation groups
+        const annotationGroups = svg.selectAll(".annotation-group")
+            .data(annotations)
+            .enter()
+            .append("g")
+            .attr("class", "annotation-group");
+            
+        // Add connector lines
+        annotationGroups.append("line")
+            .attr("class", "annotation-connector")
+            .attr("x1", d => d.x)
+            .attr("y1", d => d.y)
+            .attr("x2", d => d.targetX)
+            .attr("y2", d => d.targetY);
+            
+        // Add annotation boxes
+        annotationGroups.append("rect")
+            .attr("class", "annotation-box")
+            .attr("x", d => d.x - d.width/2)
+            .attr("y", d => d.y - d.height/2)
+            .attr("width", d => d.width)
+            .attr("height", d => d.height);
+            
+        // Add annotation text
+        const annotationTexts = annotationGroups.append("text")
+            .attr("class", "annotation-text")
+            .attr("x", d => d.x)
+            .attr("y", d => d.y - 5)
+            .attr("text-anchor", d => d.align);
+            
+        // First annotation
+        annotationTexts.filter((d, i) => i === 0)
+            .append("tspan")
+            .attr("x", d => d.x)
+            .attr("dy", "0em")
+            .text("VCs focus on high-volume,")
+            .append("tspan")
+            .attr("x", d => d.x)
+            .attr("dy", "1.2em")
+            .text("early-stage deals (<€5M)");
+            
+        // Second annotation
+        annotationTexts.filter((d, i) => i === 1)
+            .append("tspan")
+            .attr("x", d => d.x)
+            .attr("dy", "0em")
+            .text("CVCs dominate strategic")
+            .append("tspan")
+            .attr("x", d => d.x)
+            .attr("dy", "1.2em")
+            .text("mega-rounds (>€50M)");
+            
+        // Add legend
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width - 150}, 10)`);
+            
+        const legendItems = [
+            { type: "VC", label: "Pure-play VC" },
+            { type: "CVC", label: "Corporate VC (CVC)" }
+        ];
+        
+        // Create legend groups
+        const legendGroups = legend.selectAll(".legend-item")
+            .data(legendItems)
+            .enter()
+            .append("g")
+            .attr("class", "legend-item")
+            .attr("transform", (d, i) => `translate(0, ${i * 25})`);
+            
+        // Add legend circles
+        legendGroups.append("circle")
+            .attr("r", 6)
+            .attr("fill", d => colorScale(d.type));
+            
+        // Add legend text
+        legendGroups.append("text")
+            .attr("x", 15)
+            .attr("y", 4)
+            .text(d => d.label);
+            
+        // Add source
+        svg.append("text")
+            .attr("class", "source")
+            .attr("x", 0)
+            .attr("y", height + 50)
+            .text("Sources: Sifted (2024, 2025)");
+    </script>
+</body>
+</html>

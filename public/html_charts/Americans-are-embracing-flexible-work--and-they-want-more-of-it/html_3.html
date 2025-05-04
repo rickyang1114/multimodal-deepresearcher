@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Arrangement Retention Rates</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 750px;
+            height: 500px;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .source {
+            font-size: 10px;
+            text-align: left;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        .axis-label {
+            font-size: 14px;
+        }
+        
+        .bar-value {
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .callout-box {
+            fill: #f8f8f8;
+            stroke: #ddd;
+            stroke-width: 1px;
+            rx: 5px;
+            ry: 5px;
+        }
+        
+        .callout-text {
+            font-size: 12px;
+            fill: #333;
+        }
+        
+        .reference-line {
+            stroke: #aaa;
+            stroke-dasharray: 4;
+            stroke-width: 1;
+        }
+        
+        .grid-line {
+            stroke: #e0e0e0;
+            stroke-width: 1;
+        }
+        
+        .horizontal-grid {
+            stroke: #e0e0e0;
+            stroke-width: 1;
+        }
+        
+        #chart-container {
+            flex-grow: 1;
+            position: relative;
+        }
+        
+        .tick text {
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Work Arrangement as a Primary Reason for Staying with Current Employer (2025)</div>
+        <div class="subtitle">Percentage of employees citing their work arrangement as a key retention factor</div>
+        <div id="chart-container">
+            <svg id="chart"></svg>
+        </div>
+        <div class="source">Source: SHRM Current Events Pulse, February 2025</div>
+    </div>
+
+    <script>
+        // Set up dimensions
+        const margin = { top: 20, right: 80, bottom: 100, left: 150 };
+        const containerWidth = 750 - 20; // Account for container padding
+        const containerHeight = 380;
+        const width = containerWidth - margin.left - margin.right;
+        const height = containerHeight - margin.top - margin.bottom;
+        
+        // Create SVG
+        const svg = d3.select("#chart")
+            .attr("width", containerWidth)
+            .attr("height", containerHeight)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+        
+        // Data
+        const data = [
+            { category: "Fully Remote", value: 79, color: "#008080" },
+            { category: "Hybrid", value: 73, color: "#003366" },
+            { category: "Fully In-Office", value: 45, color: "#708090" }
+        ];
+        
+        // Scales
+        const xScale = d3.scaleLinear()
+            .domain([0, 100])
+            .range([0, width]);
+        
+        const yScale = d3.scaleBand()
+            .domain(data.map(d => d.category))
+            .range([0, height])
+            .padding(0.4);
+        
+        // X-axis with adjusted positioning
+        svg.append("g")
+            .attr("transform", `translate(0, ${height + 5})`) // Added 5px padding
+            .call(d3.axisBottom(xScale)
+                .tickFormat(d => d + "%")
+                .tickSize(0)
+                .tickValues([0, 20, 40, 60, 80, 100]))
+            .call(g => g.select(".domain").remove());
+        
+        // Grid lines (separate from axis)
+        svg.selectAll(".vertical-grid")
+            .data([0, 20, 40, 60, 80, 100])
+            .enter()
+            .append("line")
+            .attr("class", "grid-line")
+            .attr("x1", d => xScale(d))
+            .attr("x2", d => xScale(d))
+            .attr("y1", 0)
+            .attr("y2", height);
+        
+        // Y-axis
+        svg.append("g")
+            .call(d3.axisLeft(yScale)
+                .tickSize(0))
+            .call(g => g.select(".domain").remove())
+            .selectAll("text")
+            .attr("class", "axis-label");
+        
+        // Horizontal grid lines - enhanced visibility
+        svg.selectAll(".horizontal-grid")
+            .data(data)
+            .enter()
+            .append("line")
+            .attr("class", "horizontal-grid")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", d => yScale(d.category) + yScale.bandwidth() / 2)
+            .attr("y2", d => yScale(d.category) + yScale.bandwidth() / 2);
+        
+        // Reference line at 50%
+        svg.append("line")
+            .attr("class", "reference-line")
+            .attr("x1", xScale(50))
+            .attr("x2", xScale(50))
+            .attr("y1", -5)
+            .attr("y2", height + 5);
+        
+        // Bars
+        svg.selectAll(".bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("x", 0)
+            .attr("y", d => yScale(d.category))
+            .attr("width", d => xScale(d.value))
+            .attr("height", yScale.bandwidth())
+            .attr("fill", d => d.color)
+            .attr("rx", 3)
+            .attr("ry", 3);
+        
+        // Bar values - improved vertical alignment
+        svg.selectAll(".bar-value")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "bar-value")
+            .attr("x", d => xScale(d.value) + 10)
+            .attr("y", d => yScale(d.category) + yScale.bandwidth() / 2)
+            .attr("dy", "0.35em") // Better vertical centering
+            .text(d => d.value + "%");
+        
+        // Callout box - fixed positioning and width
+        const calloutX = 10;
+        const calloutY = height + 30;
+        const calloutWidth = width;
+        const calloutHeight = 45;
+        
+        svg.append("rect")
+            .attr("class", "callout-box")
+            .attr("x", calloutX)
+            .attr("y", calloutY)
+            .attr("width", calloutWidth)
+            .attr("height", calloutHeight);
+        
+        // Single line callout text to prevent truncation
+        svg.append("text")
+            .attr("class", "callout-text")
+            .attr("x", calloutX + 10)
+            .attr("y", calloutY + calloutHeight/2)
+            .attr("dy", "0.35em")
+            .text("Flexible work arrangements show 28-34 percentage point higher retention influence than fully in-office arrangements");
+            
+        // Apply text wrapping to ensure it fits
+        function wrapText(text, width) {
+            text.each(function() {
+                const text = d3.select(this);
+                const words = text.text().split(/\s+/).reverse();
+                let word;
+                let line = [];
+                let lineNumber = 0;
+                const lineHeight = 1.1; // ems
+                const y = text.attr("y");
+                const dy = parseFloat(text.attr("dy") || 0);
+                let tspan = text.text(null).append("tspan").attr("x", text.attr("x")).attr("y", y).attr("dy", dy + "em");
+                
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > width) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan").attr("x", text.attr("x")).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                    }
+                }
+            });
+        }
+        
+        // Apply wrapping to callout text
+        svg.selectAll(".callout-text").call(wrapText, calloutWidth - 20);
+    </script>
+</body>
+</html>

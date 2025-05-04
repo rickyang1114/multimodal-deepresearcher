@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senior Living Retention Strategies Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f9f9f9;
+        }
+        
+        .visualization-container {
+            width: 850px;
+            height: 600px;
+            background-color: white;
+            position: relative;
+            box-sizing: border-box;
+            padding: 20px;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 5px 0 20px 0;
+            color: #333;
+        }
+        
+        .chart-container {
+            display: flex;
+            height: 480px;
+            align-items: flex-start;
+        }
+        
+        .line-chart {
+            width: 50%;
+            height: 100%;
+            padding-right: 15px;
+        }
+        
+        .strategy-matrix {
+            width: 50%;
+            height: 100%;
+            padding-left: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .strategy-category {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 5px;
+            background-color: #f5f5f5;
+        }
+        
+        .strategy-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .strategy-title i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .strategy-item {
+            margin-left: 30px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .callout-box {
+            background-color: #f5f5f5;
+            border-left: 4px solid #5B8FF9;
+            padding: 12px;
+            margin-top: 10px;
+            margin-bottom: 0;
+            font-size: 13px;
+        }
+        
+        .source {
+            font-size: 10px;
+            color: #777;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            color: #002D62;
+        }
+        
+        .company-name {
+            font-weight: bold;
+        }
+        
+        .annotation {
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .strategy-section {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .connection-line {
+            stroke: #aaa;
+            stroke-width: 1.5;
+            stroke-dasharray: 4,4;
+            fill: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Operational Excellence Drives Improved Length of Stay and Reduced Turnover</div>
+        
+        <div class="chart-container">
+            <div class="line-chart" id="line-chart"></div>
+            <div class="strategy-matrix">
+                <div class="strategy-section">
+                    <div class="strategy-category">
+                        <div class="strategy-title">
+                            <i class="fas fa-dollar-sign" style="color: #002D62;"></i>
+                            Financial/Sales
+                        </div>
+                        <div class="strategy-item">
+                            <span class="company-name">Priority Life Care:</span> Quarterly financial discovery with residents and families
+                        </div>
+                        <div class="strategy-item">
+                            <span class="company-name">Maplewood:</span> Proactive family check-ins to address concerns before they escalate
+                        </div>
+                    </div>
+                    
+                    <div class="strategy-category">
+                        <div class="strategy-title">
+                            <i class="fas fa-user-friends" style="color: #008080;"></i>
+                            Staff Continuity
+                        </div>
+                        <div class="strategy-item">
+                            Consistent care staff assignments correlated with higher satisfaction and longer stays
+                        </div>
+                    </div>
+                    
+                    <div class="strategy-category">
+                        <div class="strategy-title">
+                            <i class="fas fa-heart" style="color: #e74c3c;"></i>
+                            Wellness Programming
+                        </div>
+                        <div class="strategy-item">
+                            Holistic wellness programming and pulse surveys (<span class="company-name">Watermark's 360Well</span> across 37 communities)
+                        </div>
+                    </div>
+                    
+                    <div class="strategy-category">
+                        <div class="strategy-title">
+                            <i class="fas fa-chart-line" style="color: #5B8FF9;"></i>
+                            Data-Driven Insights
+                        </div>
+                        <div class="strategy-item">
+                            <span class="company-name">LCS's</span> data-science platform for real-time acuity monitoring and predictive insights
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="callout-box">
+                    <strong>ROI Impact:</strong> Per-unit turnover costs range from <span class="key-number">$1,000</span> to <span class="key-number">$5,000</span>, making retention strategies high-ROI investments
+                </div>
+            </div>
+        </div>
+        
+        <div class="source">Source: Direct Supply; National Apartment Association; company reports</div>
+    </div>
+
+    <script>
+        // Set up dimensions for the line chart
+        const margin = {top: 40, right: 50, bottom: 60, left: 60};
+        const width = 400 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+        
+        // Create SVG for the line chart
+        const svg = d3.select("#line-chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+        
+        // Define time scale for x-axis (2020-2024)
+        const x = d3.scaleTime()
+            .domain([new Date(2020, 0, 1), new Date(2024, 11, 31)])
+            .range([0, width]);
+        
+        // Define scale for y-axis (length of stay in years)
+        const y = d3.scaleLinear()
+            .domain([1.5, 4.5])
+            .range([height, 0]);
+        
+        // Add x-axis
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x).ticks(5).tickFormat(d3.timeFormat("%Y")))
+            .selectAll("text")
+            .style("font-size", "11px");
+        
+        // Add y-axis
+        svg.append("g")
+            .call(d3.axisLeft(y).ticks(6))
+            .selectAll("text")
+            .style("font-size", "11px");
+        
+        // Add x-axis label
+        svg.append("text")
+            .attr("text-anchor", "middle")
+            .attr("x", width / 2)
+            .attr("y", height + 40)
+            .style("font-size", "12px")
+            .text("Year");
+        
+        // Add y-axis label
+        svg.append("text")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -45)
+            .attr("x", -height / 2)
+            .style("font-size", "12px")
+            .text("Length of Stay (years)");
+        
+        // Add grid lines
+        svg.append("g")
+            .attr("class", "grid")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x)
+                .ticks(5)
+                .tickSize(-height)
+                .tickFormat("")
+            )
+            .selectAll("line")
+            .style("stroke", "#e0e0e0")
+            .style("stroke-opacity", 0.7);
+        
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(y)
+                .ticks(6)
+                .tickSize(-width)
+                .tickFormat("")
+            )
+            .selectAll("line")
+            .style("stroke", "#e0e0e0")
+            .style("stroke-opacity", 0.7);
+        
+        // Define line generator
+        const line = d3.line()
+            .x(d => x(d.year))
+            .y(d => y(d.los));
+        
+        // Data for each operator
+        const priorityLifeCareData = [
+            {year: new Date(2022, 0, 1), los: 2.1},
+            {year: new Date(2023, 0, 1), los: 2.3},
+            {year: new Date(2024, 0, 1), los: 2.6}
+        ];
+        
+        const maplewoodData = [
+            {year: new Date(2020, 0, 1), los: 2.5},
+            {year: new Date(2021, 0, 1), los: 2.8},
+            {year: new Date(2022, 0, 1), los: 3.0},
+            {year: new Date(2023, 0, 1), los: 3.3},
+            {year: new Date(2024, 0, 1), los: 3.5}
+        ];
+        
+        const twelveoaksData = [
+            {year: new Date(2020, 0, 1), los: 2.0},
+            {year: new Date(2021, 0, 1), los: 2.1},
+            {year: new Date(2022, 0, 1), los: 2.2},
+            {year: new Date(2023, 0, 1), los: 2.3},
+            {year: new Date(2024, 0, 1), los: 2.4}
+        ];
+        
+        // Industry median
+        const industryMedian = 2.1;
+        
+        // Add industry median line
+        svg.append("line")
+            .attr("x1", 0)
+            .attr("y1", y(industryMedian))
+            .attr("x2", width)
+            .attr("y2", y(industryMedian))
+            .style("stroke", "#708090")
+            .style("stroke-dasharray", "4,4")
+            .style("stroke-width", 1.5);
+        
+        // Add industry median label
+        svg.append("text")
+            .attr("x", width - 5)
+            .attr("y", y(industryMedian) - 8)
+            .attr("text-anchor", "end")
+            .style("font-size", "11px")
+            .style("fill", "#708090")
+            .text("Industry median (2024): 2.1 years");
+        
+        // Add lines for each operator
+        // Priority Life Care
+        svg.append("path")
+            .datum(priorityLifeCareData)
+            .attr("fill", "none")
+            .attr("stroke", "#002D62")
+            .attr("stroke-width", 2.5)
+            .attr("d", line);
+        
+        // Maplewood
+        svg.append("path")
+            .datum(maplewoodData)
+            .attr("fill", "none")
+            .attr("stroke", "#008080")
+            .attr("stroke-width", 2.5)
+            .attr("d", line);
+        
+        // 12 Oaks
+        svg.append("path")
+            .datum(twelveoaksData)
+            .attr("fill", "none")
+            .attr("stroke", "#5B8FF9")
+            .attr("stroke-width", 2.5)
+            .attr("d", line);
+        
+        // Add data points
+        // Priority Life Care
+        svg.selectAll(".priority-point")
+            .data(priorityLifeCareData)
+            .enter()
+            .append("circle")
+            .attr("class", "priority-point")
+            .attr("cx", d => x(d.year))
+            .attr("cy", d => y(d.los))
+            .attr("r", 4)
+            .attr("fill", "#002D62");
+        
+        // Maplewood
+        svg.selectAll(".maplewood-point")
+            .data(maplewoodData)
+            .enter()
+            .append("circle")
+            .attr("class", "maplewood-point")
+            .attr("cx", d => x(d.year))
+            .attr("cy", d => y(d.los))
+            .attr("r", 4)
+            .attr("fill", "#008080");
+        
+        // 12 Oaks
+        svg.selectAll(".twelveoaks-point")
+            .data(twelveoaksData)
+            .enter()
+            .append("circle")
+            .attr("class", "twelveoaks-point")
+            .attr("cx", d => x(d.year))
+            .attr("cy", d => y(d.los))
+            .attr("r", 4)
+            .attr("fill", "#5B8FF9");
+        
+        // Add percentage increase annotations - only for the most recent points
+        svg.append("text")
+            .attr("x", x(new Date(2024, 0, 1)) + 8)
+            .attr("y", y(2.6) + 4)
+            .attr("text-anchor", "start")
+            .attr("class", "annotation")
+            .style("fill", "#002D62")
+            .text("+22%");
+        
+        svg.append("text")
+            .attr("x", x(new Date(2024, 0, 1)) + 8)
+            .attr("y", y(3.5) + 4)
+            .attr("text-anchor", "start")
+            .attr("class", "annotation")
+            .style("fill", "#008080")
+            .text("+40%");
+        
+        // Add legend
+        const legend = svg.append("g")
+            .attr("transform", `translate(0, -25)`);
+        
+        // Priority Life Care
+        legend.append("line")
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", 20)
+            .attr("y2", 0)
+            .style("stroke", "#002D62")
+            .style("stroke-width", 2.5);
+        
+        legend.append("text")
+            .attr("x", 25)
+            .attr("y", 4)
+            .style("font-size", "11px")
+            .text("Priority Life Care");
+        
+        // Maplewood
+        legend.append("line")
+            .attr("x1", 120)
+            .attr("y1", 0)
+            .attr("x2", 140)
+            .attr("y2", 0)
+            .style("stroke", "#008080")
+            .style("stroke-width", 2.5);
+        
+        legend.append("text")
+            .attr("x", 145)
+            .attr("y", 4)
+            .style("font-size", "11px")
+            .text("Maplewood");
+        
+        // 12 Oaks
+        legend.append("line")
+            .attr("x1", 220)
+            .attr("y1", 0)
+            .attr("x2", 240)
+            .attr("y2", 0)
+            .style("stroke", "#5B8FF9")
+            .style("stroke-width", 2.5);
+        
+        legend.append("text")
+            .attr("x", 245)
+            .attr("y", 4)
+            .style("font-size", "11px")
+            .text("12 Oaks");
+        
+        // Create an SVG layer for the connecting lines
+        const connectingSvg = d3.select("#line-chart")
+            .append("svg")
+            .attr("width", margin.right + 30)
+            .attr("height", height + margin.top + margin.bottom)
+            .style("position", "absolute")
+            .style("top", margin.top + "px")
+            .style("left", (width + margin.left) + "px")
+            .style("pointer-events", "none");
+        
+        // Financial/Sales connection to Priority Life Care (positioned at 20% from top)
+        connectingSvg.append("path")
+            .attr("class", "connection-line")
+            .attr("d", `M0 ${y(2.6) + margin.top} L30 ${(height + margin.top + margin.bottom) * 0.2}`)
+            .style("stroke", "#002D62")
+            .style("stroke-opacity", 0.6);
+        
+        // Staff Continuity connection to Maplewood (positioned at 40% from top)
+        connectingSvg.append("path")
+            .attr("class", "connection-line")
+            .attr("d", `M0 ${y(3.5) + margin.top} L30 ${(height + margin.top + margin.bottom) * 0.4}`)
+            .style("stroke", "#008080")
+            .style("stroke-opacity", 0.6);
+        
+        // Data-Driven Insights connection to 12 Oaks (positioned at 80% from top)
+        connectingSvg.append("path")
+            .attr("class", "connection-line")
+            .attr("d", `M0 ${y(2.4) + margin.top} L30 ${(height + margin.top + margin.bottom) * 0.8}`)
+            .style("stroke", "#5B8FF9")
+            .style("stroke-opacity", 0.6);
+    </script>
+</body>
+</html>

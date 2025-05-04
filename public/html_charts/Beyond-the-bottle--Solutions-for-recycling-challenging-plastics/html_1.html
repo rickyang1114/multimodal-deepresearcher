@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STRAP Technologies for Multilayer Plastic Recycling</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f9f9f9;
+        }
+        
+        #visualization-container {
+            width: 900px;
+            height: 650px;
+            background-color: white;
+            position: relative;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 15px;
+            width: 100%;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 16px;
+            margin-top: 5px;
+            color: #555;
+            width: 100%;
+        }
+        
+        .process-box {
+            stroke: #333;
+            stroke-width: 1.5px;
+            rx: 5;
+            ry: 5;
+        }
+        
+        .process-text {
+            font-size: 12px;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            fill: #000;
+        }
+        
+        .process-condition {
+            font-size: 10px;
+            text-anchor: middle;
+            fill: #555;
+        }
+        
+        .arrow {
+            stroke: #333;
+            stroke-width: 2px;
+            fill: none;
+        }
+        
+        .arrow-head {
+            fill: #333;
+        }
+        
+        .divider {
+            stroke: #999;
+            stroke-width: 1.5px;
+            stroke-dasharray: 5, 5;
+        }
+        
+        .recovery-value {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+            fill: #1a5276;
+            letter-spacing: 0.5px;
+        }
+        
+        .callout {
+            stroke: #f39c12;
+            stroke-width: 1.5px;
+            fill: #fff8e1;
+            rx: 5;
+            ry: 5;
+        }
+        
+        .callout-text {
+            font-size: 11px;
+            fill: #7d4704;
+        }
+        
+        .source {
+            font-size: 10px;
+            fill: #777;
+            text-anchor: end;
+        }
+        
+        .pathway-label {
+            font-size: 14px;
+            font-weight: bold;
+            fill: #333;
+        }
+        
+        .recycle-icon {
+            fill: #2c3e50;
+            font-size: 14px;
+            text-anchor: middle;
+        }
+    </style>
+</head>
+<body>
+    <div id="visualization-container"></div>
+
+    <script>
+        // SVG setup
+        const svg = d3.select("#visualization-container")
+            .append("svg")
+            .attr("width", 900)
+            .attr("height", 650);
+            
+        // Add title and subtitle
+        svg.append("text")
+            .attr("class", "title")
+            .attr("x", 450)
+            .attr("y", 35)
+            .attr("text-anchor", "middle")
+            .text("STRAP Technologies for Multilayer Plastic Recycling");
+            
+        svg.append("text")
+            .attr("class", "subtitle")
+            .attr("x", 450)
+            .attr("y", 65)
+            .attr("text-anchor", "middle")
+            .text("Comparative Process Flow for STRAP-A and STRAP-B Approaches");
+            
+        // Add pathway labels
+        svg.append("text")
+            .attr("class", "pathway-label")
+            .attr("x", 90)
+            .attr("y", 170)
+            .attr("text-anchor", "middle")
+            .text("STRAP-A");
+            
+        svg.append("text")
+            .attr("class", "pathway-label")
+            .attr("x", 90)
+            .attr("y", 380)
+            .attr("text-anchor", "middle")
+            .text("STRAP-B");
+            
+        // Add divider line between pathways
+        svg.append("line")
+            .attr("class", "divider")
+            .attr("x1", 50)
+            .attr("y1", 275)
+            .attr("x2", 830)
+            .attr("y2", 275);
+            
+        // Input material box (shared)
+        svg.append("rect")
+            .attr("class", "process-box")
+            .attr("x", 150)
+            .attr("y", 225)
+            .attr("width", 100)
+            .attr("height", 50)
+            .attr("fill", "#d5d8dc");
+            
+        svg.append("text")
+            .attr("class", "process-text")
+            .attr("x", 200)
+            .attr("y", 245)
+            .text("Multilayer Film");
+            
+        svg.append("text")
+            .attr("class", "process-condition")
+            .attr("x", 200)
+            .attr("y", 260)
+            .text("(PET/PE/EVOH)");
+            
+        // STRAP-A Process Steps
+        const strapASteps = [
+            {x: 300, y: 150, width: 100, height: 50, fill: "#85c1e9", text: "PE Dissolution", condition: "in Toluene (110°C)"},
+            {x: 440, y: 150, width: 100, height: 50, fill: "#85c1e9", text: "PE Precipitation", condition: "with Antisolvent"},
+            {x: 300, y: 225, width: 100, height: 50, fill: "#76d7c4", text: "EVOH Dissolution", condition: "in DMSO (95°C)"},
+            {x: 440, y: 225, width: 100, height: 50, fill: "#76d7c4", text: "EVOH Precipitation", condition: "with Antisolvent"},
+            {x: 580, y: 187, width: 100, height: 50, fill: "#7dcea0", text: "PET Recovery", condition: ""}
+        ];
+        
+        // STRAP-B Process Steps
+        const strapBSteps = [
+            {x: 300, y: 355, width: 100, height: 50, fill: "#85c1e9", text: "PE Dissolution", condition: "in Toluene (110°C)"},
+            {x: 440, y: 355, width: 100, height: 50, fill: "#85c1e9", text: "PE Thermal", condition: "Precipitation (Cooling)"},
+            {x: 300, y: 430, width: 130, height: 55, fill: "#76d7c4", text: "EVOH Dissolution", condition: "in DMSO/Water (60/40 v/v, 95°C)"},
+            {x: 440, y: 430, width: 100, height: 50, fill: "#76d7c4", text: "EVOH Thermal", condition: "Precipitation (35°C)"},
+            {x: 580, y: 392, width: 100, height: 50, fill: "#7dcea0", text: "PET Recovery", condition: ""}
+        ];
+        
+        // Draw STRAP-A process steps
+        strapASteps.forEach(step => {
+            svg.append("rect")
+                .attr("class", "process-box")
+                .attr("x", step.x)
+                .attr("y", step.y)
+                .attr("width", step.width)
+                .attr("height", step.height)
+                .attr("fill", step.fill);
+                
+            svg.append("text")
+                .attr("class", "process-text")
+                .attr("x", step.x + step.width/2)
+                .attr("y", step.y + 20)
+                .text(step.text);
+                
+            if (step.condition) {
+                svg.append("text")
+                    .attr("class", "process-condition")
+                    .attr("x", step.x + step.width/2)
+                    .attr("y", step.y + 35)
+                    .text(step.condition);
+            }
+        });
+        
+        // Draw STRAP-B process steps
+        strapBSteps.forEach(step => {
+            svg.append("rect")
+                .attr("class", "process-box")
+                .attr("x", step.x)
+                .attr("y", step.y)
+                .attr("width", step.width)
+                .attr("height", step.height)
+                .attr("fill", step.fill);
+                
+            svg.append("text")
+                .attr("class", "process-text")
+                .attr("x", step.x + step.width/2)
+                .attr("y", step.y + 20)
+                .text(step.text);
+                
+            if (step.condition) {
+                svg.append("text")
+                    .attr("class", "process-condition")
+                    .attr("x", step.x + step.width/2)
+                    .attr("y", step.y + 35)
+                    .text(step.condition);
+            }
+        });
+        
+        // Draw arrows for STRAP-A
+        // Input to PE Dissolution
+        drawArrow(svg, 250, 235, 300, 175);
+        
+        // PE Dissolution to PE Precipitation
+        drawArrow(svg, 400, 175, 440, 175);
+        
+        // Input to EVOH Dissolution
+        drawArrow(svg, 250, 250, 300, 250);
+        
+        // EVOH Dissolution to EVOH Precipitation
+        drawArrow(svg, 400, 250, 440, 250);
+        
+        // PE Precipitation to PET Recovery
+        drawArrow(svg, 540, 175, 580, 212);
+        
+        // EVOH Precipitation to PET Recovery
+        drawArrow(svg, 540, 250, 580, 212);
+        
+        // Draw arrows for STRAP-B
+        // Input to PE Dissolution
+        drawArrow(svg, 200, 275, 300, 380);
+        
+        // PE Dissolution to PE Precipitation
+        drawArrow(svg, 400, 380, 440, 380);
+        
+        // Input to EVOH Dissolution
+        drawArrow(svg, 200, 275, 300, 457);
+        
+        // EVOH Dissolution to EVOH Precipitation
+        drawArrow(svg, 430, 457, 440, 457);
+        
+        // PE Precipitation to PET Recovery
+        drawArrow(svg, 540, 380, 580, 417);
+        
+        // EVOH Precipitation to PET Recovery
+        drawArrow(svg, 540, 455, 580, 417);
+        
+        // Add output boxes and recovery rates for STRAP-A
+        const strapAOutputs = [
+            {x: 720, y: 130, polymer: "PE", recovery: "98.5 wt%"},
+            {x: 720, y: 187, polymer: "EVOH", recovery: "95.7 wt%"},
+            {x: 720, y: 244, polymer: "PET", recovery: "100.7 wt%"}
+        ];
+        
+        strapAOutputs.forEach(output => {
+            svg.append("rect")
+                .attr("class", "process-box")
+                .attr("x", output.x)
+                .attr("y", output.y)
+                .attr("width", 100)
+                .attr("height", 45)
+                .attr("fill", "#f5f5f5");
+                
+            svg.append("text")
+                .attr("class", "process-text")
+                .attr("x", output.x + 50)
+                .attr("y", output.y + 18)
+                .text(output.polymer);
+                
+            svg.append("text")
+                .attr("class", "recovery-value")
+                .attr("x", output.x + 50)
+                .attr("y", output.y + 35)
+                .text(output.recovery);
+                
+            // Draw arrow from PET Recovery to output
+            drawArrow(svg, 680, 212, output.x, output.y + 22);
+            
+            // Add recycling symbol
+            svg.append("text")
+                .attr("class", "recycle-icon")
+                .attr("x", output.x + 20)
+                .attr("y", output.y + 25)
+                .text("♺");
+        });
+        
+        // Add output boxes and recovery rates for STRAP-B
+        const strapBOutputs = [
+            {x: 720, y: 335, polymer: "PE", recovery: ">95 wt%"},
+            {x: 720, y: 392, polymer: "EVOH", recovery: ">95 wt%"},
+            {x: 720, y: 449, polymer: "PET", recovery: ">95 wt%"}
+        ];
+        
+        strapBOutputs.forEach(output => {
+            svg.append("rect")
+                .attr("class", "process-box")
+                .attr("x", output.x)
+                .attr("y", output.y)
+                .attr("width", 100)
+                .attr("height", 45)
+                .attr("fill", "#f5f5f5");
+                
+            svg.append("text")
+                .attr("class", "process-text")
+                .attr("x", output.x + 50)
+                .attr("y", output.y + 18)
+                .text(output.polymer);
+                
+            svg.append("text")
+                .attr("class", "recovery-value")
+                .attr("x", output.x + 50)
+                .attr("y", output.y + 35)
+                .text(output.recovery);
+                
+            // Draw arrow from PET Recovery to output
+            drawArrow(svg, 680, 417, output.x, output.y + 22);
+            
+            // Add recycling symbol
+            svg.append("text")
+                .attr("class", "recycle-icon")
+                .attr("x", output.x + 20)
+                .attr("y", output.y + 25)
+                .text("♺");
+        });
+        
+        // Add total mass balance for STRAP-A
+        svg.append("text")
+            .attr("class", "process-condition")
+            .attr("x", 440)
+            .attr("y", 305)
+            .attr("text-anchor", "middle")
+            .text("Total mass balance: 100.44 ± 1.39 wt%");
+        
+        // Add callout box for STRAP-B advantages
+        svg.append("rect")
+            .attr("class", "callout")
+            .attr("x", 490)
+            .attr("y", 505)
+            .attr("width", 300)
+            .attr("height", 50)
+            .attr("rx", 5)
+            .attr("ry", 5);
+            
+        svg.append("text")
+            .attr("class", "callout-text")
+            .attr("x", 500)
+            .attr("y", 525)
+            .text("STRAP-B Advantages: Eliminates antisolvent requirement");
+            
+        svg.append("text")
+            .attr("class", "callout-text")
+            .attr("x", 500)
+            .attr("y", 540)
+            .text("and reduces distillation needs");
+            
+        // Add source attribution
+        svg.append("text")
+            .attr("class", "source")
+            .attr("x", 850)
+            .attr("y", 620)
+            .text("Source: Adapted from Science Advances and OSTI reports");
+            
+        // Helper function to draw arrows
+        function drawArrow(svg, x1, y1, x2, y2) {
+            // Calculate the angle for the arrowhead
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            
+            // Draw the line
+            svg.append("line")
+                .attr("class", "arrow")
+                .attr("x1", x1)
+                .attr("y1", y1)
+                .attr("x2", x2)
+                .attr("y2", y2);
+                
+            // Draw the arrowhead
+            const arrowSize = 6;
+            svg.append("polygon")
+                .attr("class", "arrow-head")
+                .attr("points", `${x2},${y2} ${x2-arrowSize*Math.cos(angle-Math.PI/6)},${y2-arrowSize*Math.sin(angle-Math.PI/6)} ${x2-arrowSize*Math.cos(angle+Math.PI/6)},${y2-arrowSize*Math.sin(angle+Math.PI/6)}`)
+                .attr("transform", `rotate(0,${x2},${y2})`);
+        }
+    </script>
+</body>
+</html>

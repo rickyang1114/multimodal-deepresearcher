@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Organizations' Generative AI Adoption</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            background-color: white;
+        }
+        
+        .container {
+            width: 1000px;
+            padding: 20px;
+            background-color: white;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+        
+        .source {
+            font-size: 12px;
+            color: #777;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .methodology {
+            font-size: 11px;
+            color: #999;
+            font-style: italic;
+        }
+        
+        .axis-label {
+            font-size: 12px;
+            fill: #555;
+        }
+        
+        .grid line {
+            stroke: #f0f0f0;
+            stroke-opacity: 0.5;
+            shape-rendering: crispEdges;
+        }
+        
+        .bar-label {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .change-indicator {
+            font-family: 'Georgia', serif;
+            font-size: 11px;
+            fill: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">Healthcare Organizations' Generative AI Adoption Has Accelerated Throughout 2024</div>
+        <div class="subtitle">Adoption stages of generative AI in healthcare, % of survey respondents</div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #1a53a4;"></div>
+                <span>Q1 2024 (n=100)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #6baed6;"></div>
+                <span>Q4 2024 (n=150)</span>
+            </div>
+        </div>
+        <div id="chart"></div>
+        <div class="source">Source: McKinsey surveys of healthcare leaders, March 2024 and December 2024</div>
+        <div class="methodology">Q1 survey: 100 US healthcare leaders (33% C-level; 31% > $10B revenue); Q4 survey: 150 stakeholders (29% C-level; 37% > $10B revenue)</div>
+    </div>
+
+    <script>
+        // Data preparation
+        const data = [
+            { stage: "Not started", q1: 30, q4: 15, growth: false, change: -15 },
+            { stage: "Exploring/planning", q1: 25, q4: 20, growth: false, change: -5 },
+            { stage: "Running proofs of concept", q1: 23, q4: 28, growth: true, change: 5 },
+            { stage: "Implementing use cases", q1: 17, q4: 27, growth: true, change: 10 },
+            { stage: "Scaled implementation", q1: 5, q4: 10, growth: true, change: 5 }
+        ];
+
+        // Set up dimensions and margins - adjusted for better space utilization
+        const margin = { top: 20, right: 150, bottom: 40, left: 200 };
+        const width = 1000 - margin.left - margin.right;
+        const height = 450 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Set up scales - adjust x domain to 35% for better space utilization
+        const x = d3.scaleLinear()
+            .domain([0, 35])
+            .range([0, width]);
+
+        const y = d3.scaleBand()
+            .domain(data.map(d => d.stage).reverse())
+            .range([height, 0])
+            .padding(0.3);
+
+        const barHeight = y.bandwidth() / 2 - 5;
+
+        // Add X axis
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x)
+                .ticks(7)
+                .tickFormat(d => d + "%"))
+            .call(g => g.select(".domain").remove())
+            .selectAll("text")
+            .attr("class", "axis-label");
+
+        // Add Y axis
+        svg.append("g")
+            .call(d3.axisLeft(y).tickSize(0))
+            .call(g => g.select(".domain").remove())
+            .selectAll("text")
+            .attr("class", "axis-label")
+            .style("font-weight", "bold");
+
+        // Add subtle gridlines
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisBottom(x)
+                .ticks(7)
+                .tickSize(height)
+                .tickFormat("")
+            )
+            .call(g => g.select(".domain").remove());
+
+        // Add Q1 2024 bars
+        svg.selectAll(".bar-q1")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar-q1")
+            .attr("y", d => y(d.stage) + y.bandwidth() / 2 + 2)
+            .attr("x", 0)
+            .attr("height", barHeight)
+            .attr("width", d => x(d.q1))
+            .attr("rx", 3)
+            .attr("ry", 3)
+            .attr("fill", "#1a53a4");
+
+        // Add Q4 2024 bars
+        svg.selectAll(".bar-q4")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar-q4")
+            .attr("y", d => y(d.stage))
+            .attr("x", 0)
+            .attr("height", barHeight)
+            .attr("width", d => x(d.q4))
+            .attr("rx", 3)
+            .attr("ry", 3)
+            .attr("fill", "#6baed6");
+
+        // Add labels for Q1 2024 bars - consistent positioning
+        svg.selectAll(".label-q1")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "bar-label")
+            .attr("y", d => y(d.stage) + y.bandwidth() / 2 + barHeight / 2 + 5)
+            .attr("x", d => x(d.q1) + 8)
+            .text(d => d.q1 + "%")
+            .attr("text-anchor", "start")
+            .attr("alignment-baseline", "middle")
+            .attr("fill", "#333");
+
+        // Add labels for Q4 2024 bars - consistent positioning
+        svg.selectAll(".label-q4")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "bar-label")
+            .attr("y", d => y(d.stage) + barHeight / 2 + 3)
+            .attr("x", d => x(d.q4) + 8)
+            .text(d => d.q4 + "%")
+            .attr("text-anchor", "start")
+            .attr("alignment-baseline", "middle")
+            .attr("fill", "#333");
+
+        // Add change indicators for all items with clearer styling
+        svg.selectAll(".change-indicator")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "change-indicator")
+            .attr("y", d => y(d.stage) + barHeight / 2 + 3)
+            .attr("x", d => x(d.q4) + 40)
+            .text(d => {
+                if (d.change > 0) return `+${d.change}pp`;
+                if (d.change < 0) return `${d.change}pp`;
+                return "";
+            })
+            .attr("text-anchor", "start")
+            .attr("alignment-baseline", "middle")
+            .style("fill", d => d.change > 0 ? "#28a745" : "#dc3545")
+            .style("font-weight", d => Math.abs(d.change) >= 10 ? "bold" : "normal")
+            .style("opacity", d => Math.abs(d.change) < 5 ? 0 : 1);
+
+        // Add a single annotation for the largest increase
+        const maxChangeItem = data.reduce((max, item) => 
+            (item.change > max.change) ? item : max, data[0]);
+            
+        svg.append("text")
+            .attr("x", x(maxChangeItem.q4) + 90)
+            .attr("y", y(maxChangeItem.stage) + barHeight / 2 + 3)
+            .text("Largest increase")
+            .attr("fill", "#28a745")
+            .attr("font-size", "12px")
+            .attr("font-family", "Georgia, serif")
+            .attr("text-anchor", "start");
+    </script>
+</body>
+</html>

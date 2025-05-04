@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Organizations Favor Partnership Approaches for Generative AI Implementation</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .title h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .visualization-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .chart-container {
+            flex: 1;
+            min-width: 450px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .bar-chart-container {
+            height: 350px;
+        }
+        
+        .pie-chart-container {
+            height: 500px; /* Increased height for better spacing */
+        }
+        
+        .axis text {
+            font-size: 12px;
+            fill: #666;
+        }
+        
+        .axis line, .axis path {
+            stroke: #ddd;
+        }
+        
+        .grid line {
+            stroke: #eee;
+            stroke-opacity: 0.7;
+        }
+        
+        .bar-label {
+            font-size: 12px;
+            fill: #333;
+        }
+        
+        .bar-value {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+            fill: #1a5276;
+        }
+        
+        .pie-label {
+            font-size: 12px;
+            fill: #333;
+        }
+        
+        .pie-value {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+            fill: #ffffff;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+        }
+        
+        .note {
+            font-size: 12px;
+            font-style: italic;
+            color: #777;
+            margin-top: 10px;
+        }
+        
+        .source-note {
+            font-size: 11px;
+            color: #999;
+            margin-top: 30px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .methodology-note {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+            text-align: left;
+            margin-left: 20px;
+        }
+        
+        .info-icon {
+            color: #999;
+            margin-right: 5px;
+        }
+        
+        .legend {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        
+        .legend-text {
+            font-size: 12px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">
+            <h1>Healthcare Organizations Favor Partnership Approaches for Generative AI Implementation</h1>
+        </div>
+        
+        <div class="visualization-container">
+            <div class="chart-container">
+                <div class="chart-title">Implementation approach, % of organizations deploying generative AI (Q4 2024)</div>
+                <div class="bar-chart-container" id="bar-chart"></div>
+                <div class="note">Note: Percentages do not sum to 100% as organizations may pursue multiple approaches simultaneously.</div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Partner types, % of organizations using partnerships for generative AI (Q4 2024)</div>
+                <div class="pie-chart-container" id="pie-chart"></div>
+            </div>
+        </div>
+        
+        <div class="source-note">
+            <i class="fas fa-info-circle info-icon"></i> Source: McKinsey survey of 150 healthcare leaders, December 2024
+        </div>
+        <div class="methodology-note">
+            Methodology: Survey included 60 payer organizations, 60 health systems, and 30 health science & technology groups; 29% C-level executives; 37% from organizations with >$10B revenue
+        </div>
+    </div>
+    
+    <script>
+        // Bar chart data
+        const barData = [
+            { approach: "Co-building with third-party vendors", percentage: 61 },
+            { approach: "Engaging with hyperscalers", percentage: 46 },
+            { approach: "Building in-house", percentage: 20 },
+            { approach: "Buying off-the-shelf", percentage: 19 }
+        ];
+        
+        // Pie chart data
+        const pieData = [
+            { partner: "Existing IT solution providers", percentage: 58 },
+            { partner: "Cloud hyperscalers", percentage: 46 },
+            { partner: "Specialized AI startups", percentage: 34 },
+            { partner: "Academic and research institutions", percentage: 22 }
+        ];
+        
+        // Color scale for both charts
+        const colorScale = d3.scaleOrdinal()
+            .domain(pieData.map(d => d.partner))
+            .range(["#1a5276", "#2874a6", "#3498db", "#85c1e9"]);
+        
+        // Create bar chart
+        function createBarChart() {
+            const container = d3.select("#bar-chart");
+            const containerWidth = parseInt(container.style("width"));
+            const containerHeight = parseInt(container.style("height"));
+            
+            const margin = { top: 20, right: 70, bottom: 30, left: 200 };
+            const width = containerWidth - margin.left - margin.right;
+            const height = containerHeight - margin.top - margin.bottom;
+            
+            const svg = container.append("svg")
+                .attr("width", containerWidth)
+                .attr("height", containerHeight)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // Scales
+            const xScale = d3.scaleLinear()
+                .domain([0, 70])
+                .range([0, width]);
+            
+            const yScale = d3.scaleBand()
+                .domain(barData.map(d => d.approach))
+                .range([0, height])
+                .padding(0.3);
+            
+            // Grid lines
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisBottom(xScale)
+                    .tickSize(height)
+                    .tickFormat("")
+                    .ticks(7)
+                )
+                .call(g => g.select(".domain").remove())
+                .call(g => g.selectAll(".tick line")
+                    .attr("stroke-dasharray", "2,2")
+                );
+            
+            // X-axis
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale)
+                    .ticks(7)
+                    .tickFormat(d => `${d}%`)
+                );
+            
+            // Y-axis
+            svg.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(yScale))
+                .selectAll(".domain, .tick line")
+                .remove();
+            
+            // Bars
+            svg.selectAll(".bar")
+                .data(barData)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("y", d => yScale(d.approach))
+                .attr("height", yScale.bandwidth())
+                .attr("x", 0)
+                .attr("width", d => xScale(d.percentage))
+                .attr("fill", "#1a5276")
+                .attr("rx", 4)
+                .attr("ry", 4);
+            
+            // Bar values
+            svg.selectAll(".bar-value")
+                .data(barData)
+                .enter()
+                .append("text")
+                .attr("class", "bar-value")
+                .attr("x", d => xScale(d.percentage) + 5)
+                .attr("y", d => yScale(d.approach) + yScale.bandwidth() / 2 + 5)
+                .text(d => `${d.percentage}%`);
+        }
+        
+        // Create pie chart with legend instead of direct labels
+        function createPieChart() {
+            const container = d3.select("#pie-chart");
+            const containerWidth = parseInt(container.style("width"));
+            const containerHeight = parseInt(container.style("height"));
+            
+            const margin = 40;
+            const width = containerWidth - 2 * margin;
+            const height = containerHeight - 2 * margin;
+            const radius = Math.min(width, height) / 2.5;
+            
+            // Create SVG container
+            const svg = container.append("svg")
+                .attr("width", containerWidth)
+                .attr("height", containerHeight);
+                
+            // Create pie chart group
+            const pieGroup = svg.append("g")
+                .attr("transform", `translate(${containerWidth / 2},${containerHeight / 2 - 50})`);
+            
+            // Pie generator
+            const pie = d3.pie()
+                .value(d => d.percentage)
+                .sort(null);
+            
+            // Arc generator
+            const arc = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+            
+            // Create pie segments
+            const segments = pieGroup.selectAll(".segment")
+                .data(pie(pieData))
+                .enter()
+                .append("g")
+                .attr("class", "segment");
+            
+            // Draw segments
+            segments.append("path")
+                .attr("d", arc)
+                .attr("fill", d => colorScale(d.data.partner))
+                .attr("stroke", "white")
+                .attr("stroke-width", 1);
+                
+            // Apply transform to explode the first segment
+            segments.filter((d, i) => i === 0)
+                .attr("transform", function(d) {
+                    const c = arc.centroid(d);
+                    return `translate(${c[0] * 0.1},${c[1] * 0.1})`;
+                });
+            
+            // Add percentage labels inside segments
+            segments.append("text")
+                .attr("class", "pie-value")
+                .attr("transform", d => {
+                    const pos = arc.centroid(d);
+                    return `translate(${pos})`;
+                })
+                .attr("text-anchor", "middle")
+                .attr("dy", ".35em")
+                .text(d => `${d.data.percentage}%`);
+            
+            // Create legend
+            const legendGroup = svg.append("g")
+                .attr("class", "legend")
+                .attr("transform", `translate(${containerWidth / 2 - 100}, ${containerHeight - 120})`);
+                
+            const legendItems = legendGroup.selectAll(".legend-item")
+                .data(pieData)
+                .enter()
+                .append("g")
+                .attr("class", "legend-item")
+                .attr("transform", (d, i) => `translate(0, ${i * 25})`);
+                
+            legendItems.append("rect")
+                .attr("width", 15)
+                .attr("height", 15)
+                .attr("rx", 2)
+                .attr("ry", 2)
+                .attr("fill", d => colorScale(d.partner));
+                
+            legendItems.append("text")
+                .attr("x", 25)
+                .attr("y", 12)
+                .text(d => `${d.partner} (${d.percentage}%)`);
+        }
+        
+        // Initialize charts
+        createBarChart();
+        createPieChart();
+        
+        // Responsive resize
+        window.addEventListener("resize", function() {
+            d3.select("#bar-chart").html("");
+            d3.select("#pie-chart").html("");
+            createBarChart();
+            createPieChart();
+        });
+    </script>
+</body>
+</html>

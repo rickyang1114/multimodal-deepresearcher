@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Techno-Economic Assessment of Advanced Recycling Technologies</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .visualization-container {
+            width: 850px;
+            height: 750px;
+            padding: 10px;
+        }
+        
+        .main-title {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .panel {
+            margin-bottom: 20px;
+        }
+        
+        .panel-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .axis-label {
+            font-size: 12px;
+            fill: #555;
+        }
+        
+        .key-value {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+        }
+        
+        .annotation {
+            font-size: 12px;
+            font-style: italic;
+            fill: #555;
+        }
+        
+        .source-note {
+            font-size: 10px;
+            text-align: right;
+            color: #777;
+            margin-top: 5px;
+        }
+        
+        .tick line {
+            stroke: #ddd;
+        }
+        
+        .domain {
+            stroke: #999;
+        }
+        
+        .reference-line {
+            stroke: #999;
+            stroke-dasharray: 4,4;
+            stroke-width: 1.5;
+        }
+        
+        .callout-box {
+            fill: #f8f8f8;
+            stroke: #ddd;
+            stroke-width: 1px;
+            rx: 5;
+            ry: 5;
+        }
+        
+        .callout-text {
+            font-size: 12px;
+            font-style: italic;
+            fill: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="main-title">Techno-Economic Assessment of Advanced Recycling Technologies</div>
+        
+        <div id="top-panel" class="panel"></div>
+        <div id="middle-panel" class="panel"></div>
+        <div id="bottom-panel" class="panel"></div>
+        
+        <div class="source-note">Source: Data adapted from Science Advances and OSTI reports</div>
+    </div>
+
+    <script>
+        // Common dimensions and margins - increased left margin for axis labels
+        const margin = {top: 30, right: 150, bottom: 40, left: 120};
+        const width = 850 - margin.left - margin.right;
+        const height = 220 - margin.top - margin.bottom;
+        
+        // Color scheme
+        const colors = {
+            strapA: "#4682B4", // Steel Blue
+            strapB: "#6CA6CD", // Sky Blue
+            pyrolysis: "#FF8C00", // Dark Orange
+            mechanical: "#2E8B57", // Sea Green
+            reference: "#777777", // Gray
+            capex: d3.scaleOrdinal().range(["#4682B4", "#5F9EA0", "#6CA6CD", "#87CEEB", "#B0E0E6"]),
+            opex: d3.scaleOrdinal().range(["#008B8B", "#20B2AA", "#48D1CC", "#5F9EA0"])
+        };
+        
+        // ========== TOP PANEL: Minimum Selling Price vs. Production Capacity ==========
+        
+        const topPanel = d3.select("#top-panel")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+        // Add panel title
+        topPanel.append("text")
+            .attr("class", "panel-title")
+            .attr("x", width / 2)
+            .attr("y", -10)
+            .attr("text-anchor", "middle")
+            .text("Minimum Selling Price vs. Production Capacity");
+            
+        // Define scales - fixed to include 15k
+        const xScale = d3.scaleLinear()
+            .domain([0, 15000])
+            .range([0, width]);
+            
+        const yScale = d3.scaleLinear()
+            .domain([0, 1.5])
+            .range([height, 0]);
+            
+        // Add axes
+        topPanel.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale)
+                .ticks(6)
+                .tickFormat(d => d === 0 ? "0" : d/1000 + "k"))
+            .selectAll("text")
+            .attr("font-size", "11px");
+            
+        topPanel.append("g")
+            .call(d3.axisLeft(yScale)
+                .ticks(5)
+                .tickFormat(d => "$" + d.toFixed(1) + "/kg"))
+            .selectAll("text")
+            .attr("font-size", "11px");
+            
+        // Add axis labels
+        topPanel.append("text")
+            .attr("class", "axis-label")
+            .attr("x", width / 2)
+            .attr("y", height + 35)
+            .attr("text-anchor", "middle")
+            .text("Plant Capacity (t/yr)");
+            
+        topPanel.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", -60)  // Increased space for y-axis label
+            .attr("text-anchor", "middle")
+            .text("Minimum Selling Price ($/kg)");
+            
+        // Add reference line for Virgin PET
+        topPanel.append("line")
+            .attr("class", "reference-line")
+            .attr("x1", 0)
+            .attr("y1", yScale(1.10))
+            .attr("x2", width)
+            .attr("y2", yScale(1.10));
+            
+        topPanel.append("text")
+            .attr("x", width + 5)
+            .attr("y", yScale(1.10) - 5)
+            .attr("text-anchor", "start")
+            .attr("font-size", "11px")
+            .text("Virgin PET Reference: $1.10/kg");
+            
+        // Define data points
+        const priceData = [
+            {tech: "STRAP-A", capacity: 3000, price: 1.19, color: colors.strapA},
+            {tech: "STRAP-A", capacity: 15000, price: 0.60, color: colors.strapA},
+            {tech: "STRAP-B", capacity: 3000, price: 0.94, color: colors.strapB},
+            {tech: "STRAP-B", capacity: 15000, price: 0.48, color: colors.strapB}, // Estimated based on trend
+            {tech: "Pyrolysis", capacity: 3000, price: 1.30, color: colors.pyrolysis}, // Estimated
+            {tech: "Pyrolysis", capacity: 15000, price: 0.85, color: colors.pyrolysis}, // Estimated
+            {tech: "Mechanical Recycling", capacity: 3000, price: 1.05, color: colors.mechanical}, // Estimated
+            {tech: "Mechanical Recycling", capacity: 15000, price: 0.70, color: colors.mechanical} // Estimated
+        ];
+        
+        // Group data by technology
+        const techGroups = d3.group(priceData, d => d.tech);
+        
+        // Create line generator
+        const line = d3.line()
+            .x(d => xScale(d.capacity))
+            .y(d => yScale(d.price));
+            
+        // Add lines for each technology
+        techGroups.forEach((points, tech) => {
+            // Sort points by capacity for proper line drawing
+            points.sort((a, b) => a.capacity - b.capacity);
+            
+            // Draw the line
+            topPanel.append("path")
+                .datum(points)
+                .attr("fill", "none")
+                .attr("stroke", points[0].color)
+                .attr("stroke-width", 2.5)
+                .attr("d", line);
+                
+            // Add data points
+            topPanel.selectAll(`.point-${tech}`)
+                .data(points)
+                .enter()
+                .append("circle")
+                .attr("cx", d => xScale(d.capacity))
+                .attr("cy", d => yScale(d.price))
+                .attr("r", 4)
+                .attr("fill", d => d.color);
+        });
+        
+        // Add selective labels to avoid overlapping - only label endpoints
+        // Label left side (3000 t/yr) with staggered positioning
+        topPanel.append("text")
+            .attr("x", xScale(3000))
+            .attr("y", yScale(1.30) - 15) // Pyrolysis - highest position
+            .attr("text-anchor", "middle")
+            .attr("class", "key-value")
+            .attr("font-size", "12px")
+            .attr("fill", colors.pyrolysis)
+            .text("$1.30");
+            
+        topPanel.append("text")
+            .attr("x", xScale(3000))
+            .attr("y", yScale(1.19) - 5) // STRAP-A - second position
+            .attr("text-anchor", "middle")
+            .attr("class", "key-value")
+            .attr("font-size", "12px")
+            .attr("fill", colors.strapA)
+            .text("$1.19");
+            
+        topPanel.append("text")
+            .attr("x", xScale(3000) - 25)
+            .attr("y", yScale(1.05) + 15) // Mechanical - third position, offset left
+            .attr("text-anchor", "end")
+            .attr("class", "key-value")
+            .attr("font-size", "12px")
+            .attr("fill", colors.mechanical)
+            .text("$1.05");
+            
+        topPanel.append("text")
+            .attr("x", xScale(3000) + 25)
+            .attr("y", yScale(0.94) + 15) // STRAP-B - fourth position, offset right
+            .attr("text-anchor", "start")
+            .attr("class", "key-value")
+            .attr("font-size", "12px")
+            .attr("fill", colors.strapB)
+            .text("$0.94");
+            
+        // Add annotation for STRAP-B - repositioned to be more clearly associated
+        topPanel.append("text")
+            .attr("x", xScale(3000) + 25)
+            .attr("y", yScale(0.94) + 35)  // Increased spacing to avoid overlap
+            .attr("font-size", "11px")
+            .attr("fill", colors.strapB)
+            .text("21% lower than STRAP-A");
+            
+        // Label right side (15000 t/yr) with staggered positioning
+        topPanel.append("text")
+            .attr("x", xScale(15000))
+            .attr("y", yScale(0.85) - 10) // Pyrolysis - highest position
+            .attr("text-anchor", "middle")
+            .attr("class", "key-value")
+            .attr("font-size", "12px")
+            .attr("fill", colors.pyrolysis)
+            .text("$0.85");
+            
+        topPanel.append("text")
+            .attr("x", xScale(15000) - 25)
+            .attr("y", yScale(0.70) - 5) // Mechanical - second position, offset left
+            .attr("text-anchor", "end")
+            .attr("class", "key-value")
+            .attr("font-size", "12px")
+            .attr("fill", colors.mechanical)
+            .text("$0.70");
+            
+        topPanel.append("text")
+            .attr("x", xScale(15000) + 25)
+            .attr("y", yScale(0.60) + 15) // STRAP-A - third position, offset right
+            .attr("text-anchor", "start")
+            .attr("class", "key-value")
+            .attr("font-size", "12px")
+            .attr("fill", colors.strapA)
+            .text("$0.60");
+            
+        topPanel.append("text")
+            .attr("x", xScale(15000))
+            .attr("y", yScale(0.48) + 15) // STRAP-B - fourth position
+            .attr("text-anchor", "middle")
+            .attr("class", "key-value")
+            .attr("font-size", "12px")
+            .attr("fill", colors.strapB)
+            .text("$0.48");
+            
+        // Add legend - moved to right side with more space
+        const legend = topPanel.append("g")
+            .attr("transform", `translate(${width + 10}, 10)`);
+            
+        const technologies = ["STRAP-A", "STRAP-B", "Pyrolysis", "Mechanical Recycling"];
+        const techColors = [colors.strapA, colors.strapB, colors.pyrolysis, colors.mechanical];
+        
+        technologies.forEach((tech, i) => {
+            legend.append("line")
+                .attr("x1", 0)
+                .attr("y1", i * 20)
+                .attr("x2", 20)
+                .attr("y2", i * 20)
+                .attr("stroke", techColors[i])
+                .attr("stroke-width", 2.5);
+                
+            legend.append("text")
+                .attr("x", 25)
+                .attr("y", i * 20 + 4)
+                .attr("font-size", "11px")
+                .text(tech);
+        });
+        
+        // ========== MIDDLE PANEL: CAPEX Breakdown ==========
+        
+        const middlePanel = d3.select("#middle-panel")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+        // Add panel title
+        middlePanel.append("text")
+            .attr("class", "panel-title")
+            .attr("x", width / 2)
+            .attr("y", -10)
+            .attr("text-anchor", "middle")
+            .text("STRAP Process CAPEX Breakdown");
+            
+        // CAPEX data - fixed order to be strictly descending
+        const capexData = [
+            {component: "Distillation Equipment", percentage: 33.6},
+            {component: "Dissolution Tanks", percentage: 22.4},
+            {component: "Precipitation Vessels", percentage: 18.7},
+            {component: "Other Equipment", percentage: 13.0},
+            {component: "Solvent Storage", percentage: 12.3}
+        ];
+        
+        // Sort data in descending order
+        capexData.sort((a, b) => b.percentage - a.percentage);
+        
+        // Define scales
+        const xScaleCapex = d3.scaleLinear()
+            .domain([0, 40])
+            .range([0, width]);
+            
+        const yScaleCapex = d3.scaleBand()
+            .domain(capexData.map(d => d.component))
+            .range([0, height])
+            .padding(0.3);
+            
+        // Add axes
+        middlePanel.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScaleCapex)
+                .ticks(5)
+                .tickFormat(d => d + "%"))
+            .selectAll("text")
+            .attr("font-size", "11px");
+            
+        middlePanel.append("g")
+            .call(d3.axisLeft(yScaleCapex))
+            .selectAll("text")
+            .attr("font-size", "11px");
+            
+        // Add bars
+        middlePanel.selectAll(".capex-bar")
+            .data(capexData)
+            .enter()
+            .append("rect")
+            .attr("class", "capex-bar")
+            .attr("x", 0)
+            .attr("y", d => yScaleCapex(d.component))
+            .attr("width", d => xScaleCapex(d.percentage))
+            .attr("height", yScaleCapex.bandwidth())
+            .attr("fill", (d, i) => colors.capex(i));
+            
+        // Add percentage labels
+        middlePanel.selectAll(".capex-label")
+            .data(capexData)
+            .enter()
+            .append("text")
+            .attr("class", "key-value")
+            .attr("x", d => xScaleCapex(d.percentage) + 5)
+            .attr("y", d => yScaleCapex(d.component) + yScaleCapex.bandwidth() / 2 + 4)
+            .attr("font-size", "12px")
+            .text(d => d.percentage + "%");
+            
+        // Add axis label
+        middlePanel.append("text")
+            .attr("class", "axis-label")
+            .attr("x", width / 2)
+            .attr("y", height + 35)
+            .attr("text-anchor", "middle")
+            .text("Percentage of Total CAPEX (%)");
+            
+        // ========== BOTTOM PANEL: OPEX Breakdown ==========
+        
+        const bottomPanel = d3.select("#bottom-panel")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+        // Add panel title
+        bottomPanel.append("text")
+            .attr("class", "panel-title")
+            .attr("x", width / 2)
+            .attr("y", -10)
+            .attr("text-anchor", "middle")
+            .text("STRAP Process Variable OPEX Breakdown");
+            
+        // OPEX data
+        const opexData = [
+            {component: "Solvent Distillation", percentage: 79.3},
+            {component: "Heating/Cooling", percentage: 11.2},
+            {component: "Labor", percentage: 5.8},
+            {component: "Maintenance", percentage: 3.7}
+        ];
+        
+        // Sort data in descending order
+        opexData.sort((a, b) => b.percentage - a.percentage);
+        
+        // Define scales
+        const xScaleOpex = d3.scaleLinear()
+            .domain([0, 80])
+            .range([0, width]);
+            
+        const yScaleOpex = d3.scaleBand()
+            .domain(opexData.map(d => d.component))
+            .range([0, height])
+            .padding(0.3);
+            
+        // Add axes
+        bottomPanel.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScaleOpex)
+                .ticks(5)
+                .tickFormat(d => d + "%"))
+            .selectAll("text")
+            .attr("font-size", "11px");
+            
+        bottomPanel.append("g")
+            .call(d3.axisLeft(yScaleOpex))
+            .selectAll("text")
+            .attr("font-size", "11px");
+            
+        // Add bars
+        bottomPanel.selectAll(".opex-bar")
+            .data(opexData)
+            .enter()
+            .append("rect")
+            .attr("class", "opex-bar")
+            .attr("x", 0)
+            .attr("y", d => yScaleOpex(d.component))
+            .attr("width", d => xScaleOpex(d.percentage))
+            .attr("height", yScaleOpex.bandwidth())
+            .attr("fill", (d, i) => colors.opex(i));
+            
+        // Add percentage labels
+        bottomPanel.selectAll(".opex-label")
+            .data(opexData)
+            .enter()
+            .append("text")
+            .attr("class", "key-value")
+            .attr("x", d => xScaleOpex(d.percentage) + 5)
+            .attr("y", d => yScaleOpex(d.component) + yScaleOpex.bandwidth() / 2 + 4)
+            .attr("font-size", "12px")
+            .text(d => d.percentage + "%");
+            
+        // Add axis label
+        bottomPanel.append("text")
+            .attr("class", "axis-label")
+            .attr("x", width / 2)
+            .attr("y", height + 35)
+            .attr("text-anchor", "middle")
+            .text("Percentage of Variable OPEX (%)");
+            
+        // Add annotation callout - repositioned to avoid overlap
+        const calloutX = width - 250;
+        const calloutY = 20;
+        const calloutWidth = 240;
+        const calloutHeight = 50;
+        
+        // Add callout box
+        bottomPanel.append("rect")
+            .attr("class", "callout-box")
+            .attr("x", calloutX)
+            .attr("y", calloutY)
+            .attr("width", calloutWidth)
+            .attr("height", calloutHeight);
+        
+        // Add callout text
+        bottomPanel.append("text")
+            .attr("class", "callout-text")
+            .attr("x", calloutX + 25) // Space for icon
+            .attr("y", calloutY + 20)
+            .text("Solvent distillation represents the largest");
+            
+        bottomPanel.append("text")
+            .attr("class", "callout-text")
+            .attr("x", calloutX + 25) // Space for icon
+            .attr("y", calloutY + 35)
+            .text("cost component in both CAPEX and OPEX");
+            
+        // Add lightbulb icon using a text element with Unicode character
+        bottomPanel.append("text")
+            .attr("x", calloutX + 10)
+            .attr("y", calloutY + 25)
+            .attr("font-size", "14px")
+            .attr("fill", "#FFD700")
+            .text("💡");
+    </script>
+</body>
+</html>

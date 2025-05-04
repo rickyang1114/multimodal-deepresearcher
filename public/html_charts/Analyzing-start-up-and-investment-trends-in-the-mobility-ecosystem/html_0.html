@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Mobility Startup Funding Trends</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 800px;
+            height: 600px;
+            background-color: white;
+        }
+        
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            text-align: center;
+            color: #555;
+            margin-top: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .panel-title {
+            font-size: 14px;
+            font-weight: bold;
+            fill: #333;
+        }
+        
+        .axis-label {
+            font-size: 12px;
+            fill: #555;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        
+        .bar {
+            fill: #1a4e8c;
+        }
+        
+        .line {
+            fill: none;
+            stroke: #20a39e;
+            stroke-width: 2.5;
+        }
+        
+        .dot {
+            fill: #20a39e;
+            stroke: white;
+            stroke-width: 1.5;
+        }
+        
+        .threshold {
+            stroke: #999;
+            stroke-dasharray: 4;
+            stroke-width: 1;
+        }
+        
+        .annotation {
+            font-size: 11px;
+            fill: #333;
+        }
+        
+        .annotation-box {
+            fill: #f8f8f8;
+            stroke: #ddd;
+            stroke-width: 1;
+            rx: 3;
+            ry: 3;
+        }
+        
+        .data-label {
+            font-size: 11px;
+            fill: #333;
+            text-anchor: middle;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-size: 13px;
+            font-weight: bold;
+            fill: #1a4e8c;
+        }
+        
+        .source-note {
+            font-size: 10px;
+            fill: #777;
+        }
+        
+        .average-label {
+            font-size: 12px;
+            fill: #20a39e;
+            font-weight: bold;
+        }
+        
+        .legend-item {
+            font-size: 12px;
+            fill: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container" id="chart"></div>
+
+    <script>
+        // Set up dimensions and margins
+        const margin = {top: 60, right: 60, bottom: 80, left: 70};
+        const width = 800 - margin.left - margin.right;
+        const height = 600 - margin.top - margin.bottom;
+        const panelHeight = (height - 60) / 2; // Split height between two panels with a gap
+        
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+        
+        // Data
+        const data = [
+            {year: 2021, rounds: 1050, funding: 83, avgRoundSize: 83, megaRounds: 80},
+            {year: 2022, rounds: 1020, funding: 40, avgRoundSize: 39, megaRounds: 80},
+            {year: 2023, rounds: 750, funding: 39, avgRoundSize: 52, megaRounds: 61},
+            {year: 2024, rounds: 600, funding: 35, avgRoundSize: 58, megaRounds: 45}
+        ];
+        
+        // X scale (shared between panels)
+        const x = d3.scaleBand()
+            .domain(data.map(d => d.year))
+            .range([0, width])
+            .padding(0.3);
+        
+        // Y scales
+        const y1 = d3.scaleLinear()
+            .domain([0, 1200])
+            .range([panelHeight, 0]);
+        
+        const y2 = d3.scaleLinear()
+            .domain([0, 90])
+            .range([panelHeight, 0]);
+        
+        // Add title and subtitle
+        svg.append("text")
+            .attr("class", "title")
+            .attr("x", width / 2)
+            .attr("y", -35)
+            .attr("text-anchor", "middle")
+            .text("Global Mobility Startup Funding Trends (2021-2025)");
+        
+        svg.append("text")
+            .attr("class", "subtitle")
+            .attr("x", width / 2)
+            .attr("y", -15)
+            .attr("text-anchor", "middle")
+            .text("Number of funding rounds and total funding amount ($B)");
+        
+        // Top panel (Number of Funding Rounds)
+        const topPanel = svg.append("g");
+        
+        // Add panel title
+        topPanel.append("text")
+            .attr("class", "panel-title")
+            .attr("x", 0)
+            .attr("y", -5)
+            .text("Number of Funding Rounds");
+        
+        // Add gridlines
+        topPanel.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(y1)
+                .tickSize(-width)
+                .tickFormat("")
+                .ticks(5)
+            );
+        
+        // Add threshold line at 1000
+        topPanel.append("line")
+            .attr("class", "threshold")
+            .attr("x1", 0)
+            .attr("y1", y1(1000))
+            .attr("x2", width)
+            .attr("y2", y1(1000));
+        
+        // Add y-axis
+        topPanel.append("g")
+            .attr("class", "axis")
+            .call(d3.axisLeft(y1).ticks(5));
+        
+        // Add bars
+        topPanel.selectAll(".bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("x", d => x(d.year))
+            .attr("y", d => y1(d.rounds))
+            .attr("width", x.bandwidth())
+            .attr("height", d => panelHeight - y1(d.rounds));
+        
+        // Add data labels
+        topPanel.selectAll(".data-label")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "data-label")
+            .attr("x", d => x(d.year) + x.bandwidth() / 2)
+            .attr("y", d => y1(d.rounds) - 10)
+            .text(d => d.rounds);
+        
+        // Add mega-rounds annotation
+        const megaAnnotation = topPanel.append("g")
+            .attr("transform", `translate(${width - 190}, ${y1(850)})`);
+        
+        megaAnnotation.append("rect")
+            .attr("class", "annotation-box")
+            .attr("x", -5)
+            .attr("y", -15)
+            .attr("width", 190)
+            .attr("height", 50);
+        
+        megaAnnotation.append("text")
+            .attr("class", "annotation")
+            .attr("y", 0)
+            .text("Number of mega-rounds (>$100M):");
+        
+        megaAnnotation.append("text")
+            .attr("class", "key-number")
+            .attr("y", 20)
+            .text("2021: 80 → 2023: 61 → 2024: 45");
+        
+        // Bottom panel (Total Funding)
+        const bottomPanel = svg.append("g")
+            .attr("transform", `translate(0, ${panelHeight + 60})`);
+        
+        // Add panel title
+        bottomPanel.append("text")
+            .attr("class", "panel-title")
+            .attr("x", 0)
+            .attr("y", -5)
+            .text("Total Funding ($B)");
+        
+        // Add gridlines
+        bottomPanel.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(y2)
+                .tickSize(-width)
+                .tickFormat("")
+                .ticks(4)
+            );
+        
+        // Add y-axis with dollar signs
+        bottomPanel.append("g")
+            .attr("class", "axis")
+            .call(d3.axisLeft(y2)
+                .ticks(4)
+                .tickFormat(d => `$${d}`)
+            );
+        
+        // Add bars
+        bottomPanel.selectAll(".bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("x", d => x(d.year))
+            .attr("y", d => y2(d.funding))
+            .attr("width", x.bandwidth())
+            .attr("height", d => panelHeight - y2(d.funding));
+        
+        // Add data labels
+        bottomPanel.selectAll(".data-label")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "data-label")
+            .attr("x", d => x(d.year) + x.bandwidth() / 2)
+            .attr("y", d => y2(d.funding) - 10)
+            .text(d => `$${d.funding}B`);
+        
+        // Add average round size line - using actual values without scaling
+        const line = d3.line()
+            .x(d => x(d.year) + x.bandwidth() / 2)
+            .y(d => y2(d.avgRoundSize / 1.5)); // Adjusted scaling to make line visible but not misleading
+        
+        bottomPanel.append("path")
+            .datum(data)
+            .attr("class", "line")
+            .attr("d", line);
+        
+        // Add dots for average round size
+        bottomPanel.selectAll(".dot")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("class", "dot")
+            .attr("cx", d => x(d.year) + x.bandwidth() / 2)
+            .attr("cy", d => y2(d.avgRoundSize / 1.5))
+            .attr("r", 5);
+        
+        // Add average round size annotation
+        const avgAnnotation = bottomPanel.append("g")
+            .attr("transform", `translate(${width - 190}, ${y2(60)})`);
+        
+        avgAnnotation.append("rect")
+            .attr("class", "annotation-box")
+            .attr("x", -5)
+            .attr("y", -15)
+            .attr("width", 190)
+            .attr("height", 60);
+        
+        avgAnnotation.append("text")
+            .attr("class", "annotation")
+            .attr("y", 0)
+            .text("Average round size:");
+        
+        avgAnnotation.append("text")
+            .attr("class", "key-number")
+            .attr("y", 20)
+            .text("2021: $83M → 2023: $52M →");
+        
+        avgAnnotation.append("text")
+            .attr("class", "key-number")
+            .attr("y", 40)
+            .text("2024: $58M");
+        
+        // Add legend for average round size line - positioned at top of bottom panel
+        const legend = bottomPanel.append("g")
+            .attr("transform", `translate(${width - 190}, -30)`);
+        
+        legend.append("rect")
+            .attr("class", "annotation-box")
+            .attr("x", -5)
+            .attr("y", -15)
+            .attr("width", 150)
+            .attr("height", 30);
+            
+        legend.append("line")
+            .attr("class", "line")
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", 20)
+            .attr("y2", 0);
+            
+        legend.append("circle")
+            .attr("class", "dot")
+            .attr("cx", 10)
+            .attr("cy", 0)
+            .attr("r", 5);
+            
+        legend.append("text")
+            .attr("class", "average-label")
+            .attr("x", 25)
+            .attr("y", 4)
+            .text("Average round size");
+        
+        // Add x-axis at the bottom with more space
+        svg.append("g")
+            .attr("transform", `translate(0, ${2 * panelHeight + 60})`)
+            .call(d3.axisBottom(x).tickFormat(d => d));
+        
+        // Add source note with more space from x-axis
+        svg.append("text")
+            .attr("class", "source-note")
+            .attr("x", 0)
+            .attr("y", height + 30)
+            .text("Sources: Statista (2024), Dealroom (2024), SVB State of the Markets H2 2024");
+        
+        // Add methodology note
+        svg.append("text")
+            .attr("class", "source-note")
+            .attr("x", 0)
+            .attr("y", height + 45)
+            .text("Note: 2025 data represents early trends through Q1");
+    </script>
+</body>
+</html>

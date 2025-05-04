@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>From Healthcare ROI to Comprehensive Value on Investment</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        
+        .visualization-container {
+            width: 1000px;
+            background-color: white;
+            padding: 20px;
+        }
+        
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #002D5A;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 14pt;
+            color: #5A6772;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .comparison-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .section {
+            flex: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-header {
+            padding: 15px;
+            font-size: 16pt;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+        }
+        
+        .roi-section {
+            background-color: #E6F0FA;
+        }
+        
+        .roi-header {
+            background-color: #1E88E5;
+        }
+        
+        .voi-section {
+            background-color: #FFF3E0;
+        }
+        
+        .voi-header {
+            background-color: #F57C00;
+        }
+        
+        .metrics-container {
+            padding: 15px;
+        }
+        
+        .metric {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-icon {
+            width: 30px;
+            text-align: center;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+        
+        .roi-section .metric-icon {
+            color: #1E88E5;
+        }
+        
+        .voi-section .metric-icon {
+            color: #F57C00;
+        }
+        
+        .metric-content {
+            flex: 1;
+        }
+        
+        .metric-name {
+            font-size: 12pt;
+            margin-bottom: 5px;
+        }
+        
+        .metric-value {
+            font-size: 14pt;
+            font-weight: bold;
+        }
+        
+        .roi-section .metric-value {
+            color: #0D47A1;
+            font-family: 'Georgia', serif;
+        }
+        
+        .voi-section .metric-value {
+            color: #E65100;
+            font-family: 'Georgia', serif;
+        }
+        
+        .total-row {
+            background-color: rgba(0, 0, 0, 0.05);
+            font-weight: bold;
+        }
+        
+        .roi-section .total-row {
+            background-color: #D4E6F7;
+        }
+        
+        .voi-section .total-row {
+            background-color: #FFE0B2;
+        }
+        
+        .source {
+            font-size: 9pt;
+            font-style: italic;
+            color: #666;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">From Healthcare ROI to Comprehensive Value on Investment</div>
+        <div class="subtitle">Comparing traditional wellness program metrics with holistic well-being value assessment</div>
+        
+        <div class="comparison-container">
+            <!-- Traditional ROI Section -->
+            <div class="section roi-section">
+                <div class="section-header roi-header">Traditional Healthcare ROI Focus</div>
+                <div class="metrics-container">
+                    <div class="metric">
+                        <div class="metric-icon">
+                            <i class="fas fa-hospital"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-name">Medical claims reduction</div>
+                            <div class="metric-value">$3.27 saved per $1 invested</div>
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-name">Absenteeism reduction</div>
+                            <div class="metric-value">$2.73 saved per $1 invested</div>
+                        </div>
+                    </div>
+                    <div class="metric total-row">
+                        <div class="metric-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-name">Total ROI</div>
+                            <div class="metric-value">$6.00 return per $1 invested</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Comprehensive VOI Section -->
+            <div class="section voi-section">
+                <div class="section-header voi-header">Comprehensive VOI Approach</div>
+                <div class="metrics-container">
+                    <div class="metric">
+                        <div class="metric-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-name">Productivity improvement</div>
+                            <div class="metric-value">+17% in top-engaged workforces</div>
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-name">Profit increase</div>
+                            <div class="metric-value">+21% in top-engaged workforces</div>
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-name">Absenteeism reduction</div>
+                            <div class="metric-value">-41% in top-engaged workforces</div>
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-name">Employee turnover reduction</div>
+                            <div class="metric-value">24-50% less in engaged teams</div>
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-name">Sales performance</div>
+                            <div class="metric-value">+20% in top-engaged workforces</div>
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-name">Customer ratings</div>
+                            <div class="metric-value">+10% in top-engaged workforces</div>
+                        </div>
+                    </div>
+                    <div class="metric total-row">
+                        <div class="metric-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-name">Total VOI</div>
+                            <div class="metric-value">Multiple dimensions with broader business impact</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="source">Source: Harvard Business Review case study (pre-2015), Gallup meta-analysis across 230 organizations (2016)</div>
+    </div>
+
+    <script>
+        // D3.js could be used here for more dynamic visualizations
+        // For this static comparison visualization, we're primarily using HTML/CSS
+        // But we can use D3 to add any dynamic elements if needed
+        
+        d3.select('.visualization-container')
+            .style('opacity', 0)
+            .transition()
+            .duration(800)
+            .style('opacity', 1);
+            
+        // Add hover effects to metrics
+        d3.selectAll('.metric')
+            .on('mouseover', function() {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .style('background-color', function() {
+                        if (d3.select(this).classed('total-row')) {
+                            return d3.select(this.parentNode.parentNode).classed('roi-section') ? 
+                                '#B3D4F0' : '#FFCC80';
+                        } else {
+                            return d3.select(this.parentNode.parentNode).classed('roi-section') ? 
+                                '#EFF7FF' : '#FFF8E1';
+                        }
+                    });
+            })
+            .on('mouseout', function() {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .style('background-color', function() {
+                        if (d3.select(this).classed('total-row')) {
+                            return d3.select(this.parentNode.parentNode).classed('roi-section') ? 
+                                '#D4E6F7' : '#FFE0B2';
+                        } else {
+                            return null;
+                        }
+                    });
+            });
+    </script>
+</body>
+</html>

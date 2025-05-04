@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Late-Stage Mobility Startup Valuation Recovery (2021-2025)</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 600px;
+            background-color: white;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            text-align: center;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        
+        .y-axis-label {
+            font-size: 12px;
+            fill: #555;
+            font-weight: bold;
+        }
+        
+        .x-axis text {
+            font-size: 11px;
+            fill: #555;
+        }
+        
+        .y-axis text {
+            font-size: 11px;
+            fill: #555;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-width: 1px;
+        }
+        
+        .reference-line {
+            stroke: #999;
+            stroke-dasharray: 4;
+            stroke-width: 1.5px;
+        }
+        
+        .data-line {
+            fill: none;
+            stroke: #20B2AA;
+            stroke-width: 3px;
+        }
+        
+        .area {
+            fill: rgba(32, 178, 170, 0.2);
+        }
+        
+        .data-point {
+            fill: #20B2AA;
+            stroke: white;
+            stroke-width: 2px;
+        }
+        
+        .annotation-box {
+            fill: white;
+            stroke: #20B2AA;
+            stroke-width: 1px;
+            rx: 4px;
+            ry: 4px;
+            opacity: 0.95;
+        }
+        
+        .annotation-text {
+            font-size: 11px;
+            fill: #333;
+        }
+        
+        .data-label {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+            fill: #20B2AA;
+            text-anchor: middle;
+        }
+        
+        .data-label-bg {
+            fill: white;
+            stroke: #20B2AA;
+            stroke-width: 1px;
+            rx: 8px;
+            ry: 8px;
+        }
+        
+        .source {
+            font-size: 10px;
+            fill: #999;
+            text-anchor: start;
+        }
+        
+        .emphasized-year {
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .connector-line {
+            stroke: #20B2AA;
+            stroke-width: 1.5px;
+            stroke-dasharray: 3,3;
+        }
+        
+        .year-label {
+            font-weight: bold;
+            font-size: 12px;
+            fill: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Late-Stage Mobility Startup Valuation Recovery (2021-2025)</div>
+        <div class="subtitle">Indexed to Q4 2021 peak (100%)</div>
+        <svg id="chart"></svg>
+    </div>
+
+    <script>
+        // Set up dimensions
+        const margin = {top: 30, right: 80, bottom: 80, left: 80};
+        const width = 900 - margin.left - margin.right;
+        const height = 600 - margin.top - margin.bottom - 60; // Adjust for title and subtitle
+        
+        // Create SVG
+        const svg = d3.select("#chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top + 20})`);
+        
+        // Data
+        const data = [
+            {quarter: "Q4 2021", value: 100, year: 2021, q: 4, label: "Peak"},
+            {quarter: "Q1 2022", value: 95, year: 2022, q: 1},
+            {quarter: "Q2 2022", value: 85, year: 2022, q: 2},
+            {quarter: "Q3 2022", value: 75, year: 2022, q: 3},
+            {quarter: "Q4 2022", value: 65, year: 2022, q: 4},
+            {quarter: "Q1 2023", value: 60, year: 2023, q: 1, label: "Trough"},
+            {quarter: "Q2 2023", value: 65, year: 2023, q: 2},
+            {quarter: "Q3 2023", value: 70, year: 2023, q: 3},
+            {quarter: "Q4 2023", value: 75, year: 2023, q: 4},
+            {quarter: "Q1 2024", value: 85, year: 2024, q: 1},
+            {quarter: "Q2 2024", value: 95, year: 2024, q: 2},
+            {quarter: "Q3 2024", value: 98, year: 2024, q: 3},
+            {quarter: "Q4 2024", value: 100, year: 2024, q: 4, label: "Recovery"},
+            {quarter: "Q1 2025", value: 102, year: 2025, q: 1, label: "Growth"}
+        ];
+        
+        // Annotations - repositioned to avoid overlaps
+        const annotations = [
+            {
+                x: 11.2, // Q3 2024
+                y: 82,
+                text: "Late-stage valuations recovered to ~100% of Q4 2021 peak by Q4 2024",
+                width: 180,
+                height: 50,
+                connectTo: {x: 12, y: 100} // Q4 2024
+            },
+            {
+                x: 6, // Q2 2023
+                y: 85,
+                text: "AI companies commanded +68% valuation premium over non-AI peers",
+                width: 180,
+                height: 50,
+                connectTo: {x: 7, y: 70} // Q3 2023
+            },
+            {
+                x: 4, // Q4 2022
+                y: 45,
+                text: "Market low point: 60% of peak valuations in Q1 2023",
+                width: 180,
+                height: 40,
+                connectTo: {x: 5, y: 60} // Q1 2023
+            }
+        ];
+        
+        // X scale
+        const x = d3.scaleLinear()
+            .domain([0, data.length - 1])
+            .range([0, width]);
+        
+        // Y scale
+        const y = d3.scaleLinear()
+            .domain([45, 110])
+            .range([height, 0]);
+        
+        // Line generator
+        const line = d3.line()
+            .x((d, i) => x(i))
+            .y(d => y(d.value))
+            .curve(d3.curveMonotoneX);
+        
+        // Area generator
+        const area = d3.area()
+            .x((d, i) => x(i))
+            .y0(height)
+            .y1(d => y(d.value))
+            .curve(d3.curveMonotoneX);
+        
+        // Add horizontal gridlines
+        svg.append("g")
+            .attr("class", "grid")
+            .selectAll("line")
+            .data(d3.range(50, 111, 10)) // Include 110% gridline
+            .enter()
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", d => y(d))
+            .attr("y2", d => y(d));
+        
+        // Add reference line at 100%
+        svg.append("line")
+            .attr("class", "reference-line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", y(100))
+            .attr("y2", y(100));
+        
+        // Add area
+        svg.append("path")
+            .datum(data)
+            .attr("class", "area")
+            .attr("d", area);
+        
+        // Add line
+        svg.append("path")
+            .datum(data)
+            .attr("class", "data-line")
+            .attr("d", line);
+        
+        // Add data points
+        svg.selectAll(".data-point")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("class", "data-point")
+            .attr("cx", (d, i) => x(i))
+            .attr("cy", d => y(d.value))
+            .attr("r", 5);
+        
+        // Add data labels for key points
+        const labeledData = data.filter(d => d.label);
+        
+        // Add background for data labels
+        svg.selectAll(".data-label-bg")
+            .data(labeledData)
+            .enter()
+            .append("rect")
+            .attr("class", "data-label-bg")
+            .attr("x", (d, i) => {
+                const idx = data.findIndex(item => item.quarter === d.quarter);
+                return x(idx) - 22; // Slightly wider for better fit
+            })
+            .attr("y", d => y(d.value) - 25)
+            .attr("width", 44) // Increased width
+            .attr("height", 20);
+        
+        // Add data labels
+        svg.selectAll(".data-label")
+            .data(labeledData)
+            .enter()
+            .append("text")
+            .attr("class", "data-label")
+            .attr("x", (d, i) => {
+                const idx = data.findIndex(item => item.quarter === d.quarter);
+                return x(idx);
+            })
+            .attr("y", d => y(d.value) - 12)
+            .text(d => `${d.value}%`);
+        
+        // Add annotations with connector lines - repositioned to avoid overlaps
+        annotations.forEach(a => {
+            // Add connector line
+            svg.append("line")
+                .attr("class", "connector-line")
+                .attr("x1", x(a.connectTo.x))
+                .attr("y1", y(a.connectTo.y))
+                .attr("x2", x(a.x))
+                .attr("y2", y(a.y) + (a.y < a.connectTo.y ? a.height/2 : -a.height/2));
+            
+            const annotationGroup = svg.append("g")
+                .attr("transform", `translate(${x(a.x)}, ${y(a.y)})`);
+            
+            annotationGroup.append("rect")
+                .attr("class", "annotation-box")
+                .attr("x", -a.width / 2)
+                .attr("y", -a.height / 2)
+                .attr("width", a.width)
+                .attr("height", a.height);
+            
+            annotationGroup.append("text")
+                .attr("class", "annotation-text")
+                .attr("x", -a.width / 2 + 10)
+                .attr("y", -a.height / 2 + 20)
+                .attr("width", a.width - 20)
+                .text(a.text)
+                .call(wrap, a.width - 20);
+        });
+        
+        // Group quarters by year for better x-axis display
+        const years = [...new Set(data.map(d => d.year))];
+        
+        // Add X axis with improved quarter labels
+        svg.append("g")
+            .attr("class", "x-axis")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(x)
+                .ticks(data.length)
+                .tickFormat((d, i) => {
+                    if (i < data.length) {
+                        return `Q${data[i].q}`;
+                    }
+                    return "";
+                }));
+        
+        // Add year labels below quarters with improved spacing
+        years.forEach(year => {
+            const yearData = data.filter(d => d.year === year);
+            const firstQuarterIndex = data.findIndex(d => d.year === year);
+            const lastQuarterIndex = firstQuarterIndex + yearData.length - 1;
+            
+            // For years with only one quarter, center the year label under that quarter
+            // For years with multiple quarters, center between first and last quarter
+            const midPoint = yearData.length === 1 
+                ? x(firstQuarterIndex)
+                : (x(firstQuarterIndex) + x(lastQuarterIndex)) / 2;
+            
+            svg.append("text")
+                .attr("class", "year-label")
+                .attr("x", midPoint)
+                .attr("y", height + 40)
+                .attr("text-anchor", "middle")
+                .text(year);
+        });
+        
+        // Add Y axis
+        svg.append("g")
+            .attr("class", "y-axis")
+            .call(d3.axisLeft(y)
+                .tickFormat(d => `${d}%`)
+                .ticks(7));
+        
+        // Add Y axis label
+        svg.append("text")
+            .attr("class", "y-axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left + 20)
+            .attr("x", -height / 2)
+            .attr("text-anchor", "middle")
+            .text("Valuation (% of Q4 2021 Peak)");
+        
+        // Add source information
+        svg.append("text")
+            .attr("class", "source")
+            .attr("x", 0)
+            .attr("y", height + 60)
+            .text("Source: SVB State of the Markets H2 2024");
+        
+        // Function to wrap text
+        function wrap(text, width) {
+            text.each(function() {
+                const text = d3.select(this);
+                const words = text.text().split(/\s+/).reverse();
+                let word;
+                let line = [];
+                let lineNumber = 0;
+                const lineHeight = 1.1; // ems
+                const y = text.attr("y");
+                const dy = parseFloat(text.attr("dy") || 0);
+                let tspan = text.text(null).append("tspan").attr("x", text.attr("x")).attr("y", y).attr("dy", dy + "em");
+                
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > width) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan").attr("x", text.attr("x")).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
