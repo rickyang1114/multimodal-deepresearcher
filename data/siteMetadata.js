@@ -13,6 +13,8 @@ const siteMetadata = {
   // mastodon: '',
   email: 'zhaorui.yang@zju.edu.cn',
   github: 'https://github.com/rickyang1114/',
+  homepage: 'https://rickyang1114.github.io/',
+  googlescholar: 'https://scholar.google.com/citations?user=AGjSco8AAAAJ',
   // x: 'https://twitter.com/x',
   // twitter: 'https://twitter.com/Twitter',
   // facebook: 'https://facebook.com',
