@@ -1,3 +1,4 @@
+import Home from 'app/Main'
 import {
   Mail,
   Github,
@@ -11,6 +12,8 @@ import {
   Instagram,
   Medium,
   Bluesky,
+  Homepage,
+  GoogleScholar
 } from './icons'
 
 const components = {
@@ -26,6 +29,8 @@ const components = {
   instagram: Instagram,
   medium: Medium,
   bluesky: Bluesky,
+  homepage: Homepage,
+  googlescholar: GoogleScholar
 }
 
 type SocialIconProps = {
