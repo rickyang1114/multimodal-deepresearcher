@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch Market Visualization 2023</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 600px;
+            position: relative;
+        }
+        
+        .main-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+        
+        .chart-container {
+            display: flex;
+            justify-content: space-between;
+            height: 480px;
+        }
+        
+        .chart {
+            width: 48%;
+            border: 1px solid #ddd;
+            padding: 15px;
+            box-sizing: border-box;
+            position: relative;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+        
+        .footer {
+            margin-top: 15px;
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .source {
+            font-style: italic;
+        }
+        
+        .callout-box {
+            position: absolute;
+            bottom: 70px;
+            right: 30px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 13px;
+            z-index: 10;
+            max-width: 300px;
+        }
+        
+        .callout-box .highlight {
+            font-family: 'Georgia', serif;
+            font-size: 18px;
+            font-weight: bold;
+            color: #0066cc;
+        }
+        
+        .legend {
+            font-size: 11px;
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 8px 5px 0;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+            border-radius: 2px;
+        }
+        
+        .pie-label {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .provider-name {
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="main-title">Commercial Providers Dominated the Launch Market in 2023</div>
+        
+        <div class="chart-container">
+            <div class="chart" id="pie-chart">
+                <div class="subtitle">Launch Provider Market Share (% of 223 global attempts)</div>
+                <svg width="100%" height="85%"></svg>
+                <div class="legend" id="pie-legend"></div>
+            </div>
+            
+            <div class="chart" id="bar-chart">
+                <div class="subtitle">Top 5 Launch Vehicles by Missions (2023)</div>
+                <svg width="100%" height="85%"></svg>
+            </div>
+        </div>
+        
+        <div class="callout-box">
+            Commercial rockets accounted for <span class="highlight">65%</span> of orbital launch attempts in 2023, up from 55% in 2022
+        </div>
+        
+        <div class="footer">
+            <div class="source">Data sources: Rocketlaunch.org, Wikipedia</div>
+        </div>
+    </div>
+
+    <script>
+        // Data for pie chart
+        const pieData = [
+            { provider: "SpaceX", launches: 98, percentage: 43.9, color: "#0a4b8c" },
+            { provider: "CASC (China)", launches: 47, percentage: 21.1, color: "#2171b5" },
+            { provider: "Roscosmos", launches: 10, percentage: 4.5, color: "#4292c6" },
+            { provider: "Rocket Lab", launches: 9, percentage: 4.0, color: "#6baed6" },
+            { provider: "Other commercial", launches: 40, percentage: 17.9, color: "#9ecae1" },
+            { provider: "Other government", launches: 19, percentage: 8.5, color: "#c6dbef" }
+        ];
+
+        // Data for bar chart
+        const barData = [
+            { vehicle: "Falcon 9", missions: 91, color: "#0a4b8c", icon: "rocket" },
+            { vehicle: "Long March 2D", missions: 13, color: "#2171b5", icon: "rocket" },
+            { vehicle: "Electron", missions: 10, color: "#6baed6", icon: "rocket" },
+            { vehicle: "Soyuz", missions: 8, color: "#4292c6", icon: "rocket" },
+            { vehicle: "Long March 4C", missions: 7, color: "#2171b5", icon: "rocket" }
+        ].reverse(); // Reverse for bottom-to-top rendering
+
+        // Create pie chart
+        function createPieChart() {
+            const svg = d3.select("#pie-chart svg");
+            const width = svg.node().getBoundingClientRect().width;
+            const height = svg.node().getBoundingClientRect().height;
+            const radius = Math.min(width, height) / 2 * 0.7;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${width / 2}, ${height / 2})`);
+            
+            const pie = d3.pie()
+                .value(d => d.percentage)
+                .sort(null);
+            
+            const arc = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+            
+            const outerArc = d3.arc()
+                .innerRadius(radius * 1.1)
+                .outerRadius(radius * 1.1);
+            
+            const arcs = g.selectAll(".arc")
+                .data(pie(pieData))
+                .enter()
+                .append("g")
+                .attr("class", "arc");
+            
+            arcs.append("path")
+                .attr("d", arc)
+                .attr("fill", d => d.data.color)
+                .attr("stroke", "white")
+                .attr("stroke-width", 1);
+            
+            // Add percentage labels with leader lines
+            arcs.each(function(d) {
+                const centroid = arc.centroid(d);
+                const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
+                const x = radius * 0.95 * (midAngle < Math.PI ? 1 : -1);
+                const outerCentroid = outerArc.centroid(d);
+                
+                // Calculate position for text
+                const pos = [x, outerCentroid[1]];
+                
+                // Create leader line
+                d3.select(this).append("polyline")
+                    .attr("points", `${centroid}, ${outerCentroid}, ${pos}`)
+                    .attr("fill", "none")
+                    .attr("stroke", "#999")
+                    .attr("stroke-width", 1);
+                
+                // Create text group for percentage and provider name
+                const textGroup = d3.select(this).append("g")
+                    .attr("transform", `translate(${pos})`);
+                
+                // Add percentage
+                textGroup.append("text")
+                    .attr("class", "pie-label")
+                    .attr("dy", "0em")
+                    .style("text-anchor", midAngle < Math.PI ? "start" : "end")
+                    .text(`${d.data.percentage}%`);
+                
+                // Add provider name
+                textGroup.append("text")
+                    .attr("class", "provider-name")
+                    .attr("dy", "1.2em")
+                    .style("text-anchor", midAngle < Math.PI ? "start" : "end")
+                    .text(d.data.provider);
+            });
+            
+            // Create comprehensive legend
+            const legendDiv = d3.select("#pie-legend");
+            legendDiv.html(""); // Clear any existing content
+            
+            pieData.forEach(d => {
+                const legendItem = legendDiv.append("div")
+                    .attr("class", "legend-item");
+                
+                legendItem.append("div")
+                    .attr("class", "legend-color")
+                    .style("background-color", d.color);
+                
+                legendItem.append("div")
+                    .text(`${d.provider} (${d.percentage}%)`);
+            });
+        }
+
+        // Create bar chart
+        function createBarChart() {
+            const svg = d3.select("#bar-chart svg");
+            const width = svg.node().getBoundingClientRect().width;
+            const height = svg.node().getBoundingClientRect().height;
+            const margin = { top: 10, right: 70, bottom: 30, left: 140 }; // Increased left margin
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+            
+            // Create scales
+            const xScale = d3.scaleLinear()
+                .domain([0, 100])
+                .range([0, chartWidth]);
+            
+            const yScale = d3.scaleBand()
+                .domain(barData.map(d => d.vehicle))
+                .range([0, chartHeight])
+                .padding(0.3);
+            
+            // Add gridlines
+            g.selectAll(".grid-line")
+                .data([0, 20, 40, 60, 80, 100])
+                .enter()
+                .append("line")
+                .attr("class", "grid-line")
+                .attr("x1", d => xScale(d))
+                .attr("y1", 0)
+                .attr("x2", d => xScale(d))
+                .attr("y2", chartHeight)
+                .attr("stroke", "#e0e0e0")
+                .attr("stroke-width", 1);
+            
+            // Add x-axis
+            g.append("g")
+                .attr("transform", `translate(0, ${chartHeight})`)
+                .call(d3.axisBottom(xScale).ticks(5))
+                .selectAll("text")
+                .style("font-size", "10px");
+            
+            // Add y-axis with vehicle names
+            g.append("g")
+                .call(d3.axisLeft(yScale))
+                .selectAll("text")
+                .style("font-size", "11px");
+            
+            // Add rocket icons directly using SVG text elements with Font Awesome unicode
+            g.selectAll(".vehicle-icon")
+                .data(barData)
+                .enter()
+                .append("text")
+                .attr("class", "fa")
+                .attr("x", -25)
+                .attr("y", d => yScale(d.vehicle) + yScale.bandwidth() / 2)
+                .attr("dy", "0.35em")
+                .attr("font-family", "FontAwesome")
+                .style("font-size", "14px")
+                .style("fill", d => d.color)
+                .text("\uf135"); // Unicode for rocket icon
+            
+            // Add bars
+            g.selectAll(".bar")
+                .data(barData)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", 0)
+                .attr("y", d => yScale(d.vehicle))
+                .attr("width", d => xScale(d.missions))
+                .attr("height", yScale.bandwidth())
+                .attr("fill", d => d.color);
+            
+            // Add mission count labels
+            g.selectAll(".mission-label")
+                .data(barData)
+                .enter()
+                .append("text")
+                .attr("class", "mission-label")
+                .attr("x", d => xScale(d.missions) + 5)
+                .attr("y", d => yScale(d.vehicle) + yScale.bandwidth() / 2)
+                .attr("dy", "0.35em")
+                .text(d => d.missions)
+                .style("font-size", "12px")
+                .style("font-weight", "bold")
+                .style("fill", "#333");
+        }
+
+        // Initialize charts when DOM is fully loaded
+        document.addEventListener("DOMContentLoaded", function() {
+            createPieChart();
+            createBarChart();
+        });
+    </script>
+</body>
+</html>

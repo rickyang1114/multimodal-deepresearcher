@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Burning of Municipal Solid Waste Emissions</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .visualization-container {
+            width: 950px;
+            background-color: white;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .info-box {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            width: 250px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            z-index: 10;
+        }
+        
+        .info-box ul {
+            padding-left: 20px;
+            margin: 5px 0;
+        }
+        
+        .info-box li {
+            margin-bottom: 5px;
+        }
+        
+        .source {
+            font-size: 10px;
+            color: #777;
+            margin-top: 15px;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+        }
+        
+        .axis-label {
+            font-size: 11px;
+            fill: #555;
+        }
+        
+        .tick text {
+            font-size: 10px;
+            fill: #555;
+        }
+        
+        .tick line {
+            stroke: #E1E1E1;
+            stroke-width: 1px;
+        }
+        
+        .domain {
+            stroke: #999;
+        }
+        
+        .gridline {
+            stroke: #E1E1E1;
+            stroke-width: 1px;
+        }
+        
+        .bar-label {
+            font-size: 11px;
+            fill: #333;
+        }
+        
+        .pollutant-label {
+            font-size: 11px;
+            text-anchor: end;
+            fill: #333;
+        }
+        
+        .value-label {
+            font-size: 11px;
+            fill: #333;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Open Burning of Municipal Solid Waste: A Significant Source of Multiple Pollutants</div>
+        <div class="subtitle">Emission factors for key pollutants from MSW open burning (kg/ton of waste)</div>
+        <div id="chart"></div>
+        <div class="source">Source: Vilaysouk & Babel, 2017; Gómez Sanabria et al., 2021, Nature Communications</div>
+        <div class="info-box">
+            <strong>Open MSW burning contributes:</strong>
+            <ul>
+                <li style="color: #FB9A99;"><span class="key-number" style="color: #d64541;">~11%</span> of global PM<sub>2.5</sub> emissions</li>
+                <li style="color: #FB9A99;"><span class="key-number" style="color: #d64541;">6-7%</span> of global black carbon emissions</li>
+                <li>Can be virtually eliminated under sustainable waste management scenarios</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Data for the chart
+        const data = [
+            { pollutant: "CO₂", value: 1300, type: "greenhouse", display: "CO₂" },
+            { pollutant: "CO", value: 42, type: "criteria", display: "CO" },
+            { pollutant: "CH₄", value: 3.7, type: "greenhouse", display: "CH₄" },
+            { pollutant: "PM₂.₅", value: 9.8, type: "particulate", display: "PM₂.₅" },
+            { pollutant: "BC", value: 0.65, type: "particulate", display: "BC" },
+            { pollutant: "OC", value: 5.27, type: "particulate", display: "OC" },
+            { pollutant: "NOₓ", value: 3.0, type: "criteria", display: "NO<tspan baseline-shift='sub'>x</tspan>" },
+            { pollutant: "SO₂", value: 0.5, type: "criteria", display: "SO₂" },
+            { pollutant: "VOCs", value: 7.5, type: "criteria", display: "VOCs" }
+        ];
+
+        // Sort data in descending order by value
+        data.sort((a, b) => b.value - a.value);
+
+        // Set up dimensions
+        const margin = { top: 40, right: 150, bottom: 50, left: 80 };
+        const width = 850 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+        const barHeight = 22;
+        const barPadding = 12;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // Create logarithmic x scale
+        const xScale = d3.scaleLog()
+            .domain([0.01, 2000])  // Increased upper bound to accommodate CO₂ value
+            .range([0, width])
+            .clamp(true);
+
+        // Create y scale with consistent spacing
+        const yScale = d3.scaleBand()
+            .domain(data.map(d => d.pollutant))
+            .range([0, data.length * (barHeight + barPadding)])
+            .padding(0.1);
+
+        // Create color scale
+        const colorScale = d => {
+            if (d.type === "greenhouse") return "#31A354";
+            if (d.type === "particulate") return "#FB9A99";
+            if (d.type === "criteria") return "#08519C";
+            return "#999";
+        };
+
+        // Add gridlines
+        const gridValues = [0.01, 0.1, 1, 10, 100, 1000];
+        svg.selectAll(".gridline")
+            .data(gridValues)
+            .enter()
+            .append("line")
+            .attr("class", "gridline")
+            .attr("x1", d => xScale(d))
+            .attr("x2", d => xScale(d))
+            .attr("y1", 0)
+            .attr("y2", data.length * (barHeight + barPadding))
+            .style("stroke", "#E1E1E1")
+            .style("stroke-width", 1);
+
+        // Add x-axis
+        const xAxis = d3.axisBottom(xScale)
+            .tickValues(gridValues)
+            .tickFormat(d => d);
+
+        svg.append("g")
+            .attr("transform", `translate(0, ${data.length * (barHeight + barPadding)})`)
+            .call(xAxis);
+
+        // Add x-axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("x", width / 2)
+            .attr("y", data.length * (barHeight + barPadding) + 35)
+            .text("kg/ton waste burned");
+
+        // Create bars
+        svg.selectAll(".bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("x", xScale(0.01))
+            .attr("y", d => yScale(d.pollutant))
+            .attr("width", d => Math.max(0, xScale(d.value) - xScale(0.01)))
+            .attr("height", barHeight)
+            .attr("fill", d => colorScale(d));
+
+        // Add pollutant labels
+        svg.selectAll(".pollutant-label")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "pollutant-label")
+            .attr("x", xScale(0.01) - 5)
+            .attr("y", d => yScale(d.pollutant) + barHeight / 2 + 4)
+            .html(d => d.display);
+
+        // Add value labels - ensuring they're all visible
+        svg.selectAll(".value-label")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "value-label")
+            .attr("x", d => {
+                // Position labels based on value to ensure visibility
+                const xPos = xScale(d.value);
+                // For very large values (CO₂), position differently to ensure visibility
+                return d.value > 1000 ? xPos + 5 : xPos + 5;
+            })
+            .attr("y", d => yScale(d.pollutant) + barHeight / 2 + 4)
+            .text(d => d.value);
+    </script>
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Worker Compensation Trends</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            background-color: #f9f9f9;
+        }
+        
+        .visualization-container {
+            width: 1100px;
+            background-color: white;
+            padding: 30px;
+        }
+        
+        .title {
+            font-size: 26px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            text-align: center;
+            color: #555;
+            margin-bottom: 40px;
+        }
+        
+        .charts-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .chart {
+            background-color: white;
+        }
+        
+        .line-chart {
+            width: 48%;
+        }
+        
+        .bar-chart {
+            width: 48%;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .axis-label {
+            font-size: 12px;
+            fill: #555;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        
+        .highlight-value {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+            fill: #003f5c;
+        }
+        
+        .annotation {
+            font-size: 12px;
+            fill: #555;
+        }
+        
+        .source {
+            font-size: 11px;
+            color: #777;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .domain {
+            stroke: #ccc;
+        }
+        
+        .tick line {
+            stroke: #ccc;
+        }
+        
+        .tick text {
+            fill: #555;
+            font-size: 11px;
+        }
+        
+        .area {
+            fill: #e6f3f3;
+            opacity: 0.7;
+        }
+        
+        .line {
+            fill: none;
+            stroke: #006c70;
+            stroke-width: 2.5;
+        }
+        
+        .point {
+            fill: #006c70;
+        }
+        
+        .highlight-point {
+            fill: #006c70;
+            stroke: white;
+            stroke-width: 2;
+        }
+        
+        .bar {
+            fill: #003f5c;
+        }
+        
+        .bar-value {
+            font-size: 12px;
+            fill: #333;
+        }
+        
+        .industry-label {
+            text-anchor: end;
+            font-size: 12px;
+            fill: #333;
+        }
+        
+        .annotation-line {
+            stroke: #666;
+            stroke-width: 1.5;
+            stroke-dasharray: 4,3;
+        }
+        
+        .increase-annotation {
+            font-family: 'Georgia', serif;
+            font-size: 13px;
+            font-weight: bold;
+            fill: #006c70;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Remote Worker Compensation Has Risen Significantly</div>
+        <div class="subtitle">Median total cash compensation for workers remote "all or most of the time" (2015-2023)</div>
+        
+        <div class="charts-container">
+            <div class="chart line-chart" id="line-chart"></div>
+            <div class="chart bar-chart" id="bar-chart"></div>
+        </div>
+        
+        <div class="source">Source: Payscale Compensation Survey Data, 2015-2023</div>
+    </div>
+
+    <script>
+        // Line chart data
+        const lineData = [
+            { year: 2015, compensation: 57100 },
+            { year: 2016, compensation: 60000 },
+            { year: 2017, compensation: 63000 },
+            { year: 2018, compensation: 66000 },
+            { year: 2019, compensation: 69000 },
+            { year: 2020, compensation: 72000 },
+            { year: 2021, compensation: 74500 },
+            { year: 2022, compensation: 76500 },
+            { year: 2023, compensation: 78200 }
+        ];
+
+        // Bar chart data
+        const barData = [
+            { industry: "Finance & Insurance", gap: 60000 },
+            { industry: "Retail", gap: 45000 },
+            { industry: "Technology", gap: 40000 },
+            { industry: "Professional Services", gap: 35000 },
+            { industry: "Healthcare", gap: 25000 }
+        ].sort((a, b) => b.gap - a.gap);
+
+        // Line Chart
+        function createLineChart() {
+            const margin = { top: 40, right: 30, bottom: 60, left: 70 };
+            const width = 480 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+
+            const svg = d3.select("#line-chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // X scale
+            const x = d3.scaleLinear()
+                .domain([2015, 2023])
+                .range([0, width]);
+
+            // Y scale - starting from 50000 for better visualization of the trend
+            const y = d3.scaleLinear()
+                .domain([50000, 85000])
+                .range([height, 0]);
+
+            // Add X grid
+            svg.append("g")
+                .attr("class", "grid")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x)
+                    .ticks(9)
+                    .tickSize(-height)
+                    .tickFormat("")
+                );
+
+            // Add Y grid
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y)
+                    .tickSize(-width)
+                    .tickFormat("")
+                );
+
+            // Add X axis
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(9).tickFormat(d3.format("d")));
+
+            // Add Y axis
+            svg.append("g")
+                .call(d3.axisLeft(y).tickFormat(d => `$${d/1000}k`));
+
+            // Add Y axis label
+            svg.append("text")
+                .attr("class", "axis-label")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 25)
+                .attr("x", -height / 2)
+                .attr("text-anchor", "middle")
+                .text("Median total cash compensation ($)");
+
+            // Add the area
+            const area = d3.area()
+                .x(d => x(d.year))
+                .y0(height)
+                .y1(d => y(d.compensation));
+
+            svg.append("path")
+                .datum(lineData)
+                .attr("class", "area")
+                .attr("d", area);
+
+            // Add the line
+            const line = d3.line()
+                .x(d => x(d.year))
+                .y(d => y(d.compensation));
+
+            svg.append("path")
+                .datum(lineData)
+                .attr("class", "line")
+                .attr("d", line);
+
+            // Add the points
+            svg.selectAll(".point")
+                .data(lineData)
+                .enter()
+                .append("circle")
+                .attr("class", "point")
+                .attr("cx", d => x(d.year))
+                .attr("cy", d => y(d.compensation))
+                .attr("r", 3);
+
+            // Highlight first and last points
+            const highlightYears = [2015, 2023];
+            svg.selectAll(".highlight-point")
+                .data(lineData.filter(d => highlightYears.includes(d.year)))
+                .enter()
+                .append("circle")
+                .attr("class", "highlight-point")
+                .attr("cx", d => x(d.year))
+                .attr("cy", d => y(d.compensation))
+                .attr("r", 6);
+
+            // Add value labels for first and last points
+            svg.selectAll(".highlight-value")
+                .data(lineData.filter(d => highlightYears.includes(d.year)))
+                .enter()
+                .append("text")
+                .attr("class", "highlight-value")
+                .attr("x", d => x(d.year))
+                .attr("y", d => y(d.compensation) - 15)
+                .attr("text-anchor", d => d.year === 2015 ? "start" : "end")
+                .text(d => `$${d3.format(",")(d.compensation)}`);
+
+            // Calculate percentage increase
+            const firstYear = lineData[0];
+            const lastYear = lineData[lineData.length - 1];
+            const percentIncrease = Math.round((lastYear.compensation - firstYear.compensation) / firstYear.compensation * 100);
+            
+            // Draw annotation arrow from first to last point
+            const arrowPath = `M${x(2015) + 10},${y(57100) - 5} 
+                              C${x(2017)},${y(65000)} 
+                              ${x(2020)},${y(70000)} 
+                              ${x(2023) - 10},${y(78200) - 5}`;
+            
+            svg.append("path")
+                .attr("d", arrowPath)
+                .attr("fill", "none")
+                .attr("stroke", "#006c70")
+                .attr("stroke-width", 1.5)
+                .attr("stroke-dasharray", "5,3")
+                .attr("marker-end", "url(#arrow)");
+                
+            // Add arrowhead marker definition
+            svg.append("defs").append("marker")
+                .attr("id", "arrow")
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", 8)
+                .attr("refY", 0)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 6)
+                .attr("orient", "auto")
+                .append("path")
+                .attr("d", "M0,-5L10,0L0,5")
+                .attr("fill", "#006c70");
+                
+            // Add percentage increase annotation in the middle of the arc
+            svg.append("text")
+                .attr("class", "increase-annotation")
+                .attr("x", x(2019))
+                .attr("y", y(72000) - 15)
+                .attr("text-anchor", "middle")
+                .text(`${percentIncrease}% increase over 8 years`);
+        }
+
+        // Bar Chart
+        function createBarChart() {
+            const margin = { top: 40, right: 80, bottom: 50, left: 140 };
+            const width = 480 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+
+            const svg = d3.select("#bar-chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Add title
+            svg.append("text")
+                .attr("class", "chart-title")
+                .attr("x", width / 2)
+                .attr("y", -20)
+                .attr("text-anchor", "middle")
+                .text("Remote vs. Non-remote Pay Gap by Industry (2023)");
+
+            // X scale
+            const x = d3.scaleLinear()
+                .domain([0, 65000])
+                .range([0, width]);
+
+            // Y scale
+            const y = d3.scaleBand()
+                .domain(barData.map(d => d.industry))
+                .range([0, height])
+                .padding(0.2);
+
+            // Add X grid
+            svg.append("g")
+                .attr("class", "grid")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x)
+                    .tickSize(-height)
+                    .tickFormat("")
+                );
+
+            // Add X axis with fewer ticks to prevent overlapping
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x)
+                    .ticks(5)
+                    .tickFormat(d => `$${d/1000}k`));
+
+            // Add X axis label
+            svg.append("text")
+                .attr("class", "axis-label")
+                .attr("x", width / 2)
+                .attr("y", height + 35)
+                .attr("text-anchor", "middle")
+                .text("Remote vs. Non-remote pay gap ($)");
+
+            // Add Y axis
+            svg.append("g")
+                .call(d3.axisLeft(y).tickSize(0));
+
+            // Add the bars
+            svg.selectAll(".bar")
+                .data(barData)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("y", d => y(d.industry))
+                .attr("height", y.bandwidth())
+                .attr("x", 0)
+                .attr("width", d => x(d.gap));
+
+            // Add value labels
+            svg.selectAll(".bar-value")
+                .data(barData)
+                .enter()
+                .append("text")
+                .attr("class", "bar-value")
+                .attr("x", d => x(d.gap) + 5)
+                .attr("y", d => y(d.industry) + y.bandwidth() / 2 + 4)
+                .text(d => `$${d3.format(",")(d.gap)}`);
+        }
+
+        // Create both charts
+        createLineChart();
+        createBarChart();
+    </script>
+</body>
+</html>

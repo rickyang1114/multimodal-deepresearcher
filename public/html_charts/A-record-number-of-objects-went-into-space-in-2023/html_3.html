@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbital Launch Attempts by Country (2023)</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 850px;
+            height: 650px;
+            background-color: white;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 13pt;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .source {
+            font-size: 9pt;
+            color: #777;
+            margin-top: 5px;
+            text-align: right;
+        }
+        
+        .note {
+            font-size: 10pt;
+            color: #555;
+            margin-top: 5px;
+            font-style: italic;
+            text-align: right;
+        }
+        
+        .chart-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .axis-label {
+            font-size: 10pt;
+        }
+        
+        .country-label {
+            font-size: 10pt;
+            text-anchor: end;
+        }
+        
+        .value-label {
+            font-size: 10pt;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-size: 11pt;
+            font-weight: bold;
+        }
+        
+        .gridline {
+            stroke: #eee;
+            stroke-width: 1px;
+        }
+        
+        .success-bar {
+            fill: #4682b4;
+        }
+        
+        .us-bar {
+            fill: #2c5d8c;
+        }
+        
+        .failure-bar {
+            fill: #bbbbbb;
+        }
+        
+        .record-star {
+            fill: #ffcc00;
+            stroke: #e6b800;
+            stroke-width: 0.5px;
+        }
+        
+        .record-text {
+            font-size: 9pt;
+            font-style: italic;
+            fill: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Orbital Launch Attempts by Country (2023)</div>
+        <div class="subtitle">United States led with a record 108 attempts, surpassing the previous Soviet record</div>
+        <div class="chart-container" id="chart"></div>
+        <div class="source">Data sources: Spaceworks, Wikipedia</div>
+        <div class="note">The United States surpassed the Soviet Union's previous record of 108 launches set in 1982</div>
+    </div>
+
+    <script>
+        // Data preparation
+        const data = [
+            { country: "United States", total: 108, success: 105, successRate: 97.2, isRecord: true },
+            { country: "China", total: 67, success: 66, successRate: 98.5, isRecord: false },
+            { country: "Russia", total: 19, success: 19, successRate: 100, isRecord: false },
+            { country: "New Zealand (Rocket Lab)", total: 9, success: 9, successRate: 100, isRecord: false },
+            { country: "Japan", total: 6, success: 5, successRate: 83.3, isRecord: false },
+            { country: "India", total: 6, success: 6, successRate: 100, isRecord: false },
+            { country: "Europe (ESA)", total: 3, success: 3, successRate: 100, isRecord: false },
+            { country: "Iran", total: 3, success: 1, successRate: 33.3, isRecord: false },
+            { country: "South Korea", total: 2, success: 2, successRate: 100, isRecord: false }
+        ];
+
+        // Sort data by total attempts in descending order
+        data.sort((a, b) => b.total - a.total);
+
+        // Set up dimensions and margins
+        const margin = { top: 40, right: 150, bottom: 50, left: 180 };
+        const width = 800 - margin.left - margin.right;
+        const height = 500 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // Set up scales
+        const x = d3.scaleLinear()
+            .domain([0, 120])
+            .range([0, width]);
+
+        const y = d3.scaleBand()
+            .domain(data.map(d => d.country))
+            .range([0, height])
+            .padding(0.2);
+
+        // Add X axis
+        svg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(x)
+                .tickSize(5)
+                .tickValues([0, 20, 40, 60, 80, 100, 120]))
+            .selectAll("text")
+            .attr("class", "axis-label");
+
+        // Add Y axis
+        svg.append("g")
+            .call(d3.axisLeft(y))
+            .selectAll("text")
+            .attr("class", "country-label")
+            .style("text-anchor", "end");
+
+        // Add gridlines
+        svg.append("g")
+            .selectAll("line")
+            .data([20, 40, 60, 80, 100, 120])
+            .enter()
+            .append("line")
+            .attr("class", "gridline")
+            .attr("x1", d => x(d))
+            .attr("x2", d => x(d))
+            .attr("y1", 0)
+            .attr("y2", height);
+
+        // Create success bars
+        svg.selectAll(".success-bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", d => d.country === "United States" ? "us-bar" : "success-bar")
+            .attr("x", 0)
+            .attr("y", d => y(d.country))
+            .attr("width", d => x(d.success))
+            .attr("height", y.bandwidth());
+
+        // Create failure bars (with darker color)
+        svg.selectAll(".failure-bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "failure-bar")
+            .attr("x", d => x(d.success))
+            .attr("y", d => y(d.country))
+            .attr("width", d => x(d.total - d.success))
+            .attr("height", y.bandwidth());
+
+        // Add value labels
+        svg.selectAll(".value-label")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "value-label")
+            .attr("x", d => x(d.total) + 10)
+            .attr("y", d => y(d.country) + y.bandwidth() / 2 + 4)
+            .html(d => {
+                return `<tspan class="key-number">${d.total}</tspan> (${d.successRate}% success)`;
+            });
+
+        // Add record star and text for US only
+        if (data[0].country === "United States") {
+            // Add star icon
+            const starSize = 12;
+            const starX = x(108) + 5;
+            const starY = y("United States") - 10;
+            
+            // Draw a star using SVG path
+            const starPoints = [
+                [starX, starY - starSize/2],
+                [starX + starSize/5, starY - starSize/5],
+                [starX + starSize/2, starY - starSize/5],
+                [starX + starSize/4, starY + starSize/8],
+                [starX + starSize/3, starY + starSize/2],
+                [starX, starY + starSize/4],
+                [starX - starSize/3, starY + starSize/2],
+                [starX - starSize/4, starY + starSize/8],
+                [starX - starSize/2, starY - starSize/5],
+                [starX - starSize/5, starY - starSize/5]
+            ];
+            
+            const starPath = d3.line()(starPoints);
+            
+            svg.append("path")
+                .attr("d", starPath)
+                .attr("class", "record-star");
+                
+            // Add "New record!" text
+            svg.append("text")
+                .attr("class", "record-text")
+                .attr("x", starX + starSize)
+                .attr("y", starY + 4)
+                .text("New record!");
+        }
+
+        // Add X axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("x", width / 2)
+            .attr("y", height + 35)
+            .attr("text-anchor", "middle")
+            .text("Number of Launch Attempts");
+    </script>
+</body>
+</html>

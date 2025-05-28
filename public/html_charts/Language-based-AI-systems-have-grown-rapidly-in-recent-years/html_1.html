@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global NLP Market Size (2018-2025)</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            width: 850px;
+            background-color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .source {
+            font-size: 12px;
+            text-align: right;
+            color: #888;
+            margin-top: 15px;
+            font-style: italic;
+            align-self: flex-end;
+            padding-right: 20px;
+        }
+        
+        .axis-label {
+            font-size: 14px;
+            fill: #555;
+            font-weight: bold;
+        }
+        
+        .bar-label {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+            text-anchor: middle;
+        }
+        
+        .forecast-label {
+            font-size: 14px;
+            font-style: italic;
+            fill: #555;
+        }
+        
+        .growth-callout {
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            font-weight: bold;
+            fill: #d32f2f;
+        }
+        
+        .historical {
+            fill: #2196F3;
+        }
+        
+        .projected {
+            fill: #90CAF9;
+        }
+        
+        .grid line {
+            stroke: #E0E0E0;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        
+        .value-label-bg {
+            fill: white;
+            fill-opacity: 0.9;
+            rx: 3;
+            ry: 3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">Global NLP Market Size (2018-2025)</div>
+        <div class="subtitle">Natural Language Processing market size in billions of dollars</div>
+        <div id="chart"></div>
+        <div class="source">Source: Tractica via Exploding Topics, 2024</div>
+    </div>
+
+    <script>
+        // Data
+        const data = [
+            { year: 2018, value: 5.07, type: "historical" },
+            { year: 2019, value: 8.5, type: "historical" },
+            { year: 2020, value: 13.8, type: "historical" },
+            { year: 2021, value: 18.4, type: "historical" },
+            { year: 2022, value: 23.6, type: "historical" },
+            { year: 2023, value: 29.7, type: "historical" },
+            { year: 2024, value: 37.33, type: "projected" },
+            { year: 2025, value: 43.29, type: "projected" }
+        ];
+
+        // Set up dimensions and margins - increased top margin to accommodate labels
+        const margin = { top: 70, right: 50, bottom: 60, left: 70 };
+        const width = 800 - margin.left - margin.right;
+        const height = 520 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Set up scales
+        const x = d3.scaleBand()
+            .domain(data.map(d => d.year))
+            .range([0, width])
+            .padding(0.3);
+
+        const y = d3.scaleLinear()
+            .domain([0, 50])
+            .range([height, 0]);
+
+        // Add X axis
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .style("font-size", "12px");
+
+        // Add Y axis
+        svg.append("g")
+            .call(d3.axisLeft(y).tickValues([0, 10, 20, 30, 40, 50]))
+            .selectAll("text")
+            .style("font-size", "12px");
+
+        // Add Y axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left + 25)
+            .attr("x", -height / 2)
+            .attr("text-anchor", "middle")
+            .text("Market Size (Billions USD)");
+
+        // Add horizontal grid lines
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(y)
+                .tickValues([0, 10, 20, 30, 40, 50])
+                .tickSize(-width)
+                .tickFormat("")
+            );
+
+        // Add bars
+        svg.selectAll(".bar")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", d => d.type)
+            .attr("x", d => x(d.year))
+            .attr("y", d => y(d.value))
+            .attr("width", x.bandwidth())
+            .attr("height", d => height - y(d.value));
+
+        // Add bar label backgrounds for better readability - improved positioning and size
+        svg.selectAll(".value-label-bg")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "value-label-bg")
+            .attr("x", d => x(d.year) + x.bandwidth() / 2 - 32)
+            .attr("y", d => y(d.value) - 25)
+            .attr("width", 64)
+            .attr("height", 20);
+
+        // Add bar labels - adjusted positioning to prevent overlap with chart top
+        svg.selectAll(".bar-label")
+            .data(data)
+            .enter()
+            .append("text")
+            .attr("class", "bar-label")
+            .attr("x", d => x(d.year) + x.bandwidth() / 2)
+            .attr("y", d => Math.max(y(d.value) - 10, 15)) // Ensure minimum distance from top
+            .text(d => `$${d.value}B`);
+
+        // Add forecast dividing line - positioned between 2023 and 2024 with more space
+        const forecastX = x(2023) + x.bandwidth() + (x.step() - x.bandwidth()) / 2;
+        
+        svg.append("line")
+            .attr("x1", forecastX)
+            .attr("y1", 0)
+            .attr("x2", forecastX)
+            .attr("y2", height)
+            .attr("stroke", "#555")
+            .attr("stroke-width", 1.5)
+            .attr("stroke-dasharray", "5,5");
+
+        // Add arrow marker definition with improved styling
+        svg.append("defs")
+            .append("marker")
+            .attr("id", "arrowhead")
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 8)
+            .attr("refY", 0)
+            .attr("markerWidth", 8)
+            .attr("markerHeight", 8)
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M0,-5L10,0L0,5")
+            .attr("fill", "#555");
+
+        // Improved forecast annotation positioning
+        svg.append("text")
+            .attr("class", "forecast-label")
+            .attr("x", forecastX + 5)
+            .attr("y", 20)
+            .attr("text-anchor", "start")
+            .text("Forecast");
+
+        // Improved arrow for forecast annotation - now points to both projected bars
+        const projectedMidpoint = (x(2024) + x(2025) + x.bandwidth()) / 2;
+        
+        svg.append("line")
+            .attr("x1", forecastX + 60)
+            .attr("y1", 20)
+            .attr("x2", projectedMidpoint)
+            .attr("y2", 20)
+            .attr("stroke", "#555")
+            .attr("stroke-width", 1.5)
+            .attr("marker-end", "url(#arrowhead)");
+
+        // Add growth callout with improved positioning
+        const startYear = 2018;
+        const endYear = 2024;
+        const startX = x(startYear) + x.bandwidth() / 2;
+        const endX = x(endYear) + x.bandwidth() / 2;
+        
+        // Calculate positions for growth callout - moved higher up for better visibility
+        const calloutY = height * 0.6; // Position at 60% from the bottom
+
+        // Add growth callout text with improved positioning
+        svg.append("text")
+            .attr("class", "growth-callout")
+            .attr("x", (startX + endX) / 2)
+            .attr("y", calloutY - 15)
+            .attr("text-anchor", "middle")
+            .text("7.4× growth");
+
+        // Add callout lines with proper connections to bars and increased visibility
+        // First, add the horizontal connecting line
+        svg.append("line")
+            .attr("x1", startX)
+            .attr("y1", calloutY)
+            .attr("x2", endX)
+            .attr("y2", calloutY)
+            .attr("stroke", "#d32f2f")
+            .attr("stroke-width", 2);
+            
+        // Add vertical line to 2018 bar
+        svg.append("line")
+            .attr("x1", startX)
+            .attr("y1", calloutY)
+            .attr("x2", startX)
+            .attr("y2", y(data[0].value))
+            .attr("stroke", "#d32f2f")
+            .attr("stroke-width", 2);
+            
+        // Add vertical line to 2024 bar
+        svg.append("line")
+            .attr("x1", endX)
+            .attr("y1", calloutY)
+            .attr("x2", endX)
+            .attr("y2", y(data[6].value))
+            .attr("stroke", "#d32f2f")
+            .attr("stroke-width", 2);
+    </script>
+</body>
+</html>

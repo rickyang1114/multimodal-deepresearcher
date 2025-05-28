@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who's Most Likely to Leave if Remote Work Ends?</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .visualization-container {
+            width: 850px;
+            max-width: 100%;
+        }
+        
+        .title {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .section-header {
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            color: #444;
+        }
+        
+        .bar-label {
+            font-size: 14px;
+            text-anchor: end;
+            dominant-baseline: middle;
+        }
+        
+        .percentage {
+            font-family: 'Georgia', serif;
+            font-size: 18px;
+            font-weight: bold;
+            text-anchor: start;
+            dominant-baseline: middle;
+            fill: #006c70;
+        }
+        
+        .grid-line {
+            stroke: #f2f2f2;
+            stroke-width: 1;
+        }
+        
+        .average-line {
+            stroke: #7f7f7f;
+            stroke-width: 1.5;
+            stroke-dasharray: 4,4;
+        }
+        
+        .average-label {
+            font-size: 12px;
+            fill: #7f7f7f;
+            text-anchor: middle;
+        }
+        
+        .source {
+            font-size: 12px;
+            color: #777;
+            margin-top: 20px;
+        }
+        
+        .note {
+            font-size: 12px;
+            color: #777;
+            font-style: italic;
+            margin-top: 5px;
+        }
+        
+        .bar {
+            fill: #006c70;
+        }
+        
+        .dot {
+            fill: #006c70;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Who's Most Likely to Leave if Remote Work Ends?</div>
+        <div class="subtitle">Percentage of workers unlikely to stay if employer ended work-from-home, by group</div>
+        
+        <svg id="chart"></svg>
+        
+        <div class="source">Source: Pew Research Center January 2025 ATP Survey</div>
+        <div class="note">Survey of non-self-employed remote-capable workers who would be "unlikely" to stay if work-from-home ended</div>
+    </div>
+
+    <script>
+        // Data preparation
+        const data = [
+            { section: "Demographics", category: "Women", value: 49 },
+            { section: "Demographics", category: "Men", value: 43 },
+            { section: "Demographics", category: "Workers under 50 years", value: 50 },
+            { section: "Demographics", category: "Workers 50 years and older", value: 35 },
+            { section: "Work Arrangements", category: "Always-remote workers", value: 61 },
+            { section: "Work Arrangements", category: "Hybrid workers", value: 47 },
+            { section: "Work Arrangements", category: "Occasional remote workers", value: 28 },
+            { section: "Job Satisfaction", category: "Unsatisfied workers", value: 52 },
+            { section: "Job Satisfaction", category: "Highly satisfied workers", value: 41 }
+        ];
+
+        const overallAverage = 46;
+        
+        // Dimensions
+        const margin = { top: 20, right: 80, bottom: 40, left: 220 };
+        const width = 850 - margin.left - margin.right;
+        const height = 550 - margin.top - margin.bottom;
+        
+        // Get unique sections
+        const sections = [...new Set(data.map(d => d.section))];
+        
+        // Calculate total height with section headers
+        const barHeight = 35;
+        const sectionSpacing = 50;
+        const totalHeight = data.length * barHeight + (sections.length * sectionSpacing);
+        
+        // Create SVG
+        const svg = d3.select("#chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", totalHeight + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+        
+        // Create scales
+        const xScale = d3.scaleLinear()
+            .domain([0, 70])
+            .range([0, width]);
+        
+        // Add grid lines
+        for (let i = 0; i <= 7; i++) {
+            svg.append("line")
+                .attr("class", "grid-line")
+                .attr("x1", xScale(i * 10))
+                .attr("y1", 0)
+                .attr("x2", xScale(i * 10))
+                .attr("y2", totalHeight)
+                .attr("stroke", "#f2f2f2")
+                .attr("stroke-width", 1);
+            
+            svg.append("text")
+                .attr("x", xScale(i * 10))
+                .attr("y", -5)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "12px")
+                .attr("fill", "#999")
+                .text(i * 10 + "%");
+        }
+        
+        // Add average line
+        svg.append("line")
+            .attr("class", "average-line")
+            .attr("x1", xScale(overallAverage))
+            .attr("y1", 0)
+            .attr("x2", xScale(overallAverage))
+            .attr("y2", totalHeight);
+        
+        // Add average label near the line (not at the bottom)
+        svg.append("text")
+            .attr("class", "average-label")
+            .attr("x", xScale(overallAverage))
+            .attr("y", totalHeight / 2)
+            .attr("transform", `rotate(-90, ${xScale(overallAverage)}, ${totalHeight / 2})`)
+            .attr("dy", -8)
+            .text(`${overallAverage}% overall average`);
+        
+        // Draw bars by section
+        let currentY = 0;
+        
+        sections.forEach(section => {
+            // Add section header
+            svg.append("text")
+                .attr("class", "section-header")
+                .attr("x", -margin.left)
+                .attr("y", currentY)
+                .text(section.toUpperCase());
+            
+            currentY += 35;
+            
+            // Filter data for this section
+            const sectionData = data.filter(d => d.section === section);
+            
+            // Draw bars for this section
+            sectionData.forEach(d => {
+                // Bar
+                svg.append("rect")
+                    .attr("class", "bar")
+                    .attr("x", 0)
+                    .attr("y", currentY - barHeight/2 + 5)
+                    .attr("width", xScale(d.value))
+                    .attr("height", barHeight - 10)
+                    .attr("rx", 2)
+                    .attr("ry", 2);
+                
+                // Label - positioned to the left of the bar
+                svg.append("text")
+                    .attr("class", "bar-label")
+                    .attr("x", -10)
+                    .attr("y", currentY)
+                    .attr("text-anchor", "end")
+                    .text(d.category);
+                
+                // Dot at the end of bar - made larger
+                svg.append("circle")
+                    .attr("class", "dot")
+                    .attr("cx", xScale(d.value))
+                    .attr("cy", currentY)
+                    .attr("r", 5.5);
+                
+                // Percentage - positioned to the right of the bar with Georgia font and bold
+                svg.append("text")
+                    .attr("class", "percentage")
+                    .attr("x", xScale(d.value) + 12)
+                    .attr("y", currentY)
+                    .text(d.value + "%");
+                
+                currentY += barHeight;
+            });
+            
+            // Add spacing after section
+            currentY += sectionSpacing - 15;
+        });
+    </script>
+</body>
+</html>

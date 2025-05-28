@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch Vehicle Anomalies Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 650px;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 18pt;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 12pt;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 25px;
+            color: #555;
+        }
+        
+        .subtitle .highlight {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            color: #1a4e8c;
+        }
+        
+        .chart-container {
+            display: flex;
+            justify-content: space-between;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+        
+        .bar-chart {
+            width: 58%;
+            border: 1px solid #ccc;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        
+        .pie-chart {
+            width: 38%;
+            border: 1px solid #ccc;
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chart-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .callout-box {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 11pt;
+        }
+        
+        .callout-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .callout-item {
+            margin-bottom: 5px;
+        }
+        
+        .annotation {
+            font-style: italic;
+            color: #555;
+            font-size: 11pt;
+        }
+        
+        .footer {
+            margin-top: 15px;
+            font-size: 10pt;
+            color: #666;
+        }
+        
+        .source {
+            font-style: italic;
+        }
+        
+        .note {
+            margin-top: 5px;
+        }
+        
+        .axis-label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .pie-label {
+            font-size: 12px;
+        }
+        
+        .center-label {
+            text-anchor: middle;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Launch Vehicle Anomalies and Payload Impacts (2022-2023)</div>
+        <div class="subtitle"><span class="highlight">14 of 15</span> reported launch failures resulted in complete loss of mission</div>
+        
+        <div class="chart-container">
+            <div class="bar-chart" id="anomaly-chart"></div>
+            <div class="pie-chart" id="payload-chart"></div>
+        </div>
+        
+        <div class="callout-box">
+            <div class="callout-title">Notable Failures:</div>
+            <div class="callout-item"><i class="fas fa-exclamation-triangle" style="color: #d9534f;"></i> LauncherOne: Turbopump failure (Jan 9, 2023)</div>
+            <div class="callout-item"><i class="fas fa-exclamation-triangle" style="color: #d9534f;"></i> Astra Rocket 3.3: Stage separation failure (Jan 15, 2023)</div>
+        </div>
+        
+        <div class="footer">
+            <div class="source">Data sources: SpaceNews, Space.com, launch provider reports</div>
+            <div class="note">Analysis based on publicly reported anomalies during launch attempts in 2022-2023</div>
+        </div>
+    </div>
+
+    <script>
+        // Data for anomaly causes
+        const anomalyData = [
+            { cause: "Early development issues", count: 8, color: "#1a4e8c" },  // Highlighted with darker shade
+            { cause: "Propulsion system failures", count: 5, color: "#2a71c5" },
+            { cause: "Stage separation issues", count: 2, color: "#5a9bd5" },
+            { cause: "Environmental factors", count: 2, color: "#7fb3e3" },
+            { cause: "Other/Unknown", count: 3, color: "#a6c8e7" }
+        ];
+        
+        // Data for payload impact
+        const payloadData = [
+            { status: "Payloads lost", count: 48, percentage: 94, color: "#1a4e8c" },
+            { status: "Payloads partially recovered", count: 3, percentage: 6, color: "#7fb3e3" }
+        ];
+        
+        // Create bar chart
+        function createBarChart() {
+            // Add chart title
+            d3.select('#anomaly-chart')
+                .append('div')
+                .attr('class', 'chart-title')
+                .text('Anomaly Causes');
+                
+            const margin = { top: 30, right: 70, bottom: 30, left: 180 };
+            const width = document.getElementById('anomaly-chart').clientWidth - margin.left - margin.right;
+            const height = document.getElementById('anomaly-chart').clientHeight - margin.top - margin.bottom - 30; // Adjust for title
+            
+            const svg = d3.select('#anomaly-chart')
+                .append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+            
+            // Create scales
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(anomalyData, d => d.count) * 1.1])
+                .range([0, width]);
+            
+            const y = d3.scaleBand()
+                .domain(anomalyData.map(d => d.cause))
+                .range([0, height])
+                .padding(0.3);
+            
+            // Add gridlines
+            svg.append('g')
+                .attr('class', 'grid')
+                .call(d3.axisBottom(x)
+                    .tickSize(height)
+                    .tickFormat('')
+                    .ticks(5)
+                )
+                .attr('color', '#e0e0e0')
+                .select('.domain')
+                .remove();
+            
+            // Add x-axis
+            svg.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(5));
+            
+            // Add y-axis
+            svg.append('g')
+                .call(d3.axisLeft(y))
+                .selectAll('text')
+                .attr('text-anchor', 'end')
+                .attr('font-weight', 'bold');
+            
+            // Add bars
+            svg.selectAll('.bar')
+                .data(anomalyData)
+                .enter()
+                .append('rect')
+                .attr('class', 'bar')
+                .attr('y', d => y(d.cause))
+                .attr('height', y.bandwidth())
+                .attr('x', 0)
+                .attr('width', d => x(d.count))
+                .attr('fill', d => d.color);
+            
+            // Add value labels
+            svg.selectAll('.value-label')
+                .data(anomalyData)
+                .enter()
+                .append('text')
+                .attr('class', 'value-label')
+                .attr('x', d => x(d.count) + 5)
+                .attr('y', d => y(d.cause) + y.bandwidth() / 2 + 4)
+                .attr('text-anchor', 'start')
+                .text(d => d.count)
+                .attr('font-weight', 'bold');
+            
+            // Add annotation for early development issues - fixed positioning
+            svg.append('text')
+                .attr('class', 'annotation')
+                .attr('x', x(4))
+                .attr('y', y('Early development issues') - 15)
+                .attr('text-anchor', 'middle')
+                .text('Most failures occurred during early vehicle development')
+                .attr('font-style', 'italic')
+                .attr('font-size', '11px');
+            
+            // Add arrow for annotation
+            svg.append('path')
+                .attr('d', `M${x(4)},${y('Early development issues') - 10} L${x(4)},${y('Early development issues')}`)
+                .attr('stroke', '#555')
+                .attr('stroke-width', 1)
+                .attr('fill', 'none');
+        }
+        
+        // Create pie chart
+        function createPieChart() {
+            // Add chart title
+            d3.select('#payload-chart')
+                .append('div')
+                .attr('class', 'chart-title')
+                .text('Payload Impact');
+                
+            const width = document.getElementById('payload-chart').clientWidth;
+            const height = document.getElementById('payload-chart').clientHeight - 30; // Adjust for title
+            const radius = Math.min(width, height) / 2 * 0.65; // Reduced radius to leave more space for labels
+            
+            const svg = d3.select('#payload-chart')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${width / 2},${height / 2})`);
+            
+            // Create pie layout
+            const pie = d3.pie()
+                .value(d => d.count)
+                .sort(null);
+            
+            // Create arc generator
+            const arc = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+            
+            // Create outer arc for labels - increased distance
+            const outerArc = d3.arc()
+                .innerRadius(radius * 1.2)
+                .outerRadius(radius * 1.2);
+            
+            // Add pie segments
+            const path = svg.selectAll('path')
+                .data(pie(payloadData))
+                .enter()
+                .append('path')
+                .attr('d', arc)
+                .attr('fill', d => d.data.color);
+            
+            // Add percentage labels with leader lines - improved positioning
+            const text = svg.selectAll('.percentage')
+                .data(pie(payloadData))
+                .enter()
+                .append('text')
+                .attr('class', 'percentage')
+                .attr('transform', d => {
+                    const pos = outerArc.centroid(d);
+                    const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
+                    pos[0] = radius * (midAngle < Math.PI ? 1.4 : -1.4); // Increased distance
+                    return `translate(${pos})`;
+                })
+                .attr('dy', '.35em')
+                .attr('text-anchor', d => {
+                    const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
+                    return midAngle < Math.PI ? 'start' : 'end';
+                })
+                .text(d => `${d.data.percentage}%`)
+                .attr('font-weight', 'bold')
+                .attr('font-size', '14px'); // Increased font size
+            
+            // Add status labels - improved positioning
+            svg.selectAll('.status-label')
+                .data(pie(payloadData))
+                .enter()
+                .append('text')
+                .attr('class', 'status-label pie-label')
+                .attr('transform', d => {
+                    const pos = outerArc.centroid(d);
+                    const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
+                    pos[0] = radius * (midAngle < Math.PI ? 1.4 : -1.4); // Increased distance
+                    pos[1] += 20; // Position below percentage
+                    return `translate(${pos})`;
+                })
+                .attr('text-anchor', d => {
+                    const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
+                    return midAngle < Math.PI ? 'start' : 'end';
+                })
+                .text(d => d.data.status)
+                .attr('font-size', '12px'); // Specified font size
+            
+            // Add leader lines - extended
+            svg.selectAll('polyline')
+                .data(pie(payloadData))
+                .enter()
+                .append('polyline')
+                .attr('points', d => {
+                    const pos = outerArc.centroid(d);
+                    const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
+                    pos[0] = radius * (midAngle < Math.PI ? 1.3 : -1.3); // Extended line
+                    return [arc.centroid(d), outerArc.centroid(d), pos];
+                })
+                .attr('stroke', '#999')
+                .attr('fill', 'none')
+                .attr('stroke-width', 1);
+            
+            // Add count in center - improved positioning
+            svg.append('text')
+                .attr('text-anchor', 'middle')
+                .attr('dy', '-0.2em')
+                .attr('font-size', '24px')
+                .attr('font-family', 'Georgia, serif')
+                .attr('font-weight', 'bold')
+                .attr('fill', '#1a4e8c')
+                .text('48');
+            
+            // Add label below count - improved positioning
+            svg.append('text')
+                .attr('class', 'center-label')
+                .attr('text-anchor', 'middle')
+                .attr('dy', '1.5em')
+                .attr('font-size', '12px')
+                .text('Payloads Lost');
+        }
+        
+        // Initialize charts
+        createBarChart();
+        createPieChart();
+    </script>
+</body>
+</html>

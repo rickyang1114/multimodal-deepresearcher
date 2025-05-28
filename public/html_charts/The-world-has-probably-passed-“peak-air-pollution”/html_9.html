@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Air Quality Interventions</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            background-color: white;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 25px;
+            color: #555;
+        }
+        
+        .category-header {
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+        
+        .intervention-name {
+            font-size: 12px;
+            margin-left: 15px;
+        }
+        
+        .legend {
+            font-size: 11px;
+        }
+        
+        .evidence-note {
+            font-size: 11px;
+            background-color: #f5f5f5;
+            padding: 12px;
+            margin-top: 25px;
+            border-radius: 4px;
+        }
+        
+        .source {
+            font-size: 10px;
+            color: #777;
+            margin-top: 12px;
+            font-style: italic;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 1.2em;
+            fill: #000;
+        }
+        
+        .no-data {
+            fill: #aaa;
+            font-size: 11px;
+            font-style: italic;
+        }
+        
+        .additional-note {
+            fill: #666;
+            font-size: 11px;
+            font-style: italic;
+        }
+        
+        .pm-label, .mortality-label {
+            font-size: 12px;
+            dominant-baseline: middle;
+        }
+        
+        .axis-label {
+            font-size: 12px;
+            text-anchor: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Urban Air Quality Interventions Show Promising but Variable Effectiveness</div>
+        <div class="subtitle">PM reduction and mortality benefits from intervention studies</div>
+        <div id="chart"></div>
+        <div class="evidence-note">
+            <strong>Evidence quality:</strong> GRADE LOW to VERY LOW for vehicular interventions, GRADE VERY LOW for residential interventions
+        </div>
+        <div class="source">
+            Source: Cochrane review of vehicular-source interventions; Dockery et al. 2013; Yap 2015
+        </div>
+    </div>
+
+    <script>
+        // Data preparation
+        const data = [
+            {
+                category: "Vehicular Interventions",
+                intervention: "Low Emission Zones",
+                pm: { min: 7, max: 20, label: "7-20% PM₁₀" },
+                mortality: { hasData: false }
+            },
+            {
+                category: "Vehicular Interventions",
+                intervention: "Congestion charging",
+                pm: { min: 10, max: 15, label: "10-15% PM" },
+                mortality: { hasData: false }
+            },
+            {
+                category: "Vehicular Interventions",
+                intervention: "Vehicle standards (Tokyo)",
+                pm: { min: 20, max: 31, label: "20-31% PM" },
+                mortality: [
+                    { value: 2.1, label: "2.1% all-cause" },
+                    { value: 5.9, label: "5.9% cardiovascular" },
+                    { value: 10, label: "10% respiratory" }
+                ]
+            },
+            {
+                category: "Residential/Industrial Interventions",
+                intervention: "Coal sale ban (Ireland)",
+                pm: { min: 12, max: 15, label: "12-15% PM" },
+                mortality: [
+                    { value: 16.8, label: "16.8% respiratory" }
+                ],
+                note: "No clear change in all-cause mortality"
+            },
+            {
+                category: "Residential/Industrial Interventions",
+                intervention: "Wood burning ban (California)",
+                pm: { min: 8.5, max: 12.3, label: "8.5-12.3% PM" },
+                mortality: { hasData: false },
+                pmNote: "12.3% PM₂.₅, 8.5% coarse PM"
+            }
+        ];
+
+        // Visualization dimensions - increased height for better spacing
+        const margin = { top: 40, right: 220, bottom: 50, left: 250 };
+        const width = 900 - margin.left - margin.right;
+        const height = 500 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // Create x scale
+        const x = d3.scaleLinear()
+            .domain([0, 35])
+            .range([0, width]);
+
+        // Add x-axis
+        svg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(x)
+                .tickFormat(d => d + "%")
+                .tickValues([0, 5, 10, 15, 20, 25, 30, 35]));
+
+        // Add x-axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("x", width / 2)
+            .attr("y", height + 35)
+            .text("Reduction (%)");
+
+        // Add gridlines
+        svg.append("g")
+            .attr("class", "grid")
+            .selectAll("line")
+            .data([0, 5, 10, 15, 20, 25, 30, 35])
+            .enter()
+            .append("line")
+            .attr("x1", d => x(d))
+            .attr("y1", 0)
+            .attr("x2", d => x(d))
+            .attr("y2", height)
+            .attr("stroke", "#e0e0e0")
+            .attr("stroke-width", 1);
+
+        // Process data for visualization
+        let processedData = [];
+        let currentY = 0;
+        const barHeight = 22; // Increased bar height
+        const barGap = 3;     // Increased gap between bars
+        const categoryGap = 40; // Increased gap between categories
+        
+        let currentCategory = "";
+        let categoryPositions = {};
+        
+        data.forEach((d, i) => {
+            if (d.category !== currentCategory) {
+                currentCategory = d.category;
+                currentY += (i > 0) ? categoryGap : 0;
+                categoryPositions[d.category] = currentY;
+            }
+            
+            // PM reduction bar
+            processedData.push({
+                category: d.category,
+                intervention: d.intervention,
+                type: "PM",
+                y: currentY,
+                min: d.pm.min,
+                max: d.pm.max,
+                label: d.pm.label,
+                pmNote: d.pmNote || null
+            });
+            
+            // Mortality reduction bars
+            if (d.mortality.hasData === false) {
+                processedData.push({
+                    category: d.category,
+                    intervention: d.intervention,
+                    type: "Mortality",
+                    y: currentY + barHeight + barGap,
+                    noData: true
+                });
+                currentY += (barHeight + barGap) * 2 + 20; // Increased spacing
+            } else {
+                d.mortality.forEach((m, j) => {
+                    processedData.push({
+                        category: d.category,
+                        intervention: d.intervention,
+                        type: "Mortality",
+                        y: currentY + barHeight + barGap + j * (barHeight + barGap),
+                        value: m.value,
+                        label: m.label
+                    });
+                });
+                
+                const mortalityCount = d.mortality.length;
+                currentY += barHeight + (barHeight + barGap) * mortalityCount + 20; // Increased spacing
+                
+                // Add note if present
+                if (d.note) {
+                    processedData.push({
+                        category: d.category,
+                        intervention: d.intervention,
+                        type: "Note",
+                        y: currentY - 15,
+                        note: d.note
+                    });
+                }
+            }
+        });
+
+        // Create y scale
+        const y = d3.scaleLinear()
+            .domain([0, currentY])
+            .range([0, currentY]);
+
+        // Add category headers
+        Object.entries(categoryPositions).forEach(([category, position]) => {
+            svg.append("text")
+                .attr("class", "category-header")
+                .attr("x", -margin.left + 10)
+                .attr("y", position - 15) // Increased spacing
+                .text(category);
+        });
+
+        // Add PM reduction bars
+        svg.selectAll(".pm-bar")
+            .data(processedData.filter(d => d.type === "PM"))
+            .enter()
+            .append("rect")
+            .attr("class", "pm-bar")
+            .attr("x", 0)
+            .attr("y", d => y(d.y))
+            .attr("width", d => x(d.max))
+            .attr("height", barHeight)
+            .attr("fill", "#FB9A99");
+
+        // Add PM reduction minimum markers
+        svg.selectAll(".pm-min")
+            .data(processedData.filter(d => d.type === "PM"))
+            .enter()
+            .append("line")
+            .attr("class", "pm-min")
+            .attr("x1", d => x(d.min))
+            .attr("y1", d => y(d.y))
+            .attr("x2", d => x(d.min))
+            .attr("y2", d => y(d.y) + barHeight)
+            .attr("stroke", "#d67c7b")
+            .attr("stroke-width", 2);
+
+        // Add mortality reduction bars
+        svg.selectAll(".mortality-bar")
+            .data(processedData.filter(d => d.type === "Mortality" && !d.noData))
+            .enter()
+            .append("rect")
+            .attr("class", "mortality-bar")
+            .attr("x", 0)
+            .attr("y", d => y(d.y))
+            .attr("width", d => x(d.value))
+            .attr("height", barHeight)
+            .attr("fill", "#08519C");
+
+        // Add intervention names
+        const interventionNames = processedData.filter(d => d.type === "PM");
+        svg.selectAll(".intervention-name")
+            .data(interventionNames)
+            .enter()
+            .append("text")
+            .attr("class", "intervention-name")
+            .attr("x", -10)
+            .attr("y", d => y(d.y) + barHeight / 2 + 4)
+            .attr("text-anchor", "end")
+            .text(d => d.intervention);
+
+        // Add PM reduction labels - improved alignment
+        svg.selectAll(".pm-label")
+            .data(processedData.filter(d => d.type === "PM"))
+            .enter()
+            .append("text")
+            .attr("class", "pm-label")
+            .attr("x", d => x(d.max) + 10)
+            .attr("y", d => y(d.y) + barHeight / 2 + 4)
+            .attr("alignment-baseline", "middle")
+            .html(d => {
+                // Properly format PM subscripts
+                return d.label.replace("PM₁₀", "PM<tspan baseline-shift='sub'>10</tspan>")
+                              .replace("PM₂.₅", "PM<tspan baseline-shift='sub'>2.5</tspan>");
+            });
+
+        // Add PM additional notes - improved positioning and size
+        svg.selectAll(".pm-note")
+            .data(processedData.filter(d => d.type === "PM" && d.pmNote))
+            .enter()
+            .append("text")
+            .attr("class", "additional-note")
+            .attr("x", d => x(d.max) + 10)
+            .attr("y", d => y(d.y) + barHeight + 8) // Positioned below the bar instead of to the right
+            .html(d => {
+                // Properly format PM subscripts in notes
+                return `(${d.pmNote.replace("PM₂.₅", "PM<tspan baseline-shift='sub'>2.5</tspan>")})`;
+            });
+
+        // Add mortality reduction labels
+        svg.selectAll(".mortality-label")
+            .data(processedData.filter(d => d.type === "Mortality" && !d.noData))
+            .enter()
+            .append("text")
+            .attr("class", "mortality-label")
+            .attr("x", d => x(d.value) + 10)
+            .attr("y", d => y(d.y) + barHeight / 2 + 4)
+            .attr("alignment-baseline", "middle")
+            .each(function(d) {
+                const text = d3.select(this);
+                const parts = d.label.split(" ");
+                const percentage = parts[0];
+                const rest = parts.slice(1).join(" ");
+                
+                text.append("tspan")
+                    .attr("class", "key-number")
+                    .text(percentage);
+                
+                text.append("tspan")
+                    .text(` ${rest}`);
+            });
+
+        // Add "No data" labels
+        svg.selectAll(".no-data")
+            .data(processedData.filter(d => d.type === "Mortality" && d.noData))
+            .enter()
+            .append("text")
+            .attr("class", "no-data")
+            .attr("x", x(5))
+            .attr("y", d => y(d.y) + barHeight / 2 + 4)
+            .attr("alignment-baseline", "middle")
+            .text("No clear mortality data");
+
+        // Add additional notes - improved positioning
+        svg.selectAll(".note")
+            .data(processedData.filter(d => d.type === "Note"))
+            .enter()
+            .append("text")
+            .attr("class", "additional-note")
+            .attr("x", x(18)) // Positioned to the right of the mortality bar
+            .attr("y", d => y(d.y))
+            .text(d => d.note);
+
+        // Add legend - improved positioning
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width - 80}, 0)`); // Moved further right
+
+        // PM reduction legend item
+        legend.append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", 16)
+            .attr("height", 16)
+            .attr("fill", "#FB9A99");
+
+        legend.append("text")
+            .attr("x", 26)
+            .attr("y", 12)
+            .text("PM reduction");
+
+        // Mortality reduction legend item
+        legend.append("rect")
+            .attr("x", 0)
+            .attr("y", 26)
+            .attr("width", 16)
+            .attr("height", 16)
+            .attr("fill", "#08519C");
+
+        legend.append("text")
+            .attr("x", 26)
+            .attr("y", 38)
+            .text("Mortality reduction");
+    </script>
+</body>
+</html>

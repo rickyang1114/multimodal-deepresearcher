@@ -7,7 +7,7 @@ const siteMetadata = {
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'http://39.106.38.1:49416/',
-  siteRepo: 'https://github.com/rickyang1114/DDP-practice',
+  siteRepo: 'https://github.com/rickyang1114/mdr-demo',
   siteLogo: `${process.env.BASE_PATH || ''}/static/images/logo.png`,
   socialBanner: `${process.env.BASE_PATH || ''}/static/images/twitter-card.png`,
   // mastodon: '',

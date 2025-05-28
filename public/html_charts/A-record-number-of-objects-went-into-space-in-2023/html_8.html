@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Major On-Orbit Anomalies Timeline</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 1000px;
+            height: 600px;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 16pt;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 12pt;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .timeline-axis text {
+            font-size: 9pt;
+            fill: #333;
+        }
+        
+        .event-node {
+            cursor: pointer;
+        }
+        
+        .event-text {
+            font-size: 10pt;
+            fill: #333;
+        }
+        
+        .event-text-box {
+            fill: #f9f9f9;
+            stroke: #ddd;
+            stroke-width: 1px;
+            rx: 3;
+            ry: 3;
+        }
+        
+        .event-line {
+            stroke: #aaa;
+            stroke-width: 1px;
+        }
+        
+        .month-line {
+            stroke: #eee;
+            stroke-width: 1px;
+        }
+        
+        .year-divider {
+            stroke: #999;
+            stroke-width: 2px;
+            stroke-dasharray: 6,3;
+        }
+        
+        .year-label {
+            font-size: 11pt;
+            font-weight: bold;
+            fill: #555;
+        }
+        
+        .legend-title {
+            font-size: 11pt;
+            font-weight: 500;
+        }
+        
+        .legend-item {
+            font-size: 9pt;
+        }
+        
+        .callout {
+            fill: #f0f7ff;
+            stroke: #4682b4;
+            stroke-width: 1px;
+            rx: 3;
+            ry: 3;
+        }
+        
+        .callout-text {
+            font-size: 9pt;
+            fill: #333;
+            font-style: italic;
+        }
+        
+        .source {
+            font-size: 8pt;
+            fill: #666;
+        }
+        
+        .note {
+            font-size: 8pt;
+            fill: #666;
+            font-style: italic;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-size: 11pt;
+            font-weight: bold;
+            fill: #1a5276;
+        }
+        
+        .chart-border {
+            fill: none;
+            stroke: #ddd;
+            stroke-width: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container" id="timeline-chart"></div>
+
+    <script>
+        // Set up dimensions - increased width to accommodate text boxes
+        const margin = {top: 60, right: 200, bottom: 60, left: 100};
+        const width = 1000 - margin.left - margin.right;
+        const height = 600 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#timeline-chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+        // Add border to chart area
+        svg.append("rect")
+            .attr("class", "chart-border")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("x", 0)
+            .attr("y", 0);
+
+        // Add title and subtitle
+        d3.select("#timeline-chart svg")
+            .append("text")
+            .attr("class", "title")
+            .attr("x", width / 2 + margin.left)
+            .attr("y", 25)
+            .attr("text-anchor", "middle")
+            .text("Major On-Orbit Anomalies and Environmental Impacts (2022-2023)");
+
+        d3.select("#timeline-chart svg")
+            .append("text")
+            .attr("class", "subtitle")
+            .attr("x", width / 2 + margin.left)
+            .attr("y", 45)
+            .attr("text-anchor", "middle")
+            .html("Space environment interactions accounted for <tspan class='key-number'>20%</tspan> of reported spacecraft anomalies");
+
+        // Define data
+        const events = [
+            {
+                date: "2022-02-15",
+                type: "Space Weather",
+                description: "Starlink Group 4-7 launch: <tspan class='key-number'>38</tspan> of <tspan class='key-number'>49</tspan> satellites lost due to geomagnetic storm increasing atmospheric drag",
+                highlight: true
+            },
+            {
+                date: "2022-04-20",
+                type: "Space Weather",
+                description: "Minor satellite anomalies reported during solar energetic particle event"
+            },
+            {
+                date: "2022-08-10",
+                type: "Space Weather",
+                description: "Communications satellite experiences temporary service disruption during solar flare"
+            },
+            {
+                date: "2022-12-15",
+                type: "Debris/Micrometeoroid",
+                description: "Soyuz MS-22 coolant leak (<tspan class='key-number'>0.8mm</tspan> hole) attributed to micrometeoroid impact"
+            },
+            {
+                date: "2023-02-10",
+                type: "Debris/Micrometeoroid",
+                description: "Progress MS-21 coolant leak (<tspan class='key-number'>1.2mm</tspan> hole) attributed to orbital debris impact"
+            },
+            {
+                date: "2023-05-15",
+                type: "Space Weather",
+                description: "Multiple commercial satellites report navigation anomalies during geomagnetic activity"
+            },
+            {
+                date: "2023-09-05",
+                type: "Debris/Micrometeoroid",
+                description: "CubeSat lost after suspected micrometeoroid impact"
+            },
+            {
+                date: "2023-11-20",
+                type: "Other",
+                description: "Communication satellite experiences partial power system failure"
+            }
+        ];
+
+        // Create time scale - fixed to only include 2022-2023
+        const timeScale = d3.scaleTime()
+            .domain([new Date("2022-01-01"), new Date("2023-12-31")])
+            .range([0, height]);
+
+        // Create category scale for x-position - adjusted to use more horizontal space
+        const categoryScale = d3.scaleOrdinal()
+            .domain(["Space Weather", "Debris/Micrometeoroid", "Other"])
+            .range([width * 0.2, width * 0.5, width * 0.75]);
+
+        // Color scale for event types
+        const colorScale = d3.scaleOrdinal()
+            .domain(["Space Weather", "Debris/Micrometeoroid", "Other"])
+            .range(["#1a5276", "#3498db", "#85c1e9"]);
+
+        // Draw month lines and labels
+        const months = d3.timeMonths(new Date("2022-01-01"), new Date("2024-01-01"));
+        
+        svg.selectAll(".month-line")
+            .data(months.filter(d => d.getFullYear() <= 2023)) // Only include months in 2022-2023
+            .enter()
+            .append("line")
+            .attr("class", "month-line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", d => timeScale(d))
+            .attr("y2", d => timeScale(d));
+
+        // Add special styling for year transitions - improved visibility
+        svg.append("line")
+            .attr("class", "year-divider")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", timeScale(new Date("2023-01-01")))
+            .attr("y2", timeScale(new Date("2023-01-01")));
+
+        // Add year labels more distinctly - moved further left for better spacing
+        svg.append("text")
+            .attr("class", "year-label")
+            .attr("x", -50)
+            .attr("y", timeScale(new Date("2022-06-15")))
+            .attr("text-anchor", "middle")
+            .text("2022");
+            
+        svg.append("text")
+            .attr("class", "year-label")
+            .attr("x", -50)
+            .attr("y", timeScale(new Date("2023-06-15")))
+            .attr("text-anchor", "middle")
+            .text("2023");
+
+        // Draw month labels - moved further left for better spacing
+        svg.selectAll(".month-label")
+            .data(months.filter(d => d.getFullYear() <= 2023)) // Only include months in 2022-2023
+            .enter()
+            .append("text")
+            .attr("class", "timeline-axis")
+            .attr("x", -15)
+            .attr("y", d => timeScale(d) + 4)
+            .attr("text-anchor", "end")
+            .text(d => d3.timeFormat("%b")(d));
+
+        // Draw event nodes
+        const eventNodes = svg.selectAll(".event-node")
+            .data(events)
+            .enter()
+            .append("g")
+            .attr("class", "event-node")
+            .attr("transform", d => `translate(${categoryScale(d.type)}, ${timeScale(new Date(d.date))})`);
+
+        eventNodes.append("circle")
+            .attr("r", 6)
+            .attr("fill", d => colorScale(d.type));
+
+        // Calculate text box positions with improved spacing
+        events.forEach((event, i) => {
+            // Base position - increased horizontal offset
+            event.textX = categoryScale(event.type) + 20;
+            
+            // Adjust vertical position to avoid overlapping with month labels
+            const monthPosition = timeScale(new Date(event.date));
+            event.textY = monthPosition - 15; // Default position above the node
+            
+            // Adjust vertical position based on month to avoid overlaps
+            const sameMonthEvents = events.filter((e, j) => 
+                j < i && // Only consider events that came before this one
+                new Date(e.date).getMonth() === new Date(event.date).getMonth() && 
+                new Date(e.date).getFullYear() === new Date(event.date).getFullYear()
+            );
+            
+            if (sameMonthEvents.length > 0) {
+                event.textY -= 30 * sameMonthEvents.length;
+            }
+            
+            // Ensure text boxes don't go above the chart
+            if (event.textY < 0) {
+                event.textY = 5;
+            }
+        });
+
+        // Measure text to determine box size - increased padding
+        const dummyText = svg.append("text")
+            .attr("class", "event-text")
+            .style("opacity", 0);
+
+        events.forEach(event => {
+            dummyText.html(event.description);
+            const bbox = dummyText.node().getBBox();
+            // Significantly increased width to prevent text truncation
+            event.boxWidth = Math.min(bbox.width + 40, 350); 
+            event.boxHeight = bbox.height + 20;
+        });
+
+        dummyText.remove();
+
+        // Draw connecting lines
+        svg.selectAll(".event-line")
+            .data(events)
+            .enter()
+            .append("line")
+            .attr("class", "event-line")
+            .attr("x1", d => categoryScale(d.type))
+            .attr("y1", d => timeScale(new Date(d.date)))
+            .attr("x2", d => d.textX + 5)
+            .attr("y2", d => d.textY + 10);
+
+        // Draw text boxes
+        const textBoxes = svg.selectAll(".event-text-group")
+            .data(events)
+            .enter()
+            .append("g")
+            .attr("class", "event-text-group");
+
+        textBoxes.append("rect")
+            .attr("class", "event-text-box")
+            .attr("x", d => d.textX)
+            .attr("y", d => d.textY)
+            .attr("width", d => d.boxWidth)
+            .attr("height", d => d.boxHeight);
+
+        textBoxes.append("text")
+            .attr("class", "event-text")
+            .attr("x", d => d.textX + 10)
+            .attr("y", d => d.textY + 15)
+            .html(d => d.description);
+
+        // Add callout for highlighted event - fixed positioning and separated from event box
+        const highlightedEvent = events.find(d => d.highlight);
+        if (highlightedEvent) {
+            const calloutX = categoryScale(highlightedEvent.type) + 20;
+            const calloutY = timeScale(new Date(highlightedEvent.date)) + 20;
+            
+            svg.append("rect")
+                .attr("class", "callout")
+                .attr("x", calloutX)
+                .attr("y", calloutY)
+                .attr("width", 240)
+                .attr("height", 20);
+                
+            svg.append("text")
+                .attr("class", "callout-text")
+                .attr("x", calloutX + 10)
+                .attr("y", calloutY + 14)
+                .text("Most significant space weather impact of the period");
+                
+            // Add connecting line from event to callout
+            svg.append("line")
+                .attr("class", "event-line")
+                .attr("x1", categoryScale(highlightedEvent.type))
+                .attr("y1", timeScale(new Date(highlightedEvent.date)))
+                .attr("x2", calloutX + 5)
+                .attr("y2", calloutY + 10);
+        }
+
+        // Add legend with improved spacing
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width + 20}, 20)`); // Adjusted vertical position
+
+        legend.append("text")
+            .attr("class", "legend-title")
+            .attr("x", 0)
+            .attr("y", 0)
+            .text("Anomaly Types");
+
+        const legendItems = ["Space Weather", "Debris/Micrometeoroid", "Other"];
+        
+        legendItems.forEach((item, i) => {
+            const legendGroup = legend.append("g")
+                .attr("transform", `translate(0, ${25 + i * 25})`); // Reduced spacing between title and items
+                
+            legendGroup.append("circle")
+                .attr("r", 6)
+                .attr("fill", colorScale(item));
+                
+            legendGroup.append("text")
+                .attr("class", "legend-item")
+                .attr("x", 15)
+                .attr("y", 4)
+                .text(item);
+        });
+
+        // Add source and note
+        svg.append("text")
+            .attr("class", "source")
+            .attr("x", 0)
+            .attr("y", height + 20)
+            .text("Data sources: SpaceX updates, Roscosmos reports, space weather monitoring services");
+
+        svg.append("text")
+            .attr("class", "note")
+            .attr("x", 0)
+            .attr("y", height + 35)
+            .text("Note: Analysis based on publicly disclosed anomalies; actual number of incidents may be higher");
+    </script>
+</body>
+</html>

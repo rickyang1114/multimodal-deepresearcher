@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evolution of Transformer-Based Language Models</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 1000px;
+            height: 650px;
+            background-color: white;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+            padding-top: 15px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        
+        .source {
+            font-size: 12px;
+            text-align: right;
+            color: #999;
+            margin-top: 10px;
+            padding-right: 30px;
+        }
+        
+        .axis-label {
+            font-size: 13px;
+            fill: #666;
+            font-weight: bold;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-width: 1px;
+        }
+        
+        .model-label {
+            font-size: 12px;
+            pointer-events: none;
+        }
+        
+        .parameter-count {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        
+        .milestone {
+            font-size: 12px;
+            font-style: italic;
+            fill: #555;
+        }
+        
+        .trend-line {
+            fill: none;
+            stroke: #aaa;
+            stroke-width: 3px;
+            stroke-dasharray: 6,4;
+            opacity: 0.7;
+        }
+        
+        .legend-item text {
+            font-size: 13px;
+        }
+        
+        .timeline-connector {
+            stroke-width: 1.5px;
+            opacity: 0.6;
+        }
+        
+        .y-axis-label {
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Evolution of Transformer-Based Language Models (2017-2024)</div>
+        <div class="subtitle">Major model releases by approximate parameter count (log scale)</div>
+        <div id="chart"></div>
+        <div class="source">Source: IBM on Transformer Models, 2024</div>
+    </div>
+
+    <script>
+        // Set up dimensions and margins
+        const margin = {top: 60, right: 180, bottom: 70, left: 100};
+        const width = 1000 - margin.left - margin.right;
+        const height = 550 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Define scales
+        const xScale = d3.scaleLinear()
+            .domain([2016.8, 2024.5])
+            .range([0, width]);
+
+        const yScale = d3.scaleLog()
+            .domain([1e7, 1e13])
+            .range([height, 0]);
+
+        // Define color scale for organizations
+        const colorScale = d3.scaleOrdinal()
+            .domain(["Google", "OpenAI", "Meta", "Anthropic", "Other"])
+            .range(["#4285F4", "#FF5252", "#00BFA5", "#9C27B0", "#757575"]);
+
+        // Create axes
+        const xAxis = d3.axisBottom(xScale)
+            .tickFormat(d3.format("d"))
+            .ticks(8);
+
+        const yAxis = d3.axisLeft(yScale)
+            .tickValues([1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13])
+            .tickFormat(d => {
+                return `10${d3.formatPrefix(",.0", d).prefix}`;
+            });
+
+        // Add X axis
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(xAxis)
+            .selectAll("text")
+            .style("font-size", "12px");
+
+        // Add Y axis with properly formatted labels
+        svg.append("g")
+            .call(yAxis)
+            .selectAll(".tick text")
+            .style("font-size", "12px")
+            .each(function(d) {
+                const text = d3.select(this);
+                text.text("");
+                
+                // Base "10"
+                text.append("tspan")
+                    .text("10")
+                    .attr("dy", 0);
+                
+                // Superscript
+                const exp = Math.log10(d).toFixed(0);
+                text.append("tspan")
+                    .text(exp)
+                    .style("font-size", "10px")
+                    .attr("baseline-shift", "super")
+                    .attr("dx", "1px")
+                    .attr("dy", "-5px");
+            });
+
+        // Add X axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("x", width / 2)
+            .attr("y", height + 45)
+            .text("Year");
+
+        // Add Y axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", -65)
+            .text("Parameters (log scale)");
+
+        // Add horizontal grid lines
+        svg.append("g")
+            .attr("class", "grid")
+            .selectAll("line")
+            .data([1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13])
+            .enter()
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", d => yScale(d))
+            .attr("y2", d => yScale(d));
+
+        // Define model data with carefully adjusted positions to prevent overlapping
+        const modelData = [
+            {name: "Original Transformer", org: "Google", year: 2017, params: 65e6, significance: 1.0, labelOffset: {x: 10, y: 0}},
+            {name: "BERT", org: "Google", year: 2018, params: 340e6, significance: 1.2, labelOffset: {x: 10, y: 0}},
+            {name: "GPT-2", org: "OpenAI", year: 2019, params: 1.5e9, significance: 1.2, labelOffset: {x: 10, y: 0}},
+            {name: "T5", org: "Google", year: 2020, params: 11e9, significance: 1.2, labelOffset: {x: 10, y: 0}},
+            {name: "GPT-3", org: "OpenAI", year: 2020.5, params: 175e9, significance: 1.5, labelOffset: {x: 10, y: 0}},
+            {name: "PaLM", org: "Google", year: 2022, params: 540e9, significance: 1.4, labelOffset: {x: 10, y: 0}},
+            {name: "LLaMA", org: "Meta", year: 2023, params: 65e9, significance: 1.2, labelOffset: {x: -120, y: -15}},
+            {name: "GPT-4", org: "OpenAI", year: 2023.2, params: 1.76e12, significance: 1.6, labelOffset: {x: 10, y: -20}},
+            {name: "Claude 2", org: "Anthropic", year: 2023.5, params: 100e9, significance: 1.2, labelOffset: {x: 10, y: 35}},
+            {name: "Gemini", org: "Google", year: 2023.9, params: 1e12, significance: 1.5, labelOffset: {x: 10, y: 0}},
+            {name: "Llama 2", org: "Meta", year: 2023.6, params: 70e9, significance: 1.3, labelOffset: {x: -120, y: 45}},
+            {name: "Claude 3", org: "Anthropic", year: 2024.2, params: 150e9, significance: 1.3, labelOffset: {x: 10, y: -15}},
+            {name: "GPT-4o", org: "OpenAI", year: 2024.4, params: 1.8e12, significance: 1.6, labelOffset: {x: -140, y: -25}}
+        ];
+
+        // Define milestone data separately with carefully positioned annotations
+        const milestoneData = [
+            {year: 2017.1, params: 2e8, text: "Introduction of self-attention mechanism", anchor: "start", offsetX: 10, offsetY: -15},
+            {year: 2020.7, params: 4e11, text: "Established scaling laws", anchor: "start", offsetX: 10, offsetY: -35},
+            {year: 2023.3, params: 4e12, text: "Advanced multimodal capabilities", anchor: "start", offsetX: 10, offsetY: -35},
+            {year: 2024.2, params: 4e11, text: "Optimized for real-time interaction", anchor: "end", offsetX: -10, offsetY: -15}
+        ];
+
+        // Format parameter count for display with consistent formatting
+        function formatParams(params) {
+            if (params >= 1e12) {
+                return (params / 1e12).toFixed(1) + "T";
+            } else if (params >= 1e9) {
+                return (params / 1e9).toFixed(1) + "B";
+            } else if (params >= 1e6) {
+                return (params / 1e6).toFixed(0) + "M";
+            }
+            return params;
+        }
+
+        // Add trend line
+        const trendLine = d3.line()
+            .x(d => xScale(d.year))
+            .y(d => yScale(d.params))
+            .curve(d3.curveMonotoneX);
+
+        svg.append("path")
+            .datum(modelData)
+            .attr("class", "trend-line")
+            .attr("d", trendLine);
+
+        // Add vertical lines connecting models to timeline
+        svg.selectAll(".timeline-connector")
+            .data(modelData)
+            .enter()
+            .append("line")
+            .attr("class", "timeline-connector")
+            .attr("x1", d => xScale(d.year))
+            .attr("x2", d => xScale(d.year))
+            .attr("y1", d => yScale(d.params))
+            .attr("y2", height)
+            .attr("stroke", d => colorScale(d.org))
+            .attr("stroke-dasharray", "3,3")
+            .attr("opacity", 0.8);
+
+        // Add model points
+        svg.selectAll(".model-point")
+            .data(modelData)
+            .enter()
+            .append("circle")
+            .attr("class", "model-point")
+            .attr("cx", d => xScale(d.year))
+            .attr("cy", d => yScale(d.params))
+            .attr("r", d => d.significance * 5)
+            .attr("fill", d => colorScale(d.org))
+            .attr("stroke", "white")
+            .attr("stroke-width", 1.5)
+            .attr("opacity", 0.9);
+
+        // Add model labels with improved positioning to avoid overlap
+        const modelLabels = svg.selectAll(".model-label")
+            .data(modelData)
+            .enter()
+            .append("g")
+            .attr("class", "model-label")
+            .attr("transform", d => {
+                const x = xScale(d.year) + d.labelOffset.x;
+                const y = yScale(d.params) + d.labelOffset.y;
+                return `translate(${x},${y})`;
+            });
+
+        modelLabels.append("text")
+            .text(d => d.name)
+            .attr("dy", -8)
+            .attr("text-anchor", d => d.labelOffset.x < 0 ? "end" : "start");
+
+        modelLabels.append("text")
+            .attr("class", "parameter-count")
+            .text(d => formatParams(d.params) + " params")
+            .attr("dy", 8)
+            .attr("text-anchor", d => d.labelOffset.x < 0 ? "end" : "start")
+            .attr("fill", d => d3.color(colorScale(d.org)).darker(0.5));
+
+        // Add milestone annotations with improved positioning
+        svg.selectAll(".milestone")
+            .data(milestoneData)
+            .enter()
+            .append("g")
+            .attr("transform", d => `translate(${xScale(d.year)},${yScale(d.params)})`)
+            .append("text")
+            .attr("class", "milestone")
+            .text(d => "✦ " + d.text)
+            .attr("x", d => d.offsetX)
+            .attr("y", d => d.offsetY)
+            .attr("text-anchor", d => d.anchor);
+
+        // Add legend with more space
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width + 20}, 10)`);
+
+        const legendItems = legend.selectAll(".legend-item")
+            .data(colorScale.domain())
+            .enter()
+            .append("g")
+            .attr("class", "legend-item")
+            .attr("transform", (d, i) => `translate(0, ${i * 30})`);
+
+        legendItems.append("rect")
+            .attr("width", 16)
+            .attr("height", 16)
+            .attr("fill", d => colorScale(d))
+            .attr("opacity", 0.9);
+
+        legendItems.append("text")
+            .attr("x", 26)
+            .attr("y", 13)
+            .text(d => d);
+    </script>
+</body>
+</html>

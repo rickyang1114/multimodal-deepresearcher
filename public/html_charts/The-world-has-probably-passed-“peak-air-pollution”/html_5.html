@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agricultural Emissions Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 600px;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .source {
+            font-size: 12px;
+            color: #666;
+            position: absolute;
+            bottom: 5px;
+            left: 50px;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .axis-title {
+            font-size: 14px;
+            fill: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Agricultural Emissions Continue to Rise Unlike Other Pollution Sources</div>
+        <div class="subtitle">Global agricultural emissions indexed to 1990 levels (1990 = 100)</div>
+        <div id="chart"></div>
+        <div class="source">Source: IPCC AR6 WG3 Ch. 7, Table 7.1; FAO-STAT</div>
+    </div>
+
+    <script>
+        // Set up dimensions and margins
+        const margin = {top: 80, right: 80, bottom: 50, left: 80};
+        const width = 900 - margin.left - margin.right;
+        const height = 600 - margin.top - margin.bottom;
+        
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+        
+        // Define data
+        const years = [1990, 1995, 2000, 2005, 2010, 2015, 2020];
+        const data = [
+            {
+                name: "NH₃",
+                color: "#31A354",
+                values: [
+                    {year: 1990, value: 100},
+                    {year: 1995, value: 105},
+                    {year: 2000, value: 110},
+                    {year: 2005, value: 115},
+                    {year: 2010, value: 120},
+                    {year: 2015, value: 125},
+                    {year: 2020, value: 128}
+                ]
+            },
+            {
+                name: "CH₄",
+                color: "#FB9A99",
+                values: [
+                    {year: 1990, value: 100},
+                    {year: 1995, value: 102},
+                    {year: 2000, value: 104},
+                    {year: 2005, value: 106},
+                    {year: 2010, value: 108},
+                    {year: 2015, value: 109},
+                    {year: 2020, value: 110}
+                ]
+            },
+            {
+                name: "N₂O",
+                color: "#08519C",
+                values: [
+                    {year: 1990, value: 100},
+                    {year: 1995, value: 105},
+                    {year: 2000, value: 110},
+                    {year: 2005, value: 115},
+                    {year: 2010, value: 120},
+                    {year: 2015, value: 123},
+                    {year: 2020, value: 125}
+                ]
+            }
+        ];
+        
+        // Create scales
+        const x = d3.scaleLinear()
+            .domain([1990, 2020])
+            .range([0, width]);
+        
+        const y = d3.scaleLinear()
+            .domain([90, 130])
+            .range([height, 0]);
+        
+        // Create axes
+        const xAxis = d3.axisBottom(x)
+            .tickValues(years)
+            .tickFormat(d3.format("d"));
+        
+        const yAxis = d3.axisLeft(y)
+            .tickValues([90, 100, 110, 120, 130])
+            .tickFormat(d3.format("d"));
+        
+        // Add X axis
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(xAxis)
+            .selectAll("text")
+            .style("font-size", "12px");
+        
+        // Add Y axis
+        svg.append("g")
+            .call(yAxis)
+            .selectAll("text")
+            .style("font-size", "12px");
+        
+        // Add Y axis title
+        svg.append("text")
+            .attr("class", "axis-title")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -60)
+            .attr("x", -height / 2)
+            .attr("text-anchor", "middle")
+            .text("Index (1990 = 100)");
+        
+        // Add horizontal gridlines
+        svg.selectAll("gridline")
+            .data([100, 110, 120, 130])
+            .enter()
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", d => y(d))
+            .attr("y2", d => y(d))
+            .attr("stroke", "#e0e0e0")
+            .attr("stroke-width", 1);
+        
+        // Create line generator
+        const line = d3.line()
+            .x(d => x(d.year))
+            .y(d => y(d.value))
+            .curve(d3.curveMonotoneX);
+            
+        // Draw each line separately (not stacked)
+        data.forEach(series => {
+            // Add area under the line with transparency
+            svg.append("path")
+                .datum(series.values)
+                .attr("fill", series.color)
+                .attr("fill-opacity", 0.3) // Reduced opacity to 30%
+                .attr("d", d3.area()
+                    .x(d => x(d.year))
+                    .y0(y(90))
+                    .y1(d => y(d.value))
+                    .curve(d3.curveMonotoneX)
+                );
+                
+            // Add the line
+            svg.append("path")
+                .datum(series.values)
+                .attr("class", "line")
+                .attr("d", line)
+                .attr("fill", "none")
+                .attr("stroke", series.color)
+                .attr("stroke-width", 2.5);
+                
+            // Add markers at data points
+            svg.selectAll(`.marker-${series.name}`)
+                .data(series.values)
+                .enter()
+                .append("circle")
+                .attr("class", `marker-${series.name}`)
+                .attr("cx", d => x(d.year))
+                .attr("cy", d => y(d.value))
+                .attr("r", 4)
+                .attr("fill", series.color)
+                .attr("stroke", "#fff")
+                .attr("stroke-width", 1.5);
+                
+            // Add value labels at 2020 point
+            if (series.name === "NH₃" || series.name === "N₂O") {
+                const lastPoint = series.values[series.values.length - 1];
+                svg.append("text")
+                    .attr("x", x(lastPoint.year) + 8) // Increased spacing
+                    .attr("y", y(lastPoint.value))
+                    .attr("dy", "0.35em")
+                    .style("font-size", "12px")
+                    .style("font-weight", "bold")
+                    .style("fill", series.color)
+                    .text(lastPoint.value);
+            }
+        });
+        
+        // Add legend with proper styling
+        const legend = svg.append("g")
+            .attr("transform", `translate(${width - 120}, 10)`);
+            
+        // Add legend background
+        legend.append("rect")
+            .attr("width", 100)
+            .attr("height", 90)
+            .attr("fill", "white")
+            .attr("stroke", "#ddd")
+            .attr("stroke-width", 1)
+            .attr("rx", 4);
+            
+        data.forEach((series, i) => {
+            const legendRow = legend.append("g")
+                .attr("transform", `translate(10, ${25 + i * 25})`);
+                
+            legendRow.append("rect")
+                .attr("width", 15)
+                .attr("height", 15)
+                .attr("fill", series.color);
+                
+            legendRow.append("text")
+                .attr("x", 25)
+                .attr("y", 12)
+                .style("font-size", "14px")
+                .text(series.name);
+        });
+        
+        // Add info box with proper styling
+        const infoBox = svg.append("g")
+            .attr("transform", "translate(10, 10)");
+            
+        // Add info box background
+        infoBox.append("rect")
+            .attr("width", 280)
+            .attr("height", 180)
+            .attr("fill", "white")
+            .attr("stroke", "#ddd")
+            .attr("stroke-width", 1)
+            .attr("rx", 5);
+            
+        infoBox.append("text")
+            .attr("x", 15)
+            .attr("y", 25)
+            .style("font-size", "14px")
+            .style("font-weight", "bold")
+            .text("Key sources:");
+            
+        // Define bullet points with proper spacing and coloring
+        const bulletPoints = [
+            { text: "Enteric fermentation", chemical: "CH₄", color: "#FB9A99" },
+            { text: "Manure management", chemicals: [{ text: "CH₄", color: "#FB9A99" }, { text: "NH₃", color: "#31A354" }] },
+            { text: "Synthetic fertilizer application", chemicals: [{ text: "N₂O", color: "#08519C" }, { text: "NH₃", color: "#31A354" }] },
+            { text: "Rice cultivation", chemical: "CH₄", color: "#FB9A99" },
+            { text: "Agricultural soils", chemical: "N₂O", color: "#08519C" }
+        ];
+        
+        bulletPoints.forEach((point, i) => {
+            const yPos = 50 + i * 22;
+            
+            // Add bullet
+            infoBox.append("text")
+                .attr("x", 15)
+                .attr("y", yPos)
+                .text("•")
+                .style("font-size", "14px");
+                
+            // Add main text
+            infoBox.append("text")
+                .attr("x", 30)
+                .attr("y", yPos)
+                .text(point.text)
+                .style("font-size", "12px");
+                
+            // Calculate width of main text
+            const mainTextWidth = infoBox.select("text:last-child").node().getComputedTextLength();
+            
+            // Add opening parenthesis
+            infoBox.append("text")
+                .attr("x", 30 + mainTextWidth + 3)
+                .attr("y", yPos)
+                .text("(")
+                .style("font-size", "12px");
+                
+            const openParenWidth = infoBox.select("text:last-child").node().getComputedTextLength();
+            
+            if (point.chemicals) {
+                // Multiple chemicals
+                infoBox.append("text")
+                    .attr("x", 30 + mainTextWidth + 3 + openParenWidth)
+                    .attr("y", yPos)
+                    .text(point.chemicals[0].text)
+                    .style("font-size", "12px")
+                    .style("fill", point.chemicals[0].color);
+                    
+                const firstChemWidth = infoBox.select("text:last-child").node().getComputedTextLength();
+                
+                infoBox.append("text")
+                    .attr("x", 30 + mainTextWidth + 3 + openParenWidth + firstChemWidth)
+                    .attr("y", yPos)
+                    .text(", ")
+                    .style("font-size", "12px");
+                    
+                const commaWidth = infoBox.select("text:last-child").node().getComputedTextLength();
+                
+                infoBox.append("text")
+                    .attr("x", 30 + mainTextWidth + 3 + openParenWidth + firstChemWidth + commaWidth)
+                    .attr("y", yPos)
+                    .text(point.chemicals[1].text)
+                    .style("font-size", "12px")
+                    .style("fill", point.chemicals[1].color);
+                    
+                const secondChemWidth = infoBox.select("text:last-child").node().getComputedTextLength();
+                
+                infoBox.append("text")
+                    .attr("x", 30 + mainTextWidth + 3 + openParenWidth + firstChemWidth + commaWidth + secondChemWidth)
+                    .attr("y", yPos)
+                    .text(")")
+                    .style("font-size", "12px");
+            } else {
+                // Single chemical
+                infoBox.append("text")
+                    .attr("x", 30 + mainTextWidth + 3 + openParenWidth)
+                    .attr("y", yPos)
+                    .text(point.chemical)
+                    .style("font-size", "12px")
+                    .style("fill", point.color);
+                    
+                const chemWidth = infoBox.select("text:last-child").node().getComputedTextLength();
+                
+                infoBox.append("text")
+                    .attr("x", 30 + mainTextWidth + 3 + openParenWidth + chemWidth)
+                    .attr("y", yPos)
+                    .text(")")
+                    .style("font-size", "12px");
+            }
+        });
+        
+        // Add note at bottom of info box with proper spacing
+        infoBox.append("text")
+            .attr("x", 15)
+            .attr("y", 165)
+            .style("font-size", "12px")
+            .style("font-style", "italic")
+            .text("These sources account for");
+            
+        const noteWidth = infoBox.select("text:last-child").node().getComputedTextLength();
+        
+        infoBox.append("text")
+            .attr("x", 15 + noteWidth + 5)
+            .attr("y", 165)
+            .style("font-family", "Georgia, serif")
+            .style("font-size", "14px")
+            .style("font-weight", "bold")
+            .text(">80%");
+            
+        const percentWidth = infoBox.select("text:last-child").node().getComputedTextLength();
+        
+        infoBox.append("text")
+            .attr("x", 15 + noteWidth + 5 + percentWidth + 5)
+            .attr("y", 165)
+            .style("font-size", "12px")
+            .style("font-style", "italic")
+            .text("of agricultural emissions");
+    </script>
+</body>
+</html>

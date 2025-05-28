@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language AI Funding by Niche (2024)</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ffffff;
+        }
+        
+        .visualization-container {
+            width: 700px;
+            height: 700px;
+            position: relative;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        
+        .center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            width: 180px;
+        }
+        
+        .center-value {
+            font-family: 'Georgia', serif;
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+        
+        .center-label {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0 0 0;
+        }
+        
+        .legend {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        
+        .legend-text {
+            font-size: 14px;
+        }
+        
+        .legend-value {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        
+        .annotation {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .source {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Language AI Funding by Niche (2024)</div>
+        <div class="subtitle">Distribution of $6.4 billion in language-based AI investment</div>
+        
+        <svg id="donut-chart"></svg>
+        
+        <div class="center-text">
+            <p class="center-value">$6.4B</p>
+            <p class="center-label">Total 2024 Language AI Funding</p>
+        </div>
+        
+        <div class="legend" id="chart-legend"></div>
+        
+        <div class="annotation">
+            Language AI funding represents approximately 8.4% of the $750B+ invested in AI startups since 2013
+        </div>
+        
+        <div class="source">
+            Source: Visual Capitalist, ITIF 2024
+        </div>
+    </div>
+
+    <script>
+        // Data for the donut chart
+        const data = [
+            { category: "NLP & Customer Support", value: 4.2, percentage: 65.6, color: "#3366CC" },
+            { category: "Semantic Search", value: 1.4, percentage: 21.9, color: "#33CCCC" },
+            { category: "Content Creation & Translation", value: 0.8, percentage: 12.5, color: "#FF9933" }
+        ];
+
+        // Sort data by value in descending order
+        data.sort((a, b) => b.value - a.value);
+
+        // Set up dimensions
+        const width = 700;
+        const height = 700;
+        const margin = { top: 80, right: 200, bottom: 160, left: 80 };
+        const chartWidth = width - margin.left - margin.right;
+        const chartHeight = height - margin.top - margin.bottom;
+        const radius = Math.min(chartWidth, chartHeight) / 2;
+        const innerRadius = radius * 0.6; // 60% of radius for inner circle to make donut thinner
+
+        // Create SVG
+        const svg = d3.select("#donut-chart")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", `translate(${width/2 - 60}, ${height/2})`); // Centered with slight offset to accommodate legend
+
+        // Create pie generator
+        const pie = d3.pie()
+            .value(d => d.value)
+            .sort(null); // Don't sort, use the order from our sorted data
+
+        // Create arc generator for donut segments
+        const arc = d3.arc()
+            .innerRadius(innerRadius)
+            .outerRadius(radius);
+
+        // Create outer arc for label positioning
+        const outerArc = d3.arc()
+            .innerRadius(radius * 1.1)
+            .outerRadius(radius * 1.1);
+
+        // Create donut segments
+        const segments = svg.selectAll(".segment")
+            .data(pie(data))
+            .enter()
+            .append("g")
+            .attr("class", "segment");
+
+        segments.append("path")
+            .attr("d", arc)
+            .attr("fill", d => d.data.color)
+            .attr("stroke", "white")
+            .attr("stroke-width", 2);
+
+        // Create legend
+        const legend = d3.select("#chart-legend");
+
+        data.forEach(d => {
+            const legendItem = legend.append("div")
+                .attr("class", "legend-item");
+            
+            legendItem.append("div")
+                .attr("class", "legend-color")
+                .style("background-color", d.color);
+            
+            legendItem.append("div")
+                .attr("class", "legend-text")
+                .html(`${d.category}<br><span class="legend-value">$${d.value}B (${d.percentage}%)</span>`);
+        });
+
+        // Add a white circle in the center to ensure clean donut appearance
+        svg.append("circle")
+            .attr("cx", 0)
+            .attr("cy", 0)
+            .attr("r", innerRadius)
+            .attr("fill", "white");
+    </script>
+</body>
+</html>

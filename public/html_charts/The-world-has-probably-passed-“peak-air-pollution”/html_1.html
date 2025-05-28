@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global PM2.5 Exposure Trends</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            margin: 0;
+        }
+        
+        .visualization-container {
+            width: 950px;
+            max-width: 100%;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .source {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
+            margin-top: 5px;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .axis-label {
+            font-size: 12px;
+        }
+        
+        .annotation-text {
+            font-size: 12px;
+            font-style: italic;
+        }
+        
+        .peak-label {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .legend-item text {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Global Population-Weighted PM2.5 Exposure Peaked in 2011</div>
+        <div class="subtitle">Annual mean concentrations for global and key regional populations, 2000-2019</div>
+        <div id="chart"></div>
+        <div class="source">Source: Hammer et al., 2023, Nature Communications</div>
+    </div>
+
+    <script>
+        // Set up dimensions and margins
+        const margin = {top: 40, right: 80, bottom: 50, left: 60};
+        const width = 950 - margin.left - margin.right;
+        const height = 550 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Data for the visualization
+        const globalData = [
+            {year: 2000, value: 34.5},
+            {year: 2001, value: 35.0},
+            {year: 2002, value: 35.3},
+            {year: 2003, value: 35.7},
+            {year: 2004, value: 36.1},
+            {year: 2005, value: 36.5},
+            {year: 2006, value: 36.9},
+            {year: 2007, value: 37.3},
+            {year: 2008, value: 37.7},
+            {year: 2009, value: 38.0},
+            {year: 2010, value: 38.5},
+            {year: 2011, value: 38.9},
+            {year: 2012, value: 38.4},
+            {year: 2013, value: 38.0},
+            {year: 2014, value: 37.7},
+            {year: 2015, value: 37.5},
+            {year: 2016, value: 36.8},
+            {year: 2017, value: 36.1},
+            {year: 2018, value: 35.4},
+            {year: 2019, value: 34.7}
+        ];
+
+        const chinaData = [
+            {year: 2000, value: 55},
+            {year: 2001, value: 56},
+            {year: 2002, value: 58},
+            {year: 2003, value: 60},
+            {year: 2004, value: 62},
+            {year: 2005, value: 63},
+            {year: 2006, value: 64},
+            {year: 2007, value: 65},
+            {year: 2008, value: 67},
+            {year: 2009, value: 68},
+            {year: 2010, value: 70},
+            {year: 2011, value: 71},
+            {year: 2012, value: 69},
+            {year: 2013, value: 67},
+            {year: 2014, value: 64},
+            {year: 2015, value: 60},
+            {year: 2016, value: 58},
+            {year: 2017, value: 56},
+            {year: 2018, value: 54},
+            {year: 2019, value: 53}
+        ];
+
+        const indiaData = [
+            {year: 2000, value: 50},
+            {year: 2001, value: 51},
+            {year: 2002, value: 53},
+            {year: 2003, value: 54},
+            {year: 2004, value: 56},
+            {year: 2005, value: 57},
+            {year: 2006, value: 59},
+            {year: 2007, value: 60},
+            {year: 2008, value: 62},
+            {year: 2009, value: 63},
+            {year: 2010, value: 65},
+            {year: 2011, value: 68},
+            {year: 2012, value: 69},
+            {year: 2013, value: 70},
+            {year: 2014, value: 71},
+            {year: 2015, value: 72},
+            {year: 2016, value: 73},
+            {year: 2017, value: 74},
+            {year: 2018, value: 75},
+            {year: 2019, value: 76}
+        ];
+
+        const easternEuropeData = [
+            {year: 2000, value: 19},
+            {year: 2001, value: 19.2},
+            {year: 2002, value: 19.5},
+            {year: 2003, value: 19.7},
+            {year: 2004, value: 19.9},
+            {year: 2005, value: 20},
+            {year: 2006, value: 20.3},
+            {year: 2007, value: 20.5},
+            {year: 2008, value: 20.8},
+            {year: 2009, value: 21},
+            {year: 2010, value: 21.3},
+            {year: 2011, value: 21.5},
+            {year: 2012, value: 21.2},
+            {year: 2013, value: 20.9},
+            {year: 2014, value: 20.5},
+            {year: 2015, value: 20},
+            {year: 2016, value: 19.5},
+            {year: 2017, value: 19},
+            {year: 2018, value: 18.5},
+            {year: 2019, value: 18}
+        ];
+
+        const westernEuropeData = [
+            {year: 2000, value: 15},
+            {year: 2001, value: 15.1},
+            {year: 2002, value: 15.2},
+            {year: 2003, value: 15.3},
+            {year: 2004, value: 15.4},
+            {year: 2005, value: 15.5},
+            {year: 2006, value: 15.3},
+            {year: 2007, value: 15.1},
+            {year: 2008, value: 14.8},
+            {year: 2009, value: 14.5},
+            {year: 2010, value: 14.2},
+            {year: 2011, value: 14},
+            {year: 2012, value: 13.8},
+            {year: 2013, value: 13.6},
+            {year: 2014, value: 13.3},
+            {year: 2015, value: 13},
+            {year: 2016, value: 12.7},
+            {year: 2017, value: 12.5},
+            {year: 2018, value: 12.2},
+            {year: 2019, value: 12}
+        ];
+
+        // Set up scales
+        const x = d3.scaleLinear()
+            .domain([2000, 2019])
+            .range([0, width]);
+
+        // Fixed y-axis scales with proper domains
+        const yLeft = d3.scaleLinear()
+            .domain([30, 40])
+            .range([height, 0]);
+
+        const yRight = d3.scaleLinear()
+            .domain([0, 80])
+            .range([height, 0]);
+
+        // Add X axis
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x)
+                .tickValues([2000, 2003, 2006, 2009, 2012, 2015, 2018])
+                .tickFormat(d3.format("d")));
+
+        // Add Y axis left (Global)
+        svg.append("g")
+            .call(d3.axisLeft(yLeft)
+                .tickFormat(d => `${d}`));
+
+        // Add Y axis right (Regions)
+        svg.append("g")
+            .attr("transform", `translate(${width},0)`)
+            .call(d3.axisRight(yRight)
+                .tickFormat(d => `${d}`));
+
+        // Add Y-axis labels
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left + 15)
+            .attr("x", -height / 2)
+            .attr("text-anchor", "middle")
+            .text("Global PM2.5 (μg/m³)");
+
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("y", width + margin.right - 15)
+            .attr("x", -height / 2)
+            .attr("text-anchor", "middle")
+            .text("Regional PM2.5 (μg/m³)");
+
+        // Add horizontal gridlines
+        svg.append("g")
+            .attr("class", "grid")
+            .selectAll("line")
+            .data(yLeft.ticks())
+            .enter()
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", d => yLeft(d))
+            .attr("y2", d => yLeft(d))
+            .attr("stroke", "#e0e0e0")
+            .attr("stroke-width", 0.5);
+
+        // Create line generators
+        const globalLine = d3.line()
+            .x(d => x(d.year))
+            .y(d => yLeft(d.value));
+
+        const regionLine = d3.line()
+            .x(d => x(d.year))
+            .y(d => yRight(d.value));
+
+        // Add the global line
+        svg.append("path")
+            .datum(globalData)
+            .attr("fill", "none")
+            .attr("stroke", "#08519C")
+            .attr("stroke-width", 2.5)
+            .attr("d", globalLine);
+
+        // Add global data points
+        svg.selectAll(".global-dot")
+            .data(globalData)
+            .enter()
+            .append("circle")
+            .attr("class", "global-dot")
+            .attr("cx", d => x(d.year))
+            .attr("cy", d => yLeft(d.value))
+            .attr("r", 3)
+            .attr("fill", "#08519C");
+
+        // Add the China line
+        svg.append("path")
+            .datum(chinaData)
+            .attr("fill", "none")
+            .attr("stroke", "#FB9A99")
+            .attr("stroke-width", 1.5)
+            .attr("d", regionLine);
+
+        // Add China data points (every 3 years)
+        svg.selectAll(".china-dot")
+            .data(chinaData.filter(d => d.year % 3 === 0))
+            .enter()
+            .append("rect")
+            .attr("class", "china-dot")
+            .attr("x", d => x(d.year) - 3)
+            .attr("y", d => yRight(d.value) - 3)
+            .attr("width", 6)
+            .attr("height", 6)
+            .attr("fill", "#FB9A99")
+            .attr("stroke", "#E31A1C")
+            .attr("stroke-width", 0.5);
+
+        // Add the India line
+        svg.append("path")
+            .datum(indiaData)
+            .attr("fill", "none")
+            .attr("stroke", "#E31A1C")
+            .attr("stroke-width", 1.5)
+            .attr("d", regionLine);
+
+        // Add India data points (every 3 years)
+        svg.selectAll(".india-dot")
+            .data(indiaData.filter(d => d.year % 3 === 0))
+            .enter()
+            .append("path")
+            .attr("class", "india-dot")
+            .attr("d", d3.symbol().type(d3.symbolTriangle).size(50))
+            .attr("transform", d => `translate(${x(d.year)},${yRight(d.value)})`)
+            .attr("fill", "#E31A1C")
+            .attr("stroke", "#000")
+            .attr("stroke-width", 0.5);
+
+        // Add the Eastern Europe line
+        svg.append("path")
+            .datum(easternEuropeData)
+            .attr("fill", "none")
+            .attr("stroke", "#4292C6")
+            .attr("stroke-width", 1.5)
+            .attr("d", regionLine);
+
+        // Add Eastern Europe data points (every 3 years)
+        svg.selectAll(".eastern-europe-dot")
+            .data(easternEuropeData.filter(d => d.year % 3 === 0))
+            .enter()
+            .append("path")
+            .attr("class", "eastern-europe-dot")
+            .attr("d", d3.symbol().type(d3.symbolDiamond).size(70))
+            .attr("transform", d => `translate(${x(d.year)},${yRight(d.value)})`)
+            .attr("fill", "#4292C6")
+            .attr("stroke", "#08519C")
+            .attr("stroke-width", 1);
+
+        // Add the Western Europe line
+        svg.append("path")
+            .datum(westernEuropeData)
+            .attr("fill", "none")
+            .attr("stroke", "#31A354")
+            .attr("stroke-width", 1.5)
+            .attr("d", regionLine);
+
+        // Add Western Europe data points (every 3 years)
+        svg.selectAll(".western-europe-dot")
+            .data(westernEuropeData.filter(d => d.year % 3 === 0))
+            .enter()
+            .append("circle")
+            .attr("class", "western-europe-dot")
+            .attr("cx", d => x(d.year))
+            .attr("cy", d => yRight(d.value))
+            .attr("r", 3.5)
+            .attr("fill", "#31A354")
+            .attr("stroke", "#006D2C")
+            .attr("stroke-width", 0.5);
+
+        // Add vertical line at 2011 (peak year)
+        svg.append("line")
+            .attr("x1", x(2011))
+            .attr("x2", x(2011))
+            .attr("y1", 0)
+            .attr("y2", height)
+            .attr("stroke", "#999")
+            .attr("stroke-width", 1.5)
+            .attr("stroke-dasharray", "5,5");
+
+        // Add peak label - repositioned to avoid overlap
+        svg.append("text")
+            .attr("class", "peak-label")
+            .attr("x", x(2011) + 5)
+            .attr("y", yLeft(39.5))
+            .attr("text-anchor", "start")
+            .text("Global Peak: ")
+            .append("tspan")
+            .attr("class", "key-number")
+            .text("38.9 μg/m³");
+
+        // Add pre-2011 trend annotation - repositioned to avoid overlap
+        svg.append("line")
+            .attr("x1", x(2003))
+            .attr("y1", yLeft(35.7))
+            .attr("x2", x(2010))
+            .attr("y2", yLeft(38.5))
+            .attr("stroke", "#666")
+            .attr("stroke-width", 1)
+            .attr("stroke-dasharray", "3,3");
+
+        svg.append("text")
+            .attr("class", "annotation-text")
+            .attr("x", x(2005))
+            .attr("y", yLeft(36) - 15)
+            .attr("text-anchor", "middle")
+            .text("+0.8 ± 0.2 μg/m³ yr⁻¹");
+
+        // Add post-2011 trend annotation - repositioned to avoid overlap
+        svg.append("line")
+            .attr("x1", x(2012))
+            .attr("y1", yLeft(38.4))
+            .attr("x2", x(2018))
+            .attr("y2", yLeft(35.4))
+            .attr("stroke", "#666")
+            .attr("stroke-width", 1)
+            .attr("stroke-dasharray", "3,3");
+
+        svg.append("text")
+            .attr("class", "annotation-text")
+            .attr("x", x(2015))
+            .attr("y", yLeft(36.5) - 15)
+            .attr("text-anchor", "middle")
+            .text("-0.5 ± 0.1 μg/m³ yr⁻¹");
+
+        // Add legend - moved to top-left to avoid overlap with data lines
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(80, 10)`);
+
+        // Global legend item
+        const legendGlobal = legend.append("g")
+            .attr("class", "legend-item")
+            .attr("transform", "translate(0,0)");
+            
+        legendGlobal.append("line")
+            .attr("x1", 0)
+            .attr("x2", 20)
+            .attr("y1", 5)
+            .attr("y2", 5)
+            .attr("stroke", "#08519C")
+            .attr("stroke-width", 2.5);
+            
+        legendGlobal.append("circle")
+            .attr("cx", 10)
+            .attr("cy", 5)
+            .attr("r", 3)
+            .attr("fill", "#08519C");
+            
+        legendGlobal.append("text")
+            .attr("x", 25)
+            .attr("y", 9)
+            .text("Global");
+
+        // China legend item
+        const legendChina = legend.append("g")
+            .attr("class", "legend-item")
+            .attr("transform", "translate(0,20)");
+            
+        legendChina.append("line")
+            .attr("x1", 0)
+            .attr("x2", 20)
+            .attr("y1", 5)
+            .attr("y2", 5)
+            .attr("stroke", "#FB9A99")
+            .attr("stroke-width", 1.5);
+            
+        legendChina.append("rect")
+            .attr("x", 7)
+            .attr("y", 2)
+            .attr("width", 6)
+            .attr("height", 6)
+            .attr("fill", "#FB9A99")
+            .attr("stroke", "#E31A1C")
+            .attr("stroke-width", 0.5);
+            
+        legendChina.append("text")
+            .attr("x", 25)
+            .attr("y", 9)
+            .text("China");
+
+        // India legend item
+        const legendIndia = legend.append("g")
+            .attr("class", "legend-item")
+            .attr("transform", "translate(0,40)");
+            
+        legendIndia.append("line")
+            .attr("x1", 0)
+            .attr("x2", 20)
+            .attr("y1", 5)
+            .attr("y2", 5)
+            .attr("stroke", "#E31A1C")
+            .attr("stroke-width", 1.5);
+            
+        legendIndia.append("path")
+            .attr("d", d3.symbol().type(d3.symbolTriangle).size(50))
+            .attr("transform", "translate(10,5)")
+            .attr("fill", "#E31A1C")
+            .attr("stroke", "#000")
+            .attr("stroke-width", 0.5);
+            
+        legendIndia.append("text")
+            .attr("x", 25)
+            .attr("y", 9)
+            .text("India");
+
+        // Eastern Europe legend item
+        const legendEasternEurope = legend.append("g")
+            .attr("class", "legend-item")
+            .attr("transform", "translate(0,60)");
+            
+        legendEasternEurope.append("line")
+            .attr("x1", 0)
+            .attr("x2", 20)
+            .attr("y1", 5)
+            .attr("y2", 5)
+            .attr("stroke", "#4292C6")
+            .attr("stroke-width", 1.5);
+            
+        legendEasternEurope.append("path")
+            .attr("d", d3.symbol().type(d3.symbolDiamond).size(70))
+            .attr("transform", "translate(10,5)")
+            .attr("fill", "#4292C6")
+            .attr("stroke", "#08519C")
+            .attr("stroke-width", 1);
+            
+        legendEasternEurope.append("text")
+            .attr("x", 25)
+            .attr("y", 9)
+            .text("Eastern Europe");
+
+        // Western Europe legend item
+        const legendWesternEurope = legend.append("g")
+            .attr("class", "legend-item")
+            .attr("transform", "translate(0,80)");
+            
+        legendWesternEurope.append("line")
+            .attr("x1", 0)
+            .attr("x2", 20)
+            .attr("y1", 5)
+            .attr("y2", 5)
+            .attr("stroke", "#31A354")
+            .attr("stroke-width", 1.5);
+            
+        legendWesternEurope.append("circle")
+            .attr("cx", 10)
+            .attr("cy", 5)
+            .attr("r", 3.5)
+            .attr("fill", "#31A354")
+            .attr("stroke", "#006D2C")
+            .attr("stroke-width", 0.5);
+            
+        legendWesternEurope.append("text")
+            .attr("x", 25)
+            .attr("y", 9)
+            .text("Western Europe");
+    </script>
+</body>
+</html>

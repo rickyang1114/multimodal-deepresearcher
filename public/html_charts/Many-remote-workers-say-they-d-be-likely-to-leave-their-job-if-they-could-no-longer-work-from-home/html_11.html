@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Critical Research Gaps in Remote Work Studies</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+        }
+
+        .visualization-container {
+            width: 1000px;
+            padding: 30px;
+            background-color: white;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .section-header {
+            background-color: #f0f0f0;
+            padding: 12px 15px;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 25px 0 15px 0;
+            border-left: 5px solid #003f5c;
+            color: #1a1a1a;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            background-color: white;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-icon {
+            font-size: 24px;
+            margin-right: 10px;
+            opacity: 0.8;
+        }
+
+        .gap-indicator {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .high-gap {
+            background-color: #ff7f0e;
+        }
+
+        .medium-gap {
+            background-color: #003f5c;
+        }
+
+        .low-gap {
+            background-color: #006c70;
+        }
+
+        .gauge {
+            margin-left: 6px;
+            width: 30px;
+            height: 12px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            border-radius: 6px;
+            background-color: white;
+        }
+
+        .high-gap .gauge-fill {
+            width: 20%;
+        }
+
+        .medium-gap .gauge-fill {
+            width: 50%;
+        }
+
+        .low-gap .gauge-fill {
+            width: 80%;
+        }
+
+        .card-content {
+            font-size: 15px;
+            color: #444;
+            flex-grow: 1;
+        }
+
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .source {
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+            margin-top: 30px;
+            font-style: italic;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <h1 class="title">Critical Research Gaps in Remote Work Studies</h1>
+        <p class="subtitle">Areas where limited data exists on remote work impacts and preferences</p>
+
+        <div class="section-header">
+            <i class="fas fa-industry"></i> Under-Researched Sectors
+        </div>
+        <div class="grid-container" id="sectors-grid"></div>
+
+        <div class="section-header">
+            <i class="fas fa-users"></i> Under-Researched Demographics
+        </div>
+        <div class="grid-container" id="demographics-grid"></div>
+
+        <div class="source">
+            Sources: CUPA-HR 2023 Higher Education Employee Retention Survey; Eagle Hill Consulting survey; industry research gaps
+        </div>
+    </div>
+
+    <script>
+        // Data for sectors
+        const sectors = [
+            {
+                name: "Manufacturing",
+                gap: "High Gap",
+                description: "No equivalent turnover metrics exist for manufacturing firms compared to S&P 500 tech & financial companies",
+                icon: "fa-solid fa-industry"
+            },
+            {
+                name: "Higher Education",
+                gap: "High Gap",
+                description: "<span class='key-number'>66%</span> of staff believe most duties could be performed remotely, but limited research on institutional outcomes",
+                icon: "fa-solid fa-graduation-cap"
+            },
+            {
+                name: "Healthcare Administration",
+                gap: "Medium Gap",
+                description: "Remote potential exists for non-clinical roles, but retention impacts understudied",
+                icon: "fa-solid fa-hospital"
+            },
+            {
+                name: "Public Administration",
+                gap: "Medium Gap",
+                description: "Despite <span class='key-number'>45%</span> quit intentions if telework reduced, limited data on actual departure rates",
+                icon: "fa-solid fa-landmark"
+            }
+        ];
+
+        // Data for demographics
+        const demographics = [
+            {
+                name: "People with Disabilities",
+                gap: "High Gap",
+                description: "Remote work potentially reduces barriers, but limited research on specific retention patterns",
+                icon: "fa-solid fa-wheelchair"
+            },
+            {
+                name: "Caregivers",
+                gap: "Medium Gap",
+                description: "Disproportionate impact on those with family responsibilities, but inadequate segmentation in most studies",
+                icon: "fa-solid fa-hands-holding-child"
+            },
+            {
+                name: "Rural Workers",
+                gap: "High Gap",
+                description: "Potential geographic diversity benefits, but minimal data on retention differences by location type",
+                icon: "fa-solid fa-tree"
+            },
+            {
+                name: "Early-Career Workers",
+                gap: "Medium Gap",
+                description: "Mixed findings on mentorship and development needs vs. flexibility preferences",
+                icon: "fa-solid fa-user-graduate"
+            }
+        ];
+
+        // Function to create cards
+        function createCards(data, containerId) {
+            const container = d3.select(`#${containerId}`);
+            
+            const cards = container.selectAll(".card")
+                .data(data)
+                .enter()
+                .append("div")
+                .attr("class", "card");
+            
+            const headers = cards.append("div")
+                .attr("class", "card-header");
+            
+            headers.append("h3")
+                .attr("class", "card-title")
+                .html(d => `<i class="${d.icon} card-icon"></i>${d.name}`);
+            
+            const gapIndicators = headers.append("div")
+                .attr("class", d => {
+                    if (d.gap === "High Gap") return "gap-indicator high-gap";
+                    if (d.gap === "Medium Gap") return "gap-indicator medium-gap";
+                    return "gap-indicator low-gap";
+                });
+            
+            gapIndicators.append("span")
+                .text(d => d.gap);
+            
+            gapIndicators.append("div")
+                .attr("class", "gauge")
+                .append("div")
+                .attr("class", "gauge-fill");
+            
+            cards.append("div")
+                .attr("class", "card-content")
+                .html(d => d.description);
+        }
+
+        // Create the cards
+        createCards(sectors, "sectors-grid");
+        createCards(demographics, "demographics-grid");
+    </script>
+</body>
+</html>

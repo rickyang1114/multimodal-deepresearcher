@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbital Congestion Heatmap</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 700px;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 22pt;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 14pt;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #555;
+        }
+        
+        .chart-area {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        
+        .cell-text {
+            font-size: 11pt;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            fill: #333;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-size: 14pt;
+            font-weight: bold;
+            fill: #000;
+        }
+        
+        .axis-label {
+            font-size: 11pt;
+            font-weight: normal;
+        }
+        
+        .x-axis-label {
+            font-size: 11pt;
+            font-weight: normal;
+        }
+        
+        .annotation {
+            font-size: 10pt;
+            font-style: italic;
+            font-weight: 500;
+        }
+        
+        .source {
+            font-size: 10pt;
+            color: #666;
+            margin-top: 15px;
+        }
+        
+        .note {
+            font-size: 10pt;
+            color: #666;
+            font-style: italic;
+            margin-top: 5px;
+        }
+        
+        .legend-title {
+            font-size: 11pt;
+            font-weight: bold;
+        }
+        
+        .title-with-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+        
+        .title-icon {
+            margin-right: 10px;
+            color: #333;
+            font-size: 24pt;
+        }
+        
+        .total-label {
+            font-size: 12pt;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title-with-icon">
+            <i class="fa-solid fa-rocket title-icon"></i>
+            <div class="title">Orbital Congestion by Altitude and Object Type (2023)</div>
+        </div>
+        <div class="subtitle">LEO below 600km houses the majority of active satellites but also substantial debris</div>
+        <div id="chart-container"></div>
+        <div class="source">Data sources: ESA Space Debris Office, Space-Track.org</div>
+        <div class="note">ESA tracks >30,000 debris objects >10cm and models >1 million objects >1cm</div>
+    </div>
+
+    <script>
+        // Data preparation
+        const altitudeBands = [
+            ">36,000km (GEO)",
+            "2,000-36,000km (MEO)",
+            "1,000-2,000km",
+            "600-1,000km",
+            "<600km (LEO)"
+        ];
+        
+        const objectTypes = [
+            "Active Satellites",
+            "Defunct Satellites",
+            "Rocket Bodies",
+            "Tracked Debris (>10cm)"
+        ];
+        
+        // Main heatmap data
+        const heatmapData = [
+            // Active Satellites, Defunct Satellites, Rocket Bodies, Tracked Debris
+            [560, 340, 400, 1200],    // GEO
+            [250, 150, 900, 2500],    // MEO
+            [120, 380, 800, 6800],    // 1,000-2,000km
+            [1280, 1120, 1800, 8200], // 600-1,000km
+            [6905, 1795, 1300, 11300] // LEO
+        ];
+        
+        // Total objects by altitude for the right chart
+        const totalsByAltitude = [
+            2500,  // GEO
+            3800,  // MEO
+            8100,  // 1,000-2,000km
+            12400, // 600-1,000km
+            21300  // LEO
+        ];
+        
+        // Set up dimensions with more space for labels and better positioning
+        const margin = {top: 40, right: 180, bottom: 180, left: 180};
+        const width = 850 - margin.left - margin.right;
+        const height = 500 - margin.top - margin.bottom;
+        
+        // Create SVG
+        const svg = d3.select("#chart-container")
+            .append("svg")
+            .attr("width", 850)
+            .attr("height", 650)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+        
+        // Create scales
+        const x = d3.scaleBand()
+            .domain(objectTypes)
+            .range([0, width])
+            .padding(0.1);
+        
+        const y = d3.scaleBand()
+            .domain(altitudeBands)
+            .range([0, height])
+            .padding(0.1);
+        
+        // Color scale for the heatmap
+        const maxValue = d3.max(heatmapData, d => d3.max(d));
+        const colorScale = d3.scaleSequential(d3.interpolateBlues)
+            .domain([0, maxValue]);
+        
+        // Scale for the right chart
+        const xRight = d3.scaleLinear()
+            .domain([0, d3.max(totalsByAltitude)])
+            .range([0, 150]);
+        
+        // Draw heatmap cells
+        for (let i = 0; i < altitudeBands.length; i++) {
+            for (let j = 0; j < objectTypes.length; j++) {
+                const value = heatmapData[i][j];
+                const isKeyNumber = value > 5000;
+                
+                // Draw cell
+                svg.append("rect")
+                    .attr("x", x(objectTypes[j]))
+                    .attr("y", y(altitudeBands[i]))
+                    .attr("width", x.bandwidth())
+                    .attr("height", y.bandwidth())
+                    .attr("fill", colorScale(value))
+                    .attr("stroke", "#ccc")
+                    .attr("stroke-width", 1);
+                
+                // Add text with proper number formatting and improved contrast
+                svg.append("text")
+                    .attr("class", isKeyNumber ? "key-number" : "cell-text")
+                    .attr("x", x(objectTypes[j]) + x.bandwidth() / 2)
+                    .attr("y", y(altitudeBands[i]) + y.bandwidth() / 2)
+                    .text(value.toLocaleString('en-US'))
+                    .attr("fill", value > maxValue * 0.6 ? "white" : "black")
+                    .style("font-weight", isKeyNumber ? "bold" : "normal")
+                    .style("text-shadow", isKeyNumber ? "0px 0px 3px rgba(255,255,255,0.5)" : "none");
+            }
+        }
+        
+        // Draw x-axis with improved spacing and readability
+        svg.append("g")
+            .attr("transform", `translate(0,${height + 10})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .attr("class", "x-axis-label")
+            .attr("transform", "translate(-10,10) rotate(-30)")
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .style("font-size", "12px")
+            .style("font-weight", "bold");
+        
+        // Draw y-axis with improved styling
+        svg.append("g")
+            .call(d3.axisLeft(y))
+            .selectAll("text")
+            .attr("class", "axis-label")
+            .style("font-size", "12px");
+        
+        // Draw right chart (total objects by altitude)
+        for (let i = 0; i < altitudeBands.length; i++) {
+            const value = totalsByAltitude[i];
+            const isKeyNumber = value > 15000;
+            
+            // Draw bar
+            svg.append("rect")
+                .attr("x", width + 40)
+                .attr("y", y(altitudeBands[i]))
+                .attr("width", xRight(value))
+                .attr("height", y.bandwidth())
+                .attr("fill", "#4682b4");
+            
+            // Add text with proper number formatting and improved styling
+            svg.append("text")
+                .attr("class", isKeyNumber ? "key-number" : "cell-text")
+                .attr("x", width + 50 + xRight(value))
+                .attr("y", y(altitudeBands[i]) + y.bandwidth() / 2)
+                .attr("dy", "0.35em")
+                .text(value.toLocaleString('en-US'))
+                .attr("fill", "#333")
+                .style("font-weight", isKeyNumber ? "bold" : "normal");
+        }
+        
+        // Add title for right chart with improved positioning
+        svg.append("text")
+            .attr("x", width + 40)
+            .attr("y", -15)
+            .attr("class", "total-label")
+            .text("Total Objects");
+        
+        // Add clear annotations with proper positioning
+        // Annotation for LEO
+        svg.append("text")
+            .attr("class", "annotation")
+            .attr("x", -10)
+            .attr("y", y("<600km (LEO)") + y.bandwidth() / 2)
+            .attr("text-anchor", "end")
+            .attr("dy", "0.35em")
+            .text("Most constellation satellites →")
+            .attr("fill", "#333")
+            .style("font-weight", "bold");
+            
+        // Annotation for 600-1,000km
+        svg.append("text")
+            .attr("class", "annotation")
+            .attr("x", -10)
+            .attr("y", y("600-1,000km") + y.bandwidth() / 2)
+            .attr("text-anchor", "end")
+            .attr("dy", "0.35em")
+            .text("High debris from ASAT tests →")
+            .attr("fill", "#333")
+            .style("font-weight", "bold");
+        
+        // Add color legend with improved positioning to avoid overlap with x-axis labels
+        const legendWidth = 300;
+        const legendHeight = 20;
+        
+        const legendX = width / 2 - legendWidth / 2;
+        const legendY = height + 100; // Moved down to avoid overlap
+        
+        // Create gradient for legend
+        const defs = svg.append("defs");
+        const linearGradient = defs.append("linearGradient")
+            .attr("id", "density-gradient")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "100%")
+            .attr("y2", "0%");
+        
+        linearGradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", colorScale(0));
+        
+        linearGradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", colorScale(maxValue));
+        
+        // Draw legend rectangle
+        svg.append("rect")
+            .attr("x", legendX)
+            .attr("y", legendY)
+            .attr("width", legendWidth)
+            .attr("height", legendHeight)
+            .style("fill", "url(#density-gradient)")
+            .style("stroke", "#333");
+        
+        // Add legend title with improved positioning
+        svg.append("text")
+            .attr("class", "legend-title")
+            .attr("x", legendX)
+            .attr("y", legendY - 10)
+            .text("Object Density");
+        
+        // Add legend ticks with improved formatting and positioning
+        const legendScale = d3.scaleLinear()
+            .domain([0, maxValue])
+            .range([0, legendWidth]);
+        
+        const legendAxis = d3.axisBottom(legendScale)
+            .tickValues([0, maxValue / 4, maxValue / 2, 3 * maxValue / 4, maxValue])
+            .tickFormat(d => d.toLocaleString('en-US'));
+        
+        svg.append("g")
+            .attr("transform", `translate(${legendX},${legendY + legendHeight})`)
+            .call(legendAxis)
+            .selectAll("text")
+            .style("font-size", "10px");
+    </script>
+</body>
+</html>

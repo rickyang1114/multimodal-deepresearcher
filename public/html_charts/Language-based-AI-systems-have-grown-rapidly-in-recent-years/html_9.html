@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG-KG-IL System Visualization</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .visualization-container {
+            width: 850px;
+            height: 580px;
+            background-color: white;
+            padding: 20px;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 25px;
+        }
+        
+        .charts-container {
+            display: flex;
+            justify-content: space-between;
+            height: 420px;
+        }
+        
+        .chart {
+            width: 48%;
+        }
+        
+        .chart-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .divider {
+            width: 1px;
+            background-color: #ddd;
+            margin: 0 10px;
+        }
+        
+        .key-number {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+        }
+        
+        .source {
+            text-align: right;
+            font-size: 12px;
+            color: #777;
+            margin-top: 15px;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            padding-top: 5px;
+            width: 100%;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 15px;
+            font-size: 12px;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+            border-radius: 2px;
+        }
+        
+        .annotation {
+            font-size: 12px;
+            font-style: italic;
+            fill: #555;
+        }
+        
+        .annotation-line {
+            stroke: #555;
+            stroke-width: 1;
+            stroke-dasharray: 3,3;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        
+        .data-label {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">RAG-KG-IL System: Hallucination Reduction and Knowledge Growth</div>
+        <div class="subtitle">Performance metrics from 20-question UK NHS disease Q&A case study</div>
+        
+        <div class="charts-container">
+            <div class="chart" id="hallucination-chart">
+                <div class="chart-title">Invalid Statements (Hallucinations)</div>
+            </div>
+            <div class="divider"></div>
+            <div class="chart" id="knowledge-growth-chart">
+                <div class="chart-title">Knowledge Graph Growth Over Questions</div>
+            </div>
+        </div>
+        
+        <div id="knowledge-legend" class="legend"></div>
+        
+        <div class="source">Source: arXiv:2503.13514, 2023</div>
+    </div>
+
+    <script>
+        // Data for hallucination chart
+        const hallucinationData = [
+            { system: "GPT-4.0", count: 129, color: "#AAAAAA" },
+            { system: "RAG-only", count: 49, color: "#4682B4" },
+            { system: "RAG-KG-IL", count: 35, color: "#0047AB" }
+        ];
+        
+        // Data for knowledge growth chart
+        const knowledgeGrowthData = {
+            questions: [2, 5, 10, 15, 20],
+            terms: [57, 90, 141, 192, 226],
+            triples: [114, 210, 356, 390, 420],
+            relationTypes: [19, 21, 23, 29, 36]
+        };
+        
+        // Create hallucination chart
+        function createHallucinationChart() {
+            const margin = { top: 40, right: 30, bottom: 90, left: 60 };
+            const width = d3.select("#hallucination-chart").node().getBoundingClientRect().width - margin.left - margin.right;
+            const height = 370 - margin.top - margin.bottom;
+            
+            const svg = d3.select("#hallucination-chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // X scale
+            const x = d3.scaleBand()
+                .domain(hallucinationData.map(d => d.system))
+                .range([0, width])
+                .padding(0.3);
+            
+            // Y scale
+            const y = d3.scaleLinear()
+                .domain([0, 140])
+                .range([height, 0]);
+            
+            // Add grid lines
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y)
+                    .tickSize(-width)
+                    .tickFormat("")
+                    .ticks(7)
+                );
+            
+            // Add X axis
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .style("font-size", "12px");
+            
+            // Add Y axis
+            svg.append("g")
+                .call(d3.axisLeft(y).ticks(7))
+                .selectAll("text")
+                .style("font-size", "12px");
+            
+            // Y axis label
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 15)
+                .attr("x", -height / 2)
+                .attr("text-anchor", "middle")
+                .style("font-size", "12px")
+                .text("Count of Invalid Statements");
+            
+            // Add bars
+            svg.selectAll(".bar")
+                .data(hallucinationData)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.system))
+                .attr("y", d => y(d.count))
+                .attr("width", x.bandwidth())
+                .attr("height", d => height - y(d.count))
+                .attr("fill", d => d.color);
+            
+            // Add data labels
+            svg.selectAll(".label")
+                .data(hallucinationData)
+                .enter()
+                .append("text")
+                .attr("class", "data-label")
+                .attr("x", d => x(d.system) + x.bandwidth() / 2)
+                .attr("y", d => y(d.count) - 10)
+                .attr("text-anchor", "middle")
+                .style("fill", d => d.system === "RAG-KG-IL" ? "#0047AB" : "#333")
+                .text(d => d.count);
+            
+            // Add annotation for RAG-KG-IL - improved positioning
+            const ragKgIlData = hallucinationData.find(d => d.system === "RAG-KG-IL");
+            const gpt4Data = hallucinationData.find(d => d.system === "GPT-4.0");
+            
+            // Calculate reduction percentage
+            const reductionPct = Math.round(((gpt4Data.count - ragKgIlData.count) / gpt4Data.count) * 100);
+            
+            // Add annotation line with better positioning
+            svg.append("line")
+                .attr("class", "annotation-line")
+                .attr("x1", x("RAG-KG-IL") + x.bandwidth() / 2)
+                .attr("y1", y(ragKgIlData.count) + 20)
+                .attr("x2", x("RAG-KG-IL") + x.bandwidth() / 2 + 30)
+                .attr("y2", y(ragKgIlData.count) + 40);
+            
+            // Add annotation text with better positioning
+            svg.append("text")
+                .attr("class", "annotation")
+                .attr("x", x("RAG-KG-IL") + x.bandwidth() / 2 + 30)
+                .attr("y", y(ragKgIlData.count) + 55)
+                .attr("text-anchor", "middle")
+                .html(`<tspan class="key-number" style="fill: #0047AB; font-size: 14px">~${reductionPct}%</tspan> reduction vs. GPT-4.0`);
+        }
+        
+        // Create knowledge growth chart
+        function createKnowledgeGrowthChart() {
+            const margin = { top: 40, right: 90, bottom: 90, left: 60 };
+            const width = d3.select("#knowledge-growth-chart").node().getBoundingClientRect().width - margin.left - margin.right;
+            const height = 370 - margin.top - margin.bottom;
+            
+            const svg = d3.select("#knowledge-growth-chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // X scale
+            const x = d3.scaleLinear()
+                .domain([0, 21]) // Extended slightly to give room for labels
+                .range([0, width]);
+            
+            // Primary Y scale (Terms, Triples)
+            const y1 = d3.scaleLinear()
+                .domain([0, 450])
+                .range([height, 0]);
+            
+            // Secondary Y scale (Relation Types)
+            const y2 = d3.scaleLinear()
+                .domain([0, 40])
+                .range([height, 0]);
+            
+            // Add grid lines for primary Y axis
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y1)
+                    .tickSize(-width)
+                    .tickFormat("")
+                    .ticks(9)
+                );
+            
+            // Add X axis
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).tickValues([2, 5, 10, 15, 20]).tickFormat(d => `${d}Q`))
+                .selectAll("text")
+                .style("font-size", "12px");
+            
+            // Add primary Y axis
+            svg.append("g")
+                .call(d3.axisLeft(y1).ticks(9))
+                .selectAll("text")
+                .style("font-size", "12px");
+            
+            // Add secondary Y axis
+            svg.append("g")
+                .attr("transform", `translate(${width}, 0)`)
+                .call(d3.axisRight(y2).ticks(8))
+                .selectAll("text")
+                .style("font-size", "12px");
+            
+            // X axis label
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", height + margin.bottom - 15)
+                .attr("text-anchor", "middle")
+                .style("font-size", "12px")
+                .text("Question Count");
+            
+            // Primary Y axis label
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 15)
+                .attr("x", -height / 2)
+                .attr("text-anchor", "middle")
+                .style("font-size", "12px")
+                .text("Count (Terms, Triples)");
+            
+            // Secondary Y axis label
+            svg.append("text")
+                .attr("transform", "rotate(90)")
+                .attr("y", -width - margin.right + 15)
+                .attr("x", height / 2)
+                .attr("text-anchor", "middle")
+                .style("font-size", "12px")
+                .text("Count (Relation Types)");
+            
+            // Line generators
+            const termsLine = d3.line()
+                .x((d, i) => x(knowledgeGrowthData.questions[i]))
+                .y(d => y1(d));
+            
+            const triplesLine = d3.line()
+                .x((d, i) => x(knowledgeGrowthData.questions[i]))
+                .y(d => y1(d));
+            
+            const relationTypesLine = d3.line()
+                .x((d, i) => x(knowledgeGrowthData.questions[i]))
+                .y(d => y2(d));
+            
+            // Line colors and styles
+            const lineStyles = [
+                { name: "Terms", color: "#1E90FF", data: knowledgeGrowthData.terms, yScale: y1, symbol: d3.symbolCircle, lineGenerator: termsLine },
+                { name: "Triples", color: "#20B2AA", data: knowledgeGrowthData.triples, yScale: y1, symbol: d3.symbolSquare, lineGenerator: triplesLine },
+                { name: "Relation Types", color: "#FF8C00", data: knowledgeGrowthData.relationTypes, yScale: y2, symbol: d3.symbolTriangle, lineGenerator: relationTypesLine }
+            ];
+            
+            // Draw lines and add markers
+            lineStyles.forEach(style => {
+                // Add line
+                svg.append("path")
+                    .datum(style.data)
+                    .attr("fill", "none")
+                    .attr("stroke", style.color)
+                    .attr("stroke-width", 2.5)
+                    .attr("d", style.lineGenerator);
+                
+                // Add markers
+                svg.selectAll(`.marker-${style.name}`)
+                    .data(style.data)
+                    .enter()
+                    .append("path")
+                    .attr("transform", (d, i) => `translate(${x(knowledgeGrowthData.questions[i])}, ${style.yScale(d)})`)
+                    .attr("d", d3.symbol().type(style.symbol).size(80))
+                    .attr("fill", style.color);
+            });
+            
+            // Add data labels for the last points with improved positioning to avoid overlap
+            // Terms (blue) - position below and slightly to the right to avoid grid line
+            svg.append("text")
+                .attr("class", "data-label")
+                .attr("x", x(knowledgeGrowthData.questions[4]) + 5)
+                .attr("y", y1(knowledgeGrowthData.terms[4]) + 20)
+                .attr("text-anchor", "middle")
+                .style("fill", "#1E90FF")
+                .text(knowledgeGrowthData.terms[4]);
+            
+            // Triples (teal) - position to the right
+            svg.append("text")
+                .attr("class", "data-label")
+                .attr("x", x(knowledgeGrowthData.questions[4]) + 45)
+                .attr("y", y1(knowledgeGrowthData.triples[4]))
+                .attr("text-anchor", "start")
+                .style("fill", "#20B2AA")
+                .text(knowledgeGrowthData.triples[4]);
+            
+            // Relation Types (orange) - position to the right with subtle background
+            // First add a small semi-transparent background that's just slightly larger than the text
+            svg.append("rect")
+                .attr("x", x(knowledgeGrowthData.questions[4]) + 35)
+                .attr("y", y2(knowledgeGrowthData.relationTypes[4]) - 10)
+                .attr("width", 22)
+                .attr("height", 18)
+                .attr("fill", "white")
+                .attr("fill-opacity", 0.7)
+                .attr("rx", 3)
+                .attr("stroke", "none");
+                
+            svg.append("text")
+                .attr("class", "data-label")
+                .attr("x", x(knowledgeGrowthData.questions[4]) + 45)
+                .attr("y", y2(knowledgeGrowthData.relationTypes[4]) + 3)
+                .attr("text-anchor", "middle")
+                .style("fill", "#FF8C00")
+                .text(knowledgeGrowthData.relationTypes[4]);
+        }
+        
+        // Create legend
+        function createLegend() {
+            const legendContainer = d3.select("#knowledge-legend");
+            
+            // Center the legend items
+            const legendDiv = legendContainer.append("div")
+                .style("display", "flex")
+                .style("justify-content", "center")
+                .style("width", "100%");
+            
+            const lineStyles = [
+                { name: "Terms", color: "#1E90FF" },
+                { name: "Triples", color: "#20B2AA" },
+                { name: "Relation Types", color: "#FF8C00" }
+            ];
+            
+            lineStyles.forEach(style => {
+                const legendItem = legendDiv.append("div")
+                    .attr("class", "legend-item");
+                
+                legendItem.append("div")
+                    .attr("class", "legend-color")
+                    .style("background-color", style.color);
+                
+                legendItem.append("div")
+                    .text(style.name);
+            });
+        }
+        
+        // Initialize charts
+        createHallucinationChart();
+        createKnowledgeGrowthChart();
+        createLegend();
+    </script>
+</body>
+</html>

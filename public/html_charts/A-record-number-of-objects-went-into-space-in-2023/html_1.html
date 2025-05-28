@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Small Satellite Deployments by Operator in 2023</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 800px;
+            height: 550px;
+            position: relative;
+            background-color: white;
+        }
+        
+        .chart-border {
+            stroke: #cccccc;
+            stroke-width: 1px;
+            fill: none;
+        }
+        
+        .title {
+            font-size: 16pt;
+            font-weight: bold;
+            text-anchor: start;
+        }
+        
+        .subtitle {
+            font-size: 12pt;
+            font-weight: 500;
+            text-anchor: start;
+            fill: #555;
+        }
+        
+        .axis text {
+            font-size: 10pt;
+            fill: #333;
+        }
+        
+        .axis-label {
+            font-size: 10pt;
+            fill: #555;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-width: 1px;
+        }
+        
+        .bar-primary {
+            fill: #1a5fb4;
+        }
+        
+        .bar-secondary {
+            fill: #62a0ea;
+        }
+        
+        .operator-label {
+            font-size: 10pt;
+            text-anchor: end;
+            fill: #333;
+            dominant-baseline: middle;
+        }
+        
+        .value-label {
+            font-size: 10pt;
+            text-anchor: start;
+            fill: #333;
+            dominant-baseline: middle;
+        }
+        
+        .annotation-box {
+            fill: #f5f5f5;
+            stroke: #e0e0e0;
+            stroke-width: 1px;
+        }
+        
+        .annotation-text {
+            font-size: 10pt;
+            fill: #333;
+        }
+        
+        .highlight {
+            font-family: 'Georgia', serif;
+            font-size: 12pt;
+            font-weight: bold;
+            fill: #1a5fb4;
+        }
+        
+        .source {
+            font-size: 9pt;
+            fill: #777;
+            text-anchor: start;
+        }
+        
+        .footnote {
+            font-size: 9pt;
+            fill: #777;
+            text-anchor: start;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container" id="chart"></div>
+
+    <script>
+        // Set up dimensions
+        const margin = {top: 60, right: 150, bottom: 70, left: 150};
+        const width = 800 - margin.left - margin.right;
+        const height = 550 - margin.top - margin.bottom;
+        
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", 800)
+            .attr("height", 550)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+        
+        // Add border around the chart
+        svg.append("rect")
+            .attr("x", -margin.left)
+            .attr("y", -margin.top)
+            .attr("width", 800)
+            .attr("height", 550)
+            .attr("class", "chart-border");
+        
+        // Data
+        const data = [
+            {operator: "Starlink", satellites: 1935, percentage: 67.7, primary: true},
+            {operator: "OneWeb", satellites: 181, percentage: 6.3, primary: true},
+            {operator: "Other operators", satellites: 744, percentage: 26.0, primary: false}
+        ];
+        
+        // Create scales
+        const xScale = d3.scaleLinear()
+            .domain([0, 2000])
+            .range([0, width]);
+        
+        const yScale = d3.scaleBand()
+            .domain(data.map(d => d.operator))
+            .range([40, height - 100]) // Adjusted to center bars better vertically
+            .padding(0.3);
+        
+        // Add X axis
+        svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", `translate(0,${height - 100})`)
+            .call(d3.axisBottom(xScale)
+                .tickSize(0)
+                .tickValues([0, 500, 1000, 1500, 2000])
+                .tickPadding(10))
+            .call(g => g.select(".domain").remove());
+        
+        // Add X axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("x", width / 2)
+            .attr("y", height - 60)
+            .style("text-anchor", "middle")
+            .text("Number of satellites launched");
+        
+        // Add Y axis
+        svg.append("g")
+            .attr("class", "axis")
+            .call(d3.axisLeft(yScale)
+                .tickSize(0)
+                .tickPadding(10))
+            .call(g => g.select(".domain").remove());
+        
+        // Add gridlines
+        svg.append("g")
+            .attr("class", "grid")
+            .attr("transform", `translate(0,${height - 100})`)
+            .call(d3.axisBottom(xScale)
+                .tickSize(-(height - 140))
+                .tickValues([0, 500, 1000, 1500, 2000])
+                .tickFormat("")
+            );
+        
+        // Add bars
+        svg.selectAll(".bar")
+            .data(data)
+            .join("rect")
+            .attr("class", d => d.primary ? "bar-primary" : "bar-secondary")
+            .attr("x", 0)
+            .attr("y", d => yScale(d.operator))
+            .attr("width", d => xScale(d.satellites))
+            .attr("height", yScale.bandwidth());
+        
+        // Add value labels
+        svg.selectAll(".value-label")
+            .data(data)
+            .join("text")
+            .attr("class", "value-label")
+            .attr("x", d => xScale(d.satellites) + 10)
+            .attr("y", d => yScale(d.operator) + yScale.bandwidth() / 2)
+            .text(d => `${d.satellites.toLocaleString()} (${d.percentage}%)`);
+        
+        // Add title
+        svg.append("text")
+            .attr("class", "title")
+            .attr("x", -margin.left + 20)
+            .attr("y", -margin.top + 30)
+            .text("Small Satellite Deployments by Operator in 2023");
+        
+        // Add subtitle
+        svg.append("text")
+            .attr("class", "subtitle")
+            .attr("x", -margin.left + 20)
+            .attr("y", -margin.top + 55)
+            .text("Broadband constellations dominated the 2,860 smallsats launched globally");
+        
+        // Add annotation box - improved positioning and text layout
+        const annotationBox = svg.append("g")
+            .attr("transform", `translate(${width - 240}, 20)`);
+        
+        annotationBox.append("rect")
+            .attr("class", "annotation-box")
+            .attr("width", 240)
+            .attr("height", 90)
+            .attr("rx", 4);
+        
+        // Improved annotation text with proper spacing and alignment
+        const annotationLine1 = annotationBox.append("text")
+            .attr("x", 12)
+            .attr("y", 25)
+            .attr("class", "annotation-text");
+            
+        annotationLine1.append("tspan")
+            .text("Active satellite population grew ");
+            
+        annotationLine1.append("tspan")
+            .attr("class", "highlight")
+            .text("35%");
+            
+        annotationBox.append("text")
+            .attr("x", 12)
+            .attr("y", 50)
+            .attr("class", "annotation-text")
+            .text("in 2023 to reach 9,115");
+            
+        annotationBox.append("text")
+            .attr("x", 12)
+            .attr("y", 70)
+            .attr("class", "annotation-text")
+            .text("operational spacecraft in orbit");
+        
+        // Add source attribution with more space
+        svg.append("text")
+            .attr("class", "source")
+            .attr("x", -margin.left + 20)
+            .attr("y", height - 30)
+            .text("Data sources: Statista, Space-Track.org");
+        
+        // Add footnote with more space
+        svg.append("text")
+            .attr("class", "footnote")
+            .attr("x", -margin.left + 20)
+            .attr("y", height - 10)
+            .text("Small satellites include all spacecraft under 500 kg");
+    </script>
+</body>
+</html>

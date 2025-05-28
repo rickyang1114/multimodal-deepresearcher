@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Mission Disposal Compliance Trends</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 800px;
+            height: 550px;
+            position: relative;
+            padding: 10px;
+        }
+        
+        .chart-title {
+            font-size: 16pt;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .chart-subtitle {
+            font-size: 12pt;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-subtitle .highlight {
+            font-family: 'Georgia', serif;
+            font-size: 13pt;
+            color: #1a5fb4;
+        }
+        
+        .axis-label {
+            font-size: 10pt;
+        }
+        
+        .source-note {
+            font-size: 9pt;
+            color: #666;
+            margin-top: 15px;
+        }
+        
+        .annotation {
+            font-size: 10pt;
+            pointer-events: none;
+        }
+        
+        .callout {
+            font-size: 11pt;
+            font-weight: 500;
+            pointer-events: none;
+        }
+        
+        .chart-area {
+            border: 1px solid #ddd;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        
+        .threshold {
+            stroke: #e53935;
+            stroke-width: 2;
+            stroke-dasharray: 5, 5;
+        }
+        
+        .legend-item {
+            font-size: 10pt;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="chart-title">Post-Mission Disposal Compliance Trends (2020-2023)</div>
+        <div class="chart-subtitle">Over <span class="highlight">80%</span> of constellation satellites now meet the two-year natural decay guideline</div>
+        <div id="chart"></div>
+        <div class="source-note">
+            <i class="fas fa-info-circle"></i> Data sources: ESA Space Environment Report 2023, NASA ODPO<br>
+            <i class="fas fa-asterisk"></i> Natural decay refers to orbital lifetime before atmospheric reentry without active propulsion
+        </div>
+    </div>
+
+    <script>
+        // Data preparation
+        const complianceData = [
+            {year: 2020, allSatellites: 60, constellationSatellites: 65, decayTime: 2.5},
+            {year: 2021, allSatellites: 75, constellationSatellites: 80, decayTime: 1.8},
+            {year: 2022, allSatellites: 85, constellationSatellites: 90, decayTime: 1.5},
+            {year: 2023, allSatellites: 92, constellationSatellites: 95, decayTime: 1.2}
+        ];
+
+        // Set up dimensions and margins
+        const margin = {top: 70, right: 70, bottom: 60, left: 60};
+        const width = 800 - margin.left - margin.right;
+        const height = 420 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`)
+            .attr("class", "chart-area");
+
+        // Set up scales
+        const x = d3.scaleLinear()
+            .domain([2020, 2023])
+            .range([0, width]);
+
+        const y1 = d3.scaleLinear()
+            .domain([0, 100])
+            .range([height, 0]);
+
+        const y2 = d3.scaleLinear()
+            .domain([0, 5])
+            .range([height, 0]);
+
+        // Add X axis
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x).ticks(4).tickFormat(d3.format("d")));
+
+        // Add X axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("x", width / 2)
+            .attr("y", height + 40)
+            .text("Year");
+
+        // Add Y1 axis (left - compliance percentage)
+        svg.append("g")
+            .call(d3.axisLeft(y1).ticks(5).tickFormat(d => d + "%"));
+
+        // Add Y1 axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -40)
+            .attr("x", -height / 2)
+            .text("Compliance Rate (%)");
+
+        // Add Y2 axis (right - decay time)
+        svg.append("g")
+            .attr("transform", `translate(${width}, 0)`)
+            .call(d3.axisRight(y2).ticks(5));
+
+        // Add Y2 axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(90)")
+            .attr("y", -width - 45)
+            .attr("x", height / 2)
+            .text("Natural Decay Time (years)");
+
+        // Add horizontal gridlines
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(y1)
+                .ticks(5)
+                .tickSize(-width)
+                .tickFormat("")
+            );
+
+        // Add vertical gridlines
+        svg.append("g")
+            .attr("class", "grid")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x)
+                .ticks(4)
+                .tickSize(-height)
+                .tickFormat("")
+            );
+
+        // Add 2-year threshold line
+        svg.append("line")
+            .attr("class", "threshold")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", y2(2))
+            .attr("y2", y2(2));
+
+        // Add threshold label - positioned on the right side
+        svg.append("text")
+            .attr("class", "annotation")
+            .attr("x", width - 240)
+            .attr("y", y2(2) - 8)
+            .attr("fill", "#e53935")
+            .text("Recommended maximum decay time (2 years)");
+
+        // Define line generators
+        const allSatellitesLine = d3.line()
+            .x(d => x(d.year))
+            .y(d => y1(d.allSatellites));
+
+        const constellationSatellitesLine = d3.line()
+            .x(d => x(d.year))
+            .y(d => y1(d.constellationSatellites));
+
+        const decayTimeLine = d3.line()
+            .x(d => x(d.year))
+            .y(d => y2(d.decayTime));
+
+        // Add lines
+        // All satellites line
+        svg.append("path")
+            .datum(complianceData)
+            .attr("fill", "none")
+            .attr("stroke", "#0d47a1")
+            .attr("stroke-width", 2.5)
+            .attr("d", allSatellitesLine);
+
+        // Constellation satellites line
+        svg.append("path")
+            .datum(complianceData)
+            .attr("fill", "none")
+            .attr("stroke", "#1976d2")
+            .attr("stroke-width", 2.5)
+            .attr("stroke-dasharray", "5,5")
+            .attr("d", constellationSatellitesLine);
+
+        // Decay time line
+        svg.append("path")
+            .datum(complianceData)
+            .attr("fill", "none")
+            .attr("stroke", "#64b5f6")
+            .attr("stroke-width", 2.5)
+            .attr("d", decayTimeLine);
+
+        // Add data points
+        // All satellites points
+        svg.selectAll(".point-all")
+            .data(complianceData)
+            .enter()
+            .append("circle")
+            .attr("class", "point-all")
+            .attr("cx", d => x(d.year))
+            .attr("cy", d => y1(d.allSatellites))
+            .attr("r", 5)
+            .attr("fill", "#0d47a1");
+
+        // Constellation satellites points
+        svg.selectAll(".point-constellation")
+            .data(complianceData)
+            .enter()
+            .append("circle")
+            .attr("class", "point-constellation")
+            .attr("cx", d => x(d.year))
+            .attr("cy", d => y1(d.constellationSatellites))
+            .attr("r", 5)
+            .attr("fill", "#1976d2");
+
+        // Decay time points
+        svg.selectAll(".point-decay")
+            .data(complianceData)
+            .enter()
+            .append("circle")
+            .attr("class", "point-decay")
+            .attr("cx", d => x(d.year))
+            .attr("cy", d => y2(d.decayTime))
+            .attr("r", 5)
+            .attr("fill", "#64b5f6");
+
+        // Add annotation for crossing point - better positioned
+        const crossingPoint = complianceData.find(d => d.decayTime < 2);
+        if (crossingPoint) {
+            // Triangle marker
+            svg.append("path")
+                .attr("d", d3.symbol().type(d3.symbolTriangle).size(150))
+                .attr("transform", `translate(${x(crossingPoint.year)}, ${y2(crossingPoint.decayTime)}) rotate(180)`)
+                .attr("fill", "#ff9800")
+                .attr("stroke", "#e65100")
+                .attr("stroke-width", 1.5);
+                
+            // Annotation text positioned above the triangle
+            svg.append("text")
+                .attr("class", "annotation")
+                .attr("x", x(crossingPoint.year) - 80)
+                .attr("y", y2(crossingPoint.decayTime) - 15)
+                .attr("fill", "#e65100")
+                .attr("font-weight", "bold")
+                .text("Below 2-year threshold");
+        }
+
+        // Add callout box - repositioned to better integrate with data
+        svg.append("rect")
+            .attr("x", 20)
+            .attr("y", 40)
+            .attr("width", 220)
+            .attr("height", 30)
+            .attr("fill", "rgba(255, 255, 255, 0.8)")
+            .attr("stroke", "#ccc")
+            .attr("rx", 5);
+
+        svg.append("text")
+            .attr("class", "callout")
+            .attr("x", 30)
+            .attr("y", 60)
+            .text("Sharp improvement in compliance since 2020")
+            .attr("fill", "#333");
+
+        // Add legend - positioned horizontally at the top
+        const legendSpacing = 180; // Space between legend items
+        const legendY = -45; // Vertical position of legend
+        
+        // All satellites legend
+        svg.append("line")
+            .attr("x1", 10)
+            .attr("x2", 30)
+            .attr("y1", legendY)
+            .attr("y2", legendY)
+            .attr("stroke", "#0d47a1")
+            .attr("stroke-width", 2.5);
+
+        svg.append("circle")
+            .attr("cx", 20)
+            .attr("cy", legendY)
+            .attr("r", 4)
+            .attr("fill", "#0d47a1");
+
+        svg.append("text")
+            .attr("class", "legend-item")
+            .attr("x", 35)
+            .attr("y", legendY + 4)
+            .text("All Satellites");
+
+        // Constellation satellites legend
+        svg.append("line")
+            .attr("x1", 10 + legendSpacing)
+            .attr("x2", 30 + legendSpacing)
+            .attr("y1", legendY)
+            .attr("y2", legendY)
+            .attr("stroke", "#1976d2")
+            .attr("stroke-width", 2.5)
+            .attr("stroke-dasharray", "5,5");
+
+        svg.append("circle")
+            .attr("cx", 20 + legendSpacing)
+            .attr("cy", legendY)
+            .attr("r", 4)
+            .attr("fill", "#1976d2");
+
+        svg.append("text")
+            .attr("class", "legend-item")
+            .attr("x", 35 + legendSpacing)
+            .attr("y", legendY + 4)
+            .text("Constellation Satellites");
+
+        // Decay time legend
+        svg.append("line")
+            .attr("x1", 10 + legendSpacing * 2)
+            .attr("x2", 30 + legendSpacing * 2)
+            .attr("y1", legendY)
+            .attr("y2", legendY)
+            .attr("stroke", "#64b5f6")
+            .attr("stroke-width", 2.5);
+
+        svg.append("circle")
+            .attr("cx", 20 + legendSpacing * 2)
+            .attr("cy", legendY)
+            .attr("r", 4)
+            .attr("fill", "#64b5f6");
+
+        svg.append("text")
+            .attr("class", "legend-item")
+            .attr("x", 35 + legendSpacing * 2)
+            .attr("y", legendY + 4)
+            .text("Average Natural Decay Time");
+    </script>
+</body>
+</html>

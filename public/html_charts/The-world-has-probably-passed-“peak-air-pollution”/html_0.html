@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Major Air Pollutants Trends</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .visualization-container {
+            width: 1000px;
+            padding: 20px;
+            background-color: white;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .axis-label {
+            font-size: 11px;
+            fill: #666;
+        }
+        
+        .grid line {
+            stroke: #E1E1E1;
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        
+        .reference-line {
+            stroke: #999;
+            stroke-dasharray: 4,4;
+            stroke-width: 1px;
+        }
+        
+        .annotation {
+            font-size: 12px;
+            fill: #FF7F0E;
+        }
+        
+        .annotation-line {
+            stroke: #FF7F0E;
+            stroke-width: 1px;
+        }
+        
+        .source {
+            font-size: 10px;
+            color: #888;
+            margin-top: 15px;
+            text-align: right;
+        }
+        
+        .legend {
+            font-size: 12px;
+        }
+        
+        .legend-item {
+            margin-bottom: 5px;
+        }
+        
+        .highlight {
+            font-family: 'Georgia', serif;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Major Air Pollutants Have Peaked at Different Times</div>
+        <div class="subtitle">Global pollutant emissions indexed (1990 = 100)</div>
+        <div class="chart-container" id="chart"></div>
+        <div class="source">Source: Community Emissions Data System (CEDS); Our World in Data</div>
+    </div>
+
+    <script>
+        // Set up dimensions and margins
+        const margin = {top: 40, right: 200, bottom: 50, left: 60};
+        const width = 960 - margin.left - margin.right;
+        const height = 500 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Data preparation
+        const data = [
+            {pollutant: "SO₂", color: "#08519C", values: [
+                {year: 1950, value: 40},
+                {year: 1960, value: 55},
+                {year: 1970, value: 70},
+                {year: 1980, value: 85},
+                {year: 1990, value: 100},
+                {year: 2000, value: 80},
+                {year: 2010, value: 60},
+                {year: 2020, value: 45}
+            ]},
+            {pollutant: "NOₓ", color: "#9EC5E8", values: [
+                {year: 1950, value: 25},
+                {year: 1960, value: 42},
+                {year: 1970, value: 60},
+                {year: 1980, value: 80},
+                {year: 1990, value: 100},
+                {year: 2000, value: 105},
+                {year: 2010, value: 110},
+                {year: 2020, value: 95}
+            ]},
+            {pollutant: "CO", color: "#333333", values: [
+                {year: 1950, value: 30},
+                {year: 1960, value: 50},
+                {year: 1970, value: 70},
+                {year: 1980, value: 85},
+                {year: 1990, value: 100},
+                {year: 2000, value: 95},
+                {year: 2010, value: 90},
+                {year: 2020, value: 80}
+            ]},
+            {pollutant: "BC", color: "#FB9A99", values: [
+                {year: 1950, value: 40},
+                {year: 1960, value: 55},
+                {year: 1970, value: 70},
+                {year: 1980, value: 85},
+                {year: 1990, value: 100},
+                {year: 2000, value: 105},
+                {year: 2010, value: 110},
+                {year: 2020, value: 100}
+            ]},
+            {pollutant: "OC", color: "#756BB1", values: [
+                {year: 1950, value: 50},
+                {year: 1960, value: 62},
+                {year: 1970, value: 75},
+                {year: 1980, value: 88},
+                {year: 1990, value: 100},
+                {year: 2000, value: 102},
+                {year: 2010, value: 103},
+                {year: 2020, value: 102}
+            ]},
+            {pollutant: "NH₃", color: "#31A354", values: [
+                {year: 1950, value: 30},
+                {year: 1960, value: 45},
+                {year: 1970, value: 60},
+                {year: 1980, value: 80},
+                {year: 1990, value: 100},
+                {year: 2000, value: 110},
+                {year: 2010, value: 120},
+                {year: 2020, value: 130}
+            ]}
+        ];
+
+        // Set up scales
+        const x = d3.scaleLinear()
+            .domain([1950, 2020])
+            .range([0, width]);
+
+        const y = d3.scaleLinear()
+            .domain([0, 140])
+            .range([height, 0]);
+
+        // Add X axis
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(8))
+            .style("color", "#A0A0A0");
+
+        // Add X axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("x", width / 2)
+            .attr("y", height + 35)
+            .style("text-anchor", "middle")
+            .text("Year");
+
+        // Add Y axis
+        svg.append("g")
+            .call(d3.axisLeft(y).tickValues([0, 20, 40, 60, 80, 100, 120, 140]))
+            .style("color", "#A0A0A0");
+
+        // Add Y axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -45)
+            .attr("x", -height / 2)
+            .style("text-anchor", "middle")
+            .text("Indexed emissions (1990 = 100)");
+
+        // Add horizontal gridlines
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(y)
+                .tickValues([0, 20, 40, 60, 80, 100, 120, 140])
+                .tickSize(-width)
+                .tickFormat("")
+            );
+
+        // Add vertical reference line at 1990
+        svg.append("line")
+            .attr("class", "reference-line")
+            .attr("x1", x(1990))
+            .attr("x2", x(1990))
+            .attr("y1", 0)
+            .attr("y2", height);
+
+        // Add reference year label
+        svg.append("text")
+            .attr("x", x(1990))
+            .attr("y", -10)
+            .attr("text-anchor", "middle")
+            .style("font-size", "10px")
+            .style("fill", "#888")
+            .text("Reference year (1990 = 100)");
+
+        // Create line generator
+        const line = d3.line()
+            .x(d => x(d.year))
+            .y(d => y(d.value))
+            .curve(d3.curveMonotoneX);
+
+        // Draw lines
+        data.forEach(pollutant => {
+            // Add the line
+            svg.append("path")
+                .datum(pollutant.values)
+                .attr("fill", "none")
+                .attr("stroke", pollutant.color)
+                .attr("stroke-width", 2)
+                .attr("d", line);
+
+            // Add data points
+            svg.selectAll(`.point-${pollutant.pollutant}`)
+                .data(pollutant.values)
+                .enter()
+                .append("circle")
+                .attr("class", `point-${pollutant.pollutant}`)
+                .attr("cx", d => x(d.year))
+                .attr("cy", d => y(d.value))
+                .attr("r", 3.5)
+                .attr("fill", pollutant.color);
+        });
+
+        // Add legend with improved spacing and proper markers
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width + 20}, 0)`);
+
+        data.forEach((pollutant, i) => {
+            const legendRow = legend.append("g")
+                .attr("class", "legend-item")
+                .attr("transform", `translate(0, ${i * 25})`);
+            
+            // Add line swatch
+            legendRow.append("line")
+                .attr("x1", 0)
+                .attr("y1", 10)
+                .attr("x2", 20)
+                .attr("y2", 10)
+                .attr("stroke", pollutant.color)
+                .attr("stroke-width", 2);
+                
+            // Add circle marker
+            legendRow.append("circle")
+                .attr("cx", 10)
+                .attr("cy", 10)
+                .attr("r", 3.5)
+                .attr("fill", pollutant.color);
+                
+            // Add pollutant name with proper formatting
+            legendRow.append("text")
+                .attr("x", 30)
+                .attr("y", 14)
+                .html(() => {
+                    return pollutant.pollutant;
+                });
+        });
+
+        // Add annotation for NH₃ - Repositioned to avoid overlap with legend
+        const nh3Data = data.find(d => d.pollutant === "NH₃").values;
+        const lastPoint = nh3Data[nh3Data.length - 1];
+        
+        // Create a group for the annotation - moved to better position to avoid legend overlap
+        const annotationGroup = svg.append("g")
+            .attr("transform", `translate(${x(2005)}, ${y(125)})`);
+            
+        // Add annotation line - adjusted to point directly to the NH₃ line
+        annotationGroup.append("line")
+            .attr("class", "annotation-line")
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", 30)
+            .attr("y2", -15);
+
+        // Add annotation text with proper wrapping and no overlapping text
+        annotationGroup.append("text")
+            .attr("class", "annotation")
+            .attr("x", -130)
+            .attr("y", -25)
+            .text("Only ammonia emissions continue to rise unabated,")
+            .append("tspan")
+            .attr("x", -130)
+            .attr("dy", "1.2em")
+            .text("primarily from agricultural sources");
+    </script>
+</body>
+</html>

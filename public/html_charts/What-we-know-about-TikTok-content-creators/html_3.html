@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Creator Monetization Landscape</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        
+        .visualization-container {
+            width: 1200px;
+            height: 675px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .title-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .main-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .main-subtitle {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        
+        .panels-container {
+            display: flex;
+            flex: 1;
+            border-top: 1px solid #eaeaea;
+            padding-top: 15px;
+        }
+        
+        .panel {
+            padding: 10px 15px;
+            position: relative;
+        }
+        
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .left-panel {
+            flex: 1;
+            border-right: 1px solid #eaeaea;
+        }
+        
+        .center-panel {
+            flex: 1.2;
+            border-right: 1px solid #eaeaea;
+        }
+        
+        .right-panel {
+            flex: 1;
+        }
+        
+        .source-attribution {
+            font-size: 9px;
+            color: #888;
+            text-align: right;
+            margin-top: 10px;
+            padding-top: 5px;
+            border-top: 1px solid #eaeaea;
+        }
+        
+        /* Left Panel Styles */
+        .payment-program {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .program-header {
+            font-weight: bold;
+            color: #8E44AD;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .program-detail {
+            margin-bottom: 5px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .highlight {
+            font-weight: bold;
+            font-family: 'Georgia', serif;
+            color: #333;
+        }
+        
+        /* Center Panel Styles */
+        .creator-row {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .creator-name {
+            width: 160px;
+            text-align: right;
+            padding-right: 10px;
+            font-size: 12px;
+        }
+        
+        .follower-count {
+            font-weight: normal;
+            color: #666;
+        }
+        
+        .annual-earnings {
+            margin-left: 10px;
+            font-size: 12px;
+            color: #555;
+        }
+        
+        /* Right Panel Styles */
+        .category-label {
+            font-size: 12px;
+            text-align: left;
+            margin-bottom: 5px;
+        }
+        
+        .rpm-value {
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        
+        .callout-box {
+            border: 1px solid #E74C3C;
+            border-radius: 5px;
+            padding: 8px;
+            margin-top: 15px;
+            background-color: rgba(231, 76, 60, 0.05);
+            font-size: 11px;
+            color: #E74C3C;
+        }
+        
+        .callout-box i {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title-section">
+            <h1 class="main-title">TikTok Creator Monetization Landscape</h1>
+            <p class="main-subtitle">Platform Payment Models, Top Creator Earnings, and RPM Variations by Category (2024-2025)</p>
+        </div>
+        
+        <div class="panels-container">
+            <!-- Left Panel: Platform Payment Programs -->
+            <div class="panel left-panel">
+                <h2 class="panel-title">Platform Payment Programs</h2>
+                <div class="payment-program">
+                    <div class="program-header">Creator Fund</div>
+                    <div class="program-detail">
+                        <span class="highlight">$0.02-$0.04</span> per 1,000 views (RPM)
+                    </div>
+                    <div class="program-detail">
+                        <strong>Eligibility:</strong> ≥18 years old, ≥10,000 followers, ≥100,000 views in 30 days
+                    </div>
+                </div>
+                
+                <div class="payment-program">
+                    <div class="program-header">Creator Rewards Program</div>
+                    <div class="program-detail">
+                        <span class="highlight">$0.40-$1.00</span> per 1,000 views (RPM)
+                    </div>
+                    <div class="program-detail">
+                        <strong>Eligibility:</strong> Same as Creator Fund
+                    </div>
+                    <div class="program-detail">
+                        <strong>Available in:</strong> US, UK, France, Germany, Japan, South Korea, Canada, Australia, Brazil
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Center Panel: Top Creator Earning Potential -->
+            <div class="panel center-panel" id="center-panel">
+                <h2 class="panel-title">Top Creator Earning Potential</h2>
+                <div id="creator-earnings-chart"></div>
+            </div>
+            
+            <!-- Right Panel: RPM Variations by Category -->
+            <div class="panel right-panel" id="right-panel">
+                <h2 class="panel-title">RPM Variations by Category (2024)</h2>
+                <div id="rpm-chart"></div>
+                
+                <div class="callout-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>High volatility:</strong> Travel RPM dropped to $1.40 within a month
+                </div>
+            </div>
+        </div>
+        
+        <div class="source-attribution">
+            Sources: Bluehost, Reddit user reports (brokencompass502, BoringNEET, Zeppelin77_, Ketchup_In_A_Bottle, boredaf1998), 2024-2025
+        </div>
+    </div>
+
+    <script>
+        // Center Panel: Creator Earnings Data
+        const creatorData = [
+            { name: "Khaby Lame", followers: "163M", perVideo: 259000, annual: "up to $750K for brand deals" },
+            { name: "Charli D'Amelio", followers: "155M", perVideo: 246000, annual: "~$17.5M annual" },
+            { name: "MrBeast", followers: "40M", perVideo: 151000, annual: "" },
+            { name: "Addison Rae", followers: "88M", perVideo: 175000, annual: "~$8M annual" },
+            { name: "Bella Poarch", followers: "94M", perVideo: 150000, annual: "$5-7M annual" }
+        ];
+
+        // Right Panel: RPM Data
+        const rpmData = [
+            { category: "Travel & Tourism (US)", rpm: 2.32 },
+            { category: "Meme Animations (US)", rpm: 1.57 },
+            { category: "Theme Parks (UK)", rpm: 1.26 },
+            { category: "Fitness & Vlogging (UK)", rpm: 1.00 },
+            { category: "Science Experiments (UK)", rpm: 0.25 },
+            { category: "Gaming (UK)", rpm: [0.03, 0.09], avgRpm: 0.06 } // Using range values
+        ];
+
+        // Center Panel: Creator Earnings Chart
+        const centerWidth = document.getElementById('center-panel').clientWidth - 30;
+        const centerHeight = 450;
+        
+        const centerSvg = d3.select("#creator-earnings-chart")
+            .append("svg")
+            .attr("width", centerWidth)
+            .attr("height", centerHeight);
+        
+        const yScale = d3.scaleLinear()
+            .domain([0, 300000])  // Adjusted to better fit the data range
+            .range([centerHeight - 50, 50]);
+        
+        // Add y-axis
+        const yAxis = d3.axisLeft(yScale)
+            .tickFormat(d => d === 0 ? "$0" : `$${d/1000}K`)
+            .tickValues([0, 50000, 100000, 150000, 200000, 250000, 300000]);
+        
+        centerSvg.append("g")
+            .attr("transform", `translate(120, 0)`)
+            .call(yAxis)
+            .selectAll("text")
+            .style("font-size", "10px");
+        
+        // Horizontal grid lines
+        centerSvg.selectAll(".grid-line")
+            .data([0, 50000, 100000, 150000, 200000, 250000, 300000])
+            .enter()
+            .append("line")
+            .attr("class", "grid-line")
+            .attr("x1", 120)
+            .attr("x2", centerWidth)
+            .attr("y1", d => yScale(d))
+            .attr("y2", d => yScale(d))
+            .style("stroke", "#eaeaea")
+            .style("stroke-dasharray", "3,3");
+        
+        // Calculate vertical spacing for creators
+        // Increase vertical spacing between creators
+        const creatorSpacing = {};
+        creatorData.forEach((d, i) => {
+            // Base position from the scale
+            const basePosition = yScale(d.perVideo);
+            
+            // Apply offsets to prevent overlapping
+            if (i > 0) {
+                const prevCreator = creatorData[i-1];
+                const prevPosition = yScale(prevCreator.perVideo);
+                const minDistance = 45; // Minimum distance between creators
+                
+                if (Math.abs(basePosition - prevPosition) < minDistance) {
+                    // Adjust position if too close to previous creator
+                    if (basePosition > prevPosition) {
+                        creatorSpacing[d.name] = basePosition + (minDistance - (basePosition - prevPosition));
+                    } else {
+                        creatorSpacing[d.name] = basePosition - (minDistance - (prevPosition - basePosition));
+                    }
+                } else {
+                    creatorSpacing[d.name] = basePosition;
+                }
+            } else {
+                creatorSpacing[d.name] = basePosition;
+            }
+        });
+        
+        // Add creator dots and labels with improved spacing
+        const creatorGroups = centerSvg.selectAll(".creator-group")
+            .data(creatorData)
+            .enter()
+            .append("g")
+            .attr("class", "creator-group");
+        
+        // Creator names - moved further left to avoid overlap
+        creatorGroups.append("text")
+            .attr("x", 110)
+            .attr("y", d => creatorSpacing[d.name])
+            .attr("text-anchor", "end")
+            .attr("alignment-baseline", "middle")
+            .style("font-size", "12px")
+            .html(d => `${d.name} <tspan class="follower-count">(${d.followers})</tspan>`);
+        
+        // Dots for per-video earnings
+        creatorGroups.append("circle")
+            .attr("cx", 140)
+            .attr("cy", d => creatorSpacing[d.name])
+            .attr("r", 8)
+            .style("fill", "#009FE3");
+        
+        // Per-video earnings labels - moved further right to avoid overlap
+        creatorGroups.append("text")
+            .attr("x", 160)
+            .attr("y", d => creatorSpacing[d.name])
+            .attr("alignment-baseline", "middle")
+            .style("font-size", "12px")
+            .style("font-family", "Georgia, serif")
+            .style("font-weight", "bold")
+            .text(d => `~$${d.perVideo/1000}K per video`);
+        
+        // Annual earnings - positioned with more space and only for selected creators
+        // Limit annual earnings to just a few creators to reduce clutter
+        const showAnnualFor = ["Charli D'Amelio", "Bella Poarch"];
+        
+        creatorGroups.filter(d => showAnnualFor.includes(d.name))
+            .append("text")
+            .attr("x", 160)
+            .attr("y", d => creatorSpacing[d.name] + 20) // Increased vertical spacing
+            .attr("alignment-baseline", "middle")
+            .style("font-size", "11px")
+            .style("fill", "#555")
+            .text(d => d.annual);
+        
+        // Right Panel: RPM Chart
+        const rightWidth = document.getElementById('right-panel').clientWidth - 20;
+        const rightHeight = 400;
+        
+        const rightSvg = d3.select("#rpm-chart")
+            .append("svg")
+            .attr("width", rightWidth)
+            .attr("height", rightHeight);
+        
+        const xScale = d3.scaleLinear()
+            .domain([0, 2.6]) // Increased to 2.6 to avoid truncation
+            .range([0, rightWidth - 120]); // Increased left margin for category labels
+        
+        const yScaleRpm = d3.scaleBand()
+            .domain(rpmData.map(d => d.category))
+            .range([30, rightHeight - 40]) // Adjusted to provide more space at bottom
+            .padding(0.3);
+        
+        // Add x-axis
+        const xAxis = d3.axisBottom(xScale)
+            .tickFormat(d => `$${d.toFixed(2)}`)
+            .tickValues([0, 0.5, 1.0, 1.5, 2.0, 2.5]);
+        
+        rightSvg.append("g")
+            .attr("transform", `translate(110, ${rightHeight - 30})`)
+            .call(xAxis)
+            .selectAll("text")
+            .style("font-size", "10px");
+        
+        // Add RPM bars
+        const bars = rightSvg.selectAll(".rpm-bar")
+            .data(rpmData)
+            .enter()
+            .append("g")
+            .attr("class", "rpm-bar");
+        
+        // Category labels - increased space and improved alignment
+        bars.append("text")
+            .attr("x", 105)
+            .attr("y", d => yScaleRpm(d.category) + yScaleRpm.bandwidth() / 2)
+            .attr("text-anchor", "end")
+            .attr("alignment-baseline", "middle")
+            .style("font-size", "10px")
+            .text(d => d.category);
+        
+        // Bars
+        bars.append("rect")
+            .attr("x", 110)
+            .attr("y", d => yScaleRpm(d.category))
+            .attr("width", d => d.rpm && Array.isArray(d.rpm) ? xScale(d.avgRpm) : xScale(d.rpm))
+            .attr("height", yScaleRpm.bandwidth())
+            .style("fill", "#00B79A");
+        
+        // RPM value labels
+        bars.append("text")
+            .attr("x", d => {
+                if (d.rpm && Array.isArray(d.rpm)) {
+                    return 115 + xScale(d.avgRpm);
+                }
+                return 115 + xScale(d.rpm);
+            })
+            .attr("y", d => yScaleRpm(d.category) + yScaleRpm.bandwidth() / 2)
+            .attr("alignment-baseline", "middle")
+            .style("font-size", "11px")
+            .style("font-family", "Georgia, serif")
+            .style("font-weight", "bold")
+            .text(d => {
+                if (d.category.includes("Gaming")) {
+                    return `£${d.rpm[0]}-£${d.rpm[1]}`;
+                }
+                return d.category.includes("UK") ? `£${d.rpm.toFixed(2)}` : `$${d.rpm.toFixed(2)}`;
+            });
+        
+        // Vertical grid lines
+        rightSvg.selectAll(".grid-line-vertical")
+            .data([0, 0.5, 1.0, 1.5, 2.0, 2.5])
+            .enter()
+            .append("line")
+            .attr("class", "grid-line-vertical")
+            .attr("x1", d => 110 + xScale(d))
+            .attr("x2", d => 110 + xScale(d))
+            .attr("y1", 30)
+            .attr("y2", rightHeight - 30)
+            .style("stroke", "#eaeaea")
+            .style("stroke-dasharray", "3,3");
+    </script>
+</body>
+</html>

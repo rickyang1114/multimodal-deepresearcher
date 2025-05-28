@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emission Reductions Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .container {
+            width: 950px;
+            background-color: white;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .note {
+            font-size: 12px;
+            font-style: italic;
+            margin-top: 20px;
+            text-align: center;
+            color: #555;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .source {
+            font-size: 11px;
+            color: #777;
+            margin-top: 15px;
+            text-align: right;
+            padding-right: 20px;
+        }
+        
+        .key-number {
+            font-family: Georgia, serif;
+            font-weight: bold;
+            fill: #333;
+        }
+        
+        .small-value-label {
+            font-size: 10px;
+            fill: #555;
+        }
+        
+        .axis-title {
+            font-size: 12px;
+            fill: #555;
+        }
+        
+        .pollutant-group-label {
+            font-size: 13px;
+            font-weight: bold;
+            text-anchor: middle;
+            fill: #333;
+        }
+        
+        .chemical-formula {
+            font-size: 12px;
+            text-anchor: middle;
+        }
+        
+        .divider-line {
+            stroke: #666;
+            stroke-width: 1.5px;
+        }
+        
+        .tick line {
+            stroke: #ccc;
+        }
+        
+        .y-axis .tick line {
+            stroke: #999;
+            stroke-width: 1;
+            stroke-dasharray: 2,2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">Ambitious Clean Air Policies Can Deliver Dramatic Emission Reductions by 2040</div>
+        <div class="subtitle">Projected emission reductions relative to No Policies scenario</div>
+        <div id="chart"></div>
+        <div class="note">The Clean Air package combines ambitious air pollution controls with energy/climate measures, agricultural reforms, and dietary changes</div>
+        <div class="source">Source: Amann et al. 2020, Royal Society Philosophical Transactions A</div>
+    </div>
+
+    <script>
+        // Data preparation
+        const data = [
+            { pollutant: "SO₂", category: "conventional", legislation2018: 35, cleanAir: 90 },
+            { pollutant: "NOₓ", category: "conventional", legislation2018: 10, cleanAir: 70 },
+            { pollutant: "PM₂.₅", category: "conventional", legislation2018: 5, cleanAir: 90 },
+            { pollutant: "NH₃", category: "conventional", legislation2018: 2, cleanAir: 60 },
+            { pollutant: "CO₂", category: "climate", legislation2018: 15, cleanAir: 40 },
+            { pollutant: "CH₄", category: "climate", legislation2018: 5, cleanAir: 33 },
+            { pollutant: "BC", category: "climate", legislation2018: 7, cleanAir: 90 }
+        ];
+
+        // Chart dimensions - increased height for better spacing
+        const margin = { top: 50, right: 80, bottom: 100, left: 70 };
+        const width = 950 - margin.left - margin.right;
+        const height = 550 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // X scale for pollutant groups
+        const x0 = d3.scaleBand()
+            .domain(data.map(d => d.pollutant))
+            .rangeRound([0, width])
+            .paddingInner(0.2);
+
+        // X scale for bars within groups
+        const x1 = d3.scaleBand()
+            .domain(["legislation2018", "cleanAir"])
+            .rangeRound([0, x0.bandwidth()])
+            .padding(0.1);
+
+        // Y scale
+        const y = d3.scaleLinear()
+            .domain([0, 100])
+            .range([height, 0]);
+
+        // Color scale
+        const color = d3.scaleOrdinal()
+            .domain(["legislation2018", "cleanAir"])
+            .range(["#9EC5E8", "#31A354"]);
+
+        // Add horizontal gridlines
+        svg.append("g")
+            .attr("class", "grid")
+            .selectAll("line")
+            .data([0, 20, 40, 60, 80, 100])
+            .enter()
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", d => y(d))
+            .attr("y2", d => y(d))
+            .attr("stroke", "#e0e0e0")
+            .attr("stroke-width", 1);
+
+        // Add special 50% dashed line
+        svg.append("line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", y(50))
+            .attr("y2", y(50))
+            .attr("stroke", "#999")
+            .attr("stroke-width", 1)
+            .attr("stroke-dasharray", "5,5");
+
+        // Add Y axis with extended tick marks
+        svg.append("g")
+            .attr("class", "y-axis")
+            .call(d3.axisLeft(y)
+                .tickValues([0, 20, 40, 60, 80, 100])
+                .tickFormat(d => d + "%")
+                .tickSize(-6)) // Slightly longer tick marks
+            .call(g => {
+                g.select(".domain").remove();
+                g.selectAll(".tick line")
+                    .attr("stroke", "#999");
+            });
+
+        // Y axis title
+        svg.append("text")
+            .attr("class", "axis-title")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left + 25)
+            .attr("x", -height / 2)
+            .attr("text-anchor", "middle")
+            .text("Emission reduction (%)");
+
+        // Find the dividing point between conventional and climate pollutants
+        const conventionalPollutants = data.filter(d => d.category === "conventional");
+        const dividerX = x0(conventionalPollutants[conventionalPollutants.length - 1].pollutant) + x0.bandwidth() + x0.step() / 2;
+
+        // Add vertical divider line - improved styling
+        svg.append("line")
+            .attr("class", "divider-line")
+            .attr("x1", dividerX)
+            .attr("x2", dividerX)
+            .attr("y1", 0)
+            .attr("y2", height + 30) // Extended to reach category labels
+            .attr("stroke", "#666")
+            .attr("stroke-width", 1.5);
+
+        // Calculate centers for category labels
+        const conventionalCenter = conventionalPollutants.reduce((acc, curr) => 
+            acc + x0(curr.pollutant), 0) / conventionalPollutants.length + x0.bandwidth() / 2;
+        
+        const climatePollutants = data.filter(d => d.category === "climate");
+        const climateCenter = climatePollutants.reduce((acc, curr) => 
+            acc + x0(curr.pollutant), 0) / climatePollutants.length + x0.bandwidth() / 2;
+
+        // Add category labels - improved positioning with more space
+        svg.append("text")
+            .attr("class", "pollutant-group-label")
+            .attr("x", conventionalCenter)
+            .attr("y", height + 75) // Increased vertical spacing
+            .text("Conventional air pollutants");
+
+        svg.append("text")
+            .attr("class", "pollutant-group-label")
+            .attr("x", climateCenter)
+            .attr("y", height + 75) // Increased vertical spacing
+            .text("Climate-relevant emissions");
+
+        // Create the grouped bars
+        const pollutantGroups = svg.selectAll(".pollutant-group")
+            .data(data)
+            .enter()
+            .append("g")
+            .attr("class", "pollutant-group")
+            .attr("transform", d => `translate(${x0(d.pollutant)},0)`);
+
+        // Add bars for each scenario
+        const scenarios = ["legislation2018", "cleanAir"];
+        const scenarioLabels = {
+            "legislation2018": "2018 legislation",
+            "cleanAir": "Clean Air package"
+        };
+
+        scenarios.forEach(scenario => {
+            pollutantGroups.append("rect")
+                .attr("x", d => x1(scenario))
+                .attr("y", d => y(d[scenario]))
+                .attr("width", x1.bandwidth())
+                .attr("height", d => height - y(d[scenario]))
+                .attr("fill", color(scenario));
+
+            // Add percentage labels on top of bars - improved positioning for small values
+            pollutantGroups.append("text")
+                .attr("class", d => d[scenario] >= 50 ? "key-number" : "small-value-label")
+                .attr("x", d => x1(scenario) + x1.bandwidth() / 2)
+                .attr("y", d => {
+                    // Significantly increased vertical offset for small values to prevent overlap
+                    if (d[scenario] < 10) {
+                        return y(d[scenario]) - 15;
+                    } else if (d[scenario] < 20) {
+                        return y(d[scenario]) - 12;
+                    } else {
+                        return y(d[scenario]) - 8;
+                    }
+                })
+                .attr("text-anchor", "middle")
+                .attr("font-size", d => d[scenario] >= 50 ? "14px" : "11px")
+                .attr("font-family", d => d[scenario] >= 50 ? "Georgia, serif" : "Arial, sans-serif")
+                .attr("font-weight", d => d[scenario] >= 50 ? "bold" : "normal")
+                .text(d => d[scenario] + "%");
+        });
+
+        // Add pollutant labels with proper subscript handling
+        pollutantGroups.append("text")
+            .attr("class", "chemical-formula")
+            .attr("x", x0.bandwidth() / 2)
+            .attr("y", height + 30)
+            .attr("text-anchor", "middle")
+            .each(function(d) {
+                const text = d3.select(this);
+                if (d.pollutant === "PM₂.₅") {
+                    text.text("PM");
+                    text.append("tspan")
+                        .attr("baseline-shift", "sub")
+                        .attr("font-size", "9px")
+                        .text("2.5");
+                } else if (d.pollutant === "SO₂") {
+                    text.text("SO");
+                    text.append("tspan")
+                        .attr("baseline-shift", "sub")
+                        .attr("font-size", "9px")
+                        .text("2");
+                } else if (d.pollutant === "CO₂") {
+                    text.text("CO");
+                    text.append("tspan")
+                        .attr("baseline-shift", "sub")
+                        .attr("font-size", "9px")
+                        .text("2");
+                } else if (d.pollutant === "NH₃") {
+                    text.text("NH");
+                    text.append("tspan")
+                        .attr("baseline-shift", "sub")
+                        .attr("font-size", "9px")
+                        .text("3");
+                } else if (d.pollutant === "CH₄") {
+                    text.text("CH");
+                    text.append("tspan")
+                        .attr("baseline-shift", "sub")
+                        .attr("font-size", "9px")
+                        .text("4");
+                } else {
+                    text.text(d.pollutant);
+                }
+            });
+
+        // Add legend - improved positioning
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width - 160}, 20)`); // Increased vertical spacing
+
+        scenarios.forEach((scenario, i) => {
+            const legendRow = legend.append("g")
+                .attr("transform", `translate(0, ${i * 25})`);
+
+            legendRow.append("rect")
+                .attr("width", 16)
+                .attr("height", 16)
+                .attr("fill", color(scenario));
+
+            legendRow.append("text")
+                .attr("x", 25)
+                .attr("y", 13)
+                .attr("font-size", "12px")
+                .text(scenarioLabels[scenario]);
+        });
+    </script>
+</body>
+</html>
