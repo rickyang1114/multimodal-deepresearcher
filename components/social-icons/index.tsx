@@ -13,7 +13,8 @@ import {
   Medium,
   Bluesky,
   Homepage,
-  GoogleScholar
+  GoogleScholar,
+  Arxiv
 } from './icons'
 
 const components = {
@@ -30,7 +31,8 @@ const components = {
   medium: Medium,
   bluesky: Bluesky,
   homepage: Homepage,
-  googlescholar: GoogleScholar
+  googlescholar: GoogleScholar,
+  arxiv: Arxiv
 }
 
 type SocialIconProps = {

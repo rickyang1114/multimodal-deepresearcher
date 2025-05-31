@@ -145,6 +145,7 @@ export const Authors = defineDocumentType(() => ({
     layout: { type: 'string' },
     homepage: {type: 'string' },
     googlescholar: { type: 'string' },
+    arxiv: {type: 'string'}
   },
   computedFields,
 }))
