@@ -256,6 +256,22 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                 <PageTitle>{title}</PageTitle>
               </div>
             </div>
+            <div className="pt-4">
+              <button
+                onClick={() => {
+                  const link = document.createElement('a')
+                  link.href = `/pdfs/${slug}.pdf`
+                  link.download = `${slug}.pdf`
+                  link.click()
+                }}
+                className="inline-flex items-center px-4 py-2 text-sm bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md transition-colors duration-200 cursor-pointer"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-4-4m4 4l4-4M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                </svg>
+                Download PDF
+              </button>
+            </div>
           </header>
           <div className="grid-rows-[auto_1fr] divide-y divide-gray-200 pb-8 xl:grid xl:grid-cols-4 xl:gap-x-6 xl:divide-y-0 dark:divide-gray-700">
             <dl className="pt-6 pb-10 xl:border-b xl:border-gray-200 xl:pt-11 xl:dark:border-gray-700">

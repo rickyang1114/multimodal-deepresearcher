@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Meat vs Poultry Consumption Trends</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .visualization-container {
+            width: 900px;
+            height: 600px;
+            position: relative;
+        }
+        
+        .main-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding-top: 10px;
+        }
+        
+        .panel-subtitle {
+            font-weight: 500;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .panel {
+            width: 450px;
+            height: 450px;
+            position: absolute;
+            top: 70px;
+        }
+        
+        .left-panel {
+            left: 0;
+        }
+        
+        .right-panel {
+            left: 450px;
+        }
+        
+        .panel-divider {
+            position: absolute;
+            top: 70px;
+            left: 450px;
+            width: 1px;
+            height: 400px;
+            background-color: #ccc;
+        }
+        
+        .country-name {
+            font-size: 14px;
+            text-anchor: start;
+        }
+        
+        .value-text {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .time-period {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .source-note {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="main-title">Opposing trends: Red meat consumption declining as poultry surges, 2010-2020</div>
+        
+        <div class="panel left-panel">
+            <div class="panel-subtitle">Countries with largest decreases in red meat consumption (kg/person/year)</div>
+            <svg id="left-chart" width="450" height="400"></svg>
+        </div>
+        
+        <div class="panel-divider"></div>
+        
+        <div class="panel right-panel">
+            <div class="panel-subtitle">Countries with largest increases in poultry consumption (kg/person/year)</div>
+            <svg id="right-chart" width="450" height="400"></svg>
+        </div>
+        
+        <div class="footer">
+            <div class="time-period">Data shows changes in consumption between 2010 and 2020</div>
+            <div class="source-note">Source: Font-i-Furnols et al. 2023</div>
+        </div>
+    </div>
+
+    <script>
+        // Data for the left panel (red meat consumption decline)
+        const leftData = [
+            { country: "Bahamas", value: -14 },
+            { country: "Uruguay", value: -13 },
+            { country: "New Zealand", value: -12 },
+            { country: "Mali", value: -11 },
+            { country: "Greece", value: -10 }
+        ];
+
+        // Data for the right panel (poultry consumption growth)
+        const rightData = [
+            { country: "Panama", value: 25 },
+            { country: "Cuba", value: 20 },
+            { country: "Peru", value: 15 },
+            { country: "Myanmar", value: 13 },
+            { country: "Saudi Arabia", value: 12 }
+        ];
+
+        // Dimensions and margins
+        const margin = { top: 20, right: 20, bottom: 30, left: 150 };
+        const width = 450 - margin.left - margin.right;
+        const height = 350 - margin.top - margin.bottom;
+        const barHeight = 40;
+        const barPadding = 10;
+
+        // Create the left chart
+        const leftSvg = d3.select("#left-chart")
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // Create the right chart
+        const rightSvg = d3.select("#right-chart")
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // X scales - using the same scale magnitude for both panels
+        const maxValue = 25; // Maximum value for both scales
+        
+        const leftXScale = d3.scaleLinear()
+            .domain([-maxValue, 0])
+            .range([0, width]);
+
+        const rightXScale = d3.scaleLinear()
+            .domain([0, maxValue])
+            .range([0, width]);
+
+        // Y scales
+        const leftYScale = d3.scaleBand()
+            .domain(leftData.map(d => d.country))
+            .range([0, (barHeight + barPadding) * leftData.length - barPadding])
+            .padding(0.1);
+
+        const rightYScale = d3.scaleBand()
+            .domain(rightData.map(d => d.country))
+            .range([0, (barHeight + barPadding) * rightData.length - barPadding])
+            .padding(0.1);
+
+        // Add zero line to left chart
+        leftSvg.append("line")
+            .attr("x1", leftXScale(0))
+            .attr("y1", -10)
+            .attr("x2", leftXScale(0))
+            .attr("y2", height)
+            .attr("stroke", "#ccc")
+            .attr("stroke-width", 1);
+
+        // Add zero line to right chart
+        rightSvg.append("line")
+            .attr("x1", rightXScale(0))
+            .attr("y1", -10)
+            .attr("x2", rightXScale(0))
+            .attr("y2", height)
+            .attr("stroke", "#ccc")
+            .attr("stroke-width", 1);
+
+        // Create bars for left chart
+        const leftBars = leftSvg.selectAll(".bar")
+            .data(leftData)
+            .enter()
+            .append("g");
+
+        leftBars.append("rect")
+            .attr("class", "bar")
+            .attr("x", d => leftXScale(d.value))
+            .attr("y", d => leftYScale(d.country))
+            .attr("width", d => leftXScale(0) - leftXScale(d.value))
+            .attr("height", barHeight)
+            .attr("fill", "#8B0000");
+
+        // Add country names to left chart
+        leftBars.append("text")
+            .attr("class", "country-name")
+            .attr("x", -10)
+            .attr("y", d => leftYScale(d.country) + barHeight / 2 + 5)
+            .attr("text-anchor", "end")
+            .text(d => d.country);
+
+        // Add values to left chart
+        leftBars.append("text")
+            .attr("class", "value-text")
+            .attr("x", d => leftXScale(d.value) + 20)
+            .attr("y", d => leftYScale(d.country) + barHeight / 2 + 5)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#ffffff")
+            .text(d => d.value);
+
+        // Create bars for right chart
+        const rightBars = rightSvg.selectAll(".bar")
+            .data(rightData)
+            .enter()
+            .append("g");
+
+        rightBars.append("rect")
+            .attr("class", "bar")
+            .attr("x", rightXScale(0))
+            .attr("y", d => rightYScale(d.country))
+            .attr("width", d => rightXScale(d.value) - rightXScale(0))
+            .attr("height", barHeight)
+            .attr("fill", "#DAA520");
+
+        // Add country names to right chart
+        rightBars.append("text")
+            .attr("class", "country-name")
+            .attr("x", -10)
+            .attr("y", d => rightYScale(d.country) + barHeight / 2 + 5)
+            .attr("text-anchor", "end")
+            .text(d => d.country);
+
+        // Add values to right chart
+        rightBars.append("text")
+            .attr("class", "value-text")
+            .attr("x", d => rightXScale(d.value) - 20)
+            .attr("y", d => rightYScale(d.country) + barHeight / 2 + 5)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#8B0000")  // Darker color for better contrast
+            .text(d => "+" + d.value);
+    </script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leading Countries in Per-Capita Consumption by Meat Type</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        
+        .visualization-container {
+            width: 800px;
+            background-color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
+        
+        .title {
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        
+        .subtitle {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #555;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 15px;
+            border-radius: 5px;
+            text-align: center;
+            height: 180px;
+        }
+        
+        .meat-type {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .country {
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .consumption {
+            font-family: 'Georgia', serif;
+            font-size: 24px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        
+        .icon {
+            font-size: 36px;
+            margin: 10px 0;
+        }
+        
+        .note {
+            font-size: 12px;
+            font-style: italic;
+            margin-top: 5px;
+        }
+        
+        .source {
+            text-align: right;
+            font-size: 12px;
+            color: #777;
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+        }
+        
+        .icon-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 5px;
+            max-width: 100%;
+        }
+        
+        .mini-icon {
+            font-size: 12px;
+            margin: 2px;
+        }
+        
+        /* Cell specific styles */
+        .poultry {
+            border: 2px solid #FFD700;
+            background-color: rgba(255, 215, 0, 0.1);
+        }
+        .poultry .icon, .poultry .mini-icon { color: #FFD700; }
+        
+        .pork {
+            border: 2px solid #FF9999;
+            background-color: rgba(255, 153, 153, 0.1);
+        }
+        .pork .icon, .pork .mini-icon { color: #FF9999; }
+        
+        .fish {
+            border: 2px solid #4682B4;
+            background-color: rgba(70, 130, 180, 0.1);
+        }
+        .fish .icon, .fish .mini-icon { color: #4682B4; }
+        
+        .bovine {
+            border: 2px solid #B22222;
+            background-color: rgba(178, 34, 34, 0.1);
+        }
+        .bovine .icon, .bovine .mini-icon { color: #B22222; }
+        
+        .mutton {
+            border: 2px solid #2E8B57;
+            background-color: rgba(46, 139, 87, 0.1);
+        }
+        .mutton .icon, .mutton .mini-icon { color: #2E8B57; }
+        
+        .other {
+            border: 2px solid #708090;
+            background-color: rgba(112, 128, 144, 0.1);
+        }
+        .other .icon, .other .mini-icon { color: #708090; }
+    </style>
+</head>
+<body>
+    <div class="visualization-container">
+        <div class="title">Leading Countries in Per-Capita Consumption by Meat Type</div>
+        <div class="subtitle">Highest consumption (kg/person/year), 2022</div>
+        
+        <div class="grid-container">
+            <!-- Cell 1: Poultry -->
+            <div class="cell poultry">
+                <div class="meat-type">Poultry</div>
+                <i class="icon fas fa-drumstick-bite"></i>
+                <div class="consumption">97 kg</div>
+                <div class="country">Israel</div>
+                <div class="note">Samoa close second at 96 kg</div>
+                <div id="poultry-icons" class="icon-container"></div>
+            </div>
+            
+            <!-- Cell 2: Pork -->
+            <div class="cell pork">
+                <div class="meat-type">Pork</div>
+                <i class="icon fas fa-bacon"></i>
+                <div class="consumption">55 kg</div>
+                <div class="country">Hong Kong</div>
+                <div id="pork-icons" class="icon-container"></div>
+            </div>
+            
+            <!-- Cell 3: Fish & Seafood -->
+            <div class="cell fish">
+                <div class="meat-type">Fish & Seafood</div>
+                <i class="icon fas fa-fish"></i>
+                <div class="consumption">90 kg</div>
+                <div class="country">Iceland</div>
+                <div id="fish-icons" class="icon-container"></div>
+            </div>
+            
+            <!-- Cell 4: Bovine Meat -->
+            <div class="cell bovine">
+                <div class="meat-type">Bovine Meat</div>
+                <i class="icon fas fa-hamburger"></i>
+                <div class="consumption">46.9 kg</div>
+                <div class="country">Argentina</div>
+                <div id="bovine-icons" class="icon-container"></div>
+            </div>
+            
+            <!-- Cell 5: Mutton & Goat -->
+            <div class="cell mutton">
+                <div class="meat-type">Mutton & Goat</div>
+                <i class="icon fas fa-cloud-meatball"></i>
+                <div class="consumption">66 kg</div>
+                <div class="country">Mongolia</div>
+                <div id="mutton-icons" class="icon-container"></div>
+            </div>
+            
+            <!-- Cell 6: Other Meats -->
+            <div class="cell other">
+                <div class="meat-type">Other Meats</div>
+                <i class="icon fas fa-utensils"></i>
+                <div class="consumption">N/A</div>
+                <div class="country">Papua New Guinea</div>
+                <div class="note">Leading due to game hunting</div>
+            </div>
+        </div>
+        
+        <div class="source">Source: Visual Capitalist, 2022</div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Add hover effects using D3
+            d3.selectAll(".cell")
+                .on("mouseover", function() {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .style("transform", "scale(1.05)")
+                        .style("box-shadow", "0 4px 8px rgba(0,0,0,0.1)");
+                })
+                .on("mouseout", function() {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .style("transform", "scale(1)")
+                        .style("box-shadow", "none");
+                });
+            
+            // Generate mini-icons based on consumption values
+            generateIcons("poultry-icons", "fa-drumstick-bite", 97, 20);
+            generateIcons("pork-icons", "fa-bacon", 55, 20);
+            generateIcons("fish-icons", "fa-fish", 90, 20);
+            generateIcons("bovine-icons", "fa-hamburger", 46.9, 20);
+            generateIcons("mutton-icons", "fa-cloud-meatball", 66, 20);
+            
+            // Function to generate icons based on consumption value
+            function generateIcons(containerId, iconClass, value, scale) {
+                const container = document.getElementById(containerId);
+                const iconCount = Math.round(value / scale);
+                
+                // Clear any existing content
+                container.innerHTML = '';
+                
+                // Add the appropriate number of icons
+                for (let i = 0; i < iconCount; i++) {
+                    const icon = document.createElement('i');
+                    icon.className = `mini-icon fas ${iconClass}`;
+                    container.appendChild(icon);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
