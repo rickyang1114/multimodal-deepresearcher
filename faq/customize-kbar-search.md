@@ -7,6 +7,7 @@ Add a `SearchProvider` component such as the one shown below and use it in place
 `onSearchDocumentsLoad` is a callback function that is called when the documents specified by `searchDocumentsPath` are loaded. Set `searchDocumentsPath` to `false` to disable the dynamically loaded search feature.
 
 ```tsx
+{% raw %}
 'use client'
 
 import { KBarSearchProvider } from 'pliny/search/KBar'
@@ -54,11 +55,13 @@ export const SearchProvider = ({ children }) => {
     </KBarSearchProvider>
   )
 }
+{% endraw %}
 ```
 
 You can even choose to do a full text search over the entire generated blog content though this would come at the expense of a larger search index file by modifying the `createSearchIndex` function in `contentlayer.config.ts` to:
 
 ```tsx
+{% raw %}
 function createSearchIndex(allBlogs) {
   if (
     siteMetadata?.search?.provider === 'kbar' &&
@@ -71,6 +74,7 @@ function createSearchIndex(allBlogs) {
     console.log('Local search index generated...')
   }
 }
+{% endraw %}
 ```
 
 Note the change from `JSON.stringify(allCoreContent(sortPosts(allBlogs)))` to `JSON.stringify((sortPosts(allBlogs)))`.
@@ -78,6 +82,7 @@ Note the change from `JSON.stringify(allCoreContent(sortPosts(allBlogs)))` to `J
 Next, in the modified `SearchProvider`, dump the raw content to the `keywords` field in the `onSearchDocumentsLoad` prop:
 
 ```tsx
+{% raw %}
 onSearchDocumentsLoad(json) {
   return json.map((post: Blog) => ({
     id: post.path,
@@ -88,4 +93,5 @@ onSearchDocumentsLoad(json) {
     perform: () => router.push('/' + post.path),
   }))
 }
+{% endraw %}
 ```
