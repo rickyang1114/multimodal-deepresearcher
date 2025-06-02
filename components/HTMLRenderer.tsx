@@ -42,7 +42,10 @@ const HTMLRenderer = ({
 
     const parts = pathname.split('/').filter(Boolean)
     const basename = parts.length > 0 ? parts[parts.length - 1] : ''
-    const fullPath = `/html_charts/${basename}/${htmlFile}`
+    const bp =
+      'https://raw.githubusercontent.com/rickyang1114/multimodal-deepresearch-demo/refs/heads/main/public'
+    const fullPath = `${bp}/html_charts/${basename}/${htmlFile}`
+    console.log(fullPath)
     setHtmlPath(fullPath)
   }, [pathname, htmlFile, basePath])
 
