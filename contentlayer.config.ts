@@ -143,9 +143,9 @@ export const Authors = defineDocumentType(() => ({
     linkedin: { type: 'string' },
     github: { type: 'string' },
     layout: { type: 'string' },
-    homepage: {type: 'string' },
+    homepage: { type: 'string' },
     googlescholar: { type: 'string' },
-    arxiv: {type: 'string'}
+    arxiv: { type: 'string' },
   },
   computedFields,
 }))

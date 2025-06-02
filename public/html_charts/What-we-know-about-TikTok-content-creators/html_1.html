@@ -1,367 +1,402 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TikTok's Superior Engagement Metrics</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            background-color: #f9f9f9;
-        }
-        
-        .visualization-container {
-            width: 1100px;
-            background-color: white;
-            padding: 20px;
-        }
-        
-        .title {
-            text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            text-align: center;
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 25px;
-        }
-        
-        .panels-container {
-            display: flex;
-            justify-content: space-between;
-            height: 520px;
-        }
-        
-        .panel {
-            width: 31%;
-            padding: 15px;
-            border: 1px solid #e0e0e0;
-            box-sizing: border-box;
-            position: relative;
-        }
-        
-        .panel-title {
-            text-align: center;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .source {
-            text-align: right;
-            font-size: 10px;
-            color: #777;
-            margin-top: 15px;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
-        .tiktok-blue {
-            color: #009FE3;
-        }
-        
-        .instagram-gray {
-            color: #4A4A4A;
-        }
-        
-        .center-panel {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        
-        .center-item {
-            text-align: center;
-            margin: 10px 0;
-            padding: 10px;
-        }
-        
-        .center-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-        
-        .platform-label {
-            font-size: 12px;
-            margin-top: 8px;
-            text-align: center;
-        }
-        
-        .chart-container {
-            height: 100%;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .axis-label {
-            font-size: 11px;
-            fill: #555;
-        }
-        
-        .content-description {
-            font-size: 13px;
-            margin-top: 8px;
-        }
-        
-        .platform-icon {
-            font-size: 20px;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        background-color: #f9f9f9;
+      }
+
+      .visualization-container {
+        width: 1100px;
+        background-color: white;
+        padding: 20px;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        text-align: center;
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 25px;
+      }
+
+      .panels-container {
+        display: flex;
+        justify-content: space-between;
+        height: 520px;
+      }
+
+      .panel {
+        width: 31%;
+        padding: 15px;
+        border: 1px solid #e0e0e0;
+        box-sizing: border-box;
+        position: relative;
+      }
+
+      .panel-title {
+        text-align: center;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .source {
+        text-align: right;
+        font-size: 10px;
+        color: #777;
+        margin-top: 15px;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .tiktok-blue {
+        color: #009fe3;
+      }
+
+      .instagram-gray {
+        color: #4a4a4a;
+      }
+
+      .center-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .center-item {
+        text-align: center;
+        margin: 10px 0;
+        padding: 10px;
+      }
+
+      .center-icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+
+      .platform-label {
+        font-size: 12px;
+        margin-top: 8px;
+        text-align: center;
+      }
+
+      .chart-container {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .axis-label {
+        font-size: 11px;
+        fill: #555;
+      }
+
+      .content-description {
+        font-size: 13px;
+        margin-top: 8px;
+      }
+
+      .platform-icon {
+        font-size: 20px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">TikTok's Superior Engagement Metrics</div>
-        <div class="subtitle">Comparison of Key User Engagement Indicators Across Major Social Platforms (2024)</div>
-        
-        <div class="panels-container">
-            <!-- Left Panel - Hours Spent -->
-            <div class="panel" id="hours-panel">
-                <div class="panel-title">Average Hours Spent Per Month<br>(US Users)</div>
-                <div class="chart-container" id="hours-chart"></div>
-            </div>
-            
-            <!-- Center Panel - Content Volume -->
-            <div class="panel center-panel">
-                <div class="panel-title">Content Volume Indicators</div>
-                
-                <div class="center-item">
-                    <i class="fa-solid fa-video center-icon tiktok-blue"></i>
-                    <div>TikTok: <span class="key-number tiktok-blue">16,000</span></div>
-                    <div class="content-description">videos uploaded per minute</div>
-                </div>
-                
-                <div class="center-item">
-                    <i class="fa-solid fa-image center-icon instagram-gray"></i>
-                    <div>Instagram: <span class="key-number instagram-gray">65,000</span></div>
-                    <div class="content-description">photos shared per minute</div>
-                </div>
-                
-                <div class="center-item">
-                    <i class="fa-solid fa-clock center-icon tiktok-blue"></i>
-                    <div>TikTok: <span class="key-number tiktok-blue">4.8B</span></div>
-                    <div class="content-description">minutes watched daily</div>
-                </div>
-                
-                <div class="center-item">
-                    <i class="fa-solid fa-clock center-icon instagram-gray"></i>
-                    <div>Instagram: <span class="key-number instagram-gray">4.1B</span></div>
-                    <div class="content-description">minutes watched daily</div>
-                </div>
-            </div>
-            
-            <!-- Right Panel - Engagement Rate -->
-            <div class="panel" id="engagement-panel">
-                <div class="panel-title">Average Platform Engagement Rate (%)</div>
-                <div class="chart-container" id="engagement-chart"></div>
-            </div>
+      <div class="title">TikTok's Superior Engagement Metrics</div>
+      <div class="subtitle">
+        Comparison of Key User Engagement Indicators Across Major Social Platforms (2024)
+      </div>
+
+      <div class="panels-container">
+        <!-- Left Panel - Hours Spent -->
+        <div class="panel" id="hours-panel">
+          <div class="panel-title">Average Hours Spent Per Month<br />(US Users)</div>
+          <div class="chart-container" id="hours-chart"></div>
         </div>
-        
-        <div class="source">Sources: Sprout Social, SocialInsider, 2024</div>
+
+        <!-- Center Panel - Content Volume -->
+        <div class="panel center-panel">
+          <div class="panel-title">Content Volume Indicators</div>
+
+          <div class="center-item">
+            <i class="fa-solid fa-video center-icon tiktok-blue"></i>
+            <div>TikTok: <span class="key-number tiktok-blue">16,000</span></div>
+            <div class="content-description">videos uploaded per minute</div>
+          </div>
+
+          <div class="center-item">
+            <i class="fa-solid fa-image center-icon instagram-gray"></i>
+            <div>Instagram: <span class="key-number instagram-gray">65,000</span></div>
+            <div class="content-description">photos shared per minute</div>
+          </div>
+
+          <div class="center-item">
+            <i class="fa-solid fa-clock center-icon tiktok-blue"></i>
+            <div>TikTok: <span class="key-number tiktok-blue">4.8B</span></div>
+            <div class="content-description">minutes watched daily</div>
+          </div>
+
+          <div class="center-item">
+            <i class="fa-solid fa-clock center-icon instagram-gray"></i>
+            <div>Instagram: <span class="key-number instagram-gray">4.1B</span></div>
+            <div class="content-description">minutes watched daily</div>
+          </div>
+        </div>
+
+        <!-- Right Panel - Engagement Rate -->
+        <div class="panel" id="engagement-panel">
+          <div class="panel-title">Average Platform Engagement Rate (%)</div>
+          <div class="chart-container" id="engagement-chart"></div>
+        </div>
+      </div>
+
+      <div class="source">Sources: Sprout Social, SocialInsider, 2024</div>
     </div>
 
     <script>
-        // Data for the charts
-        const hoursData = [
-            { platform: "TikTok", hours: 25.5, color: "#009FE3", icon: "fa-brands fa-tiktok" },
-            { platform: "YouTube", hours: 23.2, color: "#777777", icon: "fa-brands fa-youtube" },
-            { platform: "Instagram", hours: 19.8, color: "#4A4A4A", icon: "fa-brands fa-instagram" },
-            { platform: "Facebook", hours: 17.7, color: "#999999", icon: "fa-brands fa-facebook-f" }
-        ];
-        
-        const engagementData = [
-            { platform: "TikTok", rate: 2.5, color: "#009FE3", icon: "fa-brands fa-tiktok" },
-            { platform: "Instagram", rate: 0.5, color: "#4A4A4A", icon: "fa-brands fa-instagram" },
-            { platform: "Twitter", rate: 0.3, color: "#777777", icon: "fa-brands fa-twitter" },
-            { platform: "Facebook", rate: 0.2, color: "#999999", icon: "fa-brands fa-facebook-f" }
-        ];
-        
-        // Left Panel - Hours Spent Chart
-        const hoursContainer = document.getElementById('hours-chart');
-        const hoursWidth = hoursContainer.clientWidth;
-        const hoursHeight = 400;
-        
-        const hoursSvg = d3.select("#hours-chart")
-            .append("svg")
-            .attr("width", hoursWidth)
-            .attr("height", hoursHeight);
-        
-        const hoursX = d3.scaleBand()
-            .domain(hoursData.map(d => d.platform))
-            .range([50, hoursWidth - 20])
-            .padding(0.6); // Increased padding for better spacing
-        
-        const hoursY = d3.scaleLinear()
-            .domain([0, 30])
-            .range([hoursHeight - 100, 20]); // Increased bottom margin for labels
-        
-        // Add gridlines
-        hoursSvg.selectAll("grid-line")
-            .data(hoursY.ticks(6))
-            .enter()
-            .append("line")
-            .attr("x1", 50)
-            .attr("x2", hoursWidth - 20)
-            .attr("y1", d => hoursY(d))
-            .attr("y2", d => hoursY(d))
-            .attr("stroke", "#e0e0e0")
-            .attr("stroke-width", 1);
-        
-        // Add Y axis
-        hoursSvg.append("g")
-            .call(d3.axisLeft(hoursY).ticks(6))
-            .attr("transform", "translate(50, 0)")
-            .call(g => g.select(".domain").remove())
-            .call(g => g.selectAll(".tick line").remove())
-            .call(g => g.selectAll(".tick text").attr("font-size", "11px"));
-        
-        // Add bars
-        const hoursBars = hoursSvg.selectAll(".hours-bar")
-            .data(hoursData)
-            .enter()
-            .append("rect")
-            .attr("class", "hours-bar")
-            .attr("x", d => hoursX(d.platform))
-            .attr("y", d => hoursY(d.hours))
-            .attr("width", hoursX.bandwidth())
-            .attr("height", d => hoursHeight - 100 - hoursY(d.hours))
-            .attr("fill", d => d.color);
-        
-        // Add value labels
-        hoursSvg.selectAll(".hours-label")
-            .data(hoursData)
-            .enter()
-            .append("text")
-            .attr("class", "hours-label")
-            .attr("x", d => hoursX(d.platform) + hoursX.bandwidth()/2)
-            .attr("y", d => hoursY(d.hours) - 8)
-            .attr("text-anchor", "middle")
-            .attr("font-size", "12px")
-            .attr("font-weight", "bold")
-            .text(d => d.hours);
-        
-        // Add platform icons with better spacing
-        hoursSvg.selectAll(".platform-icon-container")
-            .data(hoursData)
-            .enter()
-            .append("foreignObject")
-            .attr("class", "platform-icon-container")
-            .attr("width", 30)
-            .attr("height", 30)
-            .attr("x", d => hoursX(d.platform) + hoursX.bandwidth()/2 - 15)
-            .attr("y", hoursHeight - 80)
-            .html(d => `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
-                       <i class="${d.icon}" style="font-size:20px; color:${d.color};"></i></div>`);
-        
-        // Add platform labels with better spacing
-        hoursSvg.selectAll(".platform-name")
-            .data(hoursData)
-            .enter()
-            .append("text")
-            .attr("class", "platform-name")
-            .attr("x", d => hoursX(d.platform) + hoursX.bandwidth()/2)
-            .attr("y", hoursHeight - 40)
-            .attr("text-anchor", "middle")
-            .attr("font-size", "11px")
-            .text(d => d.platform);
-        
-        // Right Panel - Engagement Rate Chart
-        const engagementContainer = document.getElementById('engagement-chart');
-        const engagementWidth = engagementContainer.clientWidth;
-        const engagementHeight = 400;
-        
-        const engagementSvg = d3.select("#engagement-chart")
-            .append("svg")
-            .attr("width", engagementWidth)
-            .attr("height", engagementHeight);
-        
-        const engagementY = d3.scaleBand()
-            .domain(engagementData.map(d => d.platform))
-            .range([40, engagementHeight - 100]) // Increased bottom margin
-            .padding(0.4);
-        
-        const engagementX = d3.scaleLinear()
-            .domain([0, 3.0])
-            .range([0, engagementWidth - 80]);
-        
-        // Add gridlines
-        engagementSvg.selectAll("grid-line")
-            .data(engagementX.ticks(6))
-            .enter()
-            .append("line")
-            .attr("x1", d => engagementX(d) + 60)
-            .attr("x2", d => engagementX(d) + 60)
-            .attr("y1", 40)
-            .attr("y2", engagementHeight - 100)
-            .attr("stroke", "#e0e0e0")
-            .attr("stroke-width", 1);
-        
-        // Add X axis with fewer ticks to prevent overlap
-        engagementSvg.append("g")
-            .call(d3.axisBottom(engagementX).ticks(4).tickFormat(d => d + "%")) // Reduced ticks from 6 to 4
-            .attr("transform", `translate(60, ${engagementHeight - 100})`)
-            .call(g => g.select(".domain").remove())
-            .call(g => g.selectAll(".tick line").remove())
-            .call(g => g.selectAll(".tick text").attr("font-size", "11px"));
-        
-        // Add platform icons with better vertical alignment
-        engagementSvg.selectAll(".platform-icon-container")
-            .data(engagementData)
-            .enter()
-            .append("foreignObject")
-            .attr("class", "platform-icon-container")
-            .attr("width", 30)
-            .attr("height", 30)
-            .attr("x", 20)
-            .attr("y", d => engagementY(d.platform) - 15) // Centered vertically with the bar
-            .html(d => `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
-                       <i class="${d.icon}" style="font-size:18px; color:${d.color};"></i></div>`);
-        
-        // Add bars
-        const engagementBars = engagementSvg.selectAll(".engagement-bar")
-            .data(engagementData)
-            .enter()
-            .append("rect")
-            .attr("class", "engagement-bar")
-            .attr("x", 60)
-            .attr("y", d => engagementY(d.platform) - engagementY.bandwidth()/2)
-            .attr("width", d => engagementX(d.rate))
-            .attr("height", engagementY.bandwidth())
-            .attr("fill", d => d.color);
-        
-        // Add value labels with better positioning
-        engagementSvg.selectAll(".engagement-label")
-            .data(engagementData)
-            .enter()
-            .append("text")
-            .attr("class", "engagement-label")
-            .attr("x", d => engagementX(d.rate) + 70) // Moved further right to avoid overlap
-            .attr("y", d => engagementY(d.platform))
-            .attr("text-anchor", "start")
-            .attr("dominant-baseline", "middle")
-            .attr("font-size", "12px")
-            .attr("font-weight", "bold")
-            .text(d => d.rate + "%");
+      // Data for the charts
+      const hoursData = [
+        { platform: 'TikTok', hours: 25.5, color: '#009FE3', icon: 'fa-brands fa-tiktok' },
+        { platform: 'YouTube', hours: 23.2, color: '#777777', icon: 'fa-brands fa-youtube' },
+        { platform: 'Instagram', hours: 19.8, color: '#4A4A4A', icon: 'fa-brands fa-instagram' },
+        { platform: 'Facebook', hours: 17.7, color: '#999999', icon: 'fa-brands fa-facebook-f' },
+      ]
+
+      const engagementData = [
+        { platform: 'TikTok', rate: 2.5, color: '#009FE3', icon: 'fa-brands fa-tiktok' },
+        { platform: 'Instagram', rate: 0.5, color: '#4A4A4A', icon: 'fa-brands fa-instagram' },
+        { platform: 'Twitter', rate: 0.3, color: '#777777', icon: 'fa-brands fa-twitter' },
+        { platform: 'Facebook', rate: 0.2, color: '#999999', icon: 'fa-brands fa-facebook-f' },
+      ]
+
+      // Left Panel - Hours Spent Chart
+      const hoursContainer = document.getElementById('hours-chart')
+      const hoursWidth = hoursContainer.clientWidth
+      const hoursHeight = 400
+
+      const hoursSvg = d3
+        .select('#hours-chart')
+        .append('svg')
+        .attr('width', hoursWidth)
+        .attr('height', hoursHeight)
+
+      const hoursX = d3
+        .scaleBand()
+        .domain(hoursData.map((d) => d.platform))
+        .range([50, hoursWidth - 20])
+        .padding(0.6) // Increased padding for better spacing
+
+      const hoursY = d3
+        .scaleLinear()
+        .domain([0, 30])
+        .range([hoursHeight - 100, 20]) // Increased bottom margin for labels
+
+      // Add gridlines
+      hoursSvg
+        .selectAll('grid-line')
+        .data(hoursY.ticks(6))
+        .enter()
+        .append('line')
+        .attr('x1', 50)
+        .attr('x2', hoursWidth - 20)
+        .attr('y1', (d) => hoursY(d))
+        .attr('y2', (d) => hoursY(d))
+        .attr('stroke', '#e0e0e0')
+        .attr('stroke-width', 1)
+
+      // Add Y axis
+      hoursSvg
+        .append('g')
+        .call(d3.axisLeft(hoursY).ticks(6))
+        .attr('transform', 'translate(50, 0)')
+        .call((g) => g.select('.domain').remove())
+        .call((g) => g.selectAll('.tick line').remove())
+        .call((g) => g.selectAll('.tick text').attr('font-size', '11px'))
+
+      // Add bars
+      const hoursBars = hoursSvg
+        .selectAll('.hours-bar')
+        .data(hoursData)
+        .enter()
+        .append('rect')
+        .attr('class', 'hours-bar')
+        .attr('x', (d) => hoursX(d.platform))
+        .attr('y', (d) => hoursY(d.hours))
+        .attr('width', hoursX.bandwidth())
+        .attr('height', (d) => hoursHeight - 100 - hoursY(d.hours))
+        .attr('fill', (d) => d.color)
+
+      // Add value labels
+      hoursSvg
+        .selectAll('.hours-label')
+        .data(hoursData)
+        .enter()
+        .append('text')
+        .attr('class', 'hours-label')
+        .attr('x', (d) => hoursX(d.platform) + hoursX.bandwidth() / 2)
+        .attr('y', (d) => hoursY(d.hours) - 8)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '12px')
+        .attr('font-weight', 'bold')
+        .text((d) => d.hours)
+
+      // Add platform icons with better spacing
+      hoursSvg
+        .selectAll('.platform-icon-container')
+        .data(hoursData)
+        .enter()
+        .append('foreignObject')
+        .attr('class', 'platform-icon-container')
+        .attr('width', 30)
+        .attr('height', 30)
+        .attr('x', (d) => hoursX(d.platform) + hoursX.bandwidth() / 2 - 15)
+        .attr('y', hoursHeight - 80)
+        .html(
+          (
+            d
+          ) => `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                       <i class="${d.icon}" style="font-size:20px; color:${d.color};"></i></div>`
+        )
+
+      // Add platform labels with better spacing
+      hoursSvg
+        .selectAll('.platform-name')
+        .data(hoursData)
+        .enter()
+        .append('text')
+        .attr('class', 'platform-name')
+        .attr('x', (d) => hoursX(d.platform) + hoursX.bandwidth() / 2)
+        .attr('y', hoursHeight - 40)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '11px')
+        .text((d) => d.platform)
+
+      // Right Panel - Engagement Rate Chart
+      const engagementContainer = document.getElementById('engagement-chart')
+      const engagementWidth = engagementContainer.clientWidth
+      const engagementHeight = 400
+
+      const engagementSvg = d3
+        .select('#engagement-chart')
+        .append('svg')
+        .attr('width', engagementWidth)
+        .attr('height', engagementHeight)
+
+      const engagementY = d3
+        .scaleBand()
+        .domain(engagementData.map((d) => d.platform))
+        .range([40, engagementHeight - 100]) // Increased bottom margin
+        .padding(0.4)
+
+      const engagementX = d3
+        .scaleLinear()
+        .domain([0, 3.0])
+        .range([0, engagementWidth - 80])
+
+      // Add gridlines
+      engagementSvg
+        .selectAll('grid-line')
+        .data(engagementX.ticks(6))
+        .enter()
+        .append('line')
+        .attr('x1', (d) => engagementX(d) + 60)
+        .attr('x2', (d) => engagementX(d) + 60)
+        .attr('y1', 40)
+        .attr('y2', engagementHeight - 100)
+        .attr('stroke', '#e0e0e0')
+        .attr('stroke-width', 1)
+
+      // Add X axis with fewer ticks to prevent overlap
+      engagementSvg
+        .append('g')
+        .call(
+          d3
+            .axisBottom(engagementX)
+            .ticks(4)
+            .tickFormat((d) => d + '%')
+        ) // Reduced ticks from 6 to 4
+        .attr('transform', `translate(60, ${engagementHeight - 100})`)
+        .call((g) => g.select('.domain').remove())
+        .call((g) => g.selectAll('.tick line').remove())
+        .call((g) => g.selectAll('.tick text').attr('font-size', '11px'))
+
+      // Add platform icons with better vertical alignment
+      engagementSvg
+        .selectAll('.platform-icon-container')
+        .data(engagementData)
+        .enter()
+        .append('foreignObject')
+        .attr('class', 'platform-icon-container')
+        .attr('width', 30)
+        .attr('height', 30)
+        .attr('x', 20)
+        .attr('y', (d) => engagementY(d.platform) - 15) // Centered vertically with the bar
+        .html(
+          (
+            d
+          ) => `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                       <i class="${d.icon}" style="font-size:18px; color:${d.color};"></i></div>`
+        )
+
+      // Add bars
+      const engagementBars = engagementSvg
+        .selectAll('.engagement-bar')
+        .data(engagementData)
+        .enter()
+        .append('rect')
+        .attr('class', 'engagement-bar')
+        .attr('x', 60)
+        .attr('y', (d) => engagementY(d.platform) - engagementY.bandwidth() / 2)
+        .attr('width', (d) => engagementX(d.rate))
+        .attr('height', engagementY.bandwidth())
+        .attr('fill', (d) => d.color)
+
+      // Add value labels with better positioning
+      engagementSvg
+        .selectAll('.engagement-label')
+        .data(engagementData)
+        .enter()
+        .append('text')
+        .attr('class', 'engagement-label')
+        .attr('x', (d) => engagementX(d.rate) + 70) // Moved further right to avoid overlap
+        .attr('y', (d) => engagementY(d.platform))
+        .attr('text-anchor', 'start')
+        .attr('dominant-baseline', 'middle')
+        .attr('font-size', '12px')
+        .attr('font-weight', 'bold')
+        .text((d) => d.rate + '%')
     </script>
-</body>
+  </body>
 </html>

@@ -1,358 +1,386 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Worker Intentions if Remote Work Options Ended</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .visualization-container {
-            width: 1100px;
-            padding: 20px;
-        }
-        
-        .title {
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 16px;
-            text-align: center;
-            color: #555;
-            margin-bottom: 30px;
-        }
-        
-        .charts-container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-        }
-        
-        .pie-container {
-            width: 45%;
-        }
-        
-        .bar-container {
-            width: 55%;
-        }
-        
-        .source {
-            font-size: 12px;
-            color: #777;
-            margin-top: 10px;
-            text-align: left;
-        }
-        
-        .note {
-            font-size: 12px;
-            font-style: italic;
-            color: #777;
-            margin-top: 5px;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        
-        .divider {
-            border-top: 1px solid #ddd;
-            margin: 10px 0;
-        }
-        
-        .pie-label {
-            font-size: 14px;
-        }
-        
-        .bar-label {
-            font-size: 14px;
-        }
-        
-        .bar-value {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-        }
-        
-        .data-source-label {
-            font-size: 12px;
-            fill: #777;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .visualization-container {
+        width: 1100px;
+        padding: 20px;
+      }
+
+      .title {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        text-align: center;
+        color: #555;
+        margin-bottom: 30px;
+      }
+
+      .charts-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+      }
+
+      .pie-container {
+        width: 45%;
+      }
+
+      .bar-container {
+        width: 55%;
+      }
+
+      .source {
+        font-size: 12px;
+        color: #777;
+        margin-top: 10px;
+        text-align: left;
+      }
+
+      .note {
+        font-size: 12px;
+        font-style: italic;
+        color: #777;
+        margin-top: 5px;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        font-size: 1.1em;
+      }
+
+      .divider {
+        border-top: 1px solid #ddd;
+        margin: 10px 0;
+      }
+
+      .pie-label {
+        font-size: 14px;
+      }
+
+      .bar-label {
+        font-size: 14px;
+      }
+
+      .bar-value {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+      }
+
+      .data-source-label {
+        font-size: 12px;
+        fill: #777;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Worker Intentions if Remote Work Options Ended</div>
-        <div class="subtitle">Percentage of non-self-employed remote workers who would stay or leave if work-from-home ended</div>
-        
-        <div class="charts-container">
-            <div class="pie-container" id="pie-chart"></div>
-            <div class="bar-container" id="bar-chart"></div>
+      <div class="title">Worker Intentions if Remote Work Options Ended</div>
+      <div class="subtitle">
+        Percentage of non-self-employed remote workers who would stay or leave if work-from-home
+        ended
+      </div>
+
+      <div class="charts-container">
+        <div class="pie-container" id="pie-chart"></div>
+        <div class="bar-container" id="bar-chart"></div>
+      </div>
+
+      <div class="source">
+        Source: Pew Research Center January 2025 ATP Survey; Gallup Q2 2023 Survey
+        <div class="note">
+          Gallup data shows workers "extremely likely" to leave; Pew data shows workers "unlikely to
+          stay"
         </div>
-        
-        <div class="source">
-            Source: Pew Research Center January 2025 ATP Survey; Gallup Q2 2023 Survey
-            <div class="note">Gallup data shows workers "extremely likely" to leave; Pew data shows workers "unlikely to stay"</div>
-        </div>
+      </div>
     </div>
 
     <script>
-        // Data for the pie chart
-        const pieData = [
-            { category: "Unlikely to stay", value: 46, color: "#ff7f0e", explode: true },
-            { category: "Likely to stay", value: 36, color: "#006c70", explode: false },
-            { category: "Neutral", value: 17, color: "#7f7f7f", explode: false }
-        ];
+      // Data for the pie chart
+      const pieData = [
+        { category: 'Unlikely to stay', value: 46, color: '#ff7f0e', explode: true },
+        { category: 'Likely to stay', value: 36, color: '#006c70', explode: false },
+        { category: 'Neutral', value: 17, color: '#7f7f7f', explode: false },
+      ]
 
-        // Data for the bar chart
-        const barData = [
-            { category: "Fully remote workers", value: 60, source: "Gallup" },
-            { category: "Hybrid workers", value: 30, source: "Gallup" },
-            { category: "Always-remote workers", value: 61, source: "Pew" },
-            { category: "Hybrid workers", value: 47, source: "Pew" },
-            { category: "Occasional remote", value: 28, source: "Pew" }
-        ];
+      // Data for the bar chart
+      const barData = [
+        { category: 'Fully remote workers', value: 60, source: 'Gallup' },
+        { category: 'Hybrid workers', value: 30, source: 'Gallup' },
+        { category: 'Always-remote workers', value: 61, source: 'Pew' },
+        { category: 'Hybrid workers', value: 47, source: 'Pew' },
+        { category: 'Occasional remote', value: 28, source: 'Pew' },
+      ]
 
-        // Calculate average for bar chart
-        const barAverage = d3.mean(barData, d => d.value);
+      // Calculate average for bar chart
+      const barAverage = d3.mean(barData, (d) => d.value)
 
-        // Create pie chart
-        function createPieChart() {
-            const width = 450;
-            const height = 450;
-            const radius = Math.min(width, height) / 2 * 0.7;
-            
-            const svg = d3.select("#pie-chart")
-                .append("svg")
-                .attr("width", width)
-                .attr("height", height)
-                .append("g")
-                .attr("transform", `translate(${width / 2}, ${height / 2})`);
-            
-            const pie = d3.pie()
-                .value(d => d.value)
-                .sort(null);
-            
-            const arc = d3.arc()
-                .innerRadius(0)
-                .outerRadius(radius);
-            
-            // Create pie slices with proper offset for the exploded slice
-            const slices = svg.selectAll("path")
-                .data(pie(pieData))
-                .enter()
-                .append("path")
-                .attr("d", function(d) {
-                    // If this is the slice to be exploded
-                    if (d.data.explode) {
-                        // Calculate centroid
-                        const c = arc.centroid(d);
-                        // Calculate offset direction (normalize the centroid)
-                        const x = c[0] * 0.15;
-                        const y = c[1] * 0.15;
-                        // Return the arc with a transform applied
-                        return arc(d);
-                    } else {
-                        return arc(d);
-                    }
-                })
-                .attr("transform", function(d) {
-                    // Apply transform only to the exploded slice
-                    if (d.data.explode) {
-                        const c = arc.centroid(d);
-                        return `translate(${c[0] * 0.15}, ${c[1] * 0.15})`;
-                    } else {
-                        return "translate(0, 0)";
-                    }
-                })
-                .attr("fill", d => d.data.color)
-                .attr("stroke", "white")
-                .style("stroke-width", "2px");
-            
-            // Add labels for the pie slices
-            const arcLabel = d3.arc()
-                .innerRadius(radius * 0.6)
-                .outerRadius(radius * 0.6);
-                
-            const sliceLabels = svg.selectAll(".slice-label")
-                .data(pie(pieData))
-                .enter()
-                .append("g")
-                .attr("class", "slice-label");
-                
-            // Add category text
-            sliceLabels.append("text")
-                .attr("transform", function(d) {
-                    // Apply the same offset to labels for the exploded slice
-                    const pos = arcLabel.centroid(d);
-                    if (d.data.explode) {
-                        return `translate(${pos[0] * 1.15}, ${pos[1] * 1.15})`;
-                    }
-                    return `translate(${pos[0]}, ${pos[1]})`;
-                })
-                .attr("text-anchor", "middle")
-                .attr("dy", "-0.5em")
-                .attr("class", "pie-label")
-                .style("font-size", "14px")
-                .style("font-weight", "bold")
-                .text(d => d.data.category);
-                
-            // Add percentage values
-            sliceLabels.append("text")
-                .attr("transform", function(d) {
-                    // Apply the same offset to values for the exploded slice
-                    const pos = arcLabel.centroid(d);
-                    if (d.data.explode) {
-                        return `translate(${pos[0] * 1.15}, ${pos[1] * 1.15})`;
-                    }
-                    return `translate(${pos[0]}, ${pos[1]})`;
-                })
-                .attr("text-anchor", "middle")
-                .attr("dy", "1em")
-                .attr("class", "key-number")
-                .style("font-size", "16px")
-                .style("fill", d => d.data.color === "#7f7f7f" ? "#333" : d.data.color)
-                .text(d => `${d.data.value}%`);
-        }
+      // Create pie chart
+      function createPieChart() {
+        const width = 450
+        const height = 450
+        const radius = (Math.min(width, height) / 2) * 0.7
 
-        // Create bar chart
-        function createBarChart() {
-            const margin = { top: 40, right: 80, bottom: 30, left: 180 };
-            const width = 550 - margin.left - margin.right;
-            const height = 400 - margin.top - margin.bottom;
-            
-            const svg = d3.select("#bar-chart")
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", `translate(${margin.left}, ${margin.top})`);
-            
-            // Add title
-            svg.append("text")
-                .attr("x", width / 2)
-                .attr("y", -margin.top / 2)
-                .attr("text-anchor", "middle")
-                .style("font-size", "16px")
-                .style("font-weight", "bold")
-                .text("Percentage of Workers Likely to Leave");
-            
-            // Create scales
-            const x = d3.scaleLinear()
-                .domain([0, 100])
-                .range([0, width]);
-            
-            const y = d3.scaleBand()
-                .domain(barData.map(d => `${d.category} (${d.source})`))
-                .range([0, height])
-                .padding(0.3);
-            
-            // Add x-axis
-            svg.append("g")
-                .attr("transform", `translate(0, ${height})`)
-                .call(d3.axisBottom(x)
-                    .tickFormat(d => d + "%")
-                    .ticks(5));
-            
-            // Add y-axis with custom formatting
-            svg.append("g")
-                .call(d3.axisLeft(y)
-                    .tickFormat(d => {
-                        // Extract just the category name without the source
-                        return d.split(" (")[0];
-                    }));
-            
-            // Add data source indicators to y-axis
-            svg.selectAll(".source-indicator")
-                .data(barData)
-                .enter()
-                .append("text")
-                .attr("class", "data-source-label")
-                .attr("x", -8)
-                .attr("y", d => y(`${d.category} (${d.source})`) + y.bandwidth() / 2)
-                .attr("text-anchor", "end")
-                .attr("dy", "0.35em")
-                .text(d => d.source);
-            
-            // Add bars
-            const bars = svg.selectAll(".bar")
-                .data(barData)
-                .enter()
-                .append("rect")
-                .attr("class", "bar")
-                .attr("y", d => y(`${d.category} (${d.source})`))
-                .attr("height", y.bandwidth())
-                .attr("x", 0)
-                .attr("width", d => x(d.value))
-                .attr("fill", d => {
-                    // Use different shades of orange based on source
-                    return d.source === "Gallup" ? "#ff9a3c" : "#ff7f0e";
-                });
-            
-            // Add average line
-            svg.append("line")
-                .attr("x1", x(barAverage))
-                .attr("x2", x(barAverage))
-                .attr("y1", -10)
-                .attr("y2", height)
-                .style("stroke", "#333")
-                .style("stroke-width", "1px")
-                .style("stroke-dasharray", "4");
-            
-            // Add average label
-            svg.append("text")
-                .attr("x", x(barAverage))
-                .attr("y", -15)
-                .attr("text-anchor", "middle")
-                .style("font-size", "12px")
-                .text(`Average: ${Math.round(barAverage)}%`);
-            
-            // Add value labels
-            svg.selectAll(".value-label")
-                .data(barData)
-                .enter()
-                .append("text")
-                .attr("class", "bar-value")
-                .attr("x", d => x(d.value) + 5)
-                .attr("y", d => y(`${d.category} (${d.source})`) + y.bandwidth() / 2)
-                .attr("dy", "0.35em")
-                .text(d => `${d.value}%`);
-            
-            // Add divider between Gallup and Pew data
-            const gallupData = barData.filter(d => d.source === "Gallup");
-            const pewData = barData.filter(d => d.source === "Pew");
-            
-            if (gallupData.length > 0 && pewData.length > 0) {
-                const lastGallupItem = `${gallupData[gallupData.length - 1].category} (${gallupData[gallupData.length - 1].source})`;
-                const firstPewItem = `${pewData[0].category} (${pewData[0].source})`;
-                
-                const dividerY = y(lastGallupItem) + y.bandwidth() + (y(firstPewItem) - (y(lastGallupItem) + y.bandwidth())) / 2;
-                
-                svg.append("line")
-                    .attr("x1", -margin.left + 10)
-                    .attr("x2", width + 10)
-                    .attr("y1", dividerY)
-                    .attr("y2", dividerY)
-                    .style("stroke", "#ddd")
-                    .style("stroke-width", "1px");
+        const svg = d3
+          .select('#pie-chart')
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height)
+          .append('g')
+          .attr('transform', `translate(${width / 2}, ${height / 2})`)
+
+        const pie = d3
+          .pie()
+          .value((d) => d.value)
+          .sort(null)
+
+        const arc = d3.arc().innerRadius(0).outerRadius(radius)
+
+        // Create pie slices with proper offset for the exploded slice
+        const slices = svg
+          .selectAll('path')
+          .data(pie(pieData))
+          .enter()
+          .append('path')
+          .attr('d', function (d) {
+            // If this is the slice to be exploded
+            if (d.data.explode) {
+              // Calculate centroid
+              const c = arc.centroid(d)
+              // Calculate offset direction (normalize the centroid)
+              const x = c[0] * 0.15
+              const y = c[1] * 0.15
+              // Return the arc with a transform applied
+              return arc(d)
+            } else {
+              return arc(d)
             }
-        }
+          })
+          .attr('transform', function (d) {
+            // Apply transform only to the exploded slice
+            if (d.data.explode) {
+              const c = arc.centroid(d)
+              return `translate(${c[0] * 0.15}, ${c[1] * 0.15})`
+            } else {
+              return 'translate(0, 0)'
+            }
+          })
+          .attr('fill', (d) => d.data.color)
+          .attr('stroke', 'white')
+          .style('stroke-width', '2px')
 
-        // Initialize charts
-        createPieChart();
-        createBarChart();
+        // Add labels for the pie slices
+        const arcLabel = d3
+          .arc()
+          .innerRadius(radius * 0.6)
+          .outerRadius(radius * 0.6)
+
+        const sliceLabels = svg
+          .selectAll('.slice-label')
+          .data(pie(pieData))
+          .enter()
+          .append('g')
+          .attr('class', 'slice-label')
+
+        // Add category text
+        sliceLabels
+          .append('text')
+          .attr('transform', function (d) {
+            // Apply the same offset to labels for the exploded slice
+            const pos = arcLabel.centroid(d)
+            if (d.data.explode) {
+              return `translate(${pos[0] * 1.15}, ${pos[1] * 1.15})`
+            }
+            return `translate(${pos[0]}, ${pos[1]})`
+          })
+          .attr('text-anchor', 'middle')
+          .attr('dy', '-0.5em')
+          .attr('class', 'pie-label')
+          .style('font-size', '14px')
+          .style('font-weight', 'bold')
+          .text((d) => d.data.category)
+
+        // Add percentage values
+        sliceLabels
+          .append('text')
+          .attr('transform', function (d) {
+            // Apply the same offset to values for the exploded slice
+            const pos = arcLabel.centroid(d)
+            if (d.data.explode) {
+              return `translate(${pos[0] * 1.15}, ${pos[1] * 1.15})`
+            }
+            return `translate(${pos[0]}, ${pos[1]})`
+          })
+          .attr('text-anchor', 'middle')
+          .attr('dy', '1em')
+          .attr('class', 'key-number')
+          .style('font-size', '16px')
+          .style('fill', (d) => (d.data.color === '#7f7f7f' ? '#333' : d.data.color))
+          .text((d) => `${d.data.value}%`)
+      }
+
+      // Create bar chart
+      function createBarChart() {
+        const margin = { top: 40, right: 80, bottom: 30, left: 180 }
+        const width = 550 - margin.left - margin.right
+        const height = 400 - margin.top - margin.bottom
+
+        const svg = d3
+          .select('#bar-chart')
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+          .attr('transform', `translate(${margin.left}, ${margin.top})`)
+
+        // Add title
+        svg
+          .append('text')
+          .attr('x', width / 2)
+          .attr('y', -margin.top / 2)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '16px')
+          .style('font-weight', 'bold')
+          .text('Percentage of Workers Likely to Leave')
+
+        // Create scales
+        const x = d3.scaleLinear().domain([0, 100]).range([0, width])
+
+        const y = d3
+          .scaleBand()
+          .domain(barData.map((d) => `${d.category} (${d.source})`))
+          .range([0, height])
+          .padding(0.3)
+
+        // Add x-axis
+        svg
+          .append('g')
+          .attr('transform', `translate(0, ${height})`)
+          .call(
+            d3
+              .axisBottom(x)
+              .tickFormat((d) => d + '%')
+              .ticks(5)
+          )
+
+        // Add y-axis with custom formatting
+        svg.append('g').call(
+          d3.axisLeft(y).tickFormat((d) => {
+            // Extract just the category name without the source
+            return d.split(' (')[0]
+          })
+        )
+
+        // Add data source indicators to y-axis
+        svg
+          .selectAll('.source-indicator')
+          .data(barData)
+          .enter()
+          .append('text')
+          .attr('class', 'data-source-label')
+          .attr('x', -8)
+          .attr('y', (d) => y(`${d.category} (${d.source})`) + y.bandwidth() / 2)
+          .attr('text-anchor', 'end')
+          .attr('dy', '0.35em')
+          .text((d) => d.source)
+
+        // Add bars
+        const bars = svg
+          .selectAll('.bar')
+          .data(barData)
+          .enter()
+          .append('rect')
+          .attr('class', 'bar')
+          .attr('y', (d) => y(`${d.category} (${d.source})`))
+          .attr('height', y.bandwidth())
+          .attr('x', 0)
+          .attr('width', (d) => x(d.value))
+          .attr('fill', (d) => {
+            // Use different shades of orange based on source
+            return d.source === 'Gallup' ? '#ff9a3c' : '#ff7f0e'
+          })
+
+        // Add average line
+        svg
+          .append('line')
+          .attr('x1', x(barAverage))
+          .attr('x2', x(barAverage))
+          .attr('y1', -10)
+          .attr('y2', height)
+          .style('stroke', '#333')
+          .style('stroke-width', '1px')
+          .style('stroke-dasharray', '4')
+
+        // Add average label
+        svg
+          .append('text')
+          .attr('x', x(barAverage))
+          .attr('y', -15)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '12px')
+          .text(`Average: ${Math.round(barAverage)}%`)
+
+        // Add value labels
+        svg
+          .selectAll('.value-label')
+          .data(barData)
+          .enter()
+          .append('text')
+          .attr('class', 'bar-value')
+          .attr('x', (d) => x(d.value) + 5)
+          .attr('y', (d) => y(`${d.category} (${d.source})`) + y.bandwidth() / 2)
+          .attr('dy', '0.35em')
+          .text((d) => `${d.value}%`)
+
+        // Add divider between Gallup and Pew data
+        const gallupData = barData.filter((d) => d.source === 'Gallup')
+        const pewData = barData.filter((d) => d.source === 'Pew')
+
+        if (gallupData.length > 0 && pewData.length > 0) {
+          const lastGallupItem = `${gallupData[gallupData.length - 1].category} (${gallupData[gallupData.length - 1].source})`
+          const firstPewItem = `${pewData[0].category} (${pewData[0].source})`
+
+          const dividerY =
+            y(lastGallupItem) +
+            y.bandwidth() +
+            (y(firstPewItem) - (y(lastGallupItem) + y.bandwidth())) / 2
+
+          svg
+            .append('line')
+            .attr('x1', -margin.left + 10)
+            .attr('x2', width + 10)
+            .attr('y1', dividerY)
+            .attr('y2', dividerY)
+            .style('stroke', '#ddd')
+            .style('stroke-width', '1px')
+        }
+      }
+
+      // Initialize charts
+      createPieChart()
+      createBarChart()
     </script>
-</body>
+  </body>
 </html>

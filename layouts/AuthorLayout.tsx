@@ -9,7 +9,20 @@ interface Props {
 }
 
 export default function AuthorLayout({ children, content }: Props) {
-  const { name, avatar, occupation, company, email, twitter, bluesky, linkedin, github, homepage, googlescholar, arxiv } = content
+  const {
+    name,
+    avatar,
+    occupation,
+    company,
+    email,
+    twitter,
+    bluesky,
+    linkedin,
+    github,
+    homepage,
+    googlescholar,
+    arxiv,
+  } = content
 
   return (
     <>
@@ -19,7 +32,7 @@ export default function AuthorLayout({ children, content }: Props) {
             About
           </h1>
         </div>
-        <div className="items-start space-y-2 xl:grid xl:grid-cols-3 xl:gap-x-8 xl:space-y-0">
+        <div className="items-start space-y-2 xl:grid xl:grid-cols-3 xl:space-y-0 xl:gap-x-8">
           <div className="flex flex-col items-center space-x-2 pt-8">
             {avatar && (
               <Image

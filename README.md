@@ -17,4 +17,5 @@ Multimodal DeepResearcher decomposes the task of multimodal report generation in
 We propose FDV, a structured textual representation of charts that enables Large Language Models to learn from and generate diverse, high-quality visualizations.
 
 ## Acknowledgement
+
 The demo website is built upon the template from [Tailwind Nextjs Starter Blog](https://github.com/timlrx/tailwind-nextjs-starter-blog). The original README for the template is [here](README-tailwind-started-blog.md).

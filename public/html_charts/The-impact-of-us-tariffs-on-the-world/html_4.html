@@ -1,618 +1,696 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Financial Market Reactions to "Liberation Day" Tariff Announcement</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .visualization-container {
-            width: 900px;
-            height: 780px;
-            padding: 10px;
-        }
-        
-        .title {
-            text-align: center;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 22px;
-        }
-        
-        .subtitle {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #666;
-        }
-        
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 25px;
-            height: 680px;
-        }
-        
-        .panel {
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .panel-title {
-            background-color: #444;
-            color: white;
-            padding: 10px 12px;
-            font-size: 14px;
-            font-weight: bold;
-            margin: 0;
-        }
-        
-        .chart-container {
-            padding: 15px;
-            height: calc(100% - 44px);
-        }
-        
-        .axis text {
-            font-size: 10px;
-        }
-        
-        .axis line, .axis path {
-            stroke: #ccc;
-        }
-        
-        .annotation {
-            font-size: 10px;
-            fill: #666;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .source {
-            text-align: right;
-            font-size: 8px;
-            color: #888;
-            margin-top: 15px;
-        }
-        
-        .liberation-day-line {
-            stroke: #ff7f0e;
-            stroke-dasharray: 4;
-            stroke-width: 1.5;
-        }
-        
-        .liberation-day-label {
-            fill: #ff7f0e;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        
-        .legend-item {
-            font-size: 10px;
-        }
-        
-        .legend-box {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            margin-right: 4px;
-            vertical-align: middle;
-        }
+      body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .visualization-container {
+        width: 900px;
+        height: 780px;
+        padding: 10px;
+      }
+
+      .title {
+        text-align: center;
+        margin-bottom: 5px;
+        font-weight: bold;
+        font-size: 22px;
+      }
+
+      .subtitle {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 25px;
+        height: 680px;
+      }
+
+      .panel {
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .panel-title {
+        background-color: #444;
+        color: white;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-weight: bold;
+        margin: 0;
+      }
+
+      .chart-container {
+        padding: 15px;
+        height: calc(100% - 44px);
+      }
+
+      .axis text {
+        font-size: 10px;
+      }
+
+      .axis line,
+      .axis path {
+        stroke: #ccc;
+      }
+
+      .annotation {
+        font-size: 10px;
+        fill: #666;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .source {
+        text-align: right;
+        font-size: 8px;
+        color: #888;
+        margin-top: 15px;
+      }
+
+      .liberation-day-line {
+        stroke: #ff7f0e;
+        stroke-dasharray: 4;
+        stroke-width: 1.5;
+      }
+
+      .liberation-day-label {
+        fill: #ff7f0e;
+        font-size: 11px;
+        font-weight: bold;
+      }
+
+      .legend-item {
+        font-size: 10px;
+      }
+
+      .legend-box {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        margin-right: 4px;
+        vertical-align: middle;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Financial Market Reactions to "Liberation Day" Tariff Announcement</div>
-        <div class="subtitle">April 2-9, 2025 market movements following US tariff implementation</div>
-        
-        <div class="grid-container">
-            <div class="panel" id="currency-panel">
-                <div class="panel-title">Currency Movements vs USD (April 2-3, 2025)</div>
-                <div class="chart-container" id="currency-chart"></div>
-            </div>
-            
-            <div class="panel" id="fund-flows-panel">
-                <div class="panel-title">Equity Fund Flows (Week of April 2, 2025)</div>
-                <div class="chart-container" id="fund-flows-chart"></div>
-            </div>
-            
-            <div class="panel" id="vix-panel">
-                <div class="panel-title">VIX Index (Mar 26-Apr 9, 2025)</div>
-                <div class="chart-container" id="vix-chart"></div>
-            </div>
-            
-            <div class="panel" id="treasury-panel">
-                <div class="panel-title">US 10-Year Treasury Yield (Mar 26-Apr 9, 2025)</div>
-                <div class="chart-container" id="treasury-chart"></div>
-            </div>
+      <div class="title">Financial Market Reactions to "Liberation Day" Tariff Announcement</div>
+      <div class="subtitle">
+        April 2-9, 2025 market movements following US tariff implementation
+      </div>
+
+      <div class="grid-container">
+        <div class="panel" id="currency-panel">
+          <div class="panel-title">Currency Movements vs USD (April 2-3, 2025)</div>
+          <div class="chart-container" id="currency-chart"></div>
         </div>
-        
-        <div class="source">Source: Bloomberg, EPFR, Goldman Sachs, 2025</div>
+
+        <div class="panel" id="fund-flows-panel">
+          <div class="panel-title">Equity Fund Flows (Week of April 2, 2025)</div>
+          <div class="chart-container" id="fund-flows-chart"></div>
+        </div>
+
+        <div class="panel" id="vix-panel">
+          <div class="panel-title">VIX Index (Mar 26-Apr 9, 2025)</div>
+          <div class="chart-container" id="vix-chart"></div>
+        </div>
+
+        <div class="panel" id="treasury-panel">
+          <div class="panel-title">US 10-Year Treasury Yield (Mar 26-Apr 9, 2025)</div>
+          <div class="chart-container" id="treasury-chart"></div>
+        </div>
+      </div>
+
+      <div class="source">Source: Bloomberg, EPFR, Goldman Sachs, 2025</div>
     </div>
 
     <script>
-        // Currency Movements Chart
-        function createCurrencyChart() {
-            const data = [
-                { currency: "EUR", change: 1.8, type: "G10" },
-                { currency: "JPY", change: 2.0, type: "G10" },
-                { currency: "GBP", change: 1.5, type: "G10" },
-                { currency: "CHF", change: 1.7, type: "G10" },
-                { currency: "THB", change: -0.5, type: "EM" },
-                { currency: "ZAR", change: -1.0, type: "EM" }
-            ];
-            
-            const container = d3.select("#currency-chart");
-            const width = container.node().getBoundingClientRect().width;
-            const height = container.node().getBoundingClientRect().height;
-            const margin = { top: 40, right: 130, bottom: 50, left: 60 };
-            
-            const svg = container.append("svg")
-                .attr("width", width)
-                .attr("height", height);
-            
-            const x = d3.scaleLinear()
-                .domain([-2, 3])
-                .range([margin.left, width - margin.right]);
-            
-            const y = d3.scaleBand()
-                .domain(data.map(d => d.currency))
-                .range([margin.top, height - margin.bottom])
-                .padding(0.3);
-            
-            // X-axis with more spacing between ticks
-            svg.append("g")
-                .attr("class", "axis")
-                .attr("transform", `translate(0,${height - margin.bottom})`)
-                .call(d3.axisBottom(x)
-                    .tickValues([-2, -1, 0, 1, 2, 3])
-                    .tickFormat(d => d + "%"))
-                .selectAll("text")
-                .attr("dy", "1em");
-            
-            // Y-axis
-            svg.append("g")
-                .attr("class", "axis")
-                .attr("transform", `translate(${margin.left},0)`)
-                .call(d3.axisLeft(y));
-            
-            // Zero line
-            svg.append("line")
-                .attr("x1", x(0))
-                .attr("x2", x(0))
-                .attr("y1", margin.top)
-                .attr("y2", height - margin.bottom)
-                .attr("stroke", "#888")
-                .attr("stroke-width", 1)
-                .attr("stroke-dasharray", "3,3");
-            
-            // Bars
-            svg.selectAll(".bar")
-                .data(data)
-                .enter()
-                .append("rect")
-                .attr("class", "bar")
-                .attr("x", d => d.change < 0 ? x(d.change) : x(0))
-                .attr("y", d => y(d.currency))
-                .attr("width", d => Math.abs(x(d.change) - x(0)))
-                .attr("height", y.bandwidth())
-                .attr("fill", d => d.type === "G10" ? "#4682b4" : "#888");
-            
-            // Labels - adjusted positioning for negative values
-            svg.selectAll(".label")
-                .data(data)
-                .enter()
-                .append("text")
-                .attr("class", d => d.change >= 1.5 ? "key-number" : "")
-                .attr("x", d => d.change < 0 ? x(d.change) - 15 : x(d.change) + 15)
-                .attr("y", d => y(d.currency) + y.bandwidth() / 2 + 4)
-                .attr("text-anchor", d => d.change < 0 ? "end" : "start")
-                .text(d => (d.change > 0 ? "+" : "") + d.change.toFixed(1) + "%")
-                .attr("fill", d => d.change >= 1.5 ? "#1a4e8c" : "#333");
-            
-            // Legend with better spacing
-            const legendY = margin.top - 25;
-            
-            // G10 legend
-            svg.append("rect")
-                .attr("class", "legend-box")
-                .attr("x", margin.left)
-                .attr("y", legendY)
-                .attr("width", 12)
-                .attr("height", 12)
-                .attr("fill", "#4682b4");
-                
-            svg.append("text")
-                .attr("class", "legend-item")
-                .attr("x", margin.left + 16)
-                .attr("y", legendY + 9)
-                .text("G10 currencies")
-                .attr("fill", "#333");
-                
-            // EM legend
-            svg.append("rect")
-                .attr("class", "legend-box")
-                .attr("x", margin.left + 130)
-                .attr("y", legendY)
-                .attr("width", 12)
-                .attr("height", 12)
-                .attr("fill", "#888");
-                
-            svg.append("text")
-                .attr("class", "legend-item")
-                .attr("x", margin.left + 146)
-                .attr("y", legendY + 9)
-                .text("EM currencies")
-                .attr("fill", "#333");
-        }
-        
-        // Fund Flows Chart
-        function createFundFlowsChart() {
-            const data = [
-                { fund: "Global Benchmark", flow: -8.0 },
-                { fund: "Western Europe", flow: 1.2 },
-                { fund: "Japan", flow: 0.8 },
-                { fund: "Other DMs", flow: 0.3 }
-            ];
-            
-            const container = d3.select("#fund-flows-chart");
-            const width = container.node().getBoundingClientRect().width;
-            const height = container.node().getBoundingClientRect().height;
-            const margin = { top: 40, right: 30, bottom: 100, left: 60 };
-            
-            const svg = container.append("svg")
-                .attr("width", width)
-                .attr("height", height);
-            
-            const x = d3.scaleBand()
-                .domain(data.map(d => d.fund))
-                .range([margin.left, width - margin.right])
-                .padding(0.5);
-            
-            // Adjusted y-axis domain and ticks for more regular intervals
-            const y = d3.scaleLinear()
-                .domain([-10, 2])
-                .range([height - margin.bottom, margin.top]);
-            
-            // X-axis with less rotation and more space
-            svg.append("g")
-                .attr("class", "axis")
-                .attr("transform", `translate(0,${height - margin.bottom})`)
-                .call(d3.axisBottom(x))
-                .selectAll("text")
-                .attr("transform", "rotate(-25)")
-                .attr("text-anchor", "end")
-                .attr("dx", "-.8em")
-                .attr("dy", ".8em")
-                .style("font-size", "9px");
-            
-            // Y-axis with more regular intervals
-            svg.append("g")
-                .attr("class", "axis")
-                .attr("transform", `translate(${margin.left},0)`)
-                .call(d3.axisLeft(y)
-                    .tickValues([-10, -8, -6, -4, -2, 0, 2])
-                    .tickFormat(d => d + "B"));
-            
-            // Zero line
-            svg.append("line")
-                .attr("x1", margin.left)
-                .attr("x2", width - margin.right)
-                .attr("y1", y(0))
-                .attr("y2", y(0))
-                .attr("stroke", "#888")
-                .attr("stroke-width", 1)
-                .attr("stroke-dasharray", "3,3");
-            
-            // Bars
-            svg.selectAll(".bar")
-                .data(data)
-                .enter()
-                .append("rect")
-                .attr("class", "bar")
-                .attr("x", d => x(d.fund))
-                .attr("y", d => d.flow > 0 ? y(d.flow) : y(0))
-                .attr("width", x.bandwidth())
-                .attr("height", d => Math.abs(y(d.flow) - y(0)))
-                .attr("fill", d => d.flow >= 0 ? "#4682b4" : "#e15759");
-            
-            // Labels - positioned to avoid overlap
-            svg.selectAll(".label")
-                .data(data)
-                .enter()
-                .append("text")
-                .attr("class", d => Math.abs(d.flow) >= 1.0 ? "key-number" : "")
-                .attr("x", d => x(d.fund) + x.bandwidth() / 2)
-                .attr("y", d => d.flow >= 0 ? y(d.flow) - 8 : y(d.flow) + 16)
-                .attr("text-anchor", "middle")
-                .text(d => {
-                    if (d.flow > 0) return `+$${d.flow.toFixed(1)}B`;
-                    return `-$${Math.abs(d.flow).toFixed(1)}B`;
-                })
-                .attr("fill", d => Math.abs(d.flow) >= 1.0 ? (d.flow >= 0 ? "#1a4e8c" : "#b22222") : "#333");
-            
-            // Legend at top
-            svg.append("text")
-                .attr("class", "annotation")
-                .attr("x", width / 2)
-                .attr("y", margin.top - 20)
-                .attr("text-anchor", "middle")
-                .text("Outflows from global funds, inflows to regional funds");
-        }
-        
-        // VIX Chart
-        function createVIXChart() {
-            // Generate VIX data
-            const parseDate = d3.timeParse("%Y-%m-%d");
-            const dates = [
-                "2025-03-26", "2025-03-27", "2025-03-28", "2025-03-29", "2025-03-30", 
-                "2025-03-31", "2025-04-01", "2025-04-02", "2025-04-03", "2025-04-04", 
-                "2025-04-05", "2025-04-06", "2025-04-07", "2025-04-08", "2025-04-09"
-            ];
-            
-            const values = [
-                18.2, 18.5, 18.3, 18.4, 18.2, 
-                18.6, 18.8, 27.0, 26.2, 25.5, 
-                25.0, 24.2, 23.5, 22.8, 22.0
-            ];
-            
-            const data = dates.map((d, i) => ({
-                date: parseDate(d),
-                value: values[i]
-            }));
-            
-            const liberationDay = parseDate("2025-04-02");
-            
-            const container = d3.select("#vix-chart");
-            const width = container.node().getBoundingClientRect().width;
-            const height = container.node().getBoundingClientRect().height;
-            const margin = { top: 40, right: 30, bottom: 70, left: 50 };
-            
-            const svg = container.append("svg")
-                .attr("width", width)
-                .attr("height", height);
-            
-            const x = d3.scaleTime()
-                .domain(d3.extent(data, d => d.date))
-                .range([margin.left, width - margin.right]);
-            
-            const y = d3.scaleLinear()
-                .domain([15, 30])
-                .range([height - margin.bottom, margin.top]);
-            
-            // X-axis with more readable ticks
-            svg.append("g")
-                .attr("class", "axis")
-                .attr("transform", `translate(0,${height - margin.bottom})`)
-                .call(d3.axisBottom(x)
-                    .ticks(5)
-                    .tickFormat(d => {
-                        const format = d3.timeFormat("%b %d");
-                        return format(d);
-                    }))
-                .selectAll("text")
-                .attr("dy", "1em");
-            
-            // Y-axis
-            svg.append("g")
-                .attr("class", "axis")
-                .attr("transform", `translate(${margin.left},0)`)
-                .call(d3.axisLeft(y)
-                    .tickValues([15, 18, 21, 24, 27, 30]));
-            
-            // Line
-            const line = d3.line()
-                .x(d => x(d.date))
-                .y(d => y(d.value))
-                .curve(d3.curveMonotoneX);
-            
-            svg.append("path")
-                .datum(data)
-                .attr("fill", "none")
-                .attr("stroke", "#ff7f0e")
-                .attr("stroke-width", 2)
-                .attr("d", line);
-            
-            // Liberation Day line
-            svg.append("line")
-                .attr("class", "liberation-day-line")
-                .attr("x1", x(liberationDay))
-                .attr("x2", x(liberationDay))
-                .attr("y1", margin.top)
-                .attr("y2", height - margin.bottom);
-            
-            // Liberation Day label - repositioned to avoid overlap
-            svg.append("text")
-                .attr("class", "liberation-day-label")
-                .attr("x", x(liberationDay))
-                .attr("y", margin.top - 15)
-                .attr("text-anchor", "middle")
-                .text("Liberation Day");
-            
-            // Highlight peak value with better positioned annotation
-            svg.append("circle")
-                .attr("cx", x(parseDate("2025-04-02")))
-                .attr("cy", y(27))
-                .attr("r", 4)
-                .attr("fill", "#ff7f0e");
-            
-            svg.append("text")
-                .attr("class", "key-number")
-                .attr("x", x(parseDate("2025-04-02")))
-                .attr("y", y(27) - 10)
-                .attr("text-anchor", "middle")
-                .text("27.0")
-                .attr("fill", "#d95f0e");
-            
-            // Simplified annotation - moved to a better position
-            svg.append("text")
-                .attr("class", "annotation")
-                .attr("x", x(parseDate("2025-04-04")))
-                .attr("y", y(25.5))
-                .attr("text-anchor", "start")
-                .text("Volatility spike")
-                .attr("fill", "#666");
-        }
-        
-        // Treasury Yield Chart
-        function createTreasuryChart() {
-            // Generate Treasury yield data
-            const parseDate = d3.timeParse("%Y-%m-%d");
-            const dates = [
-                "2025-03-26", "2025-03-27", "2025-03-28", "2025-03-29", "2025-03-30", 
-                "2025-03-31", "2025-04-01", "2025-04-02", "2025-04-03", "2025-04-04", 
-                "2025-04-05", "2025-04-06", "2025-04-07", "2025-04-08", "2025-04-09"
-            ];
-            
-            const values = [
-                4.30, 4.32, 4.31, 4.30, 4.29, 
-                4.28, 4.30, 4.15, 4.10, 4.18, 
-                4.22, 4.28, 4.32, 4.38, 4.40
-            ];
-            
-            const data = dates.map((d, i) => ({
-                date: parseDate(d),
-                value: values[i]
-            }));
-            
-            const liberationDay = parseDate("2025-04-02");
-            
-            const container = d3.select("#treasury-chart");
-            const width = container.node().getBoundingClientRect().width;
-            const height = container.node().getBoundingClientRect().height;
-            const margin = { top: 40, right: 30, bottom: 70, left: 50 };
-            
-            const svg = container.append("svg")
-                .attr("width", width)
-                .attr("height", height);
-            
-            const x = d3.scaleTime()
-                .domain(d3.extent(data, d => d.date))
-                .range([margin.left, width - margin.right]);
-            
-            // Fixed y-axis domain with consistent tick spacing
-            const y = d3.scaleLinear()
-                .domain([4.0, 4.5])
-                .range([height - margin.bottom, margin.top]);
-            
-            // X-axis with more readable ticks
-            svg.append("g")
-                .attr("class", "axis")
-                .attr("transform", `translate(0,${height - margin.bottom})`)
-                .call(d3.axisBottom(x)
-                    .ticks(5)
-                    .tickFormat(d => {
-                        const format = d3.timeFormat("%b %d");
-                        return format(d);
-                    }))
-                .selectAll("text")
-                .attr("dy", "1em");
-            
-            // Y-axis with consistent tick spacing
-            svg.append("g")
-                .attr("class", "axis")
-                .attr("transform", `translate(${margin.left},0)`)
-                .call(d3.axisLeft(y)
-                    .tickValues([4.0, 4.1, 4.2, 4.3, 4.4, 4.5])
-                    .tickFormat(d => d.toFixed(1) + "%"));
-            
-            // Line
-            const line = d3.line()
-                .x(d => x(d.date))
-                .y(d => y(d.value))
-                .curve(d3.curveMonotoneX);
-            
-            svg.append("path")
-                .datum(data)
-                .attr("fill", "none")
-                .attr("stroke", "#4682b4")
-                .attr("stroke-width", 2)
-                .attr("d", line);
-            
-            // Liberation Day line
-            svg.append("line")
-                .attr("class", "liberation-day-line")
-                .attr("x1", x(liberationDay))
-                .attr("x2", x(liberationDay))
-                .attr("y1", margin.top)
-                .attr("y2", height - margin.bottom);
-            
-            // Liberation Day label - repositioned to avoid overlap
-            svg.append("text")
-                .attr("class", "liberation-day-label")
-                .attr("x", x(liberationDay))
-                .attr("y", margin.top - 15)
-                .attr("text-anchor", "middle")
-                .text("Liberation Day");
-            
-            // Simplified annotations with better positioning
-            svg.append("text")
-                .attr("class", "annotation")
-                .attr("x", x(parseDate("2025-04-03")))
-                .attr("y", y(4.05))
-                .attr("text-anchor", "middle")
-                .text("Flight-to-safety")
-                .attr("fill", "#666");
-            
-            svg.append("text")
-                .attr("class", "annotation")
-                .attr("x", x(parseDate("2025-04-07")))
-                .attr("y", y(4.35))
-                .attr("text-anchor", "start")
-                .text("Inflation concerns")
-                .attr("fill", "#666");
-            
-            // Highlight low point
-            svg.append("circle")
-                .attr("cx", x(parseDate("2025-04-03")))
-                .attr("cy", y(4.10))
-                .attr("r", 4)
-                .attr("fill", "#4682b4");
-            
-            svg.append("text")
-                .attr("class", "key-number")
-                .attr("x", x(parseDate("2025-04-03")))
-                .attr("y", y(4.10) - 10)
-                .attr("text-anchor", "middle")
-                .text("4.10%")
-                .attr("fill", "#1a4e8c");
-            
-            // Highlight high point
-            svg.append("circle")
-                .attr("cx", x(parseDate("2025-04-09")))
-                .attr("cy", y(4.40))
-                .attr("r", 4)
-                .attr("fill", "#4682b4");
-            
-            svg.append("text")
-                .attr("class", "key-number")
-                .attr("x", x(parseDate("2025-04-09")))
-                .attr("y", y(4.40) - 10)
-                .attr("text-anchor", "middle")
-                .text("4.40%")
-                .attr("fill", "#1a4e8c");
-        }
-        
-        // Create all charts
-        createCurrencyChart();
-        createFundFlowsChart();
-        createVIXChart();
-        createTreasuryChart();
+      // Currency Movements Chart
+      function createCurrencyChart() {
+        const data = [
+          { currency: 'EUR', change: 1.8, type: 'G10' },
+          { currency: 'JPY', change: 2.0, type: 'G10' },
+          { currency: 'GBP', change: 1.5, type: 'G10' },
+          { currency: 'CHF', change: 1.7, type: 'G10' },
+          { currency: 'THB', change: -0.5, type: 'EM' },
+          { currency: 'ZAR', change: -1.0, type: 'EM' },
+        ]
+
+        const container = d3.select('#currency-chart')
+        const width = container.node().getBoundingClientRect().width
+        const height = container.node().getBoundingClientRect().height
+        const margin = { top: 40, right: 130, bottom: 50, left: 60 }
+
+        const svg = container.append('svg').attr('width', width).attr('height', height)
+
+        const x = d3
+          .scaleLinear()
+          .domain([-2, 3])
+          .range([margin.left, width - margin.right])
+
+        const y = d3
+          .scaleBand()
+          .domain(data.map((d) => d.currency))
+          .range([margin.top, height - margin.bottom])
+          .padding(0.3)
+
+        // X-axis with more spacing between ticks
+        svg
+          .append('g')
+          .attr('class', 'axis')
+          .attr('transform', `translate(0,${height - margin.bottom})`)
+          .call(
+            d3
+              .axisBottom(x)
+              .tickValues([-2, -1, 0, 1, 2, 3])
+              .tickFormat((d) => d + '%')
+          )
+          .selectAll('text')
+          .attr('dy', '1em')
+
+        // Y-axis
+        svg
+          .append('g')
+          .attr('class', 'axis')
+          .attr('transform', `translate(${margin.left},0)`)
+          .call(d3.axisLeft(y))
+
+        // Zero line
+        svg
+          .append('line')
+          .attr('x1', x(0))
+          .attr('x2', x(0))
+          .attr('y1', margin.top)
+          .attr('y2', height - margin.bottom)
+          .attr('stroke', '#888')
+          .attr('stroke-width', 1)
+          .attr('stroke-dasharray', '3,3')
+
+        // Bars
+        svg
+          .selectAll('.bar')
+          .data(data)
+          .enter()
+          .append('rect')
+          .attr('class', 'bar')
+          .attr('x', (d) => (d.change < 0 ? x(d.change) : x(0)))
+          .attr('y', (d) => y(d.currency))
+          .attr('width', (d) => Math.abs(x(d.change) - x(0)))
+          .attr('height', y.bandwidth())
+          .attr('fill', (d) => (d.type === 'G10' ? '#4682b4' : '#888'))
+
+        // Labels - adjusted positioning for negative values
+        svg
+          .selectAll('.label')
+          .data(data)
+          .enter()
+          .append('text')
+          .attr('class', (d) => (d.change >= 1.5 ? 'key-number' : ''))
+          .attr('x', (d) => (d.change < 0 ? x(d.change) - 15 : x(d.change) + 15))
+          .attr('y', (d) => y(d.currency) + y.bandwidth() / 2 + 4)
+          .attr('text-anchor', (d) => (d.change < 0 ? 'end' : 'start'))
+          .text((d) => (d.change > 0 ? '+' : '') + d.change.toFixed(1) + '%')
+          .attr('fill', (d) => (d.change >= 1.5 ? '#1a4e8c' : '#333'))
+
+        // Legend with better spacing
+        const legendY = margin.top - 25
+
+        // G10 legend
+        svg
+          .append('rect')
+          .attr('class', 'legend-box')
+          .attr('x', margin.left)
+          .attr('y', legendY)
+          .attr('width', 12)
+          .attr('height', 12)
+          .attr('fill', '#4682b4')
+
+        svg
+          .append('text')
+          .attr('class', 'legend-item')
+          .attr('x', margin.left + 16)
+          .attr('y', legendY + 9)
+          .text('G10 currencies')
+          .attr('fill', '#333')
+
+        // EM legend
+        svg
+          .append('rect')
+          .attr('class', 'legend-box')
+          .attr('x', margin.left + 130)
+          .attr('y', legendY)
+          .attr('width', 12)
+          .attr('height', 12)
+          .attr('fill', '#888')
+
+        svg
+          .append('text')
+          .attr('class', 'legend-item')
+          .attr('x', margin.left + 146)
+          .attr('y', legendY + 9)
+          .text('EM currencies')
+          .attr('fill', '#333')
+      }
+
+      // Fund Flows Chart
+      function createFundFlowsChart() {
+        const data = [
+          { fund: 'Global Benchmark', flow: -8.0 },
+          { fund: 'Western Europe', flow: 1.2 },
+          { fund: 'Japan', flow: 0.8 },
+          { fund: 'Other DMs', flow: 0.3 },
+        ]
+
+        const container = d3.select('#fund-flows-chart')
+        const width = container.node().getBoundingClientRect().width
+        const height = container.node().getBoundingClientRect().height
+        const margin = { top: 40, right: 30, bottom: 100, left: 60 }
+
+        const svg = container.append('svg').attr('width', width).attr('height', height)
+
+        const x = d3
+          .scaleBand()
+          .domain(data.map((d) => d.fund))
+          .range([margin.left, width - margin.right])
+          .padding(0.5)
+
+        // Adjusted y-axis domain and ticks for more regular intervals
+        const y = d3
+          .scaleLinear()
+          .domain([-10, 2])
+          .range([height - margin.bottom, margin.top])
+
+        // X-axis with less rotation and more space
+        svg
+          .append('g')
+          .attr('class', 'axis')
+          .attr('transform', `translate(0,${height - margin.bottom})`)
+          .call(d3.axisBottom(x))
+          .selectAll('text')
+          .attr('transform', 'rotate(-25)')
+          .attr('text-anchor', 'end')
+          .attr('dx', '-.8em')
+          .attr('dy', '.8em')
+          .style('font-size', '9px')
+
+        // Y-axis with more regular intervals
+        svg
+          .append('g')
+          .attr('class', 'axis')
+          .attr('transform', `translate(${margin.left},0)`)
+          .call(
+            d3
+              .axisLeft(y)
+              .tickValues([-10, -8, -6, -4, -2, 0, 2])
+              .tickFormat((d) => d + 'B')
+          )
+
+        // Zero line
+        svg
+          .append('line')
+          .attr('x1', margin.left)
+          .attr('x2', width - margin.right)
+          .attr('y1', y(0))
+          .attr('y2', y(0))
+          .attr('stroke', '#888')
+          .attr('stroke-width', 1)
+          .attr('stroke-dasharray', '3,3')
+
+        // Bars
+        svg
+          .selectAll('.bar')
+          .data(data)
+          .enter()
+          .append('rect')
+          .attr('class', 'bar')
+          .attr('x', (d) => x(d.fund))
+          .attr('y', (d) => (d.flow > 0 ? y(d.flow) : y(0)))
+          .attr('width', x.bandwidth())
+          .attr('height', (d) => Math.abs(y(d.flow) - y(0)))
+          .attr('fill', (d) => (d.flow >= 0 ? '#4682b4' : '#e15759'))
+
+        // Labels - positioned to avoid overlap
+        svg
+          .selectAll('.label')
+          .data(data)
+          .enter()
+          .append('text')
+          .attr('class', (d) => (Math.abs(d.flow) >= 1.0 ? 'key-number' : ''))
+          .attr('x', (d) => x(d.fund) + x.bandwidth() / 2)
+          .attr('y', (d) => (d.flow >= 0 ? y(d.flow) - 8 : y(d.flow) + 16))
+          .attr('text-anchor', 'middle')
+          .text((d) => {
+            if (d.flow > 0) return `+$${d.flow.toFixed(1)}B`
+            return `-$${Math.abs(d.flow).toFixed(1)}B`
+          })
+          .attr('fill', (d) =>
+            Math.abs(d.flow) >= 1.0 ? (d.flow >= 0 ? '#1a4e8c' : '#b22222') : '#333'
+          )
+
+        // Legend at top
+        svg
+          .append('text')
+          .attr('class', 'annotation')
+          .attr('x', width / 2)
+          .attr('y', margin.top - 20)
+          .attr('text-anchor', 'middle')
+          .text('Outflows from global funds, inflows to regional funds')
+      }
+
+      // VIX Chart
+      function createVIXChart() {
+        // Generate VIX data
+        const parseDate = d3.timeParse('%Y-%m-%d')
+        const dates = [
+          '2025-03-26',
+          '2025-03-27',
+          '2025-03-28',
+          '2025-03-29',
+          '2025-03-30',
+          '2025-03-31',
+          '2025-04-01',
+          '2025-04-02',
+          '2025-04-03',
+          '2025-04-04',
+          '2025-04-05',
+          '2025-04-06',
+          '2025-04-07',
+          '2025-04-08',
+          '2025-04-09',
+        ]
+
+        const values = [
+          18.2, 18.5, 18.3, 18.4, 18.2, 18.6, 18.8, 27.0, 26.2, 25.5, 25.0, 24.2, 23.5, 22.8, 22.0,
+        ]
+
+        const data = dates.map((d, i) => ({
+          date: parseDate(d),
+          value: values[i],
+        }))
+
+        const liberationDay = parseDate('2025-04-02')
+
+        const container = d3.select('#vix-chart')
+        const width = container.node().getBoundingClientRect().width
+        const height = container.node().getBoundingClientRect().height
+        const margin = { top: 40, right: 30, bottom: 70, left: 50 }
+
+        const svg = container.append('svg').attr('width', width).attr('height', height)
+
+        const x = d3
+          .scaleTime()
+          .domain(d3.extent(data, (d) => d.date))
+          .range([margin.left, width - margin.right])
+
+        const y = d3
+          .scaleLinear()
+          .domain([15, 30])
+          .range([height - margin.bottom, margin.top])
+
+        // X-axis with more readable ticks
+        svg
+          .append('g')
+          .attr('class', 'axis')
+          .attr('transform', `translate(0,${height - margin.bottom})`)
+          .call(
+            d3
+              .axisBottom(x)
+              .ticks(5)
+              .tickFormat((d) => {
+                const format = d3.timeFormat('%b %d')
+                return format(d)
+              })
+          )
+          .selectAll('text')
+          .attr('dy', '1em')
+
+        // Y-axis
+        svg
+          .append('g')
+          .attr('class', 'axis')
+          .attr('transform', `translate(${margin.left},0)`)
+          .call(d3.axisLeft(y).tickValues([15, 18, 21, 24, 27, 30]))
+
+        // Line
+        const line = d3
+          .line()
+          .x((d) => x(d.date))
+          .y((d) => y(d.value))
+          .curve(d3.curveMonotoneX)
+
+        svg
+          .append('path')
+          .datum(data)
+          .attr('fill', 'none')
+          .attr('stroke', '#ff7f0e')
+          .attr('stroke-width', 2)
+          .attr('d', line)
+
+        // Liberation Day line
+        svg
+          .append('line')
+          .attr('class', 'liberation-day-line')
+          .attr('x1', x(liberationDay))
+          .attr('x2', x(liberationDay))
+          .attr('y1', margin.top)
+          .attr('y2', height - margin.bottom)
+
+        // Liberation Day label - repositioned to avoid overlap
+        svg
+          .append('text')
+          .attr('class', 'liberation-day-label')
+          .attr('x', x(liberationDay))
+          .attr('y', margin.top - 15)
+          .attr('text-anchor', 'middle')
+          .text('Liberation Day')
+
+        // Highlight peak value with better positioned annotation
+        svg
+          .append('circle')
+          .attr('cx', x(parseDate('2025-04-02')))
+          .attr('cy', y(27))
+          .attr('r', 4)
+          .attr('fill', '#ff7f0e')
+
+        svg
+          .append('text')
+          .attr('class', 'key-number')
+          .attr('x', x(parseDate('2025-04-02')))
+          .attr('y', y(27) - 10)
+          .attr('text-anchor', 'middle')
+          .text('27.0')
+          .attr('fill', '#d95f0e')
+
+        // Simplified annotation - moved to a better position
+        svg
+          .append('text')
+          .attr('class', 'annotation')
+          .attr('x', x(parseDate('2025-04-04')))
+          .attr('y', y(25.5))
+          .attr('text-anchor', 'start')
+          .text('Volatility spike')
+          .attr('fill', '#666')
+      }
+
+      // Treasury Yield Chart
+      function createTreasuryChart() {
+        // Generate Treasury yield data
+        const parseDate = d3.timeParse('%Y-%m-%d')
+        const dates = [
+          '2025-03-26',
+          '2025-03-27',
+          '2025-03-28',
+          '2025-03-29',
+          '2025-03-30',
+          '2025-03-31',
+          '2025-04-01',
+          '2025-04-02',
+          '2025-04-03',
+          '2025-04-04',
+          '2025-04-05',
+          '2025-04-06',
+          '2025-04-07',
+          '2025-04-08',
+          '2025-04-09',
+        ]
+
+        const values = [
+          4.3, 4.32, 4.31, 4.3, 4.29, 4.28, 4.3, 4.15, 4.1, 4.18, 4.22, 4.28, 4.32, 4.38, 4.4,
+        ]
+
+        const data = dates.map((d, i) => ({
+          date: parseDate(d),
+          value: values[i],
+        }))
+
+        const liberationDay = parseDate('2025-04-02')
+
+        const container = d3.select('#treasury-chart')
+        const width = container.node().getBoundingClientRect().width
+        const height = container.node().getBoundingClientRect().height
+        const margin = { top: 40, right: 30, bottom: 70, left: 50 }
+
+        const svg = container.append('svg').attr('width', width).attr('height', height)
+
+        const x = d3
+          .scaleTime()
+          .domain(d3.extent(data, (d) => d.date))
+          .range([margin.left, width - margin.right])
+
+        // Fixed y-axis domain with consistent tick spacing
+        const y = d3
+          .scaleLinear()
+          .domain([4.0, 4.5])
+          .range([height - margin.bottom, margin.top])
+
+        // X-axis with more readable ticks
+        svg
+          .append('g')
+          .attr('class', 'axis')
+          .attr('transform', `translate(0,${height - margin.bottom})`)
+          .call(
+            d3
+              .axisBottom(x)
+              .ticks(5)
+              .tickFormat((d) => {
+                const format = d3.timeFormat('%b %d')
+                return format(d)
+              })
+          )
+          .selectAll('text')
+          .attr('dy', '1em')
+
+        // Y-axis with consistent tick spacing
+        svg
+          .append('g')
+          .attr('class', 'axis')
+          .attr('transform', `translate(${margin.left},0)`)
+          .call(
+            d3
+              .axisLeft(y)
+              .tickValues([4.0, 4.1, 4.2, 4.3, 4.4, 4.5])
+              .tickFormat((d) => d.toFixed(1) + '%')
+          )
+
+        // Line
+        const line = d3
+          .line()
+          .x((d) => x(d.date))
+          .y((d) => y(d.value))
+          .curve(d3.curveMonotoneX)
+
+        svg
+          .append('path')
+          .datum(data)
+          .attr('fill', 'none')
+          .attr('stroke', '#4682b4')
+          .attr('stroke-width', 2)
+          .attr('d', line)
+
+        // Liberation Day line
+        svg
+          .append('line')
+          .attr('class', 'liberation-day-line')
+          .attr('x1', x(liberationDay))
+          .attr('x2', x(liberationDay))
+          .attr('y1', margin.top)
+          .attr('y2', height - margin.bottom)
+
+        // Liberation Day label - repositioned to avoid overlap
+        svg
+          .append('text')
+          .attr('class', 'liberation-day-label')
+          .attr('x', x(liberationDay))
+          .attr('y', margin.top - 15)
+          .attr('text-anchor', 'middle')
+          .text('Liberation Day')
+
+        // Simplified annotations with better positioning
+        svg
+          .append('text')
+          .attr('class', 'annotation')
+          .attr('x', x(parseDate('2025-04-03')))
+          .attr('y', y(4.05))
+          .attr('text-anchor', 'middle')
+          .text('Flight-to-safety')
+          .attr('fill', '#666')
+
+        svg
+          .append('text')
+          .attr('class', 'annotation')
+          .attr('x', x(parseDate('2025-04-07')))
+          .attr('y', y(4.35))
+          .attr('text-anchor', 'start')
+          .text('Inflation concerns')
+          .attr('fill', '#666')
+
+        // Highlight low point
+        svg
+          .append('circle')
+          .attr('cx', x(parseDate('2025-04-03')))
+          .attr('cy', y(4.1))
+          .attr('r', 4)
+          .attr('fill', '#4682b4')
+
+        svg
+          .append('text')
+          .attr('class', 'key-number')
+          .attr('x', x(parseDate('2025-04-03')))
+          .attr('y', y(4.1) - 10)
+          .attr('text-anchor', 'middle')
+          .text('4.10%')
+          .attr('fill', '#1a4e8c')
+
+        // Highlight high point
+        svg
+          .append('circle')
+          .attr('cx', x(parseDate('2025-04-09')))
+          .attr('cy', y(4.4))
+          .attr('r', 4)
+          .attr('fill', '#4682b4')
+
+        svg
+          .append('text')
+          .attr('class', 'key-number')
+          .attr('x', x(parseDate('2025-04-09')))
+          .attr('y', y(4.4) - 10)
+          .attr('text-anchor', 'middle')
+          .text('4.40%')
+          .attr('fill', '#1a4e8c')
+      }
+
+      // Create all charts
+      createCurrencyChart()
+      createFundFlowsChart()
+      createVIXChart()
+      createTreasuryChart()
     </script>
-</body>
+  </body>
 </html>

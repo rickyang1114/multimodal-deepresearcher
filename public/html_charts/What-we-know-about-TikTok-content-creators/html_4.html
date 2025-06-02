@@ -1,344 +1,362 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TikTok vs. RedNote Competitive Analysis</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f9f9f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        .visualization-container {
-            width: 900px;
-            background-color: #FFFFFF;
-            padding: 25px;
-        }
-        
-        .title {
-            font-size: 16pt;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 8px;
-            color: #333333;
-        }
-        
-        .subtitle {
-            font-size: 12pt;
-            text-align: center;
-            margin-bottom: 25px;
-            color: #666666;
-        }
-        
-        .comparison-container {
-            display: flex;
-            margin-bottom: 25px;
-        }
-        
-        .platform-column {
-            flex: 1;
-            padding: 15px;
-        }
-        
-        .tiktok-column {
-            border-right: 1px solid #e0e0e0;
-        }
-        
-        .platform-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        
-        .platform-logo {
-            width: 40px;
-            height: 40px;
-            margin-right: 10px;
-        }
-        
-        .platform-name {
-            font-size: 14pt;
-            font-weight: bold;
-        }
-        
-        .tiktok-name {
-            color: #009FE3;
-        }
-        
-        .rednote-name {
-            color: #4A4A4A;
-        }
-        
-        .metric-section {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .metric-title {
-            font-size: 11pt;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        
-        .metric-value {
-            font-size: 10pt;
-            line-height: 1.5;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-size: 12pt;
-            font-weight: bold;
-        }
-        
-        .tiktok-highlight {
-            color: #009FE3;
-        }
-        
-        .rednote-highlight {
-            color: #4A4A4A;
-        }
-        
-        .recommendations-section {
-            padding: 20px;
-            border-top: 1px solid #e0e0e0;
-            margin-top: 10px;
-        }
-        
-        .recommendations-title {
-            font-size: 12pt;
-            font-weight: bold;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .recommendations-list {
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .recommendation-item {
-            flex: 1;
-            padding: 0 15px;
-            position: relative;
-        }
-        
-        .recommendation-item i {
-            color: #009FE3;
-            margin-right: 8px;
-            font-size: 14pt;
-        }
-        
-        .recommendation-text {
-            font-size: 10pt;
-            line-height: 1.5;
-        }
-        
-        .source-attribution {
-            font-size: 8pt;
-            color: #999999;
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        .growth-indicator {
-            color: #28a745;
-            margin-right: 5px;
-        }
-        
-        .warning-indicator {
-            color: #dc3545;
-            margin-right: 5px;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f9f9f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .visualization-container {
+        width: 900px;
+        background-color: #ffffff;
+        padding: 25px;
+      }
+
+      .title {
+        font-size: 16pt;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 8px;
+        color: #333333;
+      }
+
+      .subtitle {
+        font-size: 12pt;
+        text-align: center;
+        margin-bottom: 25px;
+        color: #666666;
+      }
+
+      .comparison-container {
+        display: flex;
+        margin-bottom: 25px;
+      }
+
+      .platform-column {
+        flex: 1;
+        padding: 15px;
+      }
+
+      .tiktok-column {
+        border-right: 1px solid #e0e0e0;
+      }
+
+      .platform-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .platform-logo {
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+      }
+
+      .platform-name {
+        font-size: 14pt;
+        font-weight: bold;
+      }
+
+      .tiktok-name {
+        color: #009fe3;
+      }
+
+      .rednote-name {
+        color: #4a4a4a;
+      }
+
+      .metric-section {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .metric-title {
+        font-size: 11pt;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      .metric-value {
+        font-size: 10pt;
+        line-height: 1.5;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-size: 12pt;
+        font-weight: bold;
+      }
+
+      .tiktok-highlight {
+        color: #009fe3;
+      }
+
+      .rednote-highlight {
+        color: #4a4a4a;
+      }
+
+      .recommendations-section {
+        padding: 20px;
+        border-top: 1px solid #e0e0e0;
+        margin-top: 10px;
+      }
+
+      .recommendations-title {
+        font-size: 12pt;
+        font-weight: bold;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      .recommendations-list {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .recommendation-item {
+        flex: 1;
+        padding: 0 15px;
+        position: relative;
+      }
+
+      .recommendation-item i {
+        color: #009fe3;
+        margin-right: 8px;
+        font-size: 14pt;
+      }
+
+      .recommendation-text {
+        font-size: 10pt;
+        line-height: 1.5;
+      }
+
+      .source-attribution {
+        font-size: 8pt;
+        color: #999999;
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .growth-indicator {
+        color: #28a745;
+        margin-right: 5px;
+      }
+
+      .warning-indicator {
+        color: #dc3545;
+        margin-right: 5px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">TikTok vs. RedNote (Xiaohongshu): Competitive Platform Analysis</div>
-        <div class="subtitle">Key Metrics and Strategic Implications for Creators and Brands (2025)</div>
-        
-        <div class="comparison-container">
-            <!-- TikTok Column -->
-            <div class="platform-column tiktok-column">
-                <div class="platform-header">
-                    <i class="fab fa-tiktok platform-logo tiktok-highlight"></i>
-                    <div class="platform-name tiktok-name">TikTok</div>
-                </div>
-                
-                <div class="metric-section">
-                    <div class="metric-title">Monthly Active Users</div>
-                    <div class="metric-value">
-                        <span class="key-number tiktok-highlight">1.58 billion</span> globally 
-                        (<span class="key-number tiktok-highlight">135M</span> in US)
-                    </div>
-                </div>
-                
-                <div class="metric-section">
-                    <div class="metric-title">Core Demographics</div>
-                    <div class="metric-value">
-                        18-35 years (<span class="key-number tiktok-highlight">55.7%</span> male, 
-                        <span class="key-number tiktok-highlight">44.3%</span> female)
-                    </div>
-                </div>
-                
-                <div class="metric-section">
-                    <div class="metric-title">Growth Trajectory</div>
-                    <div class="metric-value">
-                        <i class="fas fa-chart-line growth-indicator"></i>
-                        Projected <span class="key-number tiktok-highlight">2.35B</span> users by 2029
-                    </div>
-                </div>
-                
-                <div class="metric-section">
-                    <div class="metric-title">Regulatory Status</div>
-                    <div class="metric-value">
-                        <i class="fas fa-exclamation-triangle warning-indicator"></i>
-                        US restrictions effective Jan 19, 2025
-                    </div>
-                </div>
-                
-                <div class="metric-section">
-                    <div class="metric-title">Monetization</div>
-                    <div class="metric-value">
-                        Creator Fund ($0.02-$0.04 RPM)<br>
-                        Creator Rewards (<span class="key-number tiktok-highlight">$0.40-$1.00</span> RPM)<br>
-                        Live gifts, Brand partnerships
-                    </div>
-                </div>
-                
-                <div class="metric-section">
-                    <div class="metric-title">Content Focus</div>
-                    <div class="metric-value">
-                        Short-form video, entertainment, diverse content categories
-                    </div>
-                </div>
+      <div class="title">TikTok vs. RedNote (Xiaohongshu): Competitive Platform Analysis</div>
+      <div class="subtitle">
+        Key Metrics and Strategic Implications for Creators and Brands (2025)
+      </div>
+
+      <div class="comparison-container">
+        <!-- TikTok Column -->
+        <div class="platform-column tiktok-column">
+          <div class="platform-header">
+            <i class="fab fa-tiktok platform-logo tiktok-highlight"></i>
+            <div class="platform-name tiktok-name">TikTok</div>
+          </div>
+
+          <div class="metric-section">
+            <div class="metric-title">Monthly Active Users</div>
+            <div class="metric-value">
+              <span class="key-number tiktok-highlight">1.58 billion</span> globally (<span
+                class="key-number tiktok-highlight"
+                >135M</span
+              >
+              in US)
             </div>
-            
-            <!-- RedNote Column -->
-            <div class="platform-column">
-                <div class="platform-header">
-                    <i class="fas fa-book-open platform-logo rednote-highlight"></i>
-                    <div class="platform-name rednote-name">RedNote (Xiaohongshu)</div>
-                </div>
-                
-                <div class="metric-section">
-                    <div class="metric-title">Monthly Active Users</div>
-                    <div class="metric-value">
-                        <span class="key-number rednote-highlight">300 million</span> globally 
-                        (rapid US growth: <span class="key-number rednote-highlight">700K</span> new users in 2 days, Jan 2025)
-                    </div>
-                </div>
-                
-                <div class="metric-section">
-                    <div class="metric-title">Core Demographics</div>
-                    <div class="metric-value">
-                        <span class="key-number rednote-highlight">70%</span> female, 
-                        <span class="key-number rednote-highlight">50%</span> born post-1995, 
-                        <span class="key-number rednote-highlight">35%</span> post-2000
-                    </div>
-                </div>
-                
-                <div class="metric-section">
-                    <div class="metric-title">Growth Trajectory</div>
-                    <div class="metric-value">
-                        <i class="fas fa-chart-line growth-indicator"></i>
-                        <span class="key-number rednote-highlight">200%</span> YoY download growth in US, 
-                        #1 in US App Store (Jan 2025)
-                    </div>
-                </div>
-                
-                <div class="metric-section">
-                    <div class="metric-title">Regulatory Status</div>
-                    <div class="metric-value">
-                        No current US restrictions, backed by Alibaba, Tencent, Temasek 
-                        (valued at <span class="key-number rednote-highlight">$17B</span>)
-                    </div>
-                </div>
-                
-                <div class="metric-section">
-                    <div class="metric-title">Monetization</div>
-                    <div class="metric-value">
-                        Emerging creator program<br>
-                        Strong e-commerce integration<br>
-                        Focus on micro-influencer monetization
-                    </div>
-                </div>
-                
-                <div class="metric-section">
-                    <div class="metric-title">Content Focus</div>
-                    <div class="metric-value">
-                        Lifestyle niches, beauty, food, home, working professionals
-                    </div>
-                </div>
+          </div>
+
+          <div class="metric-section">
+            <div class="metric-title">Core Demographics</div>
+            <div class="metric-value">
+              18-35 years (<span class="key-number tiktok-highlight">55.7%</span> male,
+              <span class="key-number tiktok-highlight">44.3%</span> female)
             </div>
-        </div>
-        
-        <!-- Strategic Recommendations -->
-        <div class="recommendations-section">
-            <div class="recommendations-title">Strategic Recommendations</div>
-            <div class="recommendations-list">
-                <div class="recommendation-item">
-                    <i class="fas fa-random"></i>
-                    <div class="recommendation-text">
-                        <strong>Platform Diversification:</strong> Establish presence across multiple platforms to mitigate regulatory risks
-                    </div>
-                </div>
-                
-                <div class="recommendation-item">
-                    <i class="fas fa-ad"></i>
-                    <div class="recommendation-text">
-                        <strong>Leverage Native Ad Formats:</strong> Utilize Spark Ads (<span class="key-number tiktok-highlight">134%</span> higher completion rate, <span class="key-number tiktok-highlight">157%</span> higher 6-second view-through rate than standard ads)
-                    </div>
-                </div>
-                
-                <div class="recommendation-item">
-                    <i class="fas fa-user-edit"></i>
-                    <div class="recommendation-text">
-                        <strong>Prioritize Content Autonomy:</strong> Empower creators with authentic expression (e.g., Morning Brew's 80% native skit/20% CTA approach beat CPA targets by <span class="key-number tiktok-highlight">60%</span>)
-                    </div>
-                </div>
+          </div>
+
+          <div class="metric-section">
+            <div class="metric-title">Growth Trajectory</div>
+            <div class="metric-value">
+              <i class="fas fa-chart-line growth-indicator"></i>
+              Projected <span class="key-number tiktok-highlight">2.35B</span> users by 2029
             </div>
+          </div>
+
+          <div class="metric-section">
+            <div class="metric-title">Regulatory Status</div>
+            <div class="metric-value">
+              <i class="fas fa-exclamation-triangle warning-indicator"></i>
+              US restrictions effective Jan 19, 2025
+            </div>
+          </div>
+
+          <div class="metric-section">
+            <div class="metric-title">Monetization</div>
+            <div class="metric-value">
+              Creator Fund ($0.02-$0.04 RPM)<br />
+              Creator Rewards (<span class="key-number tiktok-highlight">$0.40-$1.00</span>
+              RPM)<br />
+              Live gifts, Brand partnerships
+            </div>
+          </div>
+
+          <div class="metric-section">
+            <div class="metric-title">Content Focus</div>
+            <div class="metric-value">
+              Short-form video, entertainment, diverse content categories
+            </div>
+          </div>
         </div>
-        
-        <div class="source-attribution">
-            Sources: TikTok for Business, Sprout Social, TechCrunch, Statista, 2024-2025
+
+        <!-- RedNote Column -->
+        <div class="platform-column">
+          <div class="platform-header">
+            <i class="fas fa-book-open platform-logo rednote-highlight"></i>
+            <div class="platform-name rednote-name">RedNote (Xiaohongshu)</div>
+          </div>
+
+          <div class="metric-section">
+            <div class="metric-title">Monthly Active Users</div>
+            <div class="metric-value">
+              <span class="key-number rednote-highlight">300 million</span> globally (rapid US
+              growth: <span class="key-number rednote-highlight">700K</span> new users in 2 days,
+              Jan 2025)
+            </div>
+          </div>
+
+          <div class="metric-section">
+            <div class="metric-title">Core Demographics</div>
+            <div class="metric-value">
+              <span class="key-number rednote-highlight">70%</span> female,
+              <span class="key-number rednote-highlight">50%</span> born post-1995,
+              <span class="key-number rednote-highlight">35%</span> post-2000
+            </div>
+          </div>
+
+          <div class="metric-section">
+            <div class="metric-title">Growth Trajectory</div>
+            <div class="metric-value">
+              <i class="fas fa-chart-line growth-indicator"></i>
+              <span class="key-number rednote-highlight">200%</span> YoY download growth in US, #1
+              in US App Store (Jan 2025)
+            </div>
+          </div>
+
+          <div class="metric-section">
+            <div class="metric-title">Regulatory Status</div>
+            <div class="metric-value">
+              No current US restrictions, backed by Alibaba, Tencent, Temasek (valued at
+              <span class="key-number rednote-highlight">$17B</span>)
+            </div>
+          </div>
+
+          <div class="metric-section">
+            <div class="metric-title">Monetization</div>
+            <div class="metric-value">
+              Emerging creator program<br />
+              Strong e-commerce integration<br />
+              Focus on micro-influencer monetization
+            </div>
+          </div>
+
+          <div class="metric-section">
+            <div class="metric-title">Content Focus</div>
+            <div class="metric-value">
+              Lifestyle niches, beauty, food, home, working professionals
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Strategic Recommendations -->
+      <div class="recommendations-section">
+        <div class="recommendations-title">Strategic Recommendations</div>
+        <div class="recommendations-list">
+          <div class="recommendation-item">
+            <i class="fas fa-random"></i>
+            <div class="recommendation-text">
+              <strong>Platform Diversification:</strong> Establish presence across multiple
+              platforms to mitigate regulatory risks
+            </div>
+          </div>
+
+          <div class="recommendation-item">
+            <i class="fas fa-ad"></i>
+            <div class="recommendation-text">
+              <strong>Leverage Native Ad Formats:</strong> Utilize Spark Ads (<span
+                class="key-number tiktok-highlight"
+                >134%</span
+              >
+              higher completion rate, <span class="key-number tiktok-highlight">157%</span> higher
+              6-second view-through rate than standard ads)
+            </div>
+          </div>
+
+          <div class="recommendation-item">
+            <i class="fas fa-user-edit"></i>
+            <div class="recommendation-text">
+              <strong>Prioritize Content Autonomy:</strong> Empower creators with authentic
+              expression (e.g., Morning Brew's 80% native skit/20% CTA approach beat CPA targets by
+              <span class="key-number tiktok-highlight">60%</span>)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="source-attribution">
+        Sources: TikTok for Business, Sprout Social, TechCrunch, Statista, 2024-2025
+      </div>
     </div>
 
     <script>
-        // D3.js can be used for more dynamic elements if needed
-        d3.select(".visualization-container")
-            .style("opacity", 0)
+      // D3.js can be used for more dynamic elements if needed
+      d3.select('.visualization-container')
+        .style('opacity', 0)
+        .transition()
+        .duration(800)
+        .style('opacity', 1)
+
+      // Add hover effects to recommendation items
+      d3.selectAll('.recommendation-item')
+        .on('mouseover', function () {
+          d3.select(this)
             .transition()
-            .duration(800)
-            .style("opacity", 1);
-            
-        // Add hover effects to recommendation items
-        d3.selectAll(".recommendation-item")
-            .on("mouseover", function() {
-                d3.select(this)
-                    .transition()
-                    .duration(300)
-                    .style("background-color", "#f8f9fa")
-                    .style("border-radius", "5px");
-            })
-            .on("mouseout", function() {
-                d3.select(this)
-                    .transition()
-                    .duration(300)
-                    .style("background-color", "transparent")
-                    .style("border-radius", "0px");
-            });
+            .duration(300)
+            .style('background-color', '#f8f9fa')
+            .style('border-radius', '5px')
+        })
+        .on('mouseout', function () {
+          d3.select(this)
+            .transition()
+            .duration(300)
+            .style('background-color', 'transparent')
+            .style('border-radius', '0px')
+        })
     </script>
-</body>
+  </body>
 </html>

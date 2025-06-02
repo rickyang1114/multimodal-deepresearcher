@@ -1,481 +1,492 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Global PM2.5-Attributable Deaths Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            background-color: white;
-        }
-        
-        .container {
-            width: 1000px;
-            padding: 20px;
-        }
-        
-        .title {
-            font-size: 22px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 14px;
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-        }
-        
-        .source {
-            font-size: 10px;
-            text-align: right;
-            color: #666;
-            margin-top: 10px;
-        }
-        
-        .annotation {
-            font-size: 12px;
-            fill: #E67E22;
-            font-weight: bold;
-        }
-        
-        .annotation-box {
-            fill: #FEF9E7;
-            stroke: #F5B041;
-            stroke-width: 1px;
-            rx: 4;
-            ry: 4;
-        }
-        
-        .annotation-line {
-            stroke: #F5B041;
-            stroke-width: 1.5px;
-            stroke-dasharray: 3,3;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        
-        .axis-title {
-            font-size: 11px;
-            fill: #666;
-        }
-        
-        .grid line {
-            stroke: #E0E0E0;
-            stroke-opacity: 0.7;
-            shape-rendering: crispEdges;
-        }
-        
-        .peak-line {
-            stroke: #A0A0A0;
-            stroke-width: 1.5px;
-            stroke-dasharray: 5,5;
-        }
-        
-        .zero-line {
-            stroke: #666;
-            stroke-width: 1.5px;
-        }
-        
-        .legend-item {
-            font-size: 11px;
-        }
-        
-        .positive-region {
-            fill: #f9f9f9;
-        }
-        
-        .negative-region {
-            fill: #f5f5f5;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        background-color: white;
+      }
+
+      .container {
+        width: 1000px;
+        padding: 20px;
+      }
+
+      .title {
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+      }
+
+      .source {
+        font-size: 10px;
+        text-align: right;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .annotation {
+        font-size: 12px;
+        fill: #e67e22;
+        font-weight: bold;
+      }
+
+      .annotation-box {
+        fill: #fef9e7;
+        stroke: #f5b041;
+        stroke-width: 1px;
+        rx: 4;
+        ry: 4;
+      }
+
+      .annotation-line {
+        stroke: #f5b041;
+        stroke-width: 1.5px;
+        stroke-dasharray: 3, 3;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .axis-title {
+        font-size: 11px;
+        fill: #666;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+      }
+
+      .peak-line {
+        stroke: #a0a0a0;
+        stroke-width: 1.5px;
+        stroke-dasharray: 5, 5;
+      }
+
+      .zero-line {
+        stroke: #666;
+        stroke-width: 1.5px;
+      }
+
+      .legend-item {
+        font-size: 11px;
+      }
+
+      .positive-region {
+        fill: #f9f9f9;
+      }
+
+      .negative-region {
+        fill: #f5f5f5;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="title">Global PM2.5-Attributable Deaths Have Plateaued Despite Growing Population</div>
-        <div class="subtitle">Annual mortality and contributing factors, 2000-2019 (millions)</div>
-        <div id="chart"></div>
-        <div class="source">Source: Hammer et al., 2023, Nature Communications</div>
+      <div class="title">
+        Global PM2.5-Attributable Deaths Have Plateaued Despite Growing Population
+      </div>
+      <div class="subtitle">Annual mortality and contributing factors, 2000-2019 (millions)</div>
+      <div id="chart"></div>
+      <div class="source">Source: Hammer et al., 2023, Nature Communications</div>
     </div>
 
     <script>
-        // Set up dimensions and margins - INCREASED RIGHT MARGIN to accommodate axis labels
-        const margin = {top: 50, right: 100, bottom: 50, left: 70};
-        const width = 920 - margin.left - margin.right;
-        const height = 520 - margin.top - margin.bottom;
+      // Set up dimensions and margins - INCREASED RIGHT MARGIN to accommodate axis labels
+      const margin = { top: 50, right: 100, bottom: 50, left: 70 }
+      const width = 920 - margin.left - margin.right
+      const height = 520 - margin.top - margin.bottom
 
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
 
-        // Data for total deaths
-        const totalDeathsData = [
-            {year: 2000, deaths: 4.2},
-            {year: 2001, deaths: 4.3},
-            {year: 2002, deaths: 4.4},
-            {year: 2003, deaths: 4.45},
-            {year: 2004, deaths: 4.5},
-            {year: 2005, deaths: 4.6},
-            {year: 2006, deaths: 4.7},
-            {year: 2007, deaths: 4.8},
-            {year: 2008, deaths: 4.9},
-            {year: 2009, deaths: 5.0},
-            {year: 2010, deaths: 5.1},
-            {year: 2011, deaths: 5.25},
-            {year: 2012, deaths: 5.4},
-            {year: 2013, deaths: 5.55},
-            {year: 2014, deaths: 5.7},
-            {year: 2015, deaths: 5.8},
-            {year: 2016, deaths: 5.8},
-            {year: 2017, deaths: 5.8},
-            {year: 2018, deaths: 5.8},
-            {year: 2019, deaths: 5.8}
-        ];
+      // Data for total deaths
+      const totalDeathsData = [
+        { year: 2000, deaths: 4.2 },
+        { year: 2001, deaths: 4.3 },
+        { year: 2002, deaths: 4.4 },
+        { year: 2003, deaths: 4.45 },
+        { year: 2004, deaths: 4.5 },
+        { year: 2005, deaths: 4.6 },
+        { year: 2006, deaths: 4.7 },
+        { year: 2007, deaths: 4.8 },
+        { year: 2008, deaths: 4.9 },
+        { year: 2009, deaths: 5.0 },
+        { year: 2010, deaths: 5.1 },
+        { year: 2011, deaths: 5.25 },
+        { year: 2012, deaths: 5.4 },
+        { year: 2013, deaths: 5.55 },
+        { year: 2014, deaths: 5.7 },
+        { year: 2015, deaths: 5.8 },
+        { year: 2016, deaths: 5.8 },
+        { year: 2017, deaths: 5.8 },
+        { year: 2018, deaths: 5.8 },
+        { year: 2019, deaths: 5.8 },
+      ]
 
-        // Data for contributing factors
-        const factorsData = [
-            {
-                year: 2000,
-                population_growth: 0,
-                population_aging: 0,
-                exposure_reduction: 0,
-                other_factors: 0
-            },
-            {
-                year: 2005,
-                population_growth: 0.4,
-                population_aging: 0.7,
-                exposure_reduction: -0.7,
-                other_factors: 0
-            },
-            {
-                year: 2010,
-                population_growth: 0.9,
-                population_aging: 1.8,
-                exposure_reduction: -0.6,
-                other_factors: -0.3
-            },
-            {
-                year: 2015,
-                population_growth: 1.5,
-                population_aging: 3.0,
-                exposure_reduction: -0.4,
-                other_factors: -0.6
-            },
-            {
-                year: 2019,
-                population_growth: 2.15,
-                population_aging: 4.74,
-                exposure_reduction: -2.65,
-                other_factors: -0.64
-            }
-        ];
+      // Data for contributing factors
+      const factorsData = [
+        {
+          year: 2000,
+          population_growth: 0,
+          population_aging: 0,
+          exposure_reduction: 0,
+          other_factors: 0,
+        },
+        {
+          year: 2005,
+          population_growth: 0.4,
+          population_aging: 0.7,
+          exposure_reduction: -0.7,
+          other_factors: 0,
+        },
+        {
+          year: 2010,
+          population_growth: 0.9,
+          population_aging: 1.8,
+          exposure_reduction: -0.6,
+          other_factors: -0.3,
+        },
+        {
+          year: 2015,
+          population_growth: 1.5,
+          population_aging: 3.0,
+          exposure_reduction: -0.4,
+          other_factors: -0.6,
+        },
+        {
+          year: 2019,
+          population_growth: 2.15,
+          population_aging: 4.74,
+          exposure_reduction: -2.65,
+          other_factors: -0.64,
+        },
+      ]
 
-        // Interpolate data for missing years
-        const interpolatedFactorsData = [];
-        const years = d3.range(2000, 2020);
-        
-        years.forEach(year => {
-            if (factorsData.some(d => d.year === year)) {
-                interpolatedFactorsData.push(factorsData.find(d => d.year === year));
-            } else {
-                // Find closest years before and after
-                const before = factorsData.filter(d => d.year < year).sort((a, b) => b.year - a.year)[0];
-                const after = factorsData.filter(d => d.year > year).sort((a, b) => a.year - b.year)[0];
-                
-                if (before && after) {
-                    const ratio = (year - before.year) / (after.year - before.year);
-                    interpolatedFactorsData.push({
-                        year: year,
-                        population_growth: before.population_growth + ratio * (after.population_growth - before.population_growth),
-                        population_aging: before.population_aging + ratio * (after.population_aging - before.population_aging),
-                        exposure_reduction: before.exposure_reduction + ratio * (after.exposure_reduction - before.exposure_reduction),
-                        other_factors: before.other_factors + ratio * (after.other_factors - before.other_factors)
-                    });
-                }
-            }
-        });
+      // Interpolate data for missing years
+      const interpolatedFactorsData = []
+      const years = d3.range(2000, 2020)
 
-        // Create scales
-        const x = d3.scaleLinear()
-            .domain([2000, 2019])
-            .range([0, width]);
+      years.forEach((year) => {
+        if (factorsData.some((d) => d.year === year)) {
+          interpolatedFactorsData.push(factorsData.find((d) => d.year === year))
+        } else {
+          // Find closest years before and after
+          const before = factorsData.filter((d) => d.year < year).sort((a, b) => b.year - a.year)[0]
+          const after = factorsData.filter((d) => d.year > year).sort((a, b) => a.year - b.year)[0]
 
-        const y1 = d3.scaleLinear()
-            .domain([0, 6.5])
-            .range([height, 0]);
-
-        const y2 = d3.scaleLinear()
-            .domain([-3, 5])
-            .range([height, 0]);
-
-        // Add background regions for positive and negative areas
-        svg.append("rect")
-            .attr("class", "positive-region")
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", width)
-            .attr("height", y2(0));
-            
-        svg.append("rect")
-            .attr("class", "negative-region")
-            .attr("x", 0)
-            .attr("y", y2(0))
-            .attr("width", width)
-            .attr("height", height - y2(0));
-
-        // Create axes
-        const xAxis = d3.axisBottom(x)
-            .tickFormat(d3.format("d"))
-            .ticks(10)
-            .tickValues(d3.range(2000, 2020, 2));
-
-        const y1Axis = d3.axisLeft(y1)
-            .tickFormat(d => d + "M")
-            .ticks(7);
-
-        // FIXED: Improved formatting for secondary y-axis
-        const y2Axis = d3.axisRight(y2)
-            .tickFormat(d => {
-                if (d === 0) return "0M";
-                return (d > 0 ? "+" : "") + d + "M";
+          if (before && after) {
+            const ratio = (year - before.year) / (after.year - before.year)
+            interpolatedFactorsData.push({
+              year: year,
+              population_growth:
+                before.population_growth +
+                ratio * (after.population_growth - before.population_growth),
+              population_aging:
+                before.population_aging +
+                ratio * (after.population_aging - before.population_aging),
+              exposure_reduction:
+                before.exposure_reduction +
+                ratio * (after.exposure_reduction - before.exposure_reduction),
+              other_factors:
+                before.other_factors + ratio * (after.other_factors - before.other_factors),
             })
-            .ticks(8);
+          }
+        }
+      })
 
-        // Add horizontal gridlines
-        svg.append("g")
-            .attr("class", "grid")
-            .call(d3.axisLeft(y1)
-                .tickSize(-width)
-                .tickFormat("")
-                .ticks(7)
-            );
+      // Create scales
+      const x = d3.scaleLinear().domain([2000, 2019]).range([0, width])
 
-        // Add axes
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(xAxis)
-            .selectAll("text")
-            .style("font-size", "10px");
+      const y1 = d3.scaleLinear().domain([0, 6.5]).range([height, 0])
 
-        svg.append("g")
-            .call(y1Axis)
-            .selectAll("text")
-            .style("font-size", "10px");
+      const y2 = d3.scaleLinear().domain([-3, 5]).range([height, 0])
 
-        svg.append("g")
-            .attr("transform", `translate(${width},0)`)
-            .call(y2Axis)
-            .selectAll("text")
-            .style("font-size", "10px");
+      // Add background regions for positive and negative areas
+      svg
+        .append('rect')
+        .attr('class', 'positive-region')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', width)
+        .attr('height', y2(0))
 
-        // Add axis titles - REPOSITIONED for better visibility
-        svg.append("text")
-            .attr("class", "axis-title")
-            .attr("x", -margin.left + 10)
-            .attr("y", -20)
-            .text("Total Deaths (millions)");
+      svg
+        .append('rect')
+        .attr('class', 'negative-region')
+        .attr('x', 0)
+        .attr('y', y2(0))
+        .attr('width', width)
+        .attr('height', height - y2(0))
 
-        // FIXED: Repositioned and improved right axis title
-        svg.append("text")
-            .attr("class", "axis-title")
-            .attr("x", width + 5)
-            .attr("y", -20)
-            .text("Change from 2000 Baseline (millions)");
+      // Create axes
+      const xAxis = d3
+        .axisBottom(x)
+        .tickFormat(d3.format('d'))
+        .ticks(10)
+        .tickValues(d3.range(2000, 2020, 2))
 
-        // Add peak line at 2015 value
-        const peakValue = 5.8;
-        svg.append("line")
-            .attr("class", "peak-line")
-            .attr("x1", 0)
-            .attr("y1", y1(peakValue))
-            .attr("x2", width)
-            .attr("y2", y1(peakValue));
+      const y1Axis = d3
+        .axisLeft(y1)
+        .tickFormat((d) => d + 'M')
+        .ticks(7)
 
-        // Add zero line for stacked columns
-        svg.append("line")
-            .attr("class", "zero-line")
-            .attr("x1", 0)
-            .attr("y1", y2(0))
-            .attr("x2", width)
-            .attr("y2", y2(0));
+      // FIXED: Improved formatting for secondary y-axis
+      const y2Axis = d3
+        .axisRight(y2)
+        .tickFormat((d) => {
+          if (d === 0) return '0M'
+          return (d > 0 ? '+' : '') + d + 'M'
+        })
+        .ticks(8)
 
-        // Define color scale for stacked columns
-        const colorScale = d3.scaleOrdinal()
-            .domain(["population_growth", "population_aging", "exposure_reduction", "other_factors"])
-            .range(["#FB9A99", "#E31A1C", "#31A354", "#A0A0A0"]);
+      // Add horizontal gridlines
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .call(d3.axisLeft(y1).tickSize(-width).tickFormat('').ticks(7))
 
-        // Create positive stacked data
-        const positiveKeys = ["population_growth", "population_aging"];
-        const positiveStack = d3.stack()
-            .keys(positiveKeys)
-            (interpolatedFactorsData);
+      // Add axes
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(xAxis)
+        .selectAll('text')
+        .style('font-size', '10px')
 
-        // Create negative stacked data
-        const negativeKeys = ["exposure_reduction", "other_factors"];
-        const negativeStack = d3.stack()
-            .keys(negativeKeys)
-            (interpolatedFactorsData);
+      svg.append('g').call(y1Axis).selectAll('text').style('font-size', '10px')
 
-        // FIXED: Increased bar width for better visibility
-        const barWidth = 20;
+      svg
+        .append('g')
+        .attr('transform', `translate(${width},0)`)
+        .call(y2Axis)
+        .selectAll('text')
+        .style('font-size', '10px')
 
-        // Draw positive stacked columns
-        svg.selectAll(".positive-bars")
-            .data(positiveStack)
-            .join("g")
-            .attr("fill", d => colorScale(d.key))
-            .selectAll("rect")
-            .data(d => d)
-            .join("rect")
-            .attr("x", d => x(d.data.year) - barWidth/2)
-            .attr("y", d => y2(d[1]))
-            .attr("height", d => Math.max(0, y2(d[0]) - y2(d[1])))
-            .attr("width", barWidth);
+      // Add axis titles - REPOSITIONED for better visibility
+      svg
+        .append('text')
+        .attr('class', 'axis-title')
+        .attr('x', -margin.left + 10)
+        .attr('y', -20)
+        .text('Total Deaths (millions)')
 
-        // Draw negative stacked columns
-        svg.selectAll(".negative-bars")
-            .data(negativeStack)
-            .join("g")
-            .attr("fill", d => colorScale(d.key))
-            .selectAll("rect")
-            .data(d => d)
-            .join("rect")
-            .attr("x", d => x(d.data.year) - barWidth/2)
-            .attr("y", d => y2(0))
-            .attr("height", d => Math.abs(y2(d[0]) - y2(d[1])))
-            .attr("width", barWidth);
+      // FIXED: Repositioned and improved right axis title
+      svg
+        .append('text')
+        .attr('class', 'axis-title')
+        .attr('x', width + 5)
+        .attr('y', -20)
+        .text('Change from 2000 Baseline (millions)')
 
-        // Create line for total deaths
-        const line = d3.line()
-            .x(d => x(d.year))
-            .y(d => y1(d.deaths));
+      // Add peak line at 2015 value
+      const peakValue = 5.8
+      svg
+        .append('line')
+        .attr('class', 'peak-line')
+        .attr('x1', 0)
+        .attr('y1', y1(peakValue))
+        .attr('x2', width)
+        .attr('y2', y1(peakValue))
 
-        // Draw the line
-        svg.append("path")
-            .datum(totalDeathsData)
-            .attr("fill", "none")
-            .attr("stroke", "#08519C")
-            .attr("stroke-width", 2.5)
-            .attr("d", line);
+      // Add zero line for stacked columns
+      svg
+        .append('line')
+        .attr('class', 'zero-line')
+        .attr('x1', 0)
+        .attr('y1', y2(0))
+        .attr('x2', width)
+        .attr('y2', y2(0))
 
-        // Add circles for data points
-        svg.selectAll(".data-point")
-            .data(totalDeathsData)
-            .join("circle")
-            .attr("class", "data-point")
-            .attr("cx", d => x(d.year))
-            .attr("cy", d => y1(d.deaths))
-            .attr("r", 3)
-            .attr("fill", "#08519C");
+      // Define color scale for stacked columns
+      const colorScale = d3
+        .scaleOrdinal()
+        .domain(['population_growth', 'population_aging', 'exposure_reduction', 'other_factors'])
+        .range(['#FB9A99', '#E31A1C', '#31A354', '#A0A0A0'])
 
-        // FIXED: Repositioned annotation for better visibility and to avoid truncation
-        const annotationX = x(2013);
-        const annotationY = y1(6.2);
-        
-        svg.append("rect")
-            .attr("class", "annotation-box")
-            .attr("x", annotationX - 120)
-            .attr("y", annotationY - 20)
-            .attr("width", 240)
-            .attr("height", 40);
-            
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", annotationX)
-            .attr("y", annotationY)
-            .attr("text-anchor", "middle")
-            .text("Peak at ~5.8M in 2015,");
-            
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", annotationX)
-            .attr("y", annotationY + 15)
-            .attr("text-anchor", "middle")
-            .text("plateaued despite demographic pressure");
-            
-        svg.append("line")
-            .attr("class", "annotation-line")
-            .attr("x1", annotationX)
-            .attr("y1", annotationY + 20)
-            .attr("x2", x(2015))
-            .attr("y2", y1(5.8) - 5);
+      // Create positive stacked data
+      const positiveKeys = ['population_growth', 'population_aging']
+      const positiveStack = d3.stack().keys(positiveKeys)(interpolatedFactorsData)
 
-        // FIXED: Repositioned key number to avoid overlap
-        svg.append("text")
-            .attr("class", "key-number")
-            .attr("x", x(2017))
-            .attr("y", y1(5.8) - 10)
-            .attr("text-anchor", "middle")
-            .text("5.8M");
+      // Create negative stacked data
+      const negativeKeys = ['exposure_reduction', 'other_factors']
+      const negativeStack = d3.stack().keys(negativeKeys)(interpolatedFactorsData)
 
-        // Add legend - positioned in upper left for better visibility
-        const legendData = [
-            { key: "Total Deaths", color: "#08519C", type: "line" },
-            { key: "Population Growth", color: "#FB9A99", type: "rect" },
-            { key: "Population Aging", color: "#E31A1C", type: "rect" },
-            { key: "Exposure Reduction", color: "#31A354", type: "rect" },
-            { key: "Other Factors", color: "#A0A0A0", type: "rect" }
-        ];
+      // FIXED: Increased bar width for better visibility
+      const barWidth = 20
 
-        const legend = svg.append("g")
-            .attr("class", "legend")
-            .attr("transform", `translate(10, 10)`);
+      // Draw positive stacked columns
+      svg
+        .selectAll('.positive-bars')
+        .data(positiveStack)
+        .join('g')
+        .attr('fill', (d) => colorScale(d.key))
+        .selectAll('rect')
+        .data((d) => d)
+        .join('rect')
+        .attr('x', (d) => x(d.data.year) - barWidth / 2)
+        .attr('y', (d) => y2(d[1]))
+        .attr('height', (d) => Math.max(0, y2(d[0]) - y2(d[1])))
+        .attr('width', barWidth)
 
-        const legendItems = legend.selectAll(".legend-item")
-            .data(legendData)
-            .join("g")
-            .attr("class", "legend-item")
-            .attr("transform", (d, i) => `translate(0, ${i * 20})`);
+      // Draw negative stacked columns
+      svg
+        .selectAll('.negative-bars')
+        .data(negativeStack)
+        .join('g')
+        .attr('fill', (d) => colorScale(d.key))
+        .selectAll('rect')
+        .data((d) => d)
+        .join('rect')
+        .attr('x', (d) => x(d.data.year) - barWidth / 2)
+        .attr('y', (d) => y2(0))
+        .attr('height', (d) => Math.abs(y2(d[0]) - y2(d[1])))
+        .attr('width', barWidth)
 
-        legendItems.each(function(d) {
-            const g = d3.select(this);
-            
-            if (d.type === "line") {
-                g.append("line")
-                    .attr("x1", 0)
-                    .attr("y1", 7)
-                    .attr("x2", 20)
-                    .attr("y2", 7)
-                    .attr("stroke", d.color)
-                    .attr("stroke-width", 2.5);
-                    
-                g.append("circle")
-                    .attr("cx", 10)
-                    .attr("cy", 7)
-                    .attr("r", 3)
-                    .attr("fill", d.color);
-            } else {
-                g.append("rect")
-                    .attr("x", 0)
-                    .attr("y", 0)
-                    .attr("width", 15)
-                    .attr("height", 15)
-                    .attr("fill", d.color);
-            }
-            
-            g.append("text")
-                .attr("x", 25)
-                .attr("y", 12)
-                .text(d.key);
-        });
+      // Create line for total deaths
+      const line = d3
+        .line()
+        .x((d) => x(d.year))
+        .y((d) => y1(d.deaths))
+
+      // Draw the line
+      svg
+        .append('path')
+        .datum(totalDeathsData)
+        .attr('fill', 'none')
+        .attr('stroke', '#08519C')
+        .attr('stroke-width', 2.5)
+        .attr('d', line)
+
+      // Add circles for data points
+      svg
+        .selectAll('.data-point')
+        .data(totalDeathsData)
+        .join('circle')
+        .attr('class', 'data-point')
+        .attr('cx', (d) => x(d.year))
+        .attr('cy', (d) => y1(d.deaths))
+        .attr('r', 3)
+        .attr('fill', '#08519C')
+
+      // FIXED: Repositioned annotation for better visibility and to avoid truncation
+      const annotationX = x(2013)
+      const annotationY = y1(6.2)
+
+      svg
+        .append('rect')
+        .attr('class', 'annotation-box')
+        .attr('x', annotationX - 120)
+        .attr('y', annotationY - 20)
+        .attr('width', 240)
+        .attr('height', 40)
+
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', annotationX)
+        .attr('y', annotationY)
+        .attr('text-anchor', 'middle')
+        .text('Peak at ~5.8M in 2015,')
+
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', annotationX)
+        .attr('y', annotationY + 15)
+        .attr('text-anchor', 'middle')
+        .text('plateaued despite demographic pressure')
+
+      svg
+        .append('line')
+        .attr('class', 'annotation-line')
+        .attr('x1', annotationX)
+        .attr('y1', annotationY + 20)
+        .attr('x2', x(2015))
+        .attr('y2', y1(5.8) - 5)
+
+      // FIXED: Repositioned key number to avoid overlap
+      svg
+        .append('text')
+        .attr('class', 'key-number')
+        .attr('x', x(2017))
+        .attr('y', y1(5.8) - 10)
+        .attr('text-anchor', 'middle')
+        .text('5.8M')
+
+      // Add legend - positioned in upper left for better visibility
+      const legendData = [
+        { key: 'Total Deaths', color: '#08519C', type: 'line' },
+        { key: 'Population Growth', color: '#FB9A99', type: 'rect' },
+        { key: 'Population Aging', color: '#E31A1C', type: 'rect' },
+        { key: 'Exposure Reduction', color: '#31A354', type: 'rect' },
+        { key: 'Other Factors', color: '#A0A0A0', type: 'rect' },
+      ]
+
+      const legend = svg.append('g').attr('class', 'legend').attr('transform', `translate(10, 10)`)
+
+      const legendItems = legend
+        .selectAll('.legend-item')
+        .data(legendData)
+        .join('g')
+        .attr('class', 'legend-item')
+        .attr('transform', (d, i) => `translate(0, ${i * 20})`)
+
+      legendItems.each(function (d) {
+        const g = d3.select(this)
+
+        if (d.type === 'line') {
+          g.append('line')
+            .attr('x1', 0)
+            .attr('y1', 7)
+            .attr('x2', 20)
+            .attr('y2', 7)
+            .attr('stroke', d.color)
+            .attr('stroke-width', 2.5)
+
+          g.append('circle').attr('cx', 10).attr('cy', 7).attr('r', 3).attr('fill', d.color)
+        } else {
+          g.append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', 15)
+            .attr('height', 15)
+            .attr('fill', d.color)
+        }
+
+        g.append('text').attr('x', 25).attr('y', 12).text(d.key)
+      })
     </script>
-</body>
+  </body>
 </html>

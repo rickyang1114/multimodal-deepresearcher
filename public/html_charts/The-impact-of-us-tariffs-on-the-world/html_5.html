@@ -1,333 +1,334 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Microeconomic Impact of US Tariffs</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f9f9f9;
-        }
-        
-        .visualization-container {
-            width: 900px;
-            height: 580px;
-            background-color: white;
-            padding: 20px;
-        }
-        
-        .title {
-            text-align: center;
-            font-weight: bold;
-            font-size: 22px;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 25px;
-        }
-        
-        .panel-title {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            font-weight: bold;
-            font-size: 14pt;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        
-        .panels-container {
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .panel {
-            width: 48%;
-        }
-        
-        .annotation {
-            text-align: center;
-            font-style: italic;
-            color: #555;
-            margin-top: 20px;
-            font-size: 13px;
-            padding: 0 40px;
-        }
-        
-        .source {
-            text-align: right;
-            font-size: 8pt;
-            color: #888;
-            margin-top: 15px;
-        }
-        
-        .data-label {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            text-anchor: middle;
-        }
-        
-        .grid line {
-            stroke: #d0d0d0;
-            stroke-opacity: 0.8;
-            shape-rendering: crispEdges;
-        }
-        
-        .y-axis-label {
-            font-size: 12px;
-            text-anchor: middle;
-            font-weight: bold;
-        }
-        
-        .icon-container {
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .icon {
-            font-size: 16px;
-            color: #333;
-        }
+      body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f9f9f9;
+      }
+
+      .visualization-container {
+        width: 900px;
+        height: 580px;
+        background-color: white;
+        padding: 20px;
+      }
+
+      .title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 22px;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        text-align: center;
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 25px;
+      }
+
+      .panel-title {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        font-weight: bold;
+        font-size: 14pt;
+        text-align: center;
+        margin-bottom: 15px;
+      }
+
+      .panels-container {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .panel {
+        width: 48%;
+      }
+
+      .annotation {
+        text-align: center;
+        font-style: italic;
+        color: #555;
+        margin-top: 20px;
+        font-size: 13px;
+        padding: 0 40px;
+      }
+
+      .source {
+        text-align: right;
+        font-size: 8pt;
+        color: #888;
+        margin-top: 15px;
+      }
+
+      .data-label {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        text-anchor: middle;
+      }
+
+      .grid line {
+        stroke: #d0d0d0;
+        stroke-opacity: 0.8;
+        shape-rendering: crispEdges;
+      }
+
+      .y-axis-label {
+        font-size: 12px;
+        text-anchor: middle;
+        font-weight: bold;
+      }
+
+      .icon-container {
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .icon {
+        font-size: 16px;
+        color: #333;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Microeconomic Impact of US Tariffs: Households and Jobs</div>
-        <div class="subtitle">Direct economic costs to households and employment across regions</div>
-        
-        <div class="panels-container">
-            <div class="panel" id="household-panel">
-                <div class="panel-title">US Household Annual Cost Burden</div>
-                <svg id="household-chart" width="420" height="380"></svg>
-            </div>
-            <div class="panel" id="jobs-panel">
-                <div class="panel-title">Estimated Job Losses</div>
-                <svg id="jobs-chart" width="420" height="380"></svg>
-            </div>
+      <div class="title">Microeconomic Impact of US Tariffs: Households and Jobs</div>
+      <div class="subtitle">Direct economic costs to households and employment across regions</div>
+
+      <div class="panels-container">
+        <div class="panel" id="household-panel">
+          <div class="panel-title">US Household Annual Cost Burden</div>
+          <svg id="household-chart" width="420" height="380"></svg>
         </div>
-        
-        <div class="annotation">US tariffs generate $880B (CA/MX) and $241B (China) in federal revenue over 2025-34</div>
-        <div class="source">Source: Tax Foundation, Canadian Chamber of Commerce, SupplyChainBrain, 2025</div>
+        <div class="panel" id="jobs-panel">
+          <div class="panel-title">Estimated Job Losses</div>
+          <svg id="jobs-chart" width="420" height="380"></svg>
+        </div>
+      </div>
+
+      <div class="annotation">
+        US tariffs generate $880B (CA/MX) and $241B (China) in federal revenue over 2025-34
+      </div>
+      <div class="source">
+        Source: Tax Foundation, Canadian Chamber of Commerce, SupplyChainBrain, 2025
+      </div>
     </div>
 
     <script>
-        // Data for household costs
-        const householdData = [
-            { region: "China", value: 520 },
-            { region: "Canada/Mexico", value: 680 },
-            { region: "Combined", value: 1200 }
-        ];
+      // Data for household costs
+      const householdData = [
+        { region: 'China', value: 520 },
+        { region: 'Canada/Mexico', value: 680 },
+        { region: 'Combined', value: 1200 },
+      ]
 
-        // Data for job losses
-        const jobsData = [
-            { region: "North America", value: 269000 },
-            { region: "China", value: 73000 },
-            { region: "Combined", value: 342000 }
-        ];
+      // Data for job losses
+      const jobsData = [
+        { region: 'North America', value: 269000 },
+        { region: 'China', value: 73000 },
+        { region: 'Combined', value: 342000 },
+      ]
 
-        // Color scheme - consistent across both panels
-        const colors = {
-            "China": "#4682B4",           // Medium blue for left panel
-            "Canada/Mexico": "#1E3F66",   // Dark blue for left panel
-            "Combined": "#6A5ACD",        // Purple for both panels
-            "North America": "#4682B4",   // Same blue as China for consistency
-        };
+      // Color scheme - consistent across both panels
+      const colors = {
+        China: '#4682B4', // Medium blue for left panel
+        'Canada/Mexico': '#1E3F66', // Dark blue for left panel
+        Combined: '#6A5ACD', // Purple for both panels
+        'North America': '#4682B4', // Same blue as China for consistency
+      }
 
-        // Format numbers with commas
-        const formatNumber = d3.format(",");
-        
-        // Format currency
-        const formatCurrency = d3.format("$,");
+      // Format numbers with commas
+      const formatNumber = d3.format(',')
 
-        // Create household cost chart
-        function createHouseholdChart() {
-            const svg = d3.select("#household-chart");
-            const width = +svg.attr("width");
-            const height = +svg.attr("height");
-            const margin = { top: 60, right: 20, bottom: 60, left: 70 };
-            const chartWidth = width - margin.left - margin.right;
-            const chartHeight = height - margin.top - margin.bottom;
+      // Format currency
+      const formatCurrency = d3.format('$,')
 
-            const x = d3.scaleBand()
-                .domain(householdData.map(d => d.region))
-                .range([0, chartWidth])
-                .padding(0.3);
+      // Create household cost chart
+      function createHouseholdChart() {
+        const svg = d3.select('#household-chart')
+        const width = +svg.attr('width')
+        const height = +svg.attr('height')
+        const margin = { top: 60, right: 20, bottom: 60, left: 70 }
+        const chartWidth = width - margin.left - margin.right
+        const chartHeight = height - margin.top - margin.bottom
 
-            const y = d3.scaleLinear()
-                .domain([0, 1400])  // Increased to 1400 for more headroom
-                .range([chartHeight, 0]);
+        const x = d3
+          .scaleBand()
+          .domain(householdData.map((d) => d.region))
+          .range([0, chartWidth])
+          .padding(0.3)
 
-            const g = svg.append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
+        const y = d3
+          .scaleLinear()
+          .domain([0, 1400]) // Increased to 1400 for more headroom
+          .range([chartHeight, 0])
 
-            // Add gridlines
-            g.append("g")
-                .attr("class", "grid")
-                .call(d3.axisLeft(y)
-                    .tickSize(-chartWidth)
-                    .tickFormat("")
-                );
+        const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`)
 
-            // Add x-axis
-            g.append("g")
-                .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x))
-                .selectAll("text")
-                .style("text-anchor", "middle")
-                .style("font-weight", "bold");
+        // Add gridlines
+        g.append('g')
+          .attr('class', 'grid')
+          .call(d3.axisLeft(y).tickSize(-chartWidth).tickFormat(''))
 
-            // Add y-axis
-            g.append("g")
-                .call(d3.axisLeft(y)
-                    .tickFormat(d => `$${d}`)
-                );
+        // Add x-axis
+        g.append('g')
+          .attr('transform', `translate(0,${chartHeight})`)
+          .call(d3.axisBottom(x))
+          .selectAll('text')
+          .style('text-anchor', 'middle')
+          .style('font-weight', 'bold')
 
-            // Add y-axis label
-            g.append("text")
-                .attr("class", "y-axis-label")
-                .attr("transform", "rotate(-90)")
-                .attr("y", -margin.left + 20)
-                .attr("x", -chartHeight / 2)
-                .attr("dy", "1em")
-                .text("Annual Cost per Household ($)");
+        // Add y-axis
+        g.append('g').call(d3.axisLeft(y).tickFormat((d) => `$${d}`))
 
-            // Create bars with rounded corners
-            const bars = g.selectAll(".bar")
-                .data(householdData)
-                .enter()
-                .append("g");
+        // Add y-axis label
+        g.append('text')
+          .attr('class', 'y-axis-label')
+          .attr('transform', 'rotate(-90)')
+          .attr('y', -margin.left + 20)
+          .attr('x', -chartHeight / 2)
+          .attr('dy', '1em')
+          .text('Annual Cost per Household ($)')
 
-            bars.append("rect")
-                .attr("class", "bar")
-                .attr("x", d => x(d.region))
-                .attr("y", d => y(d.value))
-                .attr("width", x.bandwidth())
-                .attr("height", d => chartHeight - y(d.value))
-                .attr("fill", d => colors[d.region])
-                .attr("rx", x.bandwidth() * 0.15)
-                .attr("ry", x.bandwidth() * 0.15);
+        // Create bars with rounded corners
+        const bars = g.selectAll('.bar').data(householdData).enter().append('g')
 
-            // Add dollar sign icons - positioned with more space
-            bars.append("foreignObject")
-                .attr("x", d => x(d.region))
-                .attr("y", d => y(d.value) - 70)  // Increased spacing
-                .attr("width", x.bandwidth())
-                .attr("height", 30)
-                .html(d => `<div class="icon-container">
+        bars
+          .append('rect')
+          .attr('class', 'bar')
+          .attr('x', (d) => x(d.region))
+          .attr('y', (d) => y(d.value))
+          .attr('width', x.bandwidth())
+          .attr('height', (d) => chartHeight - y(d.value))
+          .attr('fill', (d) => colors[d.region])
+          .attr('rx', x.bandwidth() * 0.15)
+          .attr('ry', x.bandwidth() * 0.15)
+
+        // Add dollar sign icons - positioned with more space
+        bars
+          .append('foreignObject')
+          .attr('x', (d) => x(d.region))
+          .attr('y', (d) => y(d.value) - 70) // Increased spacing
+          .attr('width', x.bandwidth())
+          .attr('height', 30)
+          .html(
+            (d) => `<div class="icon-container">
                     <i class="fas fa-dollar-sign icon" style="font-size: 18px;"></i>
-                </div>`);
+                </div>`
+          )
 
-            // Add data labels with better spacing
-            bars.append("text")
-                .attr("class", "data-label")
-                .attr("x", d => x(d.region) + x.bandwidth() / 2)
-                .attr("y", d => y(d.value) - 35)  // Increased spacing from icon
-                .text(d => formatCurrency(d.value))
-                .style("fill", d => d.region === "Combined" ? "#5D3FD3" : "#333")
-                .style("font-size", d => d.region === "Combined" ? "16px" : "14px");
-        }
+        // Add data labels with better spacing
+        bars
+          .append('text')
+          .attr('class', 'data-label')
+          .attr('x', (d) => x(d.region) + x.bandwidth() / 2)
+          .attr('y', (d) => y(d.value) - 35) // Increased spacing from icon
+          .text((d) => formatCurrency(d.value))
+          .style('fill', (d) => (d.region === 'Combined' ? '#5D3FD3' : '#333'))
+          .style('font-size', (d) => (d.region === 'Combined' ? '16px' : '14px'))
+      }
 
-        // Create job losses chart
-        function createJobsChart() {
-            const svg = d3.select("#jobs-chart");
-            const width = +svg.attr("width");
-            const height = +svg.attr("height");
-            const margin = { top: 60, right: 20, bottom: 60, left: 70 };
-            const chartWidth = width - margin.left - margin.right;
-            const chartHeight = height - margin.top - margin.bottom;
+      // Create job losses chart
+      function createJobsChart() {
+        const svg = d3.select('#jobs-chart')
+        const width = +svg.attr('width')
+        const height = +svg.attr('height')
+        const margin = { top: 60, right: 20, bottom: 60, left: 70 }
+        const chartWidth = width - margin.left - margin.right
+        const chartHeight = height - margin.top - margin.bottom
 
-            const x = d3.scaleBand()
-                .domain(jobsData.map(d => d.region))
-                .range([0, chartWidth])
-                .padding(0.3);
+        const x = d3
+          .scaleBand()
+          .domain(jobsData.map((d) => d.region))
+          .range([0, chartWidth])
+          .padding(0.3)
 
-            const y = d3.scaleLinear()
-                .domain([0, 420000])  // Increased to 420k for more headroom
-                .range([chartHeight, 0]);
+        const y = d3
+          .scaleLinear()
+          .domain([0, 420000]) // Increased to 420k for more headroom
+          .range([chartHeight, 0])
 
-            const g = svg.append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
+        const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`)
 
-            // Add gridlines
-            g.append("g")
-                .attr("class", "grid")
-                .call(d3.axisLeft(y)
-                    .tickSize(-chartWidth)
-                    .tickFormat("")
-                );
+        // Add gridlines
+        g.append('g')
+          .attr('class', 'grid')
+          .call(d3.axisLeft(y).tickSize(-chartWidth).tickFormat(''))
 
-            // Add x-axis
-            g.append("g")
-                .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x))
-                .selectAll("text")
-                .style("text-anchor", "middle")
-                .style("font-weight", "bold");
+        // Add x-axis
+        g.append('g')
+          .attr('transform', `translate(0,${chartHeight})`)
+          .call(d3.axisBottom(x))
+          .selectAll('text')
+          .style('text-anchor', 'middle')
+          .style('font-weight', 'bold')
 
-            // Add y-axis with consistent formatting
-            g.append("g")
-                .call(d3.axisLeft(y)
-                    .tickFormat(d => formatNumber(d))
-                );
+        // Add y-axis with consistent formatting
+        g.append('g').call(d3.axisLeft(y).tickFormat((d) => formatNumber(d)))
 
-            // Add y-axis label
-            g.append("text")
-                .attr("class", "y-axis-label")
-                .attr("transform", "rotate(-90)")
-                .attr("y", -margin.left + 20)
-                .attr("x", -chartHeight / 2)
-                .attr("dy", "1em")
-                .text("Job Losses");
+        // Add y-axis label
+        g.append('text')
+          .attr('class', 'y-axis-label')
+          .attr('transform', 'rotate(-90)')
+          .attr('y', -margin.left + 20)
+          .attr('x', -chartHeight / 2)
+          .attr('dy', '1em')
+          .text('Job Losses')
 
-            // Create bars with rounded corners
-            const bars = g.selectAll(".bar")
-                .data(jobsData)
-                .enter()
-                .append("g");
+        // Create bars with rounded corners
+        const bars = g.selectAll('.bar').data(jobsData).enter().append('g')
 
-            bars.append("rect")
-                .attr("class", "bar")
-                .attr("x", d => x(d.region))
-                .attr("y", d => y(d.value))
-                .attr("width", x.bandwidth())
-                .attr("height", d => chartHeight - y(d.value))
-                .attr("fill", d => d.region === "China" ? "#D14B51" : colors[d.region])
-                .attr("rx", x.bandwidth() * 0.15)
-                .attr("ry", x.bandwidth() * 0.15);
+        bars
+          .append('rect')
+          .attr('class', 'bar')
+          .attr('x', (d) => x(d.region))
+          .attr('y', (d) => y(d.value))
+          .attr('width', x.bandwidth())
+          .attr('height', (d) => chartHeight - y(d.value))
+          .attr('fill', (d) => (d.region === 'China' ? '#D14B51' : colors[d.region]))
+          .attr('rx', x.bandwidth() * 0.15)
+          .attr('ry', x.bandwidth() * 0.15)
 
-            // Add worker icons - positioned consistently
-            bars.append("foreignObject")
-                .attr("x", d => x(d.region))
-                .attr("y", d => y(d.value) - 70)  // Consistent spacing across all bars
-                .attr("width", x.bandwidth())
-                .attr("height", 30)
-                .html(d => `<div class="icon-container">
+        // Add worker icons - positioned consistently
+        bars
+          .append('foreignObject')
+          .attr('x', (d) => x(d.region))
+          .attr('y', (d) => y(d.value) - 70) // Consistent spacing across all bars
+          .attr('width', x.bandwidth())
+          .attr('height', 30)
+          .html(
+            (d) => `<div class="icon-container">
                     <i class="fas fa-user icon" style="font-size: 18px;"></i>
-                </div>`);
+                </div>`
+          )
 
-            // Add data labels with consistent spacing
-            bars.append("text")
-                .attr("class", "data-label")
-                .attr("x", d => x(d.region) + x.bandwidth() / 2)
-                .attr("y", d => y(d.value) - 35)  // Consistent spacing from icon
-                .text(d => formatNumber(d.value))
-                .style("fill", d => d.region === "Combined" ? "#5D3FD3" : "#333")
-                .style("font-size", d => d.region === "Combined" ? "16px" : "14px");
-        }
+        // Add data labels with consistent spacing
+        bars
+          .append('text')
+          .attr('class', 'data-label')
+          .attr('x', (d) => x(d.region) + x.bandwidth() / 2)
+          .attr('y', (d) => y(d.value) - 35) // Consistent spacing from icon
+          .text((d) => formatNumber(d.value))
+          .style('fill', (d) => (d.region === 'Combined' ? '#5D3FD3' : '#333'))
+          .style('font-size', (d) => (d.region === 'Combined' ? '16px' : '14px'))
+      }
 
-        // Initialize charts
-        createHouseholdChart();
-        createJobsChart();
+      // Initialize charts
+      createHouseholdChart()
+      createJobsChart()
     </script>
-</body>
+  </body>
 </html>

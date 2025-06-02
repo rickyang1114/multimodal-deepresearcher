@@ -1,596 +1,633 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Demographic Dynamics: From Dividend to Drag (1980-2050)</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        .visualization-container {
-            width: 850px;
-            height: 750px; /* Increased height for better spacing */
-            position: relative;
-        }
-        
-        .title {
-            text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        
-        .panel-title {
-            text-align: center;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .source {
-            text-align: right;
-            font-size: 10px;
-            color: #666;
-            margin-top: 10px;
-        }
-        
-        .annotation {
-            position: absolute;
-            background-color: rgba(255, 255, 255, 0.9);
-            border: 1px solid #ddd;
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 11px;
-            width: 200px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            line-height: 1.4;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-        
-        .china-color {
-            color: #C6002B;
-        }
-        
-        .us-color {
-            color: #004E8C;
-        }
-        
-        .legend {
-            display: flex;
-            justify-content: center;
-            margin-top: 5px;
-            font-size: 12px;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 8px;
-            border-radius: 4px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 0 15px;
-        }
-        
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            margin-right: 5px;
-        }
-        
-        .axis-label {
-            font-size: 11px;
-            fill: #555;
-            font-weight: bold;
-        }
-        
-        .dividend-region {
-            fill: rgba(144, 238, 144, 0.3);
-        }
-        
-        .drag-region {
-            fill: rgba(255, 182, 193, 0.3);
-        }
-        
-        .region-label {
-            font-size: 11px;
-            font-weight: bold;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .visualization-container {
+        width: 850px;
+        height: 750px; /* Increased height for better spacing */
+        position: relative;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+
+      .panel-title {
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .source {
+        text-align: right;
+        font-size: 10px;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .annotation {
+        position: absolute;
+        background-color: rgba(255, 255, 255, 0.9);
+        border: 1px solid #ddd;
+        padding: 12px;
+        border-radius: 4px;
+        font-size: 11px;
+        width: 200px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        line-height: 1.4;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        font-size: 1.2em;
+      }
+
+      .china-color {
+        color: #c6002b;
+      }
+
+      .us-color {
+        color: #004e8c;
+      }
+
+      .legend {
+        display: flex;
+        justify-content: center;
+        margin-top: 5px;
+        font-size: 12px;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 8px;
+        border-radius: 4px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin: 0 15px;
+      }
+
+      .legend-color {
+        width: 12px;
+        height: 12px;
+        margin-right: 5px;
+      }
+
+      .axis-label {
+        font-size: 11px;
+        fill: #555;
+        font-weight: bold;
+      }
+
+      .dividend-region {
+        fill: rgba(144, 238, 144, 0.3);
+      }
+
+      .drag-region {
+        fill: rgba(255, 182, 193, 0.3);
+      }
+
+      .region-label {
+        font-size: 11px;
+        font-weight: bold;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Demographic Dynamics: From Dividend to Drag (1980-2050)</div>
-        <div id="visualization"></div>
-        <div class="source">Source: UN Population Division, ECB 2024, Cai & Wang 2005</div>
+      <div class="title">Demographic Dynamics: From Dividend to Drag (1980-2050)</div>
+      <div id="visualization"></div>
+      <div class="source">Source: UN Population Division, ECB 2024, Cai & Wang 2005</div>
     </div>
 
     <script>
-        // Set up dimensions and margins
-        const margin = {top: 40, right: 70, bottom: 100, left: 70};
-        const width = 850 - margin.left - margin.right;
-        const height = 750 - margin.top - margin.bottom;
-        
-        // Panel heights - increased spacing between panels
-        const panelHeight = (height - 120) / 3;
-        const panelGap = 60; // Increased gap between panels
-        
-        // Create SVG
-        const svg = d3.select("#visualization")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-            
-        // Data for working-age population (in millions)
-        const workingAgeData = [
-            // China data
-            {country: "China", year: 1980, value: 600, projected: false},
-            {country: "China", year: 1990, value: 700, projected: false},
-            {country: "China", year: 2000, value: 830, projected: false},
-            {country: "China", year: 2011, value: 925, projected: false}, // Peak
-            {country: "China", year: 2018, value: 897, projected: false},
-            {country: "China", year: 2023, value: 880, projected: false},
-            {country: "China", year: 2030, value: 830, projected: true},
-            {country: "China", year: 2040, value: 760, projected: true},
-            {country: "China", year: 2050, value: 700, projected: true},
-            
-            // US data
-            {country: "US", year: 1980, value: 150, projected: false},
-            {country: "US", year: 1990, value: 165, projected: false},
-            {country: "US", year: 2000, value: 180, projected: false},
-            {country: "US", year: 2010, value: 195, projected: false},
-            {country: "US", year: 2023, value: 215, projected: false},
-            {country: "US", year: 2030, value: 220, projected: true},
-            {country: "US", year: 2040, value: 225, projected: true},
-            {country: "US", year: 2050, value: 230, projected: true}
-        ];
-        
-        // Data for old-age dependency ratio (%)
-        const dependencyData = [
-            // China data
-            {country: "China", year: 1980, value: 7.5, projected: false},
-            {country: "China", year: 1990, value: 8.0, projected: false},
-            {country: "China", year: 2000, value: 10.0, projected: false},
-            {country: "China", year: 2010, value: 12.0, projected: false},
-            {country: "China", year: 2023, value: 17.0, projected: false},
-            {country: "China", year: 2023, value: 17.0, projected: true}, // Duplicate to ensure continuity
-            {country: "China", year: 2030, value: 25.0, projected: true},
-            {country: "China", year: 2040, value: 35.0, projected: true},
-            {country: "China", year: 2050, value: 40.0, projected: true},
-            
-            // US data
-            {country: "US", year: 1980, value: 17.0, projected: false},
-            {country: "US", year: 1990, value: 19.0, projected: false},
-            {country: "US", year: 2000, value: 20.0, projected: false},
-            {country: "US", year: 2010, value: 22.0, projected: false},
-            {country: "US", year: 2023, value: 27.0, projected: false},
-            {country: "US", year: 2023, value: 27.0, projected: true}, // Duplicate to ensure continuity
-            {country: "US", year: 2030, value: 31.0, projected: true},
-            {country: "US", year: 2040, value: 35.0, projected: true},
-            {country: "US", year: 2050, value: 37.0, projected: true}
-        ];
-        
-        // Data for GDP growth impact (percentage points)
-        const gdpImpactData = [
-            {country: "China", period: "1980-2003", value: 1.2},
-            {country: "China", period: "2004-2015", value: 0.3},
-            {country: "China", period: "2016-2030", value: -0.7},
-            
-            {country: "US", period: "1980-2003", value: 0.2},
-            {country: "US", period: "2004-2015", value: -0.1},
-            {country: "US", period: "2016-2030", value: -0.2}
-        ];
-        
-        // X scale for the top two panels (years)
-        const xScaleYears = d3.scaleLinear()
-            .domain([1980, 2050])
-            .range([0, width]);
-            
-        // Y scales for the top panel (working-age population)
-        const yScaleChina = d3.scaleLinear()
-            .domain([0, 1000])
-            .range([panelHeight, 0]);
-            
-        const yScaleUS = d3.scaleLinear()
-            .domain([0, 250])
-            .range([panelHeight, 0]);
-            
-        // Y scale for the middle panel (dependency ratio)
-        const yScaleDependency = d3.scaleLinear()
-            .domain([0, 50])
-            .range([panelHeight, 0]);
-            
-        // Scales for the bottom panel (GDP impact)
-        const xScalePeriods = d3.scaleBand()
-            .domain(["1980-2003", "2004-2015", "2016-2030"])
-            .range([0, width])
-            .padding(0.5); // Increased padding for better spacing
-            
-        const yScaleGDP = d3.scaleLinear()
-            .domain([-2, 2])
-            .range([panelHeight, 0]);
-            
-        // Line generators
-        const lineChina = d3.line()
-            .x(d => xScaleYears(d.year))
-            .y(d => yScaleChina(d.value));
-            
-        const lineUS = d3.line()
-            .x(d => xScaleYears(d.year))
-            .y(d => yScaleUS(d.value));
-            
-        const lineDependency = d3.line()
-            .x(d => xScaleYears(d.year))
-            .y(d => yScaleDependency(d.value));
-            
-        // Create panel titles
-        svg.append("text")
-            .attr("class", "panel-title")
-            .attr("x", width / 2)
-            .attr("y", -10)
-            .attr("text-anchor", "middle")
-            .text("Working-Age Population (15-64 years)");
-            
-        svg.append("text")
-            .attr("class", "panel-title")
-            .attr("x", width / 2)
-            .attr("y", panelHeight + panelGap - 10)
-            .attr("text-anchor", "middle")
-            .text("Old-Age Dependency Ratio (65+/15-64)");
-            
-        svg.append("text")
-            .attr("class", "panel-title")
-            .attr("x", width / 2)
-            .attr("y", 2 * panelHeight + 2 * panelGap - 10)
-            .attr("text-anchor", "middle")
-            .text("Impact on Potential GDP Growth");
-            
-        // Add demographic dividend and drag regions to top panel
-        svg.append("rect")
-            .attr("class", "dividend-region")
-            .attr("x", xScaleYears(1980))
-            .attr("y", 0)
-            .attr("width", xScaleYears(2015) - xScaleYears(1980))
-            .attr("height", panelHeight);
-            
-        svg.append("rect")
-            .attr("class", "drag-region")
-            .attr("x", xScaleYears(2015))
-            .attr("y", 0)
-            .attr("width", xScaleYears(2050) - xScaleYears(2015))
-            .attr("height", panelHeight);
-            
-        // Add region labels with better positioning and spacing
-        svg.append("text")
-            .attr("class", "region-label")
-            .attr("x", xScaleYears(1997))
-            .attr("y", 20)
-            .attr("text-anchor", "middle")
-            .text("Demographic Dividend");
-            
-        svg.append("text")
-            .attr("class", "region-label")
-            .attr("x", xScaleYears(2032))
-            .attr("y", 20)
-            .attr("text-anchor", "middle")
-            .text("Demographic Drag");
-            
-        // Add vertical line for 2023 (separating historical from projections)
-        svg.append("line")
-            .attr("x1", xScaleYears(2023))
-            .attr("y1", 0)
-            .attr("x2", xScaleYears(2023))
-            .attr("y2", 2 * panelHeight + 2 * panelGap + panelHeight)
-            .attr("stroke", "#666")
-            .attr("stroke-width", 1)
-            .attr("stroke-dasharray", "5,5");
-            
-        // Add axes for top panel
-        svg.append("g")
-            .attr("transform", `translate(0,${panelHeight})`)
-            .call(d3.axisBottom(xScaleYears)
-                .tickValues([1980, 1990, 2000, 2010, 2020, 2030, 2040, 2050])
-                .tickFormat(d3.format("d")))
-            .attr("opacity", 0);  // Hide x-axis for top panel
-            
-        svg.append("g")
-            .call(d3.axisLeft(yScaleChina));
-            
-        svg.append("g")
-            .attr("transform", `translate(${width},0)`)
-            .call(d3.axisRight(yScaleUS));
-            
-        // Add axes for middle panel
-        svg.append("g")
-            .attr("transform", `translate(0,${panelHeight + panelGap + panelHeight})`)
-            .call(d3.axisBottom(xScaleYears)
-                .tickValues([1980, 1990, 2000, 2010, 2020, 2030, 2040, 2050])
-                .tickFormat(d3.format("d")));
-                
-        svg.append("g")
-            .attr("transform", `translate(0,${panelHeight + panelGap})`)
-            .call(d3.axisLeft(yScaleDependency)
-                .tickValues([0, 10, 20, 30, 40, 50])
-                .tickFormat(d => d + "%"));
-                
-        // Add axes for bottom panel
-        svg.append("g")
-            .attr("transform", `translate(0,${2 * panelHeight + 2 * panelGap + panelHeight})`)
-            .call(d3.axisBottom(xScalePeriods));
-            
-        svg.append("g")
-            .attr("transform", `translate(0,${2 * panelHeight + 2 * panelGap})`)
-            .call(d3.axisLeft(yScaleGDP)
-                .tickValues([-2, -1, 0, 1, 2])
-                .tickFormat(d => d + "%"));
-                
-        // Add axis labels
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("x", -40)
-            .attr("y", panelHeight / 2)
-            .attr("text-anchor", "middle")
-            .attr("transform", `rotate(-90, -40, ${panelHeight / 2})`)
-            .text("China (millions)");
-            
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("x", width + 40)
-            .attr("y", panelHeight / 2)
-            .attr("text-anchor", "middle")
-            .attr("transform", `rotate(90, ${width + 40}, ${panelHeight / 2})`)
-            .text("US (millions)");
-            
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("x", -40)
-            .attr("y", panelHeight + panelGap + panelHeight / 2)
-            .attr("text-anchor", "middle")
-            .attr("transform", `rotate(-90, -40, ${panelHeight + panelGap + panelHeight / 2})`)
-            .text("Ratio (%)");
-            
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("x", -40)
-            .attr("y", 2 * panelHeight + 2 * panelGap + panelHeight / 2)
-            .attr("text-anchor", "middle")
-            .attr("transform", `rotate(-90, -40, ${2 * panelHeight + 2 * panelGap + panelHeight / 2})`)
-            .text("Percentage points");
-            
-        // Add x-axis label (new addition)
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("x", width / 2)
-            .attr("y", 2 * panelHeight + 2 * panelGap + panelHeight + 40)
-            .attr("text-anchor", "middle")
-            .text("Year");
-            
-        // Draw lines for working-age population
-        // China historical
-        svg.append("path")
-            .datum(workingAgeData.filter(d => d.country === "China" && !d.projected))
-            .attr("fill", "none")
-            .attr("stroke", "#C6002B")
-            .attr("stroke-width", 2)
-            .attr("d", lineChina);
-            
-        // China projected
-        svg.append("path")
-            .datum(workingAgeData.filter(d => d.country === "China" && d.projected))
-            .attr("fill", "none")
-            .attr("stroke", "#C6002B")
-            .attr("stroke-width", 2)
-            .attr("stroke-dasharray", "5,5")
-            .attr("d", lineChina);
-            
-        // US historical
-        svg.append("path")
-            .datum(workingAgeData.filter(d => d.country === "US" && !d.projected))
-            .attr("fill", "none")
-            .attr("stroke", "#004E8C")
-            .attr("stroke-width", 2)
-            .attr("d", lineUS);
-            
-        // US projected
-        svg.append("path")
-            .datum(workingAgeData.filter(d => d.country === "US" && d.projected))
-            .attr("fill", "none")
-            .attr("stroke", "#004E8C")
-            .attr("stroke-width", 2)
-            .attr("stroke-dasharray", "5,5")
-            .attr("d", lineUS);
-            
-        // Draw lines for dependency ratio
-        // China historical
-        svg.append("path")
-            .datum(dependencyData.filter(d => d.country === "China" && !d.projected))
-            .attr("fill", "none")
-            .attr("stroke", "#C6002B")
-            .attr("stroke-width", 2)
-            .attr("transform", `translate(0,${panelHeight + panelGap})`)
-            .attr("d", lineDependency);
-            
-        // China projected
-        svg.append("path")
-            .datum(dependencyData.filter(d => d.country === "China" && d.projected))
-            .attr("fill", "none")
-            .attr("stroke", "#C6002B")
-            .attr("stroke-width", 2)
-            .attr("stroke-dasharray", "5,5")
-            .attr("transform", `translate(0,${panelHeight + panelGap})`)
-            .attr("d", lineDependency);
-            
-        // US historical
-        svg.append("path")
-            .datum(dependencyData.filter(d => d.country === "US" && !d.projected))
-            .attr("fill", "none")
-            .attr("stroke", "#004E8C")
-            .attr("stroke-width", 2)
-            .attr("transform", `translate(0,${panelHeight + panelGap})`)
-            .attr("d", lineDependency);
-            
-        // US projected
-        svg.append("path")
-            .datum(dependencyData.filter(d => d.country === "US" && d.projected))
-            .attr("fill", "none")
-            .attr("stroke", "#004E8C")
-            .attr("stroke-width", 2)
-            .attr("stroke-dasharray", "5,5")
-            .attr("transform", `translate(0,${panelHeight + panelGap})`)
-            .attr("d", lineDependency);
-            
-        // Draw bars for GDP impact with increased width
-        // China
-        svg.selectAll(".bar-china")
-            .data(gdpImpactData.filter(d => d.country === "China"))
-            .enter()
-            .append("rect")
-            .attr("class", "bar-china")
-            .attr("x", d => xScalePeriods(d.period))
-            .attr("y", d => d.value > 0 ? 
-                yScaleGDP(d.value) + 2 * panelHeight + 2 * panelGap : 
-                yScaleGDP(0) + 2 * panelHeight + 2 * panelGap)
-            .attr("width", xScalePeriods.bandwidth() / 2)
-            .attr("height", d => Math.abs(yScaleGDP(d.value) - yScaleGDP(0)))
-            .attr("fill", "#C6002B");
-            
-        // US - increased width
-        svg.selectAll(".bar-us")
-            .data(gdpImpactData.filter(d => d.country === "US"))
-            .enter()
-            .append("rect")
-            .attr("class", "bar-us")
-            .attr("x", d => xScalePeriods(d.period) + xScalePeriods.bandwidth() / 2 + 2)
-            .attr("y", d => d.value > 0 ? 
-                yScaleGDP(d.value) + 2 * panelHeight + 2 * panelGap : 
-                yScaleGDP(0) + 2 * panelHeight + 2 * panelGap)
-            .attr("width", xScalePeriods.bandwidth() / 2 - 2)
-            .attr("height", d => Math.abs(yScaleGDP(d.value) - yScaleGDP(0)))
-            .attr("fill", "#004E8C");
-            
-        // Add zero line for GDP impact
-        svg.append("line")
-            .attr("x1", 0)
-            .attr("y1", yScaleGDP(0) + 2 * panelHeight + 2 * panelGap)
-            .attr("x2", width)
-            .attr("y2", yScaleGDP(0) + 2 * panelHeight + 2 * panelGap)
-            .attr("stroke", "#666")
-            .attr("stroke-width", 1);
-            
-        // Mark peak of China's working-age population - repositioned for better visibility
-        svg.append("circle")
-            .attr("cx", xScaleYears(2011))
-            .attr("cy", yScaleChina(925))
-            .attr("r", 4)
-            .attr("fill", "#C6002B");
-            
-        svg.append("text")
-            .attr("x", xScaleYears(2011) + 8)
-            .attr("y", yScaleChina(925) - 8)
-            .attr("text-anchor", "start")
-            .attr("font-size", "11px")
-            .attr("font-weight", "bold")
-            .text("Peak: 925 million (2011)");
-            
-        // Add annotation box - fixed formatting and positioning
-        const annotation = svg.append("foreignObject")
-            .attr("x", xScaleYears(2030) - 10)
-            .attr("y", yScaleChina(600))
-            .attr("width", 220)
-            .attr("height", 150);
-            
-        annotation.append("xhtml:div")
-            .attr("class", "annotation")
-            .html(`
+      // Set up dimensions and margins
+      const margin = { top: 40, right: 70, bottom: 100, left: 70 }
+      const width = 850 - margin.left - margin.right
+      const height = 750 - margin.top - margin.bottom
+
+      // Panel heights - increased spacing between panels
+      const panelHeight = (height - 120) / 3
+      const panelGap = 60 // Increased gap between panels
+
+      // Create SVG
+      const svg = d3
+        .select('#visualization')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
+
+      // Data for working-age population (in millions)
+      const workingAgeData = [
+        // China data
+        { country: 'China', year: 1980, value: 600, projected: false },
+        { country: 'China', year: 1990, value: 700, projected: false },
+        { country: 'China', year: 2000, value: 830, projected: false },
+        { country: 'China', year: 2011, value: 925, projected: false }, // Peak
+        { country: 'China', year: 2018, value: 897, projected: false },
+        { country: 'China', year: 2023, value: 880, projected: false },
+        { country: 'China', year: 2030, value: 830, projected: true },
+        { country: 'China', year: 2040, value: 760, projected: true },
+        { country: 'China', year: 2050, value: 700, projected: true },
+
+        // US data
+        { country: 'US', year: 1980, value: 150, projected: false },
+        { country: 'US', year: 1990, value: 165, projected: false },
+        { country: 'US', year: 2000, value: 180, projected: false },
+        { country: 'US', year: 2010, value: 195, projected: false },
+        { country: 'US', year: 2023, value: 215, projected: false },
+        { country: 'US', year: 2030, value: 220, projected: true },
+        { country: 'US', year: 2040, value: 225, projected: true },
+        { country: 'US', year: 2050, value: 230, projected: true },
+      ]
+
+      // Data for old-age dependency ratio (%)
+      const dependencyData = [
+        // China data
+        { country: 'China', year: 1980, value: 7.5, projected: false },
+        { country: 'China', year: 1990, value: 8.0, projected: false },
+        { country: 'China', year: 2000, value: 10.0, projected: false },
+        { country: 'China', year: 2010, value: 12.0, projected: false },
+        { country: 'China', year: 2023, value: 17.0, projected: false },
+        { country: 'China', year: 2023, value: 17.0, projected: true }, // Duplicate to ensure continuity
+        { country: 'China', year: 2030, value: 25.0, projected: true },
+        { country: 'China', year: 2040, value: 35.0, projected: true },
+        { country: 'China', year: 2050, value: 40.0, projected: true },
+
+        // US data
+        { country: 'US', year: 1980, value: 17.0, projected: false },
+        { country: 'US', year: 1990, value: 19.0, projected: false },
+        { country: 'US', year: 2000, value: 20.0, projected: false },
+        { country: 'US', year: 2010, value: 22.0, projected: false },
+        { country: 'US', year: 2023, value: 27.0, projected: false },
+        { country: 'US', year: 2023, value: 27.0, projected: true }, // Duplicate to ensure continuity
+        { country: 'US', year: 2030, value: 31.0, projected: true },
+        { country: 'US', year: 2040, value: 35.0, projected: true },
+        { country: 'US', year: 2050, value: 37.0, projected: true },
+      ]
+
+      // Data for GDP growth impact (percentage points)
+      const gdpImpactData = [
+        { country: 'China', period: '1980-2003', value: 1.2 },
+        { country: 'China', period: '2004-2015', value: 0.3 },
+        { country: 'China', period: '2016-2030', value: -0.7 },
+
+        { country: 'US', period: '1980-2003', value: 0.2 },
+        { country: 'US', period: '2004-2015', value: -0.1 },
+        { country: 'US', period: '2016-2030', value: -0.2 },
+      ]
+
+      // X scale for the top two panels (years)
+      const xScaleYears = d3.scaleLinear().domain([1980, 2050]).range([0, width])
+
+      // Y scales for the top panel (working-age population)
+      const yScaleChina = d3.scaleLinear().domain([0, 1000]).range([panelHeight, 0])
+
+      const yScaleUS = d3.scaleLinear().domain([0, 250]).range([panelHeight, 0])
+
+      // Y scale for the middle panel (dependency ratio)
+      const yScaleDependency = d3.scaleLinear().domain([0, 50]).range([panelHeight, 0])
+
+      // Scales for the bottom panel (GDP impact)
+      const xScalePeriods = d3
+        .scaleBand()
+        .domain(['1980-2003', '2004-2015', '2016-2030'])
+        .range([0, width])
+        .padding(0.5) // Increased padding for better spacing
+
+      const yScaleGDP = d3.scaleLinear().domain([-2, 2]).range([panelHeight, 0])
+
+      // Line generators
+      const lineChina = d3
+        .line()
+        .x((d) => xScaleYears(d.year))
+        .y((d) => yScaleChina(d.value))
+
+      const lineUS = d3
+        .line()
+        .x((d) => xScaleYears(d.year))
+        .y((d) => yScaleUS(d.value))
+
+      const lineDependency = d3
+        .line()
+        .x((d) => xScaleYears(d.year))
+        .y((d) => yScaleDependency(d.value))
+
+      // Create panel titles
+      svg
+        .append('text')
+        .attr('class', 'panel-title')
+        .attr('x', width / 2)
+        .attr('y', -10)
+        .attr('text-anchor', 'middle')
+        .text('Working-Age Population (15-64 years)')
+
+      svg
+        .append('text')
+        .attr('class', 'panel-title')
+        .attr('x', width / 2)
+        .attr('y', panelHeight + panelGap - 10)
+        .attr('text-anchor', 'middle')
+        .text('Old-Age Dependency Ratio (65+/15-64)')
+
+      svg
+        .append('text')
+        .attr('class', 'panel-title')
+        .attr('x', width / 2)
+        .attr('y', 2 * panelHeight + 2 * panelGap - 10)
+        .attr('text-anchor', 'middle')
+        .text('Impact on Potential GDP Growth')
+
+      // Add demographic dividend and drag regions to top panel
+      svg
+        .append('rect')
+        .attr('class', 'dividend-region')
+        .attr('x', xScaleYears(1980))
+        .attr('y', 0)
+        .attr('width', xScaleYears(2015) - xScaleYears(1980))
+        .attr('height', panelHeight)
+
+      svg
+        .append('rect')
+        .attr('class', 'drag-region')
+        .attr('x', xScaleYears(2015))
+        .attr('y', 0)
+        .attr('width', xScaleYears(2050) - xScaleYears(2015))
+        .attr('height', panelHeight)
+
+      // Add region labels with better positioning and spacing
+      svg
+        .append('text')
+        .attr('class', 'region-label')
+        .attr('x', xScaleYears(1997))
+        .attr('y', 20)
+        .attr('text-anchor', 'middle')
+        .text('Demographic Dividend')
+
+      svg
+        .append('text')
+        .attr('class', 'region-label')
+        .attr('x', xScaleYears(2032))
+        .attr('y', 20)
+        .attr('text-anchor', 'middle')
+        .text('Demographic Drag')
+
+      // Add vertical line for 2023 (separating historical from projections)
+      svg
+        .append('line')
+        .attr('x1', xScaleYears(2023))
+        .attr('y1', 0)
+        .attr('x2', xScaleYears(2023))
+        .attr('y2', 2 * panelHeight + 2 * panelGap + panelHeight)
+        .attr('stroke', '#666')
+        .attr('stroke-width', 1)
+        .attr('stroke-dasharray', '5,5')
+
+      // Add axes for top panel
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${panelHeight})`)
+        .call(
+          d3
+            .axisBottom(xScaleYears)
+            .tickValues([1980, 1990, 2000, 2010, 2020, 2030, 2040, 2050])
+            .tickFormat(d3.format('d'))
+        )
+        .attr('opacity', 0) // Hide x-axis for top panel
+
+      svg.append('g').call(d3.axisLeft(yScaleChina))
+
+      svg.append('g').attr('transform', `translate(${width},0)`).call(d3.axisRight(yScaleUS))
+
+      // Add axes for middle panel
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${panelHeight + panelGap + panelHeight})`)
+        .call(
+          d3
+            .axisBottom(xScaleYears)
+            .tickValues([1980, 1990, 2000, 2010, 2020, 2030, 2040, 2050])
+            .tickFormat(d3.format('d'))
+        )
+
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${panelHeight + panelGap})`)
+        .call(
+          d3
+            .axisLeft(yScaleDependency)
+            .tickValues([0, 10, 20, 30, 40, 50])
+            .tickFormat((d) => d + '%')
+        )
+
+      // Add axes for bottom panel
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${2 * panelHeight + 2 * panelGap + panelHeight})`)
+        .call(d3.axisBottom(xScalePeriods))
+
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${2 * panelHeight + 2 * panelGap})`)
+        .call(
+          d3
+            .axisLeft(yScaleGDP)
+            .tickValues([-2, -1, 0, 1, 2])
+            .tickFormat((d) => d + '%')
+        )
+
+      // Add axis labels
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('x', -40)
+        .attr('y', panelHeight / 2)
+        .attr('text-anchor', 'middle')
+        .attr('transform', `rotate(-90, -40, ${panelHeight / 2})`)
+        .text('China (millions)')
+
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('x', width + 40)
+        .attr('y', panelHeight / 2)
+        .attr('text-anchor', 'middle')
+        .attr('transform', `rotate(90, ${width + 40}, ${panelHeight / 2})`)
+        .text('US (millions)')
+
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('x', -40)
+        .attr('y', panelHeight + panelGap + panelHeight / 2)
+        .attr('text-anchor', 'middle')
+        .attr('transform', `rotate(-90, -40, ${panelHeight + panelGap + panelHeight / 2})`)
+        .text('Ratio (%)')
+
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('x', -40)
+        .attr('y', 2 * panelHeight + 2 * panelGap + panelHeight / 2)
+        .attr('text-anchor', 'middle')
+        .attr('transform', `rotate(-90, -40, ${2 * panelHeight + 2 * panelGap + panelHeight / 2})`)
+        .text('Percentage points')
+
+      // Add x-axis label (new addition)
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('x', width / 2)
+        .attr('y', 2 * panelHeight + 2 * panelGap + panelHeight + 40)
+        .attr('text-anchor', 'middle')
+        .text('Year')
+
+      // Draw lines for working-age population
+      // China historical
+      svg
+        .append('path')
+        .datum(workingAgeData.filter((d) => d.country === 'China' && !d.projected))
+        .attr('fill', 'none')
+        .attr('stroke', '#C6002B')
+        .attr('stroke-width', 2)
+        .attr('d', lineChina)
+
+      // China projected
+      svg
+        .append('path')
+        .datum(workingAgeData.filter((d) => d.country === 'China' && d.projected))
+        .attr('fill', 'none')
+        .attr('stroke', '#C6002B')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,5')
+        .attr('d', lineChina)
+
+      // US historical
+      svg
+        .append('path')
+        .datum(workingAgeData.filter((d) => d.country === 'US' && !d.projected))
+        .attr('fill', 'none')
+        .attr('stroke', '#004E8C')
+        .attr('stroke-width', 2)
+        .attr('d', lineUS)
+
+      // US projected
+      svg
+        .append('path')
+        .datum(workingAgeData.filter((d) => d.country === 'US' && d.projected))
+        .attr('fill', 'none')
+        .attr('stroke', '#004E8C')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,5')
+        .attr('d', lineUS)
+
+      // Draw lines for dependency ratio
+      // China historical
+      svg
+        .append('path')
+        .datum(dependencyData.filter((d) => d.country === 'China' && !d.projected))
+        .attr('fill', 'none')
+        .attr('stroke', '#C6002B')
+        .attr('stroke-width', 2)
+        .attr('transform', `translate(0,${panelHeight + panelGap})`)
+        .attr('d', lineDependency)
+
+      // China projected
+      svg
+        .append('path')
+        .datum(dependencyData.filter((d) => d.country === 'China' && d.projected))
+        .attr('fill', 'none')
+        .attr('stroke', '#C6002B')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,5')
+        .attr('transform', `translate(0,${panelHeight + panelGap})`)
+        .attr('d', lineDependency)
+
+      // US historical
+      svg
+        .append('path')
+        .datum(dependencyData.filter((d) => d.country === 'US' && !d.projected))
+        .attr('fill', 'none')
+        .attr('stroke', '#004E8C')
+        .attr('stroke-width', 2)
+        .attr('transform', `translate(0,${panelHeight + panelGap})`)
+        .attr('d', lineDependency)
+
+      // US projected
+      svg
+        .append('path')
+        .datum(dependencyData.filter((d) => d.country === 'US' && d.projected))
+        .attr('fill', 'none')
+        .attr('stroke', '#004E8C')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,5')
+        .attr('transform', `translate(0,${panelHeight + panelGap})`)
+        .attr('d', lineDependency)
+
+      // Draw bars for GDP impact with increased width
+      // China
+      svg
+        .selectAll('.bar-china')
+        .data(gdpImpactData.filter((d) => d.country === 'China'))
+        .enter()
+        .append('rect')
+        .attr('class', 'bar-china')
+        .attr('x', (d) => xScalePeriods(d.period))
+        .attr('y', (d) =>
+          d.value > 0
+            ? yScaleGDP(d.value) + 2 * panelHeight + 2 * panelGap
+            : yScaleGDP(0) + 2 * panelHeight + 2 * panelGap
+        )
+        .attr('width', xScalePeriods.bandwidth() / 2)
+        .attr('height', (d) => Math.abs(yScaleGDP(d.value) - yScaleGDP(0)))
+        .attr('fill', '#C6002B')
+
+      // US - increased width
+      svg
+        .selectAll('.bar-us')
+        .data(gdpImpactData.filter((d) => d.country === 'US'))
+        .enter()
+        .append('rect')
+        .attr('class', 'bar-us')
+        .attr('x', (d) => xScalePeriods(d.period) + xScalePeriods.bandwidth() / 2 + 2)
+        .attr('y', (d) =>
+          d.value > 0
+            ? yScaleGDP(d.value) + 2 * panelHeight + 2 * panelGap
+            : yScaleGDP(0) + 2 * panelHeight + 2 * panelGap
+        )
+        .attr('width', xScalePeriods.bandwidth() / 2 - 2)
+        .attr('height', (d) => Math.abs(yScaleGDP(d.value) - yScaleGDP(0)))
+        .attr('fill', '#004E8C')
+
+      // Add zero line for GDP impact
+      svg
+        .append('line')
+        .attr('x1', 0)
+        .attr('y1', yScaleGDP(0) + 2 * panelHeight + 2 * panelGap)
+        .attr('x2', width)
+        .attr('y2', yScaleGDP(0) + 2 * panelHeight + 2 * panelGap)
+        .attr('stroke', '#666')
+        .attr('stroke-width', 1)
+
+      // Mark peak of China's working-age population - repositioned for better visibility
+      svg
+        .append('circle')
+        .attr('cx', xScaleYears(2011))
+        .attr('cy', yScaleChina(925))
+        .attr('r', 4)
+        .attr('fill', '#C6002B')
+
+      svg
+        .append('text')
+        .attr('x', xScaleYears(2011) + 8)
+        .attr('y', yScaleChina(925) - 8)
+        .attr('text-anchor', 'start')
+        .attr('font-size', '11px')
+        .attr('font-weight', 'bold')
+        .text('Peak: 925 million (2011)')
+
+      // Add annotation box - fixed formatting and positioning
+      const annotation = svg
+        .append('foreignObject')
+        .attr('x', xScaleYears(2030) - 10)
+        .attr('y', yScaleChina(600))
+        .attr('width', 220)
+        .attr('height', 150)
+
+      annotation.append('xhtml:div').attr('class', 'annotation').html(`
                 China's demographic transition from dividend to drag represents a reversal from 
                 <span class="key-number china-color">+1.2</span> percentage points contribution to growth during 1980-2003 
                 to a projected <span class="key-number china-color">-0.7</span> percentage point drag during 2016-2030. 
                 The US faces milder demographic headwinds due to higher immigration and fertility rates.
-            `);
-                
-        // Add legend with better styling and integration
-        const legendBg = svg.append("rect")
-            .attr("x", width/2 - 220)
-            .attr("y", 3 * panelHeight + 2 * panelGap + 50)
-            .attr("width", 440)
-            .attr("height", 30)
-            .attr("fill", "white")
-            .attr("stroke", "#ddd")
-            .attr("rx", 4);
-            
-        const legend = svg.append("g")
-            .attr("transform", `translate(${width/2 - 200},${3 * panelHeight + 2 * panelGap + 65})`);
-            
-        // China legend item
-        legend.append("rect")
-            .attr("width", 15)
-            .attr("height", 15)
-            .attr("fill", "#C6002B");
-            
-        legend.append("text")
-            .attr("x", 25)
-            .attr("y", 12)
-            .attr("font-size", "12px")
-            .text("China");
-            
-        // US legend item
-        legend.append("rect")
-            .attr("x", 90)
-            .attr("width", 15)
-            .attr("height", 15)
-            .attr("fill", "#004E8C");
-            
-        legend.append("text")
-            .attr("x", 115)
-            .attr("y", 12)
-            .attr("font-size", "12px")
-            .text("United States");
-            
-        // Historical line legend
-        legend.append("line")
-            .attr("x1", 210)
-            .attr("y1", 7)
-            .attr("x2", 240)
-            .attr("y2", 7)
-            .attr("stroke", "#666")
-            .attr("stroke-width", 2);
-            
-        legend.append("text")
-            .attr("x", 250)
-            .attr("y", 12)
-            .attr("font-size", "12px")
-            .text("Historical");
-            
-        // Projected line legend
-        legend.append("line")
-            .attr("x1", 330)
-            .attr("y1", 7)
-            .attr("x2", 360)
-            .attr("y2", 7)
-            .attr("stroke", "#666")
-            .attr("stroke-width", 2)
-            .attr("stroke-dasharray", "5,5");
-            
-        legend.append("text")
-            .attr("x", 370)
-            .attr("y", 12)
-            .attr("font-size", "12px")
-            .text("Projected");
+            `)
+
+      // Add legend with better styling and integration
+      const legendBg = svg
+        .append('rect')
+        .attr('x', width / 2 - 220)
+        .attr('y', 3 * panelHeight + 2 * panelGap + 50)
+        .attr('width', 440)
+        .attr('height', 30)
+        .attr('fill', 'white')
+        .attr('stroke', '#ddd')
+        .attr('rx', 4)
+
+      const legend = svg
+        .append('g')
+        .attr('transform', `translate(${width / 2 - 200},${3 * panelHeight + 2 * panelGap + 65})`)
+
+      // China legend item
+      legend.append('rect').attr('width', 15).attr('height', 15).attr('fill', '#C6002B')
+
+      legend.append('text').attr('x', 25).attr('y', 12).attr('font-size', '12px').text('China')
+
+      // US legend item
+      legend
+        .append('rect')
+        .attr('x', 90)
+        .attr('width', 15)
+        .attr('height', 15)
+        .attr('fill', '#004E8C')
+
+      legend
+        .append('text')
+        .attr('x', 115)
+        .attr('y', 12)
+        .attr('font-size', '12px')
+        .text('United States')
+
+      // Historical line legend
+      legend
+        .append('line')
+        .attr('x1', 210)
+        .attr('y1', 7)
+        .attr('x2', 240)
+        .attr('y2', 7)
+        .attr('stroke', '#666')
+        .attr('stroke-width', 2)
+
+      legend
+        .append('text')
+        .attr('x', 250)
+        .attr('y', 12)
+        .attr('font-size', '12px')
+        .text('Historical')
+
+      // Projected line legend
+      legend
+        .append('line')
+        .attr('x1', 330)
+        .attr('y1', 7)
+        .attr('x2', 360)
+        .attr('y2', 7)
+        .attr('stroke', '#666')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,5')
+
+      legend.append('text').attr('x', 370).attr('y', 12).attr('font-size', '12px').text('Projected')
     </script>
-</body>
+  </body>
 </html>

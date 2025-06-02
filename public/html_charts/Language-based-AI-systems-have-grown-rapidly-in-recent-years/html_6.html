@@ -1,619 +1,649 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Evolution of Multimodal Foundation Models</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f9f9f9;
-        }
-        
-        .visualization-container {
-            width: 950px;
-            height: 620px;
-            background-color: white;
-            position: relative;
-        }
-        
-        .title {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-top: 20px;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            text-align: center;
-            font-size: 16px;
-            color: #555;
-            margin-bottom: 25px;
-        }
-        
-        .source {
-            position: absolute;
-            bottom: 15px;
-            right: 25px;
-            font-size: 12px;
-            color: #777;
-            font-style: italic;
-        }
-        
-        .model-box {
-            position: absolute;
-            border-radius: 8px;
-            padding: 12px;
-            box-sizing: border-box;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .model-box:hover {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transform: translateY(-2px);
-        }
-        
-        .early-approach {
-            background-color: #d1e5f0;
-            border: 1px solid #b3d4e6;
-            color: #333;
-        }
-        
-        .transformer-based {
-            background-color: #4a90e2;
-            border: 1px solid #3a80d2;
-            color: white;
-        }
-        
-        .advanced-architecture {
-            background-color: #2c3e50;
-            border: 1px solid #1a2530;
-            color: white;
-        }
-        
-        .legend-container {
-            position: absolute;
-            bottom: 15px;
-            left: 15px;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 8px 12px;
-            border-radius: 5px;
-            border: 1px solid #eee;
-        }
-        
-        .legend-title {
-            font-weight: bold;
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 4px;
-            font-size: 11px;
-        }
-        
-        .legend-color {
-            width: 14px;
-            height: 14px;
-            margin-right: 8px;
-            border-radius: 3px;
-        }
-        
-        .legend-line {
-            width: 20px;
-            height: 2px;
-            margin-right: 8px;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f9f9f9;
+      }
+
+      .visualization-container {
+        width: 950px;
+        height: 620px;
+        background-color: white;
+        position: relative;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 20px;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        text-align: center;
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 25px;
+      }
+
+      .source {
+        position: absolute;
+        bottom: 15px;
+        right: 25px;
+        font-size: 12px;
+        color: #777;
+        font-style: italic;
+      }
+
+      .model-box {
+        position: absolute;
+        border-radius: 8px;
+        padding: 12px;
+        box-sizing: border-box;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .model-box:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .early-approach {
+        background-color: #d1e5f0;
+        border: 1px solid #b3d4e6;
+        color: #333;
+      }
+
+      .transformer-based {
+        background-color: #4a90e2;
+        border: 1px solid #3a80d2;
+        color: white;
+      }
+
+      .advanced-architecture {
+        background-color: #2c3e50;
+        border: 1px solid #1a2530;
+        color: white;
+      }
+
+      .legend-container {
+        position: absolute;
+        bottom: 15px;
+        left: 15px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 8px 12px;
+        border-radius: 5px;
+        border: 1px solid #eee;
+      }
+
+      .legend-title {
+        font-weight: bold;
+        font-size: 12px;
+        margin-bottom: 5px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 4px;
+        font-size: 11px;
+      }
+
+      .legend-color {
+        width: 14px;
+        height: 14px;
+        margin-right: 8px;
+        border-radius: 3px;
+      }
+
+      .legend-line {
+        width: 20px;
+        height: 2px;
+        margin-right: 8px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Evolution of Multimodal Foundation Models (2015-2024)</div>
-        <div class="subtitle">Key architectural approaches to combining language with other modalities</div>
-        
-        <div id="flowchart"></div>
-        
-        <div class="source">Source: arXiv 2411.06284, 2024</div>
+      <div class="title">Evolution of Multimodal Foundation Models (2015-2024)</div>
+      <div class="subtitle">
+        Key architectural approaches to combining language with other modalities
+      </div>
+
+      <div id="flowchart"></div>
+
+      <div class="source">Source: arXiv 2411.06284, 2024</div>
     </div>
 
     <script>
-        // SVG setup
-        const svg = d3.select("#flowchart")
-            .append("svg")
-            .attr("width", 950)
-            .attr("height", 500)
-            .attr("viewBox", "0 0 950 500");
-            
-        // Define time periods
-        const periods = [
-            { name: "Early Approaches", years: "2015-2018", x: 0, width: 300 },
-            { name: "Transformer Evolution", years: "2019-2022", x: 300, width: 350 },
-            { name: "Advanced Architectures", years: "2023-2024", x: 650, width: 300 }
-        ];
-        
-        // Add period headers
-        periods.forEach(period => {
-            svg.append("text")
-                .attr("x", period.x + period.width/2)
-                .attr("y", 25)
-                .attr("text-anchor", "middle")
-                .attr("class", "period-header")
-                .attr("font-weight", "bold")
-                .attr("font-size", "16px")
-                .text(period.name);
-                
-            svg.append("text")
-                .attr("x", period.x + period.width/2)
-                .attr("y", 45)
-                .attr("text-anchor", "middle")
-                .attr("font-size", "13px")
-                .attr("fill", "#666")
-                .text(period.years);
-        });
-        
-        // Add period dividers
-        svg.append("line")
-            .attr("x1", 300)
-            .attr("y1", 60)
-            .attr("x2", 300)
-            .attr("y2", 420)
-            .attr("stroke", "#ddd")
-            .attr("stroke-width", 1);
-            
-        svg.append("line")
-            .attr("x1", 650)
-            .attr("y1", 60)
-            .attr("x2", 650)
-            .attr("y2", 420)
-            .attr("stroke", "#ddd")
-            .attr("stroke-width", 1);
-        
-        // Define models with adjusted positions and sizes to fix overlapping issues
-        const models = [
-            // Early Approaches
-            { 
-                id: "cnn-rnn", 
-                title: "CNN+RNN (Show, Attend and Tell)", 
-                year: "2015", 
-                description: "Early image captioning combining convolutional and recurrent networks", 
-                x: 50, 
-                y: 90, 
-                width: 220,
-                height: 80,
-                type: "early-approach" 
-            },
-            { 
-                id: "vqa", 
-                title: "Visual Question Answering (VQA)", 
-                year: "2016-2018", 
-                description: "Systems designed to answer questions about visual content", 
-                x: 50, 
-                y: 220, 
-                width: 220,
-                height: 80,
-                type: "early-approach" 
-            },
-            
-            // Transformer Evolution - Repositioned to reduce overlaps
-            { 
-                id: "vilbert", 
-                title: "Vision-Language Transformers", 
-                year: "2019", 
-                description: "BERT-based architecture for joint image-text representation", 
-                x: 320, 
-                y: 90, 
-                width: 240,
-                height: 80,
-                type: "transformer-based" 
-            },
-            { 
-                id: "clip", 
-                title: "CLIP", 
-                year: "2021", 
-                description: "Contrastive learning between image and text pairs at scale", 
-                x: 320, 
-                y: 220, 
-                width: 220,
-                height: 80,
-                type: "transformer-based" 
-            },
-            { 
-                id: "dalle", 
-                title: "DALL·E", 
-                year: "2021", 
-                description: "Text-to-image generation using transformer decoders", 
-                x: 400, 
-                y: 350, // Moved down to avoid overlap with connection lines
-                width: 230,
-                height: 80,
-                type: "transformer-based" 
-            },
-            { 
-                id: "vit", 
-                title: "Vision Transformers (ViT)", 
-                year: "2021", 
-                description: "Pure transformer approach to image processing", 
-                x: 580, 
-                y: 220, // Repositioned to reduce overlap
-                width: 220,
-                height: 80,
-                type: "transformer-based" 
-            },
-            
-            // Advanced Architectures
-            { 
-                id: "diffmic", 
-                title: "DiffMIC", 
-                year: "2024", 
-                description: "Dual conditional-guidance diffusion with MMD regularization for medical imaging", 
-                x: 680, 
-                y: 90, 
-                width: 240,
-                height: 90,
-                type: "advanced-architecture" 
-            },
-            { 
-                id: "sadm", 
-                title: "SADM", 
-                year: "2024", 
-                description: "Sequence-Aware Diffusion Models for longitudinal imaging", 
-                x: 680, 
-                y: 210, 
-                width: 240,
-                height: 80,
-                type: "advanced-architecture" 
-            },
-            { 
-                id: "multimodal-llm", 
-                title: "Multimodal LLMs", 
-                year: "2023-2024", 
-                description: "End-to-end systems handling text, images, audio, and video", 
-                x: 680, 
-                y: 320, 
-                width: 240,
-                height: 90,
-                type: "advanced-architecture",
-                subtitle: "(GPT-4V, Gemini, Claude 3)"
-            }
-        ];
-        
-        // Define connections between models with improved routing to avoid overlaps
-        const connections = [
-            { source: "cnn-rnn", target: "vqa", type: "influence" },
-            { source: "cnn-rnn", target: "vilbert", type: "evolution" },
-            { source: "vqa", target: "vilbert", type: "evolution" },
-            { source: "vilbert", target: "clip", type: "influence" },
-            { source: "vilbert", target: "vit", type: "influence" },
-            { source: "clip", target: "dalle", type: "influence" },
-            { source: "clip", target: "multimodal-llm", type: "evolution" },
-            { source: "dalle", target: "diffmic", type: "evolution" },
-            { source: "dalle", target: "sadm", type: "evolution" },
-            { source: "vit", target: "multimodal-llm", type: "evolution" }
-        ];
-        
-        // Add arrow marker
-        svg.append("defs").append("marker")
-            .attr("id", "arrow")
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 8)
-            .attr("refY", 0)
-            .attr("markerWidth", 6)
-            .attr("markerHeight", 6)
-            .attr("orient", "auto")
-            .append("path")
-            .attr("d", "M0,-5L10,0L0,5")
-            .attr("fill", "#444");
-            
-        // Add dashed arrow marker
-        svg.append("defs").append("marker")
-            .attr("id", "dashed-arrow")
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 8)
-            .attr("refY", 0)
-            .attr("markerWidth", 6)
-            .attr("markerHeight", 6)
-            .attr("orient", "auto")
-            .append("path")
-            .attr("d", "M0,-5L10,0L0,5")
-            .attr("fill", "#777");
-        
-        // Draw model boxes
-        const modelGroups = svg.selectAll(".model-group")
-            .data(models)
-            .enter()
-            .append("g")
-            .attr("class", "model-group")
-            .attr("transform", d => `translate(${d.x}, ${d.y})`);
-            
-        modelGroups.append("rect")
-            .attr("width", d => d.width)
-            .attr("height", d => d.height)
-            .attr("rx", 8)
-            .attr("ry", 8)
-            .attr("class", d => d.type)
-            .attr("fill", d => {
-                if (d.type === "early-approach") return "#d1e5f0";
-                if (d.type === "transformer-based") return "#4a90e2";
-                return "#2c3e50";
-            })
-            .attr("stroke", d => {
-                if (d.type === "early-approach") return "#b3d4e6";
-                if (d.type === "transformer-based") return "#3a80d2";
-                return "#1a2530";
-            })
-            .attr("stroke-width", 1);
-            
-        modelGroups.append("text")
-            .attr("x", 12)
-            .attr("y", 22)
-            .attr("font-size", "14px")
-            .attr("font-weight", "bold")
-            .attr("fill", d => d.type === "early-approach" ? "#333" : "#fff")
-            .text(d => d.title);
-            
-        modelGroups.append("text")
-            .attr("x", 12)
-            .attr("y", 40)
-            .attr("font-size", "12px")
-            .attr("fill", d => d.type === "early-approach" ? "#555" : "#e6f0fa")
-            .text(d => d.year);
-        
-        // Add descriptions with proper wrapping
-        modelGroups.each(function(d) {
-            const group = d3.select(this);
-            const maxWidth = d.width - 24; // 12px padding on each side
-            const words = d.description.split(/\s+/);
-            let line = "";
-            let lineNumber = 0;
-            const lineHeight = 16;
-            const y = 58;
-            
-            const tspan = group.append("text")
-                .attr("x", 12)
-                .attr("y", y)
-                .attr("font-size", "12px")
-                .attr("fill", d.type === "early-approach" ? "#444" : "#e6f0fa");
-                
-            for (let i = 0; i < words.length; i++) {
-                const testLine = line + words[i] + " ";
-                // Create a temporary text element to measure text width
-                const tempText = svg.append("text")
-                    .attr("font-size", "12px")
-                    .text(testLine)
-                    .style("visibility", "hidden");
-                const textWidth = tempText.node().getComputedTextLength();
-                tempText.remove();
-                
-                if (textWidth > maxWidth && i > 0) {
-                    tspan.append("tspan")
-                        .attr("x", 12)
-                        .attr("dy", lineNumber === 0 ? 0 : lineHeight)
-                        .text(line);
-                    line = words[i] + " ";
-                    lineNumber++;
-                } else {
-                    line = testLine;
-                }
-            }
-            
-            tspan.append("tspan")
-                .attr("x", 12)
-                .attr("dy", lineNumber === 0 ? 0 : lineHeight)
-                .text(line);
-                
-            // Add subtitle if exists
-            if (d.subtitle) {
-                tspan.append("tspan")
-                    .attr("x", 12)
-                    .attr("dy", lineHeight)
-                    .attr("font-style", "italic")
-                    .text(d.subtitle);
-            }
-        });
-        
-        // Draw connections with improved routing to avoid overlaps
-        connections.forEach(conn => {
-            const source = models.find(m => m.id === conn.source);
-            const target = models.find(m => m.id === conn.target);
-            
-            // Calculate connection points based on relative positions
-            let sourceX, sourceY, targetX, targetY;
-            
-            // Special case handling for connections to avoid overlaps
-            if (conn.source === "dalle" && (conn.target === "diffmic" || conn.target === "sadm")) {
-                // Special routing for DALL-E to DiffMIC and SADM connections
-                sourceX = source.x + source.width/2;
-                sourceY = source.y;
-                targetX = target.x;
-                targetY = target.y + target.height/2;
-            } else if (conn.source === "clip" && conn.target === "dalle") {
-                // Special routing for CLIP to DALL-E
-                sourceX = source.x + source.width/2;
-                sourceY = source.y + source.height;
-                targetX = target.x;
-                targetY = target.y + target.height/2;
-            } else if (conn.source === "vit" && conn.target === "multimodal-llm") {
-                // Special routing for ViT to Multimodal LLMs
-                sourceX = source.x + source.width;
-                sourceY = source.y + source.height/2;
-                targetX = target.x;
-                targetY = target.y + target.height/3; // Connect to upper third
-            } else if (conn.source === "clip" && conn.target === "multimodal-llm") {
-                // Special routing for CLIP to Multimodal LLMs
-                sourceX = source.x + source.width;
-                sourceY = source.y + source.height/2;
-                targetX = target.x;
-                targetY = target.y + target.height*2/3; // Connect to lower third
-            } else {
-                // Default connection points based on relative positions
-                if (source.x < target.x) {
-                    // Source is to the left of target
-                    sourceX = source.x + source.width;
-                    sourceY = source.y + source.height/2;
-                    targetX = target.x;
-                    targetY = target.y + target.height/2;
-                } else if (source.x > target.x) {
-                    // Source is to the right of target
-                    sourceX = source.x;
-                    sourceY = source.y + source.height/2;
-                    targetX = target.x + target.width;
-                    targetY = target.y + target.height/2;
-                } else if (source.y < target.y) {
-                    // Source is above target
-                    sourceX = source.x + source.width/2;
-                    sourceY = source.y + source.height;
-                    targetX = target.x + target.width/2;
-                    targetY = target.y;
-                } else {
-                    // Source is below target
-                    sourceX = source.x + source.width/2;
-                    sourceY = source.y;
-                    targetX = target.x + target.width/2;
-                    targetY = target.y + target.height;
-                }
-            }
-            
-            // Draw path with improved routing
-            const path = svg.append("path")
-                .attr("d", () => {
-                    // Calculate control points for a smooth curve
-                    let midX, midY;
-                    
-                    // Special case for DALL-E connections to avoid overlaps
-                    if (conn.source === "dalle" && (conn.target === "diffmic" || conn.target === "sadm")) {
-                        const controlX1 = sourceX - 50;
-                        const controlY1 = sourceY - 50;
-                        const controlX2 = targetX - 50;
-                        const controlY2 = targetY;
-                        return `M ${sourceX} ${sourceY} 
+      // SVG setup
+      const svg = d3
+        .select('#flowchart')
+        .append('svg')
+        .attr('width', 950)
+        .attr('height', 500)
+        .attr('viewBox', '0 0 950 500')
+
+      // Define time periods
+      const periods = [
+        { name: 'Early Approaches', years: '2015-2018', x: 0, width: 300 },
+        { name: 'Transformer Evolution', years: '2019-2022', x: 300, width: 350 },
+        { name: 'Advanced Architectures', years: '2023-2024', x: 650, width: 300 },
+      ]
+
+      // Add period headers
+      periods.forEach((period) => {
+        svg
+          .append('text')
+          .attr('x', period.x + period.width / 2)
+          .attr('y', 25)
+          .attr('text-anchor', 'middle')
+          .attr('class', 'period-header')
+          .attr('font-weight', 'bold')
+          .attr('font-size', '16px')
+          .text(period.name)
+
+        svg
+          .append('text')
+          .attr('x', period.x + period.width / 2)
+          .attr('y', 45)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '13px')
+          .attr('fill', '#666')
+          .text(period.years)
+      })
+
+      // Add period dividers
+      svg
+        .append('line')
+        .attr('x1', 300)
+        .attr('y1', 60)
+        .attr('x2', 300)
+        .attr('y2', 420)
+        .attr('stroke', '#ddd')
+        .attr('stroke-width', 1)
+
+      svg
+        .append('line')
+        .attr('x1', 650)
+        .attr('y1', 60)
+        .attr('x2', 650)
+        .attr('y2', 420)
+        .attr('stroke', '#ddd')
+        .attr('stroke-width', 1)
+
+      // Define models with adjusted positions and sizes to fix overlapping issues
+      const models = [
+        // Early Approaches
+        {
+          id: 'cnn-rnn',
+          title: 'CNN+RNN (Show, Attend and Tell)',
+          year: '2015',
+          description: 'Early image captioning combining convolutional and recurrent networks',
+          x: 50,
+          y: 90,
+          width: 220,
+          height: 80,
+          type: 'early-approach',
+        },
+        {
+          id: 'vqa',
+          title: 'Visual Question Answering (VQA)',
+          year: '2016-2018',
+          description: 'Systems designed to answer questions about visual content',
+          x: 50,
+          y: 220,
+          width: 220,
+          height: 80,
+          type: 'early-approach',
+        },
+
+        // Transformer Evolution - Repositioned to reduce overlaps
+        {
+          id: 'vilbert',
+          title: 'Vision-Language Transformers',
+          year: '2019',
+          description: 'BERT-based architecture for joint image-text representation',
+          x: 320,
+          y: 90,
+          width: 240,
+          height: 80,
+          type: 'transformer-based',
+        },
+        {
+          id: 'clip',
+          title: 'CLIP',
+          year: '2021',
+          description: 'Contrastive learning between image and text pairs at scale',
+          x: 320,
+          y: 220,
+          width: 220,
+          height: 80,
+          type: 'transformer-based',
+        },
+        {
+          id: 'dalle',
+          title: 'DALL·E',
+          year: '2021',
+          description: 'Text-to-image generation using transformer decoders',
+          x: 400,
+          y: 350, // Moved down to avoid overlap with connection lines
+          width: 230,
+          height: 80,
+          type: 'transformer-based',
+        },
+        {
+          id: 'vit',
+          title: 'Vision Transformers (ViT)',
+          year: '2021',
+          description: 'Pure transformer approach to image processing',
+          x: 580,
+          y: 220, // Repositioned to reduce overlap
+          width: 220,
+          height: 80,
+          type: 'transformer-based',
+        },
+
+        // Advanced Architectures
+        {
+          id: 'diffmic',
+          title: 'DiffMIC',
+          year: '2024',
+          description:
+            'Dual conditional-guidance diffusion with MMD regularization for medical imaging',
+          x: 680,
+          y: 90,
+          width: 240,
+          height: 90,
+          type: 'advanced-architecture',
+        },
+        {
+          id: 'sadm',
+          title: 'SADM',
+          year: '2024',
+          description: 'Sequence-Aware Diffusion Models for longitudinal imaging',
+          x: 680,
+          y: 210,
+          width: 240,
+          height: 80,
+          type: 'advanced-architecture',
+        },
+        {
+          id: 'multimodal-llm',
+          title: 'Multimodal LLMs',
+          year: '2023-2024',
+          description: 'End-to-end systems handling text, images, audio, and video',
+          x: 680,
+          y: 320,
+          width: 240,
+          height: 90,
+          type: 'advanced-architecture',
+          subtitle: '(GPT-4V, Gemini, Claude 3)',
+        },
+      ]
+
+      // Define connections between models with improved routing to avoid overlaps
+      const connections = [
+        { source: 'cnn-rnn', target: 'vqa', type: 'influence' },
+        { source: 'cnn-rnn', target: 'vilbert', type: 'evolution' },
+        { source: 'vqa', target: 'vilbert', type: 'evolution' },
+        { source: 'vilbert', target: 'clip', type: 'influence' },
+        { source: 'vilbert', target: 'vit', type: 'influence' },
+        { source: 'clip', target: 'dalle', type: 'influence' },
+        { source: 'clip', target: 'multimodal-llm', type: 'evolution' },
+        { source: 'dalle', target: 'diffmic', type: 'evolution' },
+        { source: 'dalle', target: 'sadm', type: 'evolution' },
+        { source: 'vit', target: 'multimodal-llm', type: 'evolution' },
+      ]
+
+      // Add arrow marker
+      svg
+        .append('defs')
+        .append('marker')
+        .attr('id', 'arrow')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 8)
+        .attr('refY', 0)
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
+        .attr('orient', 'auto')
+        .append('path')
+        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('fill', '#444')
+
+      // Add dashed arrow marker
+      svg
+        .append('defs')
+        .append('marker')
+        .attr('id', 'dashed-arrow')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 8)
+        .attr('refY', 0)
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
+        .attr('orient', 'auto')
+        .append('path')
+        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('fill', '#777')
+
+      // Draw model boxes
+      const modelGroups = svg
+        .selectAll('.model-group')
+        .data(models)
+        .enter()
+        .append('g')
+        .attr('class', 'model-group')
+        .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
+
+      modelGroups
+        .append('rect')
+        .attr('width', (d) => d.width)
+        .attr('height', (d) => d.height)
+        .attr('rx', 8)
+        .attr('ry', 8)
+        .attr('class', (d) => d.type)
+        .attr('fill', (d) => {
+          if (d.type === 'early-approach') return '#d1e5f0'
+          if (d.type === 'transformer-based') return '#4a90e2'
+          return '#2c3e50'
+        })
+        .attr('stroke', (d) => {
+          if (d.type === 'early-approach') return '#b3d4e6'
+          if (d.type === 'transformer-based') return '#3a80d2'
+          return '#1a2530'
+        })
+        .attr('stroke-width', 1)
+
+      modelGroups
+        .append('text')
+        .attr('x', 12)
+        .attr('y', 22)
+        .attr('font-size', '14px')
+        .attr('font-weight', 'bold')
+        .attr('fill', (d) => (d.type === 'early-approach' ? '#333' : '#fff'))
+        .text((d) => d.title)
+
+      modelGroups
+        .append('text')
+        .attr('x', 12)
+        .attr('y', 40)
+        .attr('font-size', '12px')
+        .attr('fill', (d) => (d.type === 'early-approach' ? '#555' : '#e6f0fa'))
+        .text((d) => d.year)
+
+      // Add descriptions with proper wrapping
+      modelGroups.each(function (d) {
+        const group = d3.select(this)
+        const maxWidth = d.width - 24 // 12px padding on each side
+        const words = d.description.split(/\s+/)
+        let line = ''
+        let lineNumber = 0
+        const lineHeight = 16
+        const y = 58
+
+        const tspan = group
+          .append('text')
+          .attr('x', 12)
+          .attr('y', y)
+          .attr('font-size', '12px')
+          .attr('fill', d.type === 'early-approach' ? '#444' : '#e6f0fa')
+
+        for (let i = 0; i < words.length; i++) {
+          const testLine = line + words[i] + ' '
+          // Create a temporary text element to measure text width
+          const tempText = svg
+            .append('text')
+            .attr('font-size', '12px')
+            .text(testLine)
+            .style('visibility', 'hidden')
+          const textWidth = tempText.node().getComputedTextLength()
+          tempText.remove()
+
+          if (textWidth > maxWidth && i > 0) {
+            tspan
+              .append('tspan')
+              .attr('x', 12)
+              .attr('dy', lineNumber === 0 ? 0 : lineHeight)
+              .text(line)
+            line = words[i] + ' '
+            lineNumber++
+          } else {
+            line = testLine
+          }
+        }
+
+        tspan
+          .append('tspan')
+          .attr('x', 12)
+          .attr('dy', lineNumber === 0 ? 0 : lineHeight)
+          .text(line)
+
+        // Add subtitle if exists
+        if (d.subtitle) {
+          tspan
+            .append('tspan')
+            .attr('x', 12)
+            .attr('dy', lineHeight)
+            .attr('font-style', 'italic')
+            .text(d.subtitle)
+        }
+      })
+
+      // Draw connections with improved routing to avoid overlaps
+      connections.forEach((conn) => {
+        const source = models.find((m) => m.id === conn.source)
+        const target = models.find((m) => m.id === conn.target)
+
+        // Calculate connection points based on relative positions
+        let sourceX, sourceY, targetX, targetY
+
+        // Special case handling for connections to avoid overlaps
+        if (conn.source === 'dalle' && (conn.target === 'diffmic' || conn.target === 'sadm')) {
+          // Special routing for DALL-E to DiffMIC and SADM connections
+          sourceX = source.x + source.width / 2
+          sourceY = source.y
+          targetX = target.x
+          targetY = target.y + target.height / 2
+        } else if (conn.source === 'clip' && conn.target === 'dalle') {
+          // Special routing for CLIP to DALL-E
+          sourceX = source.x + source.width / 2
+          sourceY = source.y + source.height
+          targetX = target.x
+          targetY = target.y + target.height / 2
+        } else if (conn.source === 'vit' && conn.target === 'multimodal-llm') {
+          // Special routing for ViT to Multimodal LLMs
+          sourceX = source.x + source.width
+          sourceY = source.y + source.height / 2
+          targetX = target.x
+          targetY = target.y + target.height / 3 // Connect to upper third
+        } else if (conn.source === 'clip' && conn.target === 'multimodal-llm') {
+          // Special routing for CLIP to Multimodal LLMs
+          sourceX = source.x + source.width
+          sourceY = source.y + source.height / 2
+          targetX = target.x
+          targetY = target.y + (target.height * 2) / 3 // Connect to lower third
+        } else {
+          // Default connection points based on relative positions
+          if (source.x < target.x) {
+            // Source is to the left of target
+            sourceX = source.x + source.width
+            sourceY = source.y + source.height / 2
+            targetX = target.x
+            targetY = target.y + target.height / 2
+          } else if (source.x > target.x) {
+            // Source is to the right of target
+            sourceX = source.x
+            sourceY = source.y + source.height / 2
+            targetX = target.x + target.width
+            targetY = target.y + target.height / 2
+          } else if (source.y < target.y) {
+            // Source is above target
+            sourceX = source.x + source.width / 2
+            sourceY = source.y + source.height
+            targetX = target.x + target.width / 2
+            targetY = target.y
+          } else {
+            // Source is below target
+            sourceX = source.x + source.width / 2
+            sourceY = source.y
+            targetX = target.x + target.width / 2
+            targetY = target.y + target.height
+          }
+        }
+
+        // Draw path with improved routing
+        const path = svg
+          .append('path')
+          .attr('d', () => {
+            // Calculate control points for a smooth curve
+            let midX, midY
+
+            // Special case for DALL-E connections to avoid overlaps
+            if (conn.source === 'dalle' && (conn.target === 'diffmic' || conn.target === 'sadm')) {
+              const controlX1 = sourceX - 50
+              const controlY1 = sourceY - 50
+              const controlX2 = targetX - 50
+              const controlY2 = targetY
+              return `M ${sourceX} ${sourceY} 
                                 C ${controlX1} ${controlY1}, 
                                   ${controlX2} ${controlY2}, 
-                                  ${targetX} ${targetY}`;
-                    } else if (conn.source === "clip" && conn.target === "dalle") {
-                        // Special curve for CLIP to DALL-E
-                        return `M ${sourceX} ${sourceY} 
+                                  ${targetX} ${targetY}`
+            } else if (conn.source === 'clip' && conn.target === 'dalle') {
+              // Special curve for CLIP to DALL-E
+              return `M ${sourceX} ${sourceY} 
                                 C ${sourceX} ${sourceY + 50}, 
                                   ${targetX - 50} ${targetY}, 
-                                  ${targetX} ${targetY}`;
-                    } else if (source.x !== target.x && source.y !== target.y) {
-                        // Diagonal connection - use two control points
-                        const dx = targetX - sourceX;
-                        const dy = targetY - sourceY;
-                        
-                        if (Math.abs(dx) > Math.abs(dy)) {
-                            // More horizontal than vertical
-                            midX = sourceX + dx * 0.6;
-                            midY = sourceY;
-                            return `M ${sourceX} ${sourceY} 
+                                  ${targetX} ${targetY}`
+            } else if (source.x !== target.x && source.y !== target.y) {
+              // Diagonal connection - use two control points
+              const dx = targetX - sourceX
+              const dy = targetY - sourceY
+
+              if (Math.abs(dx) > Math.abs(dy)) {
+                // More horizontal than vertical
+                midX = sourceX + dx * 0.6
+                midY = sourceY
+                return `M ${sourceX} ${sourceY} 
                                     C ${midX} ${midY}, 
                                       ${midX} ${targetY}, 
-                                      ${targetX} ${targetY}`;
-                        } else {
-                            // More vertical than horizontal
-                            midX = sourceX;
-                            midY = sourceY + dy * 0.6;
-                            return `M ${sourceX} ${sourceY} 
+                                      ${targetX} ${targetY}`
+              } else {
+                // More vertical than horizontal
+                midX = sourceX
+                midY = sourceY + dy * 0.6
+                return `M ${sourceX} ${sourceY} 
                                     C ${midX} ${midY}, 
                                       ${targetX} ${midY}, 
-                                      ${targetX} ${targetY}`;
-                        }
-                    } else if (source.x === target.x) {
-                        // Vertical connection
-                        midX = sourceX + 30;
-                        return `M ${sourceX} ${sourceY} 
-                                Q ${midX} ${(sourceY + targetY)/2}, 
-                                  ${targetX} ${targetY}`;
-                    } else {
-                        // Horizontal connection
-                        midY = sourceY + 30;
-                        return `M ${sourceX} ${sourceY} 
-                                Q ${(sourceX + targetX)/2} ${midY}, 
-                                  ${targetX} ${targetY}`;
-                    }
-                })
-                .attr("fill", "none")
-                .attr("stroke", conn.type === "evolution" ? "#444" : "#777")
-                .attr("stroke-width", conn.type === "evolution" ? 2.5 : 1.8)
-                .attr("stroke-dasharray", conn.type === "influence" ? "5,3" : "none")
-                .attr("marker-end", conn.type === "evolution" ? "url(#arrow)" : "url(#dashed-arrow)");
-        });
-        
-        // Add legend
-        const legendData = [
-            { type: "box", color: "#d1e5f0", label: "Early Approaches" },
-            { type: "box", color: "#4a90e2", label: "Transformer-based" },
-            { type: "box", color: "#2c3e50", label: "Advanced Architectures" },
-            { type: "line", style: "solid", color: "#444", label: "Direct Evolution" },
-            { type: "line", style: "dashed", color: "#777", label: "Influence" }
-        ];
-        
-        const legend = svg.append("g")
-            .attr("transform", "translate(15, 400)");
-            
-        legend.append("rect")
-            .attr("width", 200)
-            .attr("height", 110)
-            .attr("fill", "white")
-            .attr("stroke", "#eee")
-            .attr("stroke-width", 1)
-            .attr("rx", 5)
-            .attr("ry", 5)
-            .attr("opacity", 0.9);
-            
-        legend.append("text")
-            .attr("x", 10)
-            .attr("y", 20)
-            .attr("font-size", "12px")
-            .attr("font-weight", "bold")
-            .text("Legend");
-            
-        const legendItems = legend.selectAll(".legend-item")
-            .data(legendData)
-            .enter()
-            .append("g")
-            .attr("class", "legend-item")
-            .attr("transform", (d, i) => `translate(10, ${30 + i * 15})`);
-            
-        legendItems.each(function(d) {
-            const item = d3.select(this);
-            
-            if (d.type === "box") {
-                item.append("rect")
-                    .attr("width", 14)
-                    .attr("height", 14)
-                    .attr("rx", 2)
-                    .attr("ry", 2)
-                    .attr("fill", d.color);
-            } else if (d.type === "line") {
-                item.append("line")
-                    .attr("x1", 0)
-                    .attr("y1", 7)
-                    .attr("x2", 14)
-                    .attr("y2", 7)
-                    .attr("stroke", d.color)
-                    .attr("stroke-width", d.style === "solid" ? 2.5 : 1.8)
-                    .attr("stroke-dasharray", d.style === "dashed" ? "3,2" : "none");
+                                      ${targetX} ${targetY}`
+              }
+            } else if (source.x === target.x) {
+              // Vertical connection
+              midX = sourceX + 30
+              return `M ${sourceX} ${sourceY} 
+                                Q ${midX} ${(sourceY + targetY) / 2}, 
+                                  ${targetX} ${targetY}`
+            } else {
+              // Horizontal connection
+              midY = sourceY + 30
+              return `M ${sourceX} ${sourceY} 
+                                Q ${(sourceX + targetX) / 2} ${midY}, 
+                                  ${targetX} ${targetY}`
             }
-            
-            item.append("text")
-                .attr("x", 20)
-                .attr("y", 10)
-                .attr("font-size", "11px")
-                .attr("alignment-baseline", "middle")
-                .text(d.label);
-        });
+          })
+          .attr('fill', 'none')
+          .attr('stroke', conn.type === 'evolution' ? '#444' : '#777')
+          .attr('stroke-width', conn.type === 'evolution' ? 2.5 : 1.8)
+          .attr('stroke-dasharray', conn.type === 'influence' ? '5,3' : 'none')
+          .attr('marker-end', conn.type === 'evolution' ? 'url(#arrow)' : 'url(#dashed-arrow)')
+      })
+
+      // Add legend
+      const legendData = [
+        { type: 'box', color: '#d1e5f0', label: 'Early Approaches' },
+        { type: 'box', color: '#4a90e2', label: 'Transformer-based' },
+        { type: 'box', color: '#2c3e50', label: 'Advanced Architectures' },
+        { type: 'line', style: 'solid', color: '#444', label: 'Direct Evolution' },
+        { type: 'line', style: 'dashed', color: '#777', label: 'Influence' },
+      ]
+
+      const legend = svg.append('g').attr('transform', 'translate(15, 400)')
+
+      legend
+        .append('rect')
+        .attr('width', 200)
+        .attr('height', 110)
+        .attr('fill', 'white')
+        .attr('stroke', '#eee')
+        .attr('stroke-width', 1)
+        .attr('rx', 5)
+        .attr('ry', 5)
+        .attr('opacity', 0.9)
+
+      legend
+        .append('text')
+        .attr('x', 10)
+        .attr('y', 20)
+        .attr('font-size', '12px')
+        .attr('font-weight', 'bold')
+        .text('Legend')
+
+      const legendItems = legend
+        .selectAll('.legend-item')
+        .data(legendData)
+        .enter()
+        .append('g')
+        .attr('class', 'legend-item')
+        .attr('transform', (d, i) => `translate(10, ${30 + i * 15})`)
+
+      legendItems.each(function (d) {
+        const item = d3.select(this)
+
+        if (d.type === 'box') {
+          item
+            .append('rect')
+            .attr('width', 14)
+            .attr('height', 14)
+            .attr('rx', 2)
+            .attr('ry', 2)
+            .attr('fill', d.color)
+        } else if (d.type === 'line') {
+          item
+            .append('line')
+            .attr('x1', 0)
+            .attr('y1', 7)
+            .attr('x2', 14)
+            .attr('y2', 7)
+            .attr('stroke', d.color)
+            .attr('stroke-width', d.style === 'solid' ? 2.5 : 1.8)
+            .attr('stroke-dasharray', d.style === 'dashed' ? '3,2' : 'none')
+        }
+
+        item
+          .append('text')
+          .attr('x', 20)
+          .attr('y', 10)
+          .attr('font-size', '11px')
+          .attr('alignment-baseline', 'middle')
+          .text(d.label)
+      })
     </script>
-</body>
+  </body>
 </html>

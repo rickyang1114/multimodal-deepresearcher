@@ -1,312 +1,339 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Automotive OEM Exposure to US Tariffs & Credit Headroom</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-            background-color: #f5f5f5;
-        }
-        
-        .visualization-container {
-            width: 100%;
-            max-width: 900px;
-            background-color: white;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        
-        .title {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 30px;
-        }
-        
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+        background-color: #f5f5f5;
+      }
+
+      .visualization-container {
+        width: 100%;
+        max-width: 900px;
+        background-color: white;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        text-align: center;
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 30px;
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: 100px repeat(3, 1fr);
+        grid-template-rows: 50px repeat(3, 120px);
+        width: 100%;
+        border: 1px solid #ccc;
+      }
+
+      .header-cell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        border: 1px solid #ccc;
+        background-color: #f0f0f0;
+        padding: 10px;
+        text-align: center;
+      }
+
+      .row-header {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        font-weight: bold;
+        border: 1px solid #ccc;
+        background-color: #f0f0f0;
+        padding: 10px 15px;
+        text-align: right;
+      }
+
+      .grid-cell {
+        border: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+      }
+
+      .company-entry {
+        margin-bottom: 15px;
+      }
+
+      .company-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 3px;
+      }
+
+      .company-logo {
+        margin-right: 8px;
+        font-size: 16px;
+        width: 20px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .company {
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      .rating {
+        font-size: 12px;
+        color: #555;
+        margin-left: 28px; /* Aligns with company name after icon */
+      }
+
+      .legend {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+        font-size: 12px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin-left: 15px;
+      }
+
+      .legend-color {
+        width: 15px;
+        height: 15px;
+        margin-right: 5px;
+        flex-shrink: 0;
+        border: 1px solid #ddd;
+      }
+
+      .source {
+        font-style: italic;
+        font-size: 11px;
+        color: #666;
+        margin-top: 20px;
+        padding: 0 10px;
+        line-height: 1.4;
+      }
+
+      .high-risk {
+        background-color: #ff6b6b;
+      }
+
+      .medium-risk {
+        background-color: #feca57;
+      }
+
+      .low-risk {
+        background-color: #7bed9f;
+      }
+
+      .empty-cell {
+        color: #333;
+        font-style: italic;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        padding: 5px;
+      }
+
+      /* Ensure the last company entry doesn't have extra margin */
+      .company-entry:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Add consistent spacing between multiple companies in the same cell */
+      .company-entry:not(:last-child) {
+        margin-bottom: 18px;
+      }
+
+      @media (max-width: 768px) {
         .grid-container {
-            display: grid;
-            grid-template-columns: 100px repeat(3, 1fr);
-            grid-template-rows: 50px repeat(3, 120px);
-            width: 100%;
-            border: 1px solid #ccc;
+          grid-template-rows: 50px repeat(3, auto);
         }
-        
-        .header-cell {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            border: 1px solid #ccc;
-            background-color: #f0f0f0;
-            padding: 10px;
-            text-align: center;
-        }
-        
-        .row-header {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            font-weight: bold;
-            border: 1px solid #ccc;
-            background-color: #f0f0f0;
-            padding: 10px 15px;
-            text-align: right;
-        }
-        
+
         .grid-cell {
-            border: 1px solid #ccc;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
+          padding: 10px;
         }
-        
-        .company-entry {
-            margin-bottom: 15px;
-        }
-        
-        .company-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 3px;
-        }
-        
-        .company-logo {
-            margin-right: 8px;
-            font-size: 16px;
-            width: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        
+
         .company {
-            font-weight: bold;
-            font-size: 14px;
+          font-size: 13px;
         }
-        
+
         .rating {
-            font-size: 12px;
-            color: #555;
-            margin-left: 28px; /* Aligns with company name after icon */
+          font-size: 11px;
         }
-        
-        .legend {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 20px;
-            font-size: 12px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-left: 15px;
-        }
-        
-        .legend-color {
-            width: 15px;
-            height: 15px;
-            margin-right: 5px;
-            flex-shrink: 0;
-            border: 1px solid #ddd;
-        }
-        
-        .source {
-            font-style: italic;
-            font-size: 11px;
-            color: #666;
-            margin-top: 20px;
-            padding: 0 10px;
-            line-height: 1.4;
-        }
-        
-        .high-risk {
-            background-color: #ff6b6b;
-        }
-        
-        .medium-risk {
-            background-color: #feca57;
-        }
-        
-        .low-risk {
-            background-color: #7bed9f;
-        }
-        
-        .empty-cell {
-            color: #333;
-            font-style: italic;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            padding: 5px;
-        }
-        
-        /* Ensure the last company entry doesn't have extra margin */
-        .company-entry:last-child {
-            margin-bottom: 0;
-        }
-        
-        /* Add consistent spacing between multiple companies in the same cell */
-        .company-entry:not(:last-child) {
-            margin-bottom: 18px;
-        }
-        
-        @media (max-width: 768px) {
-            .grid-container {
-                grid-template-rows: 50px repeat(3, auto);
-            }
-            
-            .grid-cell {
-                padding: 10px;
-            }
-            
-            .company {
-                font-size: 13px;
-            }
-            
-            .rating {
-                font-size: 11px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Automotive OEM Exposure to US Tariffs & Credit Headroom</div>
-        <div class="subtitle">Based on Fitch Ratings assessment, February 2025</div>
-        
-        <div class="grid-container" id="matrix"></div>
-        
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color high-risk"></div>
-                <div>High Risk</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color medium-risk"></div>
-                <div>Medium Risk</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color low-risk"></div>
-                <div>Low Risk</div>
-            </div>
+      <div class="title">Automotive OEM Exposure to US Tariffs & Credit Headroom</div>
+      <div class="subtitle">Based on Fitch Ratings assessment, February 2025</div>
+
+      <div class="grid-container" id="matrix"></div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color high-risk"></div>
+          <div>High Risk</div>
         </div>
-        
-        <div class="source">Source: Fitch Ratings, "US Tariffs on Mexico/Canada May Put Pressure on Some Global Automakers," February 10, 2025</div>
+        <div class="legend-item">
+          <div class="legend-color medium-risk"></div>
+          <div>Medium Risk</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color low-risk"></div>
+          <div>Low Risk</div>
+        </div>
+      </div>
+
+      <div class="source">
+        Source: Fitch Ratings, "US Tariffs on Mexico/Canada May Put Pressure on Some Global
+        Automakers," February 10, 2025
+      </div>
     </div>
 
     <script>
-        // Define the data structure
-        const data = [
-            // Headers
-            { row: 0, col: 0, type: "blank" },
-            { row: 0, col: 1, type: "header", text: "Low Exposure" },
-            { row: 0, col: 2, type: "header", text: "Medium Exposure" },
-            { row: 0, col: 3, type: "header", text: "High Exposure" },
-            
-            // Row headers
-            { row: 1, col: 0, type: "row-header", text: "Ample" },
-            { row: 2, col: 0, type: "row-header", text: "Adequate" },
-            { row: 3, col: 0, type: "row-header", text: "Tight" },
-            
-            // Companies data
-            { row: 1, col: 1, type: "cell", risk: "low", companies: [] },
-            { row: 1, col: 2, type: "cell", risk: "low", companies: [
-                { name: "Toyota", rating: "A+/Stable", icon: "car" },
-                { name: "Volkswagen", rating: "BBB+/Stable", icon: "car" }
-            ]},
-            { row: 1, col: 3, type: "cell", risk: "medium", companies: [
-                { name: "General Motors", rating: "BBB/Positive", icon: "car" }
-            ]},
-            
-            { row: 2, col: 1, type: "cell", risk: "medium", companies: [
-                { name: "Mercedes-Benz", rating: "A−/Stable", icon: "car" }
-            ]},
-            { row: 2, col: 2, type: "cell", risk: "medium", companies: [
-                { name: "Ford", rating: "BB+/Stable", icon: "car" },
-                { name: "Hyundai", rating: "BBB+/Stable", icon: "car" }
-            ]},
-            { row: 2, col: 3, type: "cell", risk: "high", companies: [
-                { name: "Honda", rating: "A/Stable", icon: "car" }
-            ]},
-            
-            { row: 3, col: 1, type: "cell", risk: "high", companies: [] },
-            { row: 3, col: 2, type: "cell", risk: "high", companies: [] },
-            { row: 3, col: 3, type: "cell", risk: "high", companies: [
-                { name: "Stellantis", rating: "BBB+/Negative", icon: "car" },
-                { name: "Nissan", rating: "BBB−/Negative", icon: "car" }
-            ]}
-        ];
+      // Define the data structure
+      const data = [
+        // Headers
+        { row: 0, col: 0, type: 'blank' },
+        { row: 0, col: 1, type: 'header', text: 'Low Exposure' },
+        { row: 0, col: 2, type: 'header', text: 'Medium Exposure' },
+        { row: 0, col: 3, type: 'header', text: 'High Exposure' },
 
-        // Create the matrix visualization
-        const matrix = d3.select("#matrix");
-        
-        // Add cells to the grid
-        data.forEach(d => {
-            const cell = matrix.append("div")
-                .style("grid-row", (d.row + 1))
-                .style("grid-column", (d.col + 1));
-            
-            if (d.type === "blank") {
-                cell.attr("class", "header-cell")
-                    .style("background-color", "#fff");
-            } else if (d.type === "header") {
-                cell.attr("class", "header-cell")
-                    .text(d.text);
-            } else if (d.type === "row-header") {
-                cell.attr("class", "row-header")
-                    .text(d.text);
-            } else if (d.type === "cell") {
-                cell.attr("class", `grid-cell ${d.risk}-risk`);
-                
-                if (d.companies.length === 0) {
-                    cell.append("div")
-                        .attr("class", "empty-cell")
-                        .text("None");
-                } else {
-                    d.companies.forEach(company => {
-                        const companyEntry = cell.append("div")
-                            .attr("class", "company-entry");
-                        
-                        const companyContainer = companyEntry.append("div")
-                            .attr("class", "company-container");
-                        
-                        companyContainer.append("div")
-                            .attr("class", "company-logo")
-                            .html(`<i class="fa-solid fa-${company.icon}"></i>`);
-                        
-                        companyContainer.append("div")
-                            .attr("class", "company")
-                            .text(company.name);
-                        
-                        companyEntry.append("div")
-                            .attr("class", "rating")
-                            .text(`(${company.rating})`);
-                    });
-                }
-            }
-        });
+        // Row headers
+        { row: 1, col: 0, type: 'row-header', text: 'Ample' },
+        { row: 2, col: 0, type: 'row-header', text: 'Adequate' },
+        { row: 3, col: 0, type: 'row-header', text: 'Tight' },
+
+        // Companies data
+        { row: 1, col: 1, type: 'cell', risk: 'low', companies: [] },
+        {
+          row: 1,
+          col: 2,
+          type: 'cell',
+          risk: 'low',
+          companies: [
+            { name: 'Toyota', rating: 'A+/Stable', icon: 'car' },
+            { name: 'Volkswagen', rating: 'BBB+/Stable', icon: 'car' },
+          ],
+        },
+        {
+          row: 1,
+          col: 3,
+          type: 'cell',
+          risk: 'medium',
+          companies: [{ name: 'General Motors', rating: 'BBB/Positive', icon: 'car' }],
+        },
+
+        {
+          row: 2,
+          col: 1,
+          type: 'cell',
+          risk: 'medium',
+          companies: [{ name: 'Mercedes-Benz', rating: 'A−/Stable', icon: 'car' }],
+        },
+        {
+          row: 2,
+          col: 2,
+          type: 'cell',
+          risk: 'medium',
+          companies: [
+            { name: 'Ford', rating: 'BB+/Stable', icon: 'car' },
+            { name: 'Hyundai', rating: 'BBB+/Stable', icon: 'car' },
+          ],
+        },
+        {
+          row: 2,
+          col: 3,
+          type: 'cell',
+          risk: 'high',
+          companies: [{ name: 'Honda', rating: 'A/Stable', icon: 'car' }],
+        },
+
+        { row: 3, col: 1, type: 'cell', risk: 'high', companies: [] },
+        { row: 3, col: 2, type: 'cell', risk: 'high', companies: [] },
+        {
+          row: 3,
+          col: 3,
+          type: 'cell',
+          risk: 'high',
+          companies: [
+            { name: 'Stellantis', rating: 'BBB+/Negative', icon: 'car' },
+            { name: 'Nissan', rating: 'BBB−/Negative', icon: 'car' },
+          ],
+        },
+      ]
+
+      // Create the matrix visualization
+      const matrix = d3.select('#matrix')
+
+      // Add cells to the grid
+      data.forEach((d) => {
+        const cell = matrix
+          .append('div')
+          .style('grid-row', d.row + 1)
+          .style('grid-column', d.col + 1)
+
+        if (d.type === 'blank') {
+          cell.attr('class', 'header-cell').style('background-color', '#fff')
+        } else if (d.type === 'header') {
+          cell.attr('class', 'header-cell').text(d.text)
+        } else if (d.type === 'row-header') {
+          cell.attr('class', 'row-header').text(d.text)
+        } else if (d.type === 'cell') {
+          cell.attr('class', `grid-cell ${d.risk}-risk`)
+
+          if (d.companies.length === 0) {
+            cell.append('div').attr('class', 'empty-cell').text('None')
+          } else {
+            d.companies.forEach((company) => {
+              const companyEntry = cell.append('div').attr('class', 'company-entry')
+
+              const companyContainer = companyEntry.append('div').attr('class', 'company-container')
+
+              companyContainer
+                .append('div')
+                .attr('class', 'company-logo')
+                .html(`<i class="fa-solid fa-${company.icon}"></i>`)
+
+              companyContainer.append('div').attr('class', 'company').text(company.name)
+
+              companyEntry.append('div').attr('class', 'rating').text(`(${company.rating})`)
+            })
+          }
+        }
+      })
     </script>
-</body>
+  </body>
 </html>

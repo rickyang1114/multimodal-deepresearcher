@@ -1,465 +1,490 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Growth of Real-World Generative AI Use Cases (2022-2025)</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        .visualization-container {
-            width: 1000px;
-            padding: 10px;
-        }
-        
-        .title {
-            font-size: 26px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 16px;
-            color: #666;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .source {
-            font-size: 12px;
-            color: #888;
-            text-align: right;
-            margin-top: 10px;
-        }
-        
-        .chart-container {
-            position: relative;
-        }
-        
-        .axis-label {
-            font-size: 14px;
-            fill: #555;
-            font-weight: bold;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-opacity: 0.7;
-            shape-rendering: crispEdges;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-size: 18px;
-            font-weight: bold;
-            fill: #333;
-        }
-        
-        .callout-text {
-            font-size: 14px;
-            fill: #333;
-        }
-        
-        .callout-box {
-            fill: #f8f8f8;
-            stroke: #ddd;
-            stroke-width: 1px;
-            rx: 4px;
-            ry: 4px;
-        }
-        
-        .callout-title {
-            font-weight: bold;
-            font-size: 13px;
-            fill: #333;
-        }
-        
-        .callout-content {
-            font-size: 12px;
-            fill: #555;
-        }
-        
-        .highlight-callout {
-            font-weight: bold;
-            font-size: 14px;
-            fill: #d32f2f;
-        }
-        
-        .legend-item text {
-            font-size: 12px;
-            fill: #333;
-        }
-        
-        .quarter-label {
-            font-size: 12px;
-            fill: #666;
-        }
-        
-        .tick text {
-            font-size: 13px;
-        }
-        
-        .data-point {
-            fill: #fff;
-            stroke: #333;
-            stroke-width: 2;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .visualization-container {
+        width: 1000px;
+        padding: 10px;
+      }
+
+      .title {
+        font-size: 26px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        color: #666;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .source {
+        font-size: 12px;
+        color: #888;
+        text-align: right;
+        margin-top: 10px;
+      }
+
+      .chart-container {
+        position: relative;
+      }
+
+      .axis-label {
+        font-size: 14px;
+        fill: #555;
+        font-weight: bold;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-size: 18px;
+        font-weight: bold;
+        fill: #333;
+      }
+
+      .callout-text {
+        font-size: 14px;
+        fill: #333;
+      }
+
+      .callout-box {
+        fill: #f8f8f8;
+        stroke: #ddd;
+        stroke-width: 1px;
+        rx: 4px;
+        ry: 4px;
+      }
+
+      .callout-title {
+        font-weight: bold;
+        font-size: 13px;
+        fill: #333;
+      }
+
+      .callout-content {
+        font-size: 12px;
+        fill: #555;
+      }
+
+      .highlight-callout {
+        font-weight: bold;
+        font-size: 14px;
+        fill: #d32f2f;
+      }
+
+      .legend-item text {
+        font-size: 12px;
+        fill: #333;
+      }
+
+      .quarter-label {
+        font-size: 12px;
+        fill: #666;
+      }
+
+      .tick text {
+        font-size: 13px;
+      }
+
+      .data-point {
+        fill: #fff;
+        stroke: #333;
+        stroke-width: 2;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Growth of Real-World Generative AI Use Cases (2022-2025)</div>
-        <div class="subtitle">Cumulative documented deployments across major industries</div>
-        <div class="chart-container" id="chart"></div>
-        <div class="source">Source: Google Cloud, April 2025</div>
+      <div class="title">Growth of Real-World Generative AI Use Cases (2022-2025)</div>
+      <div class="subtitle">Cumulative documented deployments across major industries</div>
+      <div class="chart-container" id="chart"></div>
+      <div class="source">Source: Google Cloud, April 2025</div>
     </div>
 
     <script>
-        // Set up dimensions and margins - increased height to accommodate full legend
-        const margin = { top: 40, right: 220, bottom: 80, left: 80 };
-        const width = 900 - margin.left - margin.right;
-        const height = 600 - margin.top - margin.bottom;
+      // Set up dimensions and margins - increased height to accommodate full legend
+      const margin = { top: 40, right: 220, bottom: 80, left: 80 }
+      const width = 900 - margin.left - margin.right
+      const height = 600 - margin.top - margin.bottom
 
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
 
-        // Define industry categories and colors
-        const industries = [
-            "Financial Services", 
-            "Healthcare", 
-            "Manufacturing", 
-            "Retail", 
-            "Media & Entertainment", 
-            "Transportation & Logistics", 
-            "Professional Services", 
-            "Education", 
-            "Energy & Utilities", 
-            "Government", 
-            "Other"
-        ];
+      // Define industry categories and colors
+      const industries = [
+        'Financial Services',
+        'Healthcare',
+        'Manufacturing',
+        'Retail',
+        'Media & Entertainment',
+        'Transportation & Logistics',
+        'Professional Services',
+        'Education',
+        'Energy & Utilities',
+        'Government',
+        'Other',
+      ]
 
-        const colors = [
-            "#0066cc", // Financial Services - primary blue
-            "#00a3b4", // Healthcare - teal
-            "#3d85c6", // Manufacturing - lighter blue
-            "#6aa84f", // Retail - green
-            "#cc4125", // Media & Entertainment - red
-            "#f1c232", // Transportation & Logistics - yellow
-            "#9fc5e8", // Professional Services - light blue
-            "#b4a7d6", // Education - purple
-            "#f9cb9c", // Energy & Utilities - orange
-            "#d5a6bd", // Government - pink
-            "#efefef"  // Other - light gray
-        ];
+      const colors = [
+        '#0066cc', // Financial Services - primary blue
+        '#00a3b4', // Healthcare - teal
+        '#3d85c6', // Manufacturing - lighter blue
+        '#6aa84f', // Retail - green
+        '#cc4125', // Media & Entertainment - red
+        '#f1c232', // Transportation & Logistics - yellow
+        '#9fc5e8', // Professional Services - light blue
+        '#b4a7d6', // Education - purple
+        '#f9cb9c', // Energy & Utilities - orange
+        '#d5a6bd', // Government - pink
+        '#efefef', // Other - light gray
+      ]
 
-        // Define time points with exact dates for proper positioning
-        const timePoints = [
-            { year: 2022, quarter: "Q4", date: "2022-12-31" },
-            { year: 2023, quarter: "Q4", date: "2023-12-31" },
-            { year: 2024, quarter: "Q2", date: "2024-04-30" },
-            { year: 2025, quarter: "Q2", date: "2025-04-30" }
-        ];
+      // Define time points with exact dates for proper positioning
+      const timePoints = [
+        { year: 2022, quarter: 'Q4', date: '2022-12-31' },
+        { year: 2023, quarter: 'Q4', date: '2023-12-31' },
+        { year: 2024, quarter: 'Q2', date: '2024-04-30' },
+        { year: 2025, quarter: 'Q2', date: '2025-04-30' },
+      ]
 
-        // Total use cases at each time point
-        const totals = [25, 65, 101, 601];
+      // Total use cases at each time point
+      const totals = [25, 65, 101, 601]
 
-        // Create data structure for stacked area chart
-        // Distribution percentages for each industry (approximate)
-        const industryDistribution = [
-            [20, 18, 16, 15], // Financial Services
-            [15, 14, 14, 14], // Healthcare
-            [12, 13, 13, 13], // Manufacturing
-            [10, 10, 11, 11], // Retail
-            [10, 10, 10, 10], // Media & Entertainment
-            [8, 8, 9, 9],     // Transportation & Logistics
-            [7, 7, 7, 8],      // Professional Services
-            [6, 6, 6, 6],      // Education
-            [5, 5, 5, 5],      // Energy & Utilities
-            [4, 5, 5, 5],      // Government
-            [3, 4, 4, 4]       // Other
-        ];
+      // Create data structure for stacked area chart
+      // Distribution percentages for each industry (approximate)
+      const industryDistribution = [
+        [20, 18, 16, 15], // Financial Services
+        [15, 14, 14, 14], // Healthcare
+        [12, 13, 13, 13], // Manufacturing
+        [10, 10, 11, 11], // Retail
+        [10, 10, 10, 10], // Media & Entertainment
+        [8, 8, 9, 9], // Transportation & Logistics
+        [7, 7, 7, 8], // Professional Services
+        [6, 6, 6, 6], // Education
+        [5, 5, 5, 5], // Energy & Utilities
+        [4, 5, 5, 5], // Government
+        [3, 4, 4, 4], // Other
+      ]
 
-        // Create the actual data points
-        const data = timePoints.map((tp, timeIndex) => {
-            const total = totals[timeIndex];
-            const point = { date: new Date(tp.date), total, year: tp.year, quarter: tp.quarter };
-            
-            // Calculate cumulative values for stacking
-            let cumulative = 0;
-            industries.forEach((industry, i) => {
-                const percentage = industryDistribution[i][timeIndex];
-                const value = Math.round(total * percentage / 100);
-                point[industry] = value;
-                point[`${industry}_start`] = cumulative;
-                cumulative += value;
-                point[`${industry}_end`] = cumulative;
-            });
-            
-            return point;
-        });
+      // Create the actual data points
+      const data = timePoints.map((tp, timeIndex) => {
+        const total = totals[timeIndex]
+        const point = { date: new Date(tp.date), total, year: tp.year, quarter: tp.quarter }
 
-        // Set up scales with proper domain for x-axis
-        // Expanded domain to give more space on both ends
-        const x = d3.scaleTime()
-            .domain([new Date("2021-10-01"), new Date("2026-02-01")])
-            .range([0, width]);
+        // Calculate cumulative values for stacking
+        let cumulative = 0
+        industries.forEach((industry, i) => {
+          const percentage = industryDistribution[i][timeIndex]
+          const value = Math.round((total * percentage) / 100)
+          point[industry] = value
+          point[`${industry}_start`] = cumulative
+          cumulative += value
+          point[`${industry}_end`] = cumulative
+        })
 
-        const y = d3.scaleLinear()
-            .domain([0, 650])
-            .range([height, 0]);
+        return point
+      })
 
-        // Create stacked data structure
-        const stack = d3.stack()
-            .keys(industries)
-            .order(d3.stackOrderNone)
-            .offset(d3.stackOffsetNone);
+      // Set up scales with proper domain for x-axis
+      // Expanded domain to give more space on both ends
+      const x = d3
+        .scaleTime()
+        .domain([new Date('2021-10-01'), new Date('2026-02-01')])
+        .range([0, width])
 
-        const stackedData = stack(data);
+      const y = d3.scaleLinear().domain([0, 650]).range([height, 0])
 
-        // Create area generator with smoother curve
-        const area = d3.area()
-            .x(d => x(d.data.date))
-            .y0(d => y(d[0]))
-            .y1(d => y(d[1]))
-            .curve(d3.curveBasis);
+      // Create stacked data structure
+      const stack = d3.stack().keys(industries).order(d3.stackOrderNone).offset(d3.stackOffsetNone)
 
-        // Add horizontal grid lines - made more visible
-        svg.append("g")
-            .attr("class", "grid")
-            .selectAll("line")
-            .data(y.ticks(6))
-            .enter()
-            .append("line")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", d => y(d))
-            .attr("y2", d => y(d))
-            .style("stroke", "#d0d0d0")
-            .style("stroke-width", 1);
+      const stackedData = stack(data)
 
-        // Add vertical grid lines at year positions
-        const yearDates = [
-            new Date("2022-01-01"),
-            new Date("2023-01-01"),
-            new Date("2024-01-01"),
-            new Date("2025-01-01")
-        ];
-        
-        svg.append("g")
-            .attr("class", "grid")
-            .selectAll("line")
-            .data(yearDates)
-            .enter()
-            .append("line")
-            .attr("x1", d => x(d))
-            .attr("x2", d => x(d))
-            .attr("y1", 0)
-            .attr("y2", height)
-            .style("stroke", "#d0d0d0")
-            .style("stroke-width", 1);
+      // Create area generator with smoother curve
+      const area = d3
+        .area()
+        .x((d) => x(d.data.date))
+        .y0((d) => y(d[0]))
+        .y1((d) => y(d[1]))
+        .curve(d3.curveBasis)
 
-        // Add stacked areas
-        svg.selectAll(".area")
-            .data(stackedData)
-            .enter()
-            .append("path")
-            .attr("class", "area")
-            .attr("d", area)
-            .style("fill", (d, i) => colors[i])
-            .style("opacity", 0.9)
-            .append("title")
-            .text(d => d.key);
+      // Add horizontal grid lines - made more visible
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .selectAll('line')
+        .data(y.ticks(6))
+        .enter()
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', (d) => y(d))
+        .attr('y2', (d) => y(d))
+        .style('stroke', '#d0d0d0')
+        .style('stroke-width', 1)
 
-        // Add X axis with proper year labels
-        const xAxis = d3.axisBottom(x)
-            .tickFormat(d3.timeFormat("%Y"))
-            .tickValues(yearDates);
+      // Add vertical grid lines at year positions
+      const yearDates = [
+        new Date('2022-01-01'),
+        new Date('2023-01-01'),
+        new Date('2024-01-01'),
+        new Date('2025-01-01'),
+      ]
 
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(xAxis)
-            .selectAll("text")
-            .style("font-size", "13px")
-            .style("font-weight", "bold");
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .selectAll('line')
+        .data(yearDates)
+        .enter()
+        .append('line')
+        .attr('x1', (d) => x(d))
+        .attr('x2', (d) => x(d))
+        .attr('y1', 0)
+        .attr('y2', height)
+        .style('stroke', '#d0d0d0')
+        .style('stroke-width', 1)
 
-        // Add quarter labels for 2024-2025 with better spacing and positioning
-        // Improved positioning to align with actual quarter positions
-        const quarterData = [
-            { date: new Date("2024-04-01"), label: "Q2", year: 2024 },
-            { date: new Date("2025-04-01"), label: "Q2", year: 2025 }
-        ];
+      // Add stacked areas
+      svg
+        .selectAll('.area')
+        .data(stackedData)
+        .enter()
+        .append('path')
+        .attr('class', 'area')
+        .attr('d', area)
+        .style('fill', (d, i) => colors[i])
+        .style('opacity', 0.9)
+        .append('title')
+        .text((d) => d.key)
 
-        svg.append("g")
-            .attr("transform", `translate(0,${height + 25})`)
-            .selectAll(".quarter-label")
-            .data(quarterData)
-            .enter()
-            .append("text")
-            .attr("class", "quarter-label")
-            .attr("x", d => x(d.date))
-            .attr("y", 0)
-            .attr("text-anchor", "middle")
-            .text(d => d.label);
+      // Add X axis with proper year labels
+      const xAxis = d3.axisBottom(x).tickFormat(d3.timeFormat('%Y')).tickValues(yearDates)
 
-        // Add Y axis with more prominent ticks
-        svg.append("g")
-            .call(d3.axisLeft(y)
-                .ticks(6)
-                .tickFormat(d => d))
-            .selectAll("text")
-            .style("font-size", "13px");
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(xAxis)
+        .selectAll('text')
+        .style('font-size', '13px')
+        .style('font-weight', 'bold')
 
-        // Add Y axis label
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -margin.left + 30)
-            .attr("x", -height / 2)
-            .attr("text-anchor", "middle")
-            .text("Number of Documented Use Cases");
+      // Add quarter labels for 2024-2025 with better spacing and positioning
+      // Improved positioning to align with actual quarter positions
+      const quarterData = [
+        { date: new Date('2024-04-01'), label: 'Q2', year: 2024 },
+        { date: new Date('2025-04-01'), label: 'Q2', year: 2025 },
+      ]
 
-        // Add data point markers
-        svg.selectAll(".data-point")
-            .data(data)
-            .enter()
-            .append("circle")
-            .attr("class", "data-point")
-            .attr("cx", d => x(d.date))
-            .attr("cy", d => y(d.total))
-            .attr("r", 5);
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${height + 25})`)
+        .selectAll('.quarter-label')
+        .data(quarterData)
+        .enter()
+        .append('text')
+        .attr('class', 'quarter-label')
+        .attr('x', (d) => x(d.date))
+        .attr('y', 0)
+        .attr('text-anchor', 'middle')
+        .text((d) => d.label)
 
-        // Add data point labels with better positioning
-        svg.selectAll(".data-label")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("class", d => d.total >= 100 ? "key-number" : "callout-text")
-            .attr("x", d => x(d.date))
-            .attr("y", d => {
-                // Adjust vertical position to prevent overlap
-                if (d.total === 101) return y(d.total) - 25;
-                return y(d.total) - 15;
-            })
-            .attr("text-anchor", "middle")
-            .text(d => d.total);
+      // Add Y axis with more prominent ticks
+      svg
+        .append('g')
+        .call(
+          d3
+            .axisLeft(y)
+            .ticks(6)
+            .tickFormat((d) => d)
+        )
+        .selectAll('text')
+        .style('font-size', '13px')
 
-        // Add 6x increase callout with better positioning
-        const startPoint = data[2]; // April 2024
-        const endPoint = data[3];   // April 2025
-        
-        // Adjusted curve to avoid overlapping with data labels
-        svg.append("path")
-            .attr("d", `M${x(startPoint.date)},${y(startPoint.total) - 35} 
+      // Add Y axis label
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', -margin.left + 30)
+        .attr('x', -height / 2)
+        .attr('text-anchor', 'middle')
+        .text('Number of Documented Use Cases')
+
+      // Add data point markers
+      svg
+        .selectAll('.data-point')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('class', 'data-point')
+        .attr('cx', (d) => x(d.date))
+        .attr('cy', (d) => y(d.total))
+        .attr('r', 5)
+
+      // Add data point labels with better positioning
+      svg
+        .selectAll('.data-label')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', (d) => (d.total >= 100 ? 'key-number' : 'callout-text'))
+        .attr('x', (d) => x(d.date))
+        .attr('y', (d) => {
+          // Adjust vertical position to prevent overlap
+          if (d.total === 101) return y(d.total) - 25
+          return y(d.total) - 15
+        })
+        .attr('text-anchor', 'middle')
+        .text((d) => d.total)
+
+      // Add 6x increase callout with better positioning
+      const startPoint = data[2] // April 2024
+      const endPoint = data[3] // April 2025
+
+      // Adjusted curve to avoid overlapping with data labels
+      svg
+        .append('path')
+        .attr(
+          'd',
+          `M${x(startPoint.date)},${y(startPoint.total) - 35} 
                         C${x(startPoint.date) + 60},${y(startPoint.total) - 100} 
                         ${x(endPoint.date) - 60},${y(endPoint.total) - 100} 
-                        ${x(endPoint.date)},${y(endPoint.total) - 35}`)
-            .attr("fill", "none")
-            .attr("stroke", "#d32f2f")
-            .attr("stroke-width", 2)
-            .attr("stroke-dasharray", "5,5");
-            
-        svg.append("text")
-            .attr("class", "highlight-callout")
-            .attr("x", (x(startPoint.date) + x(endPoint.date)) / 2)
-            .attr("y", y(startPoint.total) - 110)
-            .attr("text-anchor", "middle")
-            .text("6× increase");
+                        ${x(endPoint.date)},${y(endPoint.total) - 35}`
+        )
+        .attr('fill', 'none')
+        .attr('stroke', '#d32f2f')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,5')
 
-        // Add example callout boxes with improved positioning
-        // Moved to the right side with proper spacing
-        const examples = [
-            {
-                title: "Mercedes-Benz CLA series",
-                content: "In-vehicle conversational search",
-                x: width + 20,
-                y: 120
-            },
-            {
-                title: "Geotab fleet analytics",
-                content: "4.6M vehicles",
-                x: width + 20,
-                y: 200
-            },
-            {
-                title: "UPS distribution network",
-                content: "Digital twin",
-                x: width + 20,
-                y: 280
-            }
-        ];
+      svg
+        .append('text')
+        .attr('class', 'highlight-callout')
+        .attr('x', (x(startPoint.date) + x(endPoint.date)) / 2)
+        .attr('y', y(startPoint.total) - 110)
+        .attr('text-anchor', 'middle')
+        .text('6× increase')
 
-        const callouts = svg.selectAll(".callout")
-            .data(examples)
-            .enter()
-            .append("g")
-            .attr("class", "callout");
+      // Add example callout boxes with improved positioning
+      // Moved to the right side with proper spacing
+      const examples = [
+        {
+          title: 'Mercedes-Benz CLA series',
+          content: 'In-vehicle conversational search',
+          x: width + 20,
+          y: 120,
+        },
+        {
+          title: 'Geotab fleet analytics',
+          content: '4.6M vehicles',
+          x: width + 20,
+          y: 200,
+        },
+        {
+          title: 'UPS distribution network',
+          content: 'Digital twin',
+          x: width + 20,
+          y: 280,
+        },
+      ]
 
-        callouts.append("rect")
-            .attr("class", "callout-box")
-            .attr("x", d => d.x)
-            .attr("y", d => d.y - 25)
-            .attr("width", 180)
-            .attr("height", 50);
+      const callouts = svg
+        .selectAll('.callout')
+        .data(examples)
+        .enter()
+        .append('g')
+        .attr('class', 'callout')
 
-        callouts.append("text")
-            .attr("class", "callout-title")
-            .attr("x", d => d.x + 10)
-            .attr("y", d => d.y - 5)
-            .text(d => d.title);
+      callouts
+        .append('rect')
+        .attr('class', 'callout-box')
+        .attr('x', (d) => d.x)
+        .attr('y', (d) => d.y - 25)
+        .attr('width', 180)
+        .attr('height', 50)
 
-        callouts.append("text")
-            .attr("class", "callout-content")
-            .attr("x", d => d.x + 10)
-            .attr("y", d => d.y + 15)
-            .text(d => d.content);
+      callouts
+        .append('text')
+        .attr('class', 'callout-title')
+        .attr('x', (d) => d.x + 10)
+        .attr('y', (d) => d.y - 5)
+        .text((d) => d.title)
 
-        // Add connecting lines from callouts to chart with clear endpoints
-        callouts.append("line")
-            .attr("x1", d => d.x)
-            .attr("y1", d => d.y)
-            .attr("x2", x(data[3].date) + 10)
-            .attr("y2", d => d.y)
-            .attr("stroke", "#aaa")
-            .attr("stroke-width", 1)
-            .attr("stroke-dasharray", "3,3");
+      callouts
+        .append('text')
+        .attr('class', 'callout-content')
+        .attr('x', (d) => d.x + 10)
+        .attr('y', (d) => d.y + 15)
+        .text((d) => d.content)
 
-        // Add legend with proper positioning outside the chart area
-        // Increased height and adjusted spacing to fit all industry categories
-        const legend = svg.append("g")
-            .attr("class", "legend")
-            .attr("transform", `translate(${width + 20}, 350)`);
+      // Add connecting lines from callouts to chart with clear endpoints
+      callouts
+        .append('line')
+        .attr('x1', (d) => d.x)
+        .attr('y1', (d) => d.y)
+        .attr('x2', x(data[3].date) + 10)
+        .attr('y2', (d) => d.y)
+        .attr('stroke', '#aaa')
+        .attr('stroke-width', 1)
+        .attr('stroke-dasharray', '3,3')
 
-        const legendItems = legend.selectAll(".legend-item")
-            .data(industries)
-            .enter()
-            .append("g")
-            .attr("class", "legend-item")
-            .attr("transform", (d, i) => `translate(0, ${i * 20})`); // Reduced spacing between items
+      // Add legend with proper positioning outside the chart area
+      // Increased height and adjusted spacing to fit all industry categories
+      const legend = svg
+        .append('g')
+        .attr('class', 'legend')
+        .attr('transform', `translate(${width + 20}, 350)`)
 
-        legendItems.append("rect")
-            .attr("width", 15)
-            .attr("height", 15)
-            .attr("fill", (d, i) => colors[i]);
+      const legendItems = legend
+        .selectAll('.legend-item')
+        .data(industries)
+        .enter()
+        .append('g')
+        .attr('class', 'legend-item')
+        .attr('transform', (d, i) => `translate(0, ${i * 20})`) // Reduced spacing between items
 
-        legendItems.append("text")
-            .attr("x", 25)
-            .attr("y", 12)
-            .text(d => d);
+      legendItems
+        .append('rect')
+        .attr('width', 15)
+        .attr('height', 15)
+        .attr('fill', (d, i) => colors[i])
+
+      legendItems
+        .append('text')
+        .attr('x', 25)
+        .attr('y', 12)
+        .text((d) => d)
     </script>
-</body>
+  </body>
 </html>

@@ -1,372 +1,408 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Annual Objects Launched into Space (2010-2023)</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .container {
-            width: 900px;
-            height: 600px;
-            position: relative;
-        }
-        
-        .title {
-            font-size: 22px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 14px;
-            text-align: center;
-            color: #555;
-            margin-bottom: 20px;
-        }
-        
-        .subtitle .highlight {
-            font-family: 'Georgia', serif;
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-width: 1px;
-        }
-        
-        .axis-label {
-            font-size: 12px;
-            fill: #555;
-        }
-        
-        .annotation {
-            font-size: 12px;
-            fill: #333;
-        }
-        
-        .annotation-line {
-            stroke: #555;
-            stroke-width: 1px;
-        }
-        
-        .source {
-            font-size: 10px;
-            fill: #888;
-        }
-        
-        .legend-item {
-            font-size: 12px;
-        }
-        
-        .chart-border {
-            fill: none;
-            stroke: #ccc;
-            stroke-width: 1px;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
 
-        .area-dot {
-            fill: #fff;
-            stroke-width: 1px;
-        }
-        
-        .success-dot {
-            fill: #000;
-            stroke: #fff;
-            stroke-width: 1px;
-        }
+      .container {
+        width: 900px;
+        height: 600px;
+        position: relative;
+      }
+
+      .title {
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        text-align: center;
+        color: #555;
+        margin-bottom: 20px;
+      }
+
+      .subtitle .highlight {
+        font-family: 'Georgia', serif;
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-width: 1px;
+      }
+
+      .axis-label {
+        font-size: 12px;
+        fill: #555;
+      }
+
+      .annotation {
+        font-size: 12px;
+        fill: #333;
+      }
+
+      .annotation-line {
+        stroke: #555;
+        stroke-width: 1px;
+      }
+
+      .source {
+        font-size: 10px;
+        fill: #888;
+      }
+
+      .legend-item {
+        font-size: 12px;
+      }
+
+      .chart-border {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 1px;
+      }
+
+      .area-dot {
+        fill: #fff;
+        stroke-width: 1px;
+      }
+
+      .success-dot {
+        fill: #000;
+        stroke: #fff;
+        stroke-width: 1px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="title">Annual Objects Launched into Space (2010-2023)</div>
-        <div class="subtitle">Record <span class="highlight">2,664</span> objects entered orbit in 2023, continuing the exponential growth trend</div>
-        <div id="chart"></div>
+      <div class="title">Annual Objects Launched into Space (2010-2023)</div>
+      <div class="subtitle">
+        Record <span class="highlight">2,664</span> objects entered orbit in 2023, continuing the
+        exponential growth trend
+      </div>
+      <div id="chart"></div>
     </div>
 
     <script>
-        // Set up dimensions and margins
-        const margin = {top: 50, right: 100, bottom: 50, left: 70};
-        const width = 900 - margin.left - margin.right;
-        const height = 600 - margin.top - margin.bottom;
+      // Set up dimensions and margins
+      const margin = { top: 50, right: 100, bottom: 50, left: 70 }
+      const width = 900 - margin.left - margin.right
+      const height = 600 - margin.top - margin.bottom
 
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
 
-        // Add border around chart area
-        svg.append("rect")
-            .attr("class", "chart-border")
-            .attr("width", width)
-            .attr("height", height);
+      // Add border around chart area
+      svg.append('rect').attr('class', 'chart-border').attr('width', width).attr('height', height)
 
-        // Data - using exact values from specification
-        const years = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023];
-        const totalObjects = [126, 136, 139, 208, 296, 265, 223, 453, 468, 522, 1283, 1711, 2475, 2664];
-        
-        // Using the exact success rates from the specification
-        const successRates = [88.5, 87.1, 94.6, 93.2, 91.5, 93.7, 91.8, 95.2, 94.6, 95.8, 94.2, 94.7, 94.5, 94.9];
-        
-        // 2023 composition percentages
-        const operationalSatellitesPct = 0.623;
-        const rocketBodiesPct = 0.180;
-        const trackedDebrisPct = 0.120;
-        const scientificPayloadsPct = 0.077;
-        
-        // Create composition data for all years (estimated based on 2023 proportions)
-        const stackedData = years.map((year, i) => {
-            const total = totalObjects[i];
-            return {
-                year: year,
-                "Operational Satellites": total * operationalSatellitesPct,
-                "Rocket Bodies": total * rocketBodiesPct,
-                "Tracked Debris": total * trackedDebrisPct,
-                "Scientific Payloads": total * scientificPayloadsPct
-            };
-        });
+      // Data - using exact values from specification
+      const years = [
+        2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023,
+      ]
+      const totalObjects = [
+        126, 136, 139, 208, 296, 265, 223, 453, 468, 522, 1283, 1711, 2475, 2664,
+      ]
 
-        // Set up scales
-        const x = d3.scaleLinear()
-            .domain([2010, 2023])
-            .range([0, width]);
+      // Using the exact success rates from the specification
+      const successRates = [
+        88.5, 87.1, 94.6, 93.2, 91.5, 93.7, 91.8, 95.2, 94.6, 95.8, 94.2, 94.7, 94.5, 94.9,
+      ]
 
-        const y = d3.scaleLinear()
-            .domain([0, 3000])
-            .range([height, 0]);
+      // 2023 composition percentages
+      const operationalSatellitesPct = 0.623
+      const rocketBodiesPct = 0.18
+      const trackedDebrisPct = 0.12
+      const scientificPayloadsPct = 0.077
 
-        // Adjusted y2 scale to match the actual success rate range (85-100%)
-        const y2 = d3.scaleLinear()
-            .domain([85, 100])
-            .range([height, 0]);
+      // Create composition data for all years (estimated based on 2023 proportions)
+      const stackedData = years.map((year, i) => {
+        const total = totalObjects[i]
+        return {
+          year: year,
+          'Operational Satellites': total * operationalSatellitesPct,
+          'Rocket Bodies': total * rocketBodiesPct,
+          'Tracked Debris': total * trackedDebrisPct,
+          'Scientific Payloads': total * scientificPayloadsPct,
+        }
+      })
 
-        // Define colors for stacked areas
-        const colors = {
-            "Operational Satellites": "#1a4e8c", // dark blue
-            "Rocket Bodies": "#4682b4", // medium blue
-            "Tracked Debris": "#87ceeb", // light blue
-            "Scientific Payloads": "#b0e0e6"  // very light blue/teal
-        };
+      // Set up scales
+      const x = d3.scaleLinear().domain([2010, 2023]).range([0, width])
 
-        // Set up stack generator
-        const stack = d3.stack()
-            .keys(["Operational Satellites", "Rocket Bodies", "Tracked Debris", "Scientific Payloads"]);
+      const y = d3.scaleLinear().domain([0, 3000]).range([height, 0])
 
-        const stackedSeries = stack(stackedData);
+      // Adjusted y2 scale to match the actual success rate range (85-100%)
+      const y2 = d3.scaleLinear().domain([85, 100]).range([height, 0])
 
-        // Create area generator
-        const area = d3.area()
-            .x(d => x(d.data.year))
-            .y0(d => y(d[0]))
-            .y1(d => y(d[1]))
-            .curve(d3.curveMonotoneX);
+      // Define colors for stacked areas
+      const colors = {
+        'Operational Satellites': '#1a4e8c', // dark blue
+        'Rocket Bodies': '#4682b4', // medium blue
+        'Tracked Debris': '#87ceeb', // light blue
+        'Scientific Payloads': '#b0e0e6', // very light blue/teal
+      }
 
-        // Add horizontal gridlines
-        svg.append("g")
-            .attr("class", "grid")
-            .selectAll("line")
-            .data(d3.range(0, 3001, 500))
-            .enter()
-            .append("line")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", d => y(d))
-            .attr("y2", d => y(d));
+      // Set up stack generator
+      const stack = d3
+        .stack()
+        .keys(['Operational Satellites', 'Rocket Bodies', 'Tracked Debris', 'Scientific Payloads'])
 
-        // Draw stacked areas
-        svg.selectAll(".area")
-            .data(stackedSeries)
-            .enter()
-            .append("path")
-            .attr("class", "area")
-            .attr("d", area)
-            .attr("fill", d => colors[d.key])
-            .attr("opacity", 0.9);
+      const stackedSeries = stack(stackedData)
 
-        // Draw success rate line with corrected scale
-        const successLine = d3.line()
-            .x((d, i) => x(years[i]))
-            .y(d => y2(d))
-            .curve(d3.curveMonotoneX);
+      // Create area generator
+      const area = d3
+        .area()
+        .x((d) => x(d.data.year))
+        .y0((d) => y(d[0]))
+        .y1((d) => y(d[1]))
+        .curve(d3.curveMonotoneX)
 
-        svg.append("path")
-            .datum(successRates)
-            .attr("fill", "none")
-            .attr("stroke", "black")
-            .attr("stroke-width", 2)
-            .attr("stroke-dasharray", "5,5")
-            .attr("d", successLine);
+      // Add horizontal gridlines
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .selectAll('line')
+        .data(d3.range(0, 3001, 500))
+        .enter()
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', (d) => y(d))
+        .attr('y2', (d) => y(d))
 
-        // Add dots for data points on success rate line - made more visible
-        svg.selectAll(".success-dot")
-            .data(successRates)
-            .enter()
-            .append("circle")
-            .attr("class", "success-dot")
-            .attr("cx", (d, i) => x(years[i]))
-            .attr("cy", d => y2(d))
-            .attr("r", 4)
-            .attr("fill", "black");
+      // Draw stacked areas
+      svg
+        .selectAll('.area')
+        .data(stackedSeries)
+        .enter()
+        .append('path')
+        .attr('class', 'area')
+        .attr('d', area)
+        .attr('fill', (d) => colors[d.key])
+        .attr('opacity', 0.9)
 
-        // Add dots for each year on the stacked area chart
-        years.forEach((year, i) => {
-            let runningTotal = 0;
-            
-            // For each category in the stack
-            ["Operational Satellites", "Rocket Bodies", "Tracked Debris", "Scientific Payloads"].forEach(category => {
-                const value = stackedData[i][category];
-                runningTotal += value;
-                
-                svg.append("circle")
-                    .attr("class", "area-dot")
-                    .attr("cx", x(year))
-                    .attr("cy", y(runningTotal))
-                    .attr("r", 3)
-                    .attr("stroke", colors[category])
-                    .attr("fill", "white");
-            });
-        });
+      // Draw success rate line with corrected scale
+      const successLine = d3
+        .line()
+        .x((d, i) => x(years[i]))
+        .y((d) => y2(d))
+        .curve(d3.curveMonotoneX)
 
-        // Add X axis
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x)
-                .tickValues(years)
-                .tickFormat(d3.format("d")));
+      svg
+        .append('path')
+        .datum(successRates)
+        .attr('fill', 'none')
+        .attr('stroke', 'black')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,5')
+        .attr('d', successLine)
 
-        // Add left Y axis
-        svg.append("g")
-            .call(d3.axisLeft(y)
-                .tickValues(d3.range(0, 3001, 500))
-                .tickFormat(d => d3.format(",")(d)));
+      // Add dots for data points on success rate line - made more visible
+      svg
+        .selectAll('.success-dot')
+        .data(successRates)
+        .enter()
+        .append('circle')
+        .attr('class', 'success-dot')
+        .attr('cx', (d, i) => x(years[i]))
+        .attr('cy', (d) => y2(d))
+        .attr('r', 4)
+        .attr('fill', 'black')
 
-        // Add right Y axis for success rate
-        svg.append("g")
-            .attr("transform", `translate(${width},0)`)
-            .call(d3.axisRight(y2)
-                .tickValues([85, 90, 95, 100])
-                .tickFormat(d => d + "%"));
+      // Add dots for each year on the stacked area chart
+      years.forEach((year, i) => {
+        let runningTotal = 0
 
-        // Add axis labels with improved positioning
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("text-anchor", "middle")
-            .attr("x", -margin.left + 15)
-            .attr("y", height / 2)
-            .attr("transform", "rotate(-90, " + (-margin.left + 15) + ", " + (height / 2) + ")")
-            .text("Number of Objects Launched");
+        // For each category in the stack
+        ;[
+          'Operational Satellites',
+          'Rocket Bodies',
+          'Tracked Debris',
+          'Scientific Payloads',
+        ].forEach((category) => {
+          const value = stackedData[i][category]
+          runningTotal += value
 
-        // Repositioned right axis label to avoid overlap
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("text-anchor", "middle")
-            .attr("x", width + margin.right - 25)
-            .attr("y", height / 2)
-            .attr("transform", "rotate(-90, " + (width + margin.right - 25) + ", " + (height / 2) + ")")
-            .text("Launch Success Rate (%)");
+          svg
+            .append('circle')
+            .attr('class', 'area-dot')
+            .attr('cx', x(year))
+            .attr('cy', y(runningTotal))
+            .attr('r', 3)
+            .attr('stroke', colors[category])
+            .attr('fill', 'white')
+        })
+      })
 
-        // Add annotations - repositioned to avoid overlap
-        // 2020 annotation
-        svg.append("line")
-            .attr("class", "annotation-line")
-            .attr("x1", x(2020))
-            .attr("y1", y(1283) - 10)
-            .attr("x2", x(2020) - 30)
-            .attr("y2", y(1283) - 40);
+      // Add X axis
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickValues(years).tickFormat(d3.format('d')))
 
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", x(2020) - 120)
-            .attr("y", y(1283) - 50)
-            .text("Sharp increase as constellation");
+      // Add left Y axis
+      svg.append('g').call(
+        d3
+          .axisLeft(y)
+          .tickValues(d3.range(0, 3001, 500))
+          .tickFormat((d) => d3.format(',')(d))
+      )
 
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", x(2020) - 120)
-            .attr("y", y(1283) - 35)
-            .text("deployments scale up");
+      // Add right Y axis for success rate
+      svg
+        .append('g')
+        .attr('transform', `translate(${width},0)`)
+        .call(
+          d3
+            .axisRight(y2)
+            .tickValues([85, 90, 95, 100])
+            .tickFormat((d) => d + '%')
+        )
 
-        // 2023 annotation - repositioned to be fully visible
-        svg.append("line")
-            .attr("class", "annotation-line")
-            .attr("x1", x(2023))
-            .attr("y1", y(2664) - 10)
-            .attr("x2", x(2023) - 60)
-            .attr("y2", y(2664) - 40);
+      // Add axis labels with improved positioning
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('text-anchor', 'middle')
+        .attr('x', -margin.left + 15)
+        .attr('y', height / 2)
+        .attr('transform', 'rotate(-90, ' + (-margin.left + 15) + ', ' + height / 2 + ')')
+        .text('Number of Objects Launched')
 
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", x(2023) - 160)
-            .attr("y", y(2664) - 50)
-            .text("2,664 objects: New record high");
+      // Repositioned right axis label to avoid overlap
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('text-anchor', 'middle')
+        .attr('x', width + margin.right - 25)
+        .attr('y', height / 2)
+        .attr('transform', 'rotate(-90, ' + (width + margin.right - 25) + ', ' + height / 2 + ')')
+        .text('Launch Success Rate (%)')
 
-        // Add legend with proper positioning and styling
-        const legendKeys = ["Operational Satellites", "Rocket Bodies", "Tracked Debris", "Scientific Payloads", "Success Rate"];
-        const legendX = width - 180;
-        const legendY = 20; // Added more padding from the top
-        
-        const legend = svg.append("g")
-            .attr("class", "legend")
-            .attr("transform", `translate(${legendX},${legendY})`);
+      // Add annotations - repositioned to avoid overlap
+      // 2020 annotation
+      svg
+        .append('line')
+        .attr('class', 'annotation-line')
+        .attr('x1', x(2020))
+        .attr('y1', y(1283) - 10)
+        .attr('x2', x(2020) - 30)
+        .attr('y2', y(1283) - 40)
 
-        legendKeys.forEach((key, i) => {
-            const legendRow = legend.append("g")
-                .attr("transform", `translate(0, ${i * 20})`);
-            
-            if (key === "Success Rate") {
-                // Use dashed line for success rate in legend to match chart
-                legendRow.append("line")
-                    .attr("x1", 0)
-                    .attr("y1", 10)
-                    .attr("x2", 15)
-                    .attr("y2", 10)
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 2)
-                    .attr("stroke-dasharray", "5,5");
-                
-                // Add a dot to match the success rate line dots
-                legendRow.append("circle")
-                    .attr("cx", 7.5)
-                    .attr("cy", 10)
-                    .attr("r", 3)
-                    .attr("fill", "black");
-            } else {
-                legendRow.append("rect")
-                    .attr("width", 15)
-                    .attr("height", 15)
-                    .attr("fill", colors[key]);
-            }
-            
-            legendRow.append("text")
-                .attr("x", 25)
-                .attr("y", 12.5)
-                .attr("class", "legend-item")
-                .text(key);
-        });
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', x(2020) - 120)
+        .attr('y', y(1283) - 50)
+        .text('Sharp increase as constellation')
 
-        // Add source attribution
-        svg.append("text")
-            .attr("class", "source")
-            .attr("x", 0)
-            .attr("y", height + 35)
-            .text("Data sources: UNOOSA, Space-Track.org, and Our World in Data");
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', x(2020) - 120)
+        .attr('y', y(1283) - 35)
+        .text('deployments scale up')
+
+      // 2023 annotation - repositioned to be fully visible
+      svg
+        .append('line')
+        .attr('class', 'annotation-line')
+        .attr('x1', x(2023))
+        .attr('y1', y(2664) - 10)
+        .attr('x2', x(2023) - 60)
+        .attr('y2', y(2664) - 40)
+
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', x(2023) - 160)
+        .attr('y', y(2664) - 50)
+        .text('2,664 objects: New record high')
+
+      // Add legend with proper positioning and styling
+      const legendKeys = [
+        'Operational Satellites',
+        'Rocket Bodies',
+        'Tracked Debris',
+        'Scientific Payloads',
+        'Success Rate',
+      ]
+      const legendX = width - 180
+      const legendY = 20 // Added more padding from the top
+
+      const legend = svg
+        .append('g')
+        .attr('class', 'legend')
+        .attr('transform', `translate(${legendX},${legendY})`)
+
+      legendKeys.forEach((key, i) => {
+        const legendRow = legend.append('g').attr('transform', `translate(0, ${i * 20})`)
+
+        if (key === 'Success Rate') {
+          // Use dashed line for success rate in legend to match chart
+          legendRow
+            .append('line')
+            .attr('x1', 0)
+            .attr('y1', 10)
+            .attr('x2', 15)
+            .attr('y2', 10)
+            .attr('stroke', 'black')
+            .attr('stroke-width', 2)
+            .attr('stroke-dasharray', '5,5')
+
+          // Add a dot to match the success rate line dots
+          legendRow
+            .append('circle')
+            .attr('cx', 7.5)
+            .attr('cy', 10)
+            .attr('r', 3)
+            .attr('fill', 'black')
+        } else {
+          legendRow.append('rect').attr('width', 15).attr('height', 15).attr('fill', colors[key])
+        }
+
+        legendRow
+          .append('text')
+          .attr('x', 25)
+          .attr('y', 12.5)
+          .attr('class', 'legend-item')
+          .text(key)
+      })
+
+      // Add source attribution
+      svg
+        .append('text')
+        .attr('class', 'source')
+        .attr('x', 0)
+        .attr('y', height + 35)
+        .text('Data sources: UNOOSA, Space-Track.org, and Our World in Data')
     </script>
-</body>
+  </body>
 </html>

@@ -1,537 +1,546 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GDP Growth Comparison: China vs US</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        .visualization-container {
-            width: 900px;
-            height: 680px;
-        }
-        
-        .title {
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        
-        .panel-label {
-            font-size: 14px;
-            font-weight: bold;
-            fill: #333;
-        }
-        
-        .axis-label {
-            font-size: 11px;
-            fill: #555;
-        }
-        
-        .source {
-            font-size: 10px;
-            fill: #777;
-            text-anchor: end;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-opacity: 0.7;
-            shape-rendering: crispEdges;
-        }
-        
-        .zero-line {
-            stroke: #aaa;
-            stroke-width: 1.5;
-            stroke-dasharray: none;
-        }
-        
-        .average-line {
-            stroke-dasharray: 5,5;
-            stroke-width: 1.5;
-        }
-        
-        .china-bar {
-            fill: #C6002B;
-        }
-        
-        .us-bar {
-            fill: #004E8C;
-        }
-        
-        .annotation {
-            font-size: 9px;
-            fill: #333;
-        }
-        
-        .annotation-box {
-            fill: rgba(255, 255, 255, 0.9);
-            stroke: #aaa;
-            stroke-width: 0.5;
-            rx: 2;
-            ry: 2;
-        }
-        
-        .extreme-value {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            font-size: 12px;
-        }
-        
-        .china-extreme {
-            fill: #8B0000;
-        }
-        
-        .us-extreme {
-            fill: #00366B;
-        }
-        
-        .connector-line {
-            stroke: #aaa;
-            stroke-width: 0.5;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .visualization-container {
+        width: 900px;
+        height: 680px;
+      }
+
+      .title {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      .panel-label {
+        font-size: 14px;
+        font-weight: bold;
+        fill: #333;
+      }
+
+      .axis-label {
+        font-size: 11px;
+        fill: #555;
+      }
+
+      .source {
+        font-size: 10px;
+        fill: #777;
+        text-anchor: end;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+      }
+
+      .zero-line {
+        stroke: #aaa;
+        stroke-width: 1.5;
+        stroke-dasharray: none;
+      }
+
+      .average-line {
+        stroke-dasharray: 5, 5;
+        stroke-width: 1.5;
+      }
+
+      .china-bar {
+        fill: #c6002b;
+      }
+
+      .us-bar {
+        fill: #004e8c;
+      }
+
+      .annotation {
+        font-size: 9px;
+        fill: #333;
+      }
+
+      .annotation-box {
+        fill: rgba(255, 255, 255, 0.9);
+        stroke: #aaa;
+        stroke-width: 0.5;
+        rx: 2;
+        ry: 2;
+      }
+
+      .extreme-value {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        font-size: 12px;
+      }
+
+      .china-extreme {
+        fill: #8b0000;
+      }
+
+      .us-extreme {
+        fill: #00366b;
+      }
+
+      .connector-line {
+        stroke: #aaa;
+        stroke-width: 0.5;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container" id="gdp-chart"></div>
 
     <script>
-        // Set up dimensions and margins - INCREASED DIMENSIONS
-        const margin = {top: 50, right: 50, bottom: 70, left: 70};
-        const width = 900 - margin.left - margin.right;
-        const height = 680 - margin.top - margin.bottom;
-        const panelHeight = (height - 40) / 2; // 40px gap between panels
-        
-        // Create SVG
-        const svg = d3.select("#gdp-chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-        
-        // Add title
-        svg.append("text")
-            .attr("class", "title")
-            .attr("x", width / 2)
-            .attr("y", -25)
-            .attr("text-anchor", "middle")
-            .text("Year-over-Year GDP Growth: China's Volatility vs. US Stability (1960-2023)");
-        
-        // China GDP growth data
-        const chinaData = [
-            {year: 1960, growth: 3.14},
-            {year: 1961, growth: -27.27}, // Extreme low
-            {year: 1962, growth: 10.20},
-            {year: 1963, growth: 10.30},
-            {year: 1964, growth: 18.30},
-            {year: 1965, growth: 17.00},
-            {year: 1966, growth: 10.70},
-            {year: 1967, growth: -5.70},
-            {year: 1968, growth: -4.10},
-            {year: 1969, growth: 16.90},
-            {year: 1970, growth: 19.30}, // Extreme high
-            {year: 1971, growth: 7.00},
-            {year: 1972, growth: 3.80},
-            {year: 1973, growth: 7.80},
-            {year: 1974, growth: 2.30},
-            {year: 1975, growth: 8.70},
-            {year: 1976, growth: -1.60},
-            {year: 1977, growth: 7.60},
-            {year: 1978, growth: 11.70}, // Reform and Opening Up
-            {year: 1979, growth: 7.60},
-            {year: 1980, growth: 7.80},
-            {year: 1981, growth: 5.20},
-            {year: 1982, growth: 9.10},
-            {year: 1983, growth: 10.90},
-            {year: 1984, growth: 15.20},
-            {year: 1985, growth: 13.50},
-            {year: 1986, growth: 8.80},
-            {year: 1987, growth: 11.60},
-            {year: 1988, growth: 11.30},
-            {year: 1989, growth: 4.10},
-            {year: 1990, growth: 3.90},
-            {year: 1991, growth: 9.30},
-            {year: 1992, growth: 14.20},
-            {year: 1993, growth: 14.00},
-            {year: 1994, growth: 13.10},
-            {year: 1995, growth: 10.90},
-            {year: 1996, growth: 9.90},
-            {year: 1997, growth: 9.20},
-            {year: 1998, growth: 7.80},
-            {year: 1999, growth: 7.70},
-            {year: 2000, growth: 8.50},
-            {year: 2001, growth: 8.30}, // WTO Accession
-            {year: 2002, growth: 9.10},
-            {year: 2003, growth: 10.00},
-            {year: 2004, growth: 10.10},
-            {year: 2005, growth: 11.40},
-            {year: 2006, growth: 12.70},
-            {year: 2007, growth: 14.20},
-            {year: 2008, growth: 9.70}, // Global Financial Crisis
-            {year: 2009, growth: 9.40},
-            {year: 2010, growth: 10.60},
-            {year: 2011, growth: 9.50},
-            {year: 2012, growth: 7.90},
-            {year: 2013, growth: 7.80},
-            {year: 2014, growth: 7.30},
-            {year: 2015, growth: 6.90},
-            {year: 2016, growth: 6.70},
-            {year: 2017, growth: 6.80},
-            {year: 2018, growth: 6.60},
-            {year: 2019, growth: 6.10},
-            {year: 2020, growth: 2.20}, // COVID-19 Pandemic
-            {year: 2021, growth: 8.40},
-            {year: 2022, growth: 3.00},
-            {year: 2023, growth: 5.20}
-        ];
-        
-        // US GDP growth data
-        const usData = [
-            {year: 1960, growth: 2.50},
-            {year: 1961, growth: 2.30},
-            {year: 1962, growth: 6.10},
-            {year: 1963, growth: 4.40},
-            {year: 1964, growth: 5.80},
-            {year: 1965, growth: 6.40},
-            {year: 1966, growth: 6.50},
-            {year: 1967, growth: 2.50},
-            {year: 1968, growth: 4.80},
-            {year: 1969, growth: 3.10},
-            {year: 1970, growth: 0.20},
-            {year: 1971, growth: 3.30},
-            {year: 1972, growth: 5.30},
-            {year: 1973, growth: 5.60},
-            {year: 1974, growth: -0.50},
-            {year: 1975, growth: -0.20},
-            {year: 1976, growth: 5.40},
-            {year: 1977, growth: 4.60},
-            {year: 1978, growth: 5.60},
-            {year: 1979, growth: 3.20},
-            {year: 1980, growth: -0.20},
-            {year: 1981, growth: 2.60},
-            {year: 1982, growth: -1.90},
-            {year: 1983, growth: 4.60},
-            {year: 1984, growth: 7.24}, // Extreme high
-            {year: 1985, growth: 4.20},
-            {year: 1986, growth: 3.50},
-            {year: 1987, growth: 3.50},
-            {year: 1988, growth: 4.20},
-            {year: 1989, growth: 3.70},
-            {year: 1990, growth: 1.90},
-            {year: 1991, growth: -0.10},
-            {year: 1992, growth: 3.50},
-            {year: 1993, growth: 2.80},
-            {year: 1994, growth: 4.00},
-            {year: 1995, growth: 2.70},
-            {year: 1996, growth: 3.80},
-            {year: 1997, growth: 4.40},
-            {year: 1998, growth: 4.50},
-            {year: 1999, growth: 4.80},
-            {year: 2000, growth: 4.10},
-            {year: 2001, growth: 1.00},
-            {year: 2002, growth: 1.70},
-            {year: 2003, growth: 2.90},
-            {year: 2004, growth: 3.80},
-            {year: 2005, growth: 3.50},
-            {year: 2006, growth: 2.90},
-            {year: 2007, growth: 1.90},
-            {year: 2008, growth: -0.10}, // Global Financial Crisis
-            {year: 2009, growth: -2.58}, // Extreme low
-            {year: 2010, growth: 2.60},
-            {year: 2011, growth: 1.60},
-            {year: 2012, growth: 2.20},
-            {year: 2013, growth: 1.80},
-            {year: 2014, growth: 2.50},
-            {year: 2015, growth: 2.90},
-            {year: 2016, growth: 1.60},
-            {year: 2017, growth: 2.40},
-            {year: 2018, growth: 2.90},
-            {year: 2019, growth: 2.30},
-            {year: 2020, growth: -2.20}, // COVID-19 Pandemic
-            {year: 2021, growth: 5.90},
-            {year: 2022, growth: 2.10},
-            {year: 2023, growth: 2.50}
-        ];
-        
-        // Calculate averages
-        const chinaAvg = d3.mean(chinaData, d => d.growth);
-        const usAvg = d3.mean(usData, d => d.growth);
-        
-        // Create scales
-        const xScale = d3.scaleLinear()
-            .domain([1960, 2023])
-            .range([0, width]);
-        
-        const yScaleChina = d3.scaleLinear()
-            .domain([-30, 25])
-            .range([panelHeight, 0]);
-        
-        const yScaleUS = d3.scaleLinear()
-            .domain([-5, 10])
-            .range([panelHeight, 0]);
-        
-        // Create axes
-        const xAxis = d3.axisBottom(xScale)
-            .tickValues([1960, 1970, 1980, 1990, 2000, 2010, 2020])
-            .tickFormat(d3.format("d"));
-        
-        const yAxisChina = d3.axisLeft(yScaleChina)
-            .tickValues([-30, -20, -10, 0, 10, 20])
-            .tickFormat(d => d + "%");
-        
-        const yAxisUS = d3.axisLeft(yScaleUS)
-            .tickValues([-5, 0, 5, 10])
-            .tickFormat(d => d + "%");
-        
-        // Create gridlines
-        function makeGridlinesChina() {
-            return d3.axisLeft(yScaleChina)
-                .tickValues([-30, -20, -10, 0, 10, 20]);
-        }
-        
-        function makeGridlinesUS() {
-            return d3.axisLeft(yScaleUS)
-                .tickValues([-5, 0, 5, 10]);
-        }
-        
-        // Top panel (China)
-        const chinaPanel = svg.append("g");
-        
-        // Add gridlines
-        chinaPanel.append("g")
-            .attr("class", "grid")
-            .call(makeGridlinesChina()
-                .tickSize(-width)
-                .tickFormat("")
-            );
-        
-        // Add zero line
-        chinaPanel.append("line")
-            .attr("class", "zero-line")
-            .attr("x1", 0)
-            .attr("y1", yScaleChina(0))
-            .attr("x2", width)
-            .attr("y2", yScaleChina(0));
-        
-        // Add average line
-        chinaPanel.append("line")
-            .attr("class", "average-line")
-            .attr("x1", 0)
-            .attr("y1", yScaleChina(chinaAvg))
-            .attr("x2", width)
-            .attr("y2", yScaleChina(chinaAvg))
-            .style("stroke", "#C6002B")
-            .style("opacity", 0.7);
-        
-        // Add bars
-        chinaPanel.selectAll(".china-bar")
-            .data(chinaData)
-            .enter()
-            .append("rect")
-            .attr("class", "china-bar")
-            .attr("x", d => xScale(d.year) - 3)
-            .attr("y", d => d.growth > 0 ? yScaleChina(d.growth) : yScaleChina(0))
-            .attr("width", 6)
-            .attr("height", d => Math.abs(yScaleChina(d.growth) - yScaleChina(0)));
-        
-        // Add y-axis
-        chinaPanel.append("g")
-            .call(yAxisChina);
-        
-        // Add panel label
-        chinaPanel.append("text")
-            .attr("class", "panel-label")
-            .attr("x", 5)
-            .attr("y", 15)
-            .text("CHINA");
-        
-        // Add y-axis label
-        chinaPanel.append("text")
-            .attr("class", "axis-label")
-            .attr("transform", "rotate(-90)")
-            .attr("x", -panelHeight / 2)
-            .attr("y", -45)
-            .attr("text-anchor", "middle")
-            .text("GDP Growth (%)");
-        
-        // Bottom panel (US)
-        const usPanel = svg.append("g")
-            .attr("transform", `translate(0,${panelHeight + 40})`);
-        
-        // Add gridlines
-        usPanel.append("g")
-            .attr("class", "grid")
-            .call(makeGridlinesUS()
-                .tickSize(-width)
-                .tickFormat("")
-            );
-        
-        // Add zero line
-        usPanel.append("line")
-            .attr("class", "zero-line")
-            .attr("x1", 0)
-            .attr("y1", yScaleUS(0))
-            .attr("x2", width)
-            .attr("y2", yScaleUS(0));
-        
-        // Add average line
-        usPanel.append("line")
-            .attr("class", "average-line")
-            .attr("x1", 0)
-            .attr("y1", yScaleUS(usAvg))
-            .attr("x2", width)
-            .attr("y2", yScaleUS(usAvg))
-            .style("stroke", "#004E8C")
-            .style("opacity", 0.7);
-        
-        // Add bars
-        usPanel.selectAll(".us-bar")
-            .data(usData)
-            .enter()
-            .append("rect")
-            .attr("class", "us-bar")
-            .attr("x", d => xScale(d.year) - 3)
-            .attr("y", d => d.growth > 0 ? yScaleUS(d.growth) : yScaleUS(0))
-            .attr("width", 6)
-            .attr("height", d => Math.abs(yScaleUS(d.growth) - yScaleUS(0)));
-        
-        // Add y-axis
-        usPanel.append("g")
-            .call(yAxisUS);
-        
-        // Add x-axis
-        usPanel.append("g")
-            .attr("transform", `translate(0,${panelHeight})`)
-            .call(xAxis);
-        
-        // Add panel label
-        usPanel.append("text")
-            .attr("class", "panel-label")
-            .attr("x", 5)
-            .attr("y", 15)
-            .text("UNITED STATES");
-        
-        // Add y-axis label
-        usPanel.append("text")
-            .attr("class", "axis-label")
-            .attr("transform", "rotate(-90)")
-            .attr("x", -panelHeight / 2)
-            .attr("y", -45)
-            .attr("text-anchor", "middle")
-            .text("GDP Growth (%)");
-        
-        // Add x-axis label
-        usPanel.append("text")
-            .attr("class", "axis-label")
-            .attr("x", width / 2)
-            .attr("y", panelHeight + 35)
-            .attr("text-anchor", "middle")
-            .text("Year");
-        
-        // Add source attribution - REPOSITIONED
-        svg.append("text")
-            .attr("class", "source")
-            .attr("x", width)
-            .attr("y", height + 25) // Moved down to avoid overlap
-            .text("Source: World Bank, StatsTimes (2023)");
-        
-        // IMPROVED ANNOTATIONS - Better positioned with clearer connections
-        
-        // 1. Reform and Opening Up (1978) - China
-        addAnnotation(chinaPanel, 1978, 11.7, "Reform and Opening Up", 60, -25);
-        
-        // 2. WTO Accession (2001) - China
-        addAnnotation(chinaPanel, 2001, 8.3, "WTO Accession", 40, -20);
-        
-        // 3. Global Financial Crisis (2008-2009) - ADDED TO BOTH PANELS
-        addAnnotation(chinaPanel, 2008, 9.7, "Global Financial Crisis", 60, -15);
-        addAnnotation(usPanel, 2009, -2.58, "Global Financial Crisis", -60, -15);
-        
-        // 4. COVID-19 Pandemic (2020) - REPOSITIONED ON BOTH PANELS
-        addAnnotation(chinaPanel, 2020, 2.2, "COVID-19 Pandemic", -60, -25);
-        addAnnotation(usPanel, 2020, -2.2, "COVID-19 Pandemic", -60, 25);
-        
-        // Add extreme value labels - IMPROVED POSITIONING
-        // China extreme low - REPOSITIONED
-        chinaPanel.append("text")
-            .attr("class", "extreme-value china-extreme")
-            .attr("x", xScale(1961) + 15)
-            .attr("y", yScaleChina(-27.27) + 20)
-            .attr("text-anchor", "start")
-            .text("-27.27%");
-        
-        // China extreme high
-        chinaPanel.append("text")
-            .attr("class", "extreme-value china-extreme")
-            .attr("x", xScale(1970))
-            .attr("y", yScaleChina(19.30) - 8)
-            .attr("text-anchor", "middle")
-            .text("19.30%");
-        
-        // US extreme high
-        usPanel.append("text")
-            .attr("class", "extreme-value us-extreme")
-            .attr("x", xScale(1984))
-            .attr("y", yScaleUS(7.24) - 8)
-            .attr("text-anchor", "middle")
-            .text("7.24%");
-        
-        // US extreme low - REPOSITIONED
-        usPanel.append("text")
-            .attr("class", "extreme-value us-extreme")
-            .attr("x", xScale(2009) - 30)
-            .attr("y", yScaleUS(-2.58) + 15)
-            .attr("text-anchor", "end")
-            .text("-2.58%");
-        
-        // IMPROVED ANNOTATION FUNCTION
-        function addAnnotation(panel, year, value, text, xOffset, yOffset) {
-            const yScale = panel === chinaPanel ? yScaleChina : yScaleUS;
-            const x = xScale(year);
-            const y = yScale(value);
-            
-            // Add annotation group
-            const annotationGroup = panel.append("g")
-                .attr("class", "annotation-group");
-            
-            // Create text element
-            const textNode = annotationGroup.append("text")
-                .attr("class", "annotation")
-                .attr("x", x + xOffset)
-                .attr("y", y + yOffset)
-                .text(text);
-            
-            // Get bounding box and add background
-            const bbox = textNode.node().getBBox();
-            
-            // Add background rectangle
-            annotationGroup.insert("rect", "text")
-                .attr("class", "annotation-box")
-                .attr("x", bbox.x - 3)
-                .attr("y", bbox.y - 1)
-                .attr("width", bbox.width + 6)
-                .attr("height", bbox.height + 2);
-            
-            // Add connecting line with improved visibility
-            annotationGroup.append("line")
-                .attr("class", "connector-line")
-                .attr("x1", x)
-                .attr("y1", y)
-                .attr("x2", x + xOffset * 0.8)
-                .attr("y2", y + yOffset * 0.8);
-        }
+      // Set up dimensions and margins - INCREASED DIMENSIONS
+      const margin = { top: 50, right: 50, bottom: 70, left: 70 }
+      const width = 900 - margin.left - margin.right
+      const height = 680 - margin.top - margin.bottom
+      const panelHeight = (height - 40) / 2 // 40px gap between panels
+
+      // Create SVG
+      const svg = d3
+        .select('#gdp-chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
+
+      // Add title
+      svg
+        .append('text')
+        .attr('class', 'title')
+        .attr('x', width / 2)
+        .attr('y', -25)
+        .attr('text-anchor', 'middle')
+        .text("Year-over-Year GDP Growth: China's Volatility vs. US Stability (1960-2023)")
+
+      // China GDP growth data
+      const chinaData = [
+        { year: 1960, growth: 3.14 },
+        { year: 1961, growth: -27.27 }, // Extreme low
+        { year: 1962, growth: 10.2 },
+        { year: 1963, growth: 10.3 },
+        { year: 1964, growth: 18.3 },
+        { year: 1965, growth: 17.0 },
+        { year: 1966, growth: 10.7 },
+        { year: 1967, growth: -5.7 },
+        { year: 1968, growth: -4.1 },
+        { year: 1969, growth: 16.9 },
+        { year: 1970, growth: 19.3 }, // Extreme high
+        { year: 1971, growth: 7.0 },
+        { year: 1972, growth: 3.8 },
+        { year: 1973, growth: 7.8 },
+        { year: 1974, growth: 2.3 },
+        { year: 1975, growth: 8.7 },
+        { year: 1976, growth: -1.6 },
+        { year: 1977, growth: 7.6 },
+        { year: 1978, growth: 11.7 }, // Reform and Opening Up
+        { year: 1979, growth: 7.6 },
+        { year: 1980, growth: 7.8 },
+        { year: 1981, growth: 5.2 },
+        { year: 1982, growth: 9.1 },
+        { year: 1983, growth: 10.9 },
+        { year: 1984, growth: 15.2 },
+        { year: 1985, growth: 13.5 },
+        { year: 1986, growth: 8.8 },
+        { year: 1987, growth: 11.6 },
+        { year: 1988, growth: 11.3 },
+        { year: 1989, growth: 4.1 },
+        { year: 1990, growth: 3.9 },
+        { year: 1991, growth: 9.3 },
+        { year: 1992, growth: 14.2 },
+        { year: 1993, growth: 14.0 },
+        { year: 1994, growth: 13.1 },
+        { year: 1995, growth: 10.9 },
+        { year: 1996, growth: 9.9 },
+        { year: 1997, growth: 9.2 },
+        { year: 1998, growth: 7.8 },
+        { year: 1999, growth: 7.7 },
+        { year: 2000, growth: 8.5 },
+        { year: 2001, growth: 8.3 }, // WTO Accession
+        { year: 2002, growth: 9.1 },
+        { year: 2003, growth: 10.0 },
+        { year: 2004, growth: 10.1 },
+        { year: 2005, growth: 11.4 },
+        { year: 2006, growth: 12.7 },
+        { year: 2007, growth: 14.2 },
+        { year: 2008, growth: 9.7 }, // Global Financial Crisis
+        { year: 2009, growth: 9.4 },
+        { year: 2010, growth: 10.6 },
+        { year: 2011, growth: 9.5 },
+        { year: 2012, growth: 7.9 },
+        { year: 2013, growth: 7.8 },
+        { year: 2014, growth: 7.3 },
+        { year: 2015, growth: 6.9 },
+        { year: 2016, growth: 6.7 },
+        { year: 2017, growth: 6.8 },
+        { year: 2018, growth: 6.6 },
+        { year: 2019, growth: 6.1 },
+        { year: 2020, growth: 2.2 }, // COVID-19 Pandemic
+        { year: 2021, growth: 8.4 },
+        { year: 2022, growth: 3.0 },
+        { year: 2023, growth: 5.2 },
+      ]
+
+      // US GDP growth data
+      const usData = [
+        { year: 1960, growth: 2.5 },
+        { year: 1961, growth: 2.3 },
+        { year: 1962, growth: 6.1 },
+        { year: 1963, growth: 4.4 },
+        { year: 1964, growth: 5.8 },
+        { year: 1965, growth: 6.4 },
+        { year: 1966, growth: 6.5 },
+        { year: 1967, growth: 2.5 },
+        { year: 1968, growth: 4.8 },
+        { year: 1969, growth: 3.1 },
+        { year: 1970, growth: 0.2 },
+        { year: 1971, growth: 3.3 },
+        { year: 1972, growth: 5.3 },
+        { year: 1973, growth: 5.6 },
+        { year: 1974, growth: -0.5 },
+        { year: 1975, growth: -0.2 },
+        { year: 1976, growth: 5.4 },
+        { year: 1977, growth: 4.6 },
+        { year: 1978, growth: 5.6 },
+        { year: 1979, growth: 3.2 },
+        { year: 1980, growth: -0.2 },
+        { year: 1981, growth: 2.6 },
+        { year: 1982, growth: -1.9 },
+        { year: 1983, growth: 4.6 },
+        { year: 1984, growth: 7.24 }, // Extreme high
+        { year: 1985, growth: 4.2 },
+        { year: 1986, growth: 3.5 },
+        { year: 1987, growth: 3.5 },
+        { year: 1988, growth: 4.2 },
+        { year: 1989, growth: 3.7 },
+        { year: 1990, growth: 1.9 },
+        { year: 1991, growth: -0.1 },
+        { year: 1992, growth: 3.5 },
+        { year: 1993, growth: 2.8 },
+        { year: 1994, growth: 4.0 },
+        { year: 1995, growth: 2.7 },
+        { year: 1996, growth: 3.8 },
+        { year: 1997, growth: 4.4 },
+        { year: 1998, growth: 4.5 },
+        { year: 1999, growth: 4.8 },
+        { year: 2000, growth: 4.1 },
+        { year: 2001, growth: 1.0 },
+        { year: 2002, growth: 1.7 },
+        { year: 2003, growth: 2.9 },
+        { year: 2004, growth: 3.8 },
+        { year: 2005, growth: 3.5 },
+        { year: 2006, growth: 2.9 },
+        { year: 2007, growth: 1.9 },
+        { year: 2008, growth: -0.1 }, // Global Financial Crisis
+        { year: 2009, growth: -2.58 }, // Extreme low
+        { year: 2010, growth: 2.6 },
+        { year: 2011, growth: 1.6 },
+        { year: 2012, growth: 2.2 },
+        { year: 2013, growth: 1.8 },
+        { year: 2014, growth: 2.5 },
+        { year: 2015, growth: 2.9 },
+        { year: 2016, growth: 1.6 },
+        { year: 2017, growth: 2.4 },
+        { year: 2018, growth: 2.9 },
+        { year: 2019, growth: 2.3 },
+        { year: 2020, growth: -2.2 }, // COVID-19 Pandemic
+        { year: 2021, growth: 5.9 },
+        { year: 2022, growth: 2.1 },
+        { year: 2023, growth: 2.5 },
+      ]
+
+      // Calculate averages
+      const chinaAvg = d3.mean(chinaData, (d) => d.growth)
+      const usAvg = d3.mean(usData, (d) => d.growth)
+
+      // Create scales
+      const xScale = d3.scaleLinear().domain([1960, 2023]).range([0, width])
+
+      const yScaleChina = d3.scaleLinear().domain([-30, 25]).range([panelHeight, 0])
+
+      const yScaleUS = d3.scaleLinear().domain([-5, 10]).range([panelHeight, 0])
+
+      // Create axes
+      const xAxis = d3
+        .axisBottom(xScale)
+        .tickValues([1960, 1970, 1980, 1990, 2000, 2010, 2020])
+        .tickFormat(d3.format('d'))
+
+      const yAxisChina = d3
+        .axisLeft(yScaleChina)
+        .tickValues([-30, -20, -10, 0, 10, 20])
+        .tickFormat((d) => d + '%')
+
+      const yAxisUS = d3
+        .axisLeft(yScaleUS)
+        .tickValues([-5, 0, 5, 10])
+        .tickFormat((d) => d + '%')
+
+      // Create gridlines
+      function makeGridlinesChina() {
+        return d3.axisLeft(yScaleChina).tickValues([-30, -20, -10, 0, 10, 20])
+      }
+
+      function makeGridlinesUS() {
+        return d3.axisLeft(yScaleUS).tickValues([-5, 0, 5, 10])
+      }
+
+      // Top panel (China)
+      const chinaPanel = svg.append('g')
+
+      // Add gridlines
+      chinaPanel
+        .append('g')
+        .attr('class', 'grid')
+        .call(makeGridlinesChina().tickSize(-width).tickFormat(''))
+
+      // Add zero line
+      chinaPanel
+        .append('line')
+        .attr('class', 'zero-line')
+        .attr('x1', 0)
+        .attr('y1', yScaleChina(0))
+        .attr('x2', width)
+        .attr('y2', yScaleChina(0))
+
+      // Add average line
+      chinaPanel
+        .append('line')
+        .attr('class', 'average-line')
+        .attr('x1', 0)
+        .attr('y1', yScaleChina(chinaAvg))
+        .attr('x2', width)
+        .attr('y2', yScaleChina(chinaAvg))
+        .style('stroke', '#C6002B')
+        .style('opacity', 0.7)
+
+      // Add bars
+      chinaPanel
+        .selectAll('.china-bar')
+        .data(chinaData)
+        .enter()
+        .append('rect')
+        .attr('class', 'china-bar')
+        .attr('x', (d) => xScale(d.year) - 3)
+        .attr('y', (d) => (d.growth > 0 ? yScaleChina(d.growth) : yScaleChina(0)))
+        .attr('width', 6)
+        .attr('height', (d) => Math.abs(yScaleChina(d.growth) - yScaleChina(0)))
+
+      // Add y-axis
+      chinaPanel.append('g').call(yAxisChina)
+
+      // Add panel label
+      chinaPanel
+        .append('text')
+        .attr('class', 'panel-label')
+        .attr('x', 5)
+        .attr('y', 15)
+        .text('CHINA')
+
+      // Add y-axis label
+      chinaPanel
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -panelHeight / 2)
+        .attr('y', -45)
+        .attr('text-anchor', 'middle')
+        .text('GDP Growth (%)')
+
+      // Bottom panel (US)
+      const usPanel = svg.append('g').attr('transform', `translate(0,${panelHeight + 40})`)
+
+      // Add gridlines
+      usPanel
+        .append('g')
+        .attr('class', 'grid')
+        .call(makeGridlinesUS().tickSize(-width).tickFormat(''))
+
+      // Add zero line
+      usPanel
+        .append('line')
+        .attr('class', 'zero-line')
+        .attr('x1', 0)
+        .attr('y1', yScaleUS(0))
+        .attr('x2', width)
+        .attr('y2', yScaleUS(0))
+
+      // Add average line
+      usPanel
+        .append('line')
+        .attr('class', 'average-line')
+        .attr('x1', 0)
+        .attr('y1', yScaleUS(usAvg))
+        .attr('x2', width)
+        .attr('y2', yScaleUS(usAvg))
+        .style('stroke', '#004E8C')
+        .style('opacity', 0.7)
+
+      // Add bars
+      usPanel
+        .selectAll('.us-bar')
+        .data(usData)
+        .enter()
+        .append('rect')
+        .attr('class', 'us-bar')
+        .attr('x', (d) => xScale(d.year) - 3)
+        .attr('y', (d) => (d.growth > 0 ? yScaleUS(d.growth) : yScaleUS(0)))
+        .attr('width', 6)
+        .attr('height', (d) => Math.abs(yScaleUS(d.growth) - yScaleUS(0)))
+
+      // Add y-axis
+      usPanel.append('g').call(yAxisUS)
+
+      // Add x-axis
+      usPanel.append('g').attr('transform', `translate(0,${panelHeight})`).call(xAxis)
+
+      // Add panel label
+      usPanel
+        .append('text')
+        .attr('class', 'panel-label')
+        .attr('x', 5)
+        .attr('y', 15)
+        .text('UNITED STATES')
+
+      // Add y-axis label
+      usPanel
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -panelHeight / 2)
+        .attr('y', -45)
+        .attr('text-anchor', 'middle')
+        .text('GDP Growth (%)')
+
+      // Add x-axis label
+      usPanel
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('x', width / 2)
+        .attr('y', panelHeight + 35)
+        .attr('text-anchor', 'middle')
+        .text('Year')
+
+      // Add source attribution - REPOSITIONED
+      svg
+        .append('text')
+        .attr('class', 'source')
+        .attr('x', width)
+        .attr('y', height + 25) // Moved down to avoid overlap
+        .text('Source: World Bank, StatsTimes (2023)')
+
+      // IMPROVED ANNOTATIONS - Better positioned with clearer connections
+
+      // 1. Reform and Opening Up (1978) - China
+      addAnnotation(chinaPanel, 1978, 11.7, 'Reform and Opening Up', 60, -25)
+
+      // 2. WTO Accession (2001) - China
+      addAnnotation(chinaPanel, 2001, 8.3, 'WTO Accession', 40, -20)
+
+      // 3. Global Financial Crisis (2008-2009) - ADDED TO BOTH PANELS
+      addAnnotation(chinaPanel, 2008, 9.7, 'Global Financial Crisis', 60, -15)
+      addAnnotation(usPanel, 2009, -2.58, 'Global Financial Crisis', -60, -15)
+
+      // 4. COVID-19 Pandemic (2020) - REPOSITIONED ON BOTH PANELS
+      addAnnotation(chinaPanel, 2020, 2.2, 'COVID-19 Pandemic', -60, -25)
+      addAnnotation(usPanel, 2020, -2.2, 'COVID-19 Pandemic', -60, 25)
+
+      // Add extreme value labels - IMPROVED POSITIONING
+      // China extreme low - REPOSITIONED
+      chinaPanel
+        .append('text')
+        .attr('class', 'extreme-value china-extreme')
+        .attr('x', xScale(1961) + 15)
+        .attr('y', yScaleChina(-27.27) + 20)
+        .attr('text-anchor', 'start')
+        .text('-27.27%')
+
+      // China extreme high
+      chinaPanel
+        .append('text')
+        .attr('class', 'extreme-value china-extreme')
+        .attr('x', xScale(1970))
+        .attr('y', yScaleChina(19.3) - 8)
+        .attr('text-anchor', 'middle')
+        .text('19.30%')
+
+      // US extreme high
+      usPanel
+        .append('text')
+        .attr('class', 'extreme-value us-extreme')
+        .attr('x', xScale(1984))
+        .attr('y', yScaleUS(7.24) - 8)
+        .attr('text-anchor', 'middle')
+        .text('7.24%')
+
+      // US extreme low - REPOSITIONED
+      usPanel
+        .append('text')
+        .attr('class', 'extreme-value us-extreme')
+        .attr('x', xScale(2009) - 30)
+        .attr('y', yScaleUS(-2.58) + 15)
+        .attr('text-anchor', 'end')
+        .text('-2.58%')
+
+      // IMPROVED ANNOTATION FUNCTION
+      function addAnnotation(panel, year, value, text, xOffset, yOffset) {
+        const yScale = panel === chinaPanel ? yScaleChina : yScaleUS
+        const x = xScale(year)
+        const y = yScale(value)
+
+        // Add annotation group
+        const annotationGroup = panel.append('g').attr('class', 'annotation-group')
+
+        // Create text element
+        const textNode = annotationGroup
+          .append('text')
+          .attr('class', 'annotation')
+          .attr('x', x + xOffset)
+          .attr('y', y + yOffset)
+          .text(text)
+
+        // Get bounding box and add background
+        const bbox = textNode.node().getBBox()
+
+        // Add background rectangle
+        annotationGroup
+          .insert('rect', 'text')
+          .attr('class', 'annotation-box')
+          .attr('x', bbox.x - 3)
+          .attr('y', bbox.y - 1)
+          .attr('width', bbox.width + 6)
+          .attr('height', bbox.height + 2)
+
+        // Add connecting line with improved visibility
+        annotationGroup
+          .append('line')
+          .attr('class', 'connector-line')
+          .attr('x1', x)
+          .attr('y1', y)
+          .attr('x2', x + xOffset * 0.8)
+          .attr('y2', y + yOffset * 0.8)
+      }
     </script>
-</body>
+  </body>
 </html>

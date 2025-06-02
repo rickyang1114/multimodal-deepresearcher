@@ -1,332 +1,350 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portugal Wildfire Emissions Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        .visualization-container {
-            width: 900px;
-            background-color: white;
-            padding: 20px;
-        }
-        
-        .title {
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 15px;
-            text-align: center;
-            color: #555;
-            margin-bottom: 20px;
-        }
-        
-        .source {
-            font-size: 11px;
-            color: #777;
-            text-align: right;
-            margin-top: 10px;
-        }
-        
-        .axis-title {
-            font-size: 11px;
-            fill: #555;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-opacity: 0.7;
-            shape-rendering: crispEdges;
-        }
-        
-        .annotation {
-            font-size: 12px;
-            fill: #333;
-        }
-        
-        .annotation-box {
-            fill: rgba(255, 255, 255, 0.9);
-            stroke: #FB9A99;
-            stroke-width: 1.5;
-        }
-        
-        .value-label {
-            font-size: 11px;
-            text-anchor: middle;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            font-size: 13px;
-        }
-        
-        .legend-item {
-            font-size: 11px;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .visualization-container {
+        width: 900px;
+        background-color: white;
+        padding: 20px;
+      }
+
+      .title {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 15px;
+        text-align: center;
+        color: #555;
+        margin-bottom: 20px;
+      }
+
+      .source {
+        font-size: 11px;
+        color: #777;
+        text-align: right;
+        margin-top: 10px;
+      }
+
+      .axis-title {
+        font-size: 11px;
+        fill: #555;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+      }
+
+      .annotation {
+        font-size: 12px;
+        fill: #333;
+      }
+
+      .annotation-box {
+        fill: rgba(255, 255, 255, 0.9);
+        stroke: #fb9a99;
+        stroke-width: 1.5;
+      }
+
+      .value-label {
+        font-size: 11px;
+        text-anchor: middle;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        font-size: 13px;
+      }
+
+      .legend-item {
+        font-size: 11px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Wildfire Emissions Can Cause Dramatic Year-to-Year Air Quality Variations</div>
-        <div class="subtitle">Portugal's wildfire PM2.5 emissions and health impacts, 2015-2018</div>
-        <div id="chart"></div>
-        <div class="source">Source: Barbosa et al., 2024, Environmental Research</div>
+      <div class="title">
+        Wildfire Emissions Can Cause Dramatic Year-to-Year Air Quality Variations
+      </div>
+      <div class="subtitle">Portugal's wildfire PM2.5 emissions and health impacts, 2015-2018</div>
+      <div id="chart"></div>
+      <div class="source">Source: Barbosa et al., 2024, Environmental Research</div>
     </div>
 
     <script>
-        // Set up dimensions
-        const margin = {top: 60, right: 120, bottom: 50, left: 90};
-        const width = 850 - margin.left - margin.right;
-        const height = 500 - margin.top - margin.bottom;
-        
-        // Data
-        const data = [
-            {year: 2015, emissions: 10841, yearsLost: 496},
-            {year: 2016, emissions: 15000, yearsLost: 750},
-            {year: 2017, emissions: 40011, yearsLost: 3092},
-            {year: 2018, emissions: 6558, yearsLost: 480}
-        ];
-        
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-        
-        // X scale
-        const x = d3.scaleBand()
-            .domain(data.map(d => d.year))
-            .range([0, width])
-            .padding(0.3);
-        
-        // Y scales
-        const yEmissions = d3.scaleLinear()
-            .domain([0, 45000])
-            .range([height, 0]);
-        
-        const yYearsLost = d3.scaleLinear()
-            .domain([0, 3500])
-            .range([height, 0]);
-        
-        // Add gridlines
-        svg.append("g")
-            .attr("class", "grid")
-            .call(d3.axisLeft(yEmissions)
-                .tickSize(-width)
-                .tickFormat("")
-                .ticks(5)
-            );
-        
-        // X axis
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x).tickSize(0))
-            .selectAll("text")
-            .style("font-size", "11px");
-        
-        // Y axis - Emissions (left)
-        svg.append("g")
-            .call(d3.axisLeft(yEmissions)
-                .tickFormat(d => d3.format(",")(d))
-                .ticks(5)
-            )
-            .selectAll("text")
-            .style("font-size", "11px");
-        
-        // Y axis - Years Lost (right)
-        svg.append("g")
-            .attr("transform", `translate(${width}, 0)`)
-            .call(d3.axisRight(yYearsLost)
-                .tickFormat(d => d3.format(",")(d))
-                .ticks(5)
-            )
-            .selectAll("text")
-            .style("font-size", "11px")
-            .style("fill", "#08519C");
-        
-        // Y axis titles
-        svg.append("text")
-            .attr("class", "axis-title")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -margin.left + 30)
-            .attr("x", -height / 2)
-            .attr("text-anchor", "middle")
-            .text("PM2.5 emissions (tons)");
-        
-        svg.append("text")
-            .attr("class", "axis-title")
-            .attr("transform", "rotate(-90)")
-            .attr("y", width + margin.right - 40)
-            .attr("x", -height / 2)
-            .attr("text-anchor", "middle")
-            .style("fill", "#08519C")
-            .text("Years of life lost");
-        
-        // Bars for emissions
-        svg.selectAll(".bar")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", "bar")
-            .attr("x", d => x(d.year))
-            .attr("width", x.bandwidth())
-            .attr("y", d => yEmissions(d.emissions))
-            .attr("height", d => height - yEmissions(d.emissions))
-            .attr("fill", "#FB9A99");
-        
-        // Line for years lost
-        const line = d3.line()
-            .x(d => x(d.year) + x.bandwidth() / 2)
-            .y(d => yYearsLost(d.yearsLost));
-        
-        svg.append("path")
-            .datum(data)
-            .attr("fill", "none")
-            .attr("stroke", "#08519C")
-            .attr("stroke-width", 2)
-            .attr("d", line);
-        
-        // Circles for years lost data points
-        svg.selectAll(".dot")
-            .data(data)
-            .enter()
-            .append("circle")
-            .attr("class", "dot")
-            .attr("cx", d => x(d.year) + x.bandwidth() / 2)
-            .attr("cy", d => yYearsLost(d.yearsLost))
-            .attr("r", 6)
-            .attr("fill", "#08519C");
-        
-        // Labels for emissions - adjusted position
-        svg.selectAll(".emissions-label")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("class", "value-label")
-            .attr("x", d => x(d.year) + x.bandwidth() / 2)
-            .attr("y", d => yEmissions(d.emissions) - 10)
-            .text(d => d3.format(",")(d.emissions))
-            .style("fill", "#333");
-        
-        // Labels for years lost - adjusted position to avoid overlap
-        svg.selectAll(".years-lost-label")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("class", "value-label")
-            .attr("x", d => x(d.year) + x.bandwidth() / 2)
-            .attr("y", (d, i) => {
-                // Special adjustment for 2018 to avoid overlap
-                if (d.year === 2018) {
-                    return yYearsLost(d.yearsLost) - 25;
-                }
-                // Special adjustment for 2017 to avoid overlap with emissions value
-                if (d.year === 2017) {
-                    return yYearsLost(d.yearsLost) - 20;
-                }
-                return yYearsLost(d.yearsLost) - 10;
-            })
-            .text(d => d3.format(",")(d.yearsLost))
-            .style("fill", "#08519C");
-        
-        // Annotation for 2017
-        const annotationX = x(2017) + x.bandwidth() / 2;
-        const annotationY = yYearsLost(3092) - 80; // Adjusted position further up
-        
-        // Annotation box
-        svg.append("rect")
-            .attr("class", "annotation-box")
-            .attr("x", annotationX - 120)
-            .attr("y", annotationY - 25)
-            .attr("width", 240)
-            .attr("height", 50)
-            .attr("rx", 5)
-            .attr("ry", 5);
-        
-        // Annotation text - first line
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", annotationX)
-            .attr("y", annotationY)
-            .attr("text-anchor", "middle")
-            .text("2017 wildfire impacts represented");
-        
-        // Annotation text - second line (key number)
-        svg.append("text")
-            .attr("class", "annotation key-number")
-            .attr("x", annotationX)
-            .attr("y", annotationY + 20)
-            .attr("text-anchor", "middle")
-            .text("~1.97% of Portugal's GDP (€105M)")
-            .style("fill", "#d62728");
-        
-        // Connector line from annotation to data point - matched color with annotation text
-        svg.append("line")
-            .attr("x1", annotationX)
-            .attr("y1", annotationY + 25)
-            .attr("x2", annotationX)
-            .attr("y2", yYearsLost(3092) - 20) // Adjusted to connect better
-            .attr("stroke", "#d62728") // Changed to match text color
-            .attr("stroke-width", 1.5)
-            .attr("stroke-dasharray", "3,3");
-        
-        // Legend - moved further right to avoid overlap
-        const legend = svg.append("g")
-            .attr("transform", `translate(${width - 140}, 0)`);
-        
-        // Emissions legend
-        legend.append("rect")
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", 15)
-            .attr("height", 15)
-            .attr("fill", "#FB9A99");
-        
-        legend.append("text")
-            .attr("class", "legend-item")
-            .attr("x", 20)
-            .attr("y", 12)
-            .text("PM2.5 emissions (tons)");
-        
-        // Years lost legend
-        legend.append("line")
-            .attr("x1", 0)
-            .attr("y1", 30)
-            .attr("x2", 15)
-            .attr("y2", 30)
-            .attr("stroke", "#08519C")
-            .attr("stroke-width", 2);
-        
-        legend.append("circle")
-            .attr("cx", 7.5)
-            .attr("cy", 30)
-            .attr("r", 4)
-            .attr("fill", "#08519C");
-        
-        legend.append("text")
-            .attr("class", "legend-item")
-            .attr("x", 20)
-            .attr("y", 34)
-            .text("Years of life lost")
-            .style("fill", "#08519C");
+      // Set up dimensions
+      const margin = { top: 60, right: 120, bottom: 50, left: 90 }
+      const width = 850 - margin.left - margin.right
+      const height = 500 - margin.top - margin.bottom
+
+      // Data
+      const data = [
+        { year: 2015, emissions: 10841, yearsLost: 496 },
+        { year: 2016, emissions: 15000, yearsLost: 750 },
+        { year: 2017, emissions: 40011, yearsLost: 3092 },
+        { year: 2018, emissions: 6558, yearsLost: 480 },
+      ]
+
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
+
+      // X scale
+      const x = d3
+        .scaleBand()
+        .domain(data.map((d) => d.year))
+        .range([0, width])
+        .padding(0.3)
+
+      // Y scales
+      const yEmissions = d3.scaleLinear().domain([0, 45000]).range([height, 0])
+
+      const yYearsLost = d3.scaleLinear().domain([0, 3500]).range([height, 0])
+
+      // Add gridlines
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .call(d3.axisLeft(yEmissions).tickSize(-width).tickFormat('').ticks(5))
+
+      // X axis
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickSize(0))
+        .selectAll('text')
+        .style('font-size', '11px')
+
+      // Y axis - Emissions (left)
+      svg
+        .append('g')
+        .call(
+          d3
+            .axisLeft(yEmissions)
+            .tickFormat((d) => d3.format(',')(d))
+            .ticks(5)
+        )
+        .selectAll('text')
+        .style('font-size', '11px')
+
+      // Y axis - Years Lost (right)
+      svg
+        .append('g')
+        .attr('transform', `translate(${width}, 0)`)
+        .call(
+          d3
+            .axisRight(yYearsLost)
+            .tickFormat((d) => d3.format(',')(d))
+            .ticks(5)
+        )
+        .selectAll('text')
+        .style('font-size', '11px')
+        .style('fill', '#08519C')
+
+      // Y axis titles
+      svg
+        .append('text')
+        .attr('class', 'axis-title')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', -margin.left + 30)
+        .attr('x', -height / 2)
+        .attr('text-anchor', 'middle')
+        .text('PM2.5 emissions (tons)')
+
+      svg
+        .append('text')
+        .attr('class', 'axis-title')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', width + margin.right - 40)
+        .attr('x', -height / 2)
+        .attr('text-anchor', 'middle')
+        .style('fill', '#08519C')
+        .text('Years of life lost')
+
+      // Bars for emissions
+      svg
+        .selectAll('.bar')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', (d) => x(d.year))
+        .attr('width', x.bandwidth())
+        .attr('y', (d) => yEmissions(d.emissions))
+        .attr('height', (d) => height - yEmissions(d.emissions))
+        .attr('fill', '#FB9A99')
+
+      // Line for years lost
+      const line = d3
+        .line()
+        .x((d) => x(d.year) + x.bandwidth() / 2)
+        .y((d) => yYearsLost(d.yearsLost))
+
+      svg
+        .append('path')
+        .datum(data)
+        .attr('fill', 'none')
+        .attr('stroke', '#08519C')
+        .attr('stroke-width', 2)
+        .attr('d', line)
+
+      // Circles for years lost data points
+      svg
+        .selectAll('.dot')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('class', 'dot')
+        .attr('cx', (d) => x(d.year) + x.bandwidth() / 2)
+        .attr('cy', (d) => yYearsLost(d.yearsLost))
+        .attr('r', 6)
+        .attr('fill', '#08519C')
+
+      // Labels for emissions - adjusted position
+      svg
+        .selectAll('.emissions-label')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'value-label')
+        .attr('x', (d) => x(d.year) + x.bandwidth() / 2)
+        .attr('y', (d) => yEmissions(d.emissions) - 10)
+        .text((d) => d3.format(',')(d.emissions))
+        .style('fill', '#333')
+
+      // Labels for years lost - adjusted position to avoid overlap
+      svg
+        .selectAll('.years-lost-label')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'value-label')
+        .attr('x', (d) => x(d.year) + x.bandwidth() / 2)
+        .attr('y', (d, i) => {
+          // Special adjustment for 2018 to avoid overlap
+          if (d.year === 2018) {
+            return yYearsLost(d.yearsLost) - 25
+          }
+          // Special adjustment for 2017 to avoid overlap with emissions value
+          if (d.year === 2017) {
+            return yYearsLost(d.yearsLost) - 20
+          }
+          return yYearsLost(d.yearsLost) - 10
+        })
+        .text((d) => d3.format(',')(d.yearsLost))
+        .style('fill', '#08519C')
+
+      // Annotation for 2017
+      const annotationX = x(2017) + x.bandwidth() / 2
+      const annotationY = yYearsLost(3092) - 80 // Adjusted position further up
+
+      // Annotation box
+      svg
+        .append('rect')
+        .attr('class', 'annotation-box')
+        .attr('x', annotationX - 120)
+        .attr('y', annotationY - 25)
+        .attr('width', 240)
+        .attr('height', 50)
+        .attr('rx', 5)
+        .attr('ry', 5)
+
+      // Annotation text - first line
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', annotationX)
+        .attr('y', annotationY)
+        .attr('text-anchor', 'middle')
+        .text('2017 wildfire impacts represented')
+
+      // Annotation text - second line (key number)
+      svg
+        .append('text')
+        .attr('class', 'annotation key-number')
+        .attr('x', annotationX)
+        .attr('y', annotationY + 20)
+        .attr('text-anchor', 'middle')
+        .text("~1.97% of Portugal's GDP (€105M)")
+        .style('fill', '#d62728')
+
+      // Connector line from annotation to data point - matched color with annotation text
+      svg
+        .append('line')
+        .attr('x1', annotationX)
+        .attr('y1', annotationY + 25)
+        .attr('x2', annotationX)
+        .attr('y2', yYearsLost(3092) - 20) // Adjusted to connect better
+        .attr('stroke', '#d62728') // Changed to match text color
+        .attr('stroke-width', 1.5)
+        .attr('stroke-dasharray', '3,3')
+
+      // Legend - moved further right to avoid overlap
+      const legend = svg.append('g').attr('transform', `translate(${width - 140}, 0)`)
+
+      // Emissions legend
+      legend
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', 15)
+        .attr('height', 15)
+        .attr('fill', '#FB9A99')
+
+      legend
+        .append('text')
+        .attr('class', 'legend-item')
+        .attr('x', 20)
+        .attr('y', 12)
+        .text('PM2.5 emissions (tons)')
+
+      // Years lost legend
+      legend
+        .append('line')
+        .attr('x1', 0)
+        .attr('y1', 30)
+        .attr('x2', 15)
+        .attr('y2', 30)
+        .attr('stroke', '#08519C')
+        .attr('stroke-width', 2)
+
+      legend.append('circle').attr('cx', 7.5).attr('cy', 30).attr('r', 4).attr('fill', '#08519C')
+
+      legend
+        .append('text')
+        .attr('class', 'legend-item')
+        .attr('x', 20)
+        .attr('y', 34)
+        .text('Years of life lost')
+        .style('fill', '#08519C')
     </script>
-</body>
+  </body>
 </html>

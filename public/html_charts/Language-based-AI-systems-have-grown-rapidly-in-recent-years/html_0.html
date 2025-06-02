@@ -1,338 +1,350 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Growth of Notable AI Systems by Domain (2017-2024)</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .visualization-container {
-            width: 850px;
-            height: 550px;
-            background-color: white;
-        }
-        
-        .title {
-            font-size: 22px;
-            font-weight: bold;
-            text-align: center;
-            margin-top: 10px;
-        }
-        
-        .subtitle {
-            font-size: 15px;
-            text-align: center;
-            color: #666;
-            margin-bottom: 20px;
-        }
-        
-        .source {
-            font-size: 12px;
-            text-align: left;
-            color: #888;
-            margin-top: 5px;
-            margin-left: 60px;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        
-        .annotation {
-            font-size: 12px;
-            fill: #555;
-        }
-        
-        .annotation-line {
-            stroke: #555;
-            stroke-width: 1;
-            stroke-dasharray: 3,3;
-        }
-        
-        .domain-language {
-            fill: #2E5EAA;
-            stroke: #2E5EAA;
-        }
-        
-        .domain-image {
-            fill: #20A39E;
-            stroke: #20A39E;
-        }
-        
-        .domain-gaming {
-            fill: #F58A07;
-            stroke: #F58A07;
-        }
-        
-        .domain-biology {
-            fill: #5CAD4A;
-            stroke: #5CAD4A;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+
+      .visualization-container {
+        width: 850px;
+        height: 550px;
+        background-color: white;
+      }
+
+      .title {
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 10px;
+      }
+
+      .subtitle {
+        font-size: 15px;
+        text-align: center;
+        color: #666;
+        margin-bottom: 20px;
+      }
+
+      .source {
+        font-size: 12px;
+        text-align: left;
+        color: #888;
+        margin-top: 5px;
+        margin-left: 60px;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .annotation {
+        font-size: 12px;
+        fill: #555;
+      }
+
+      .annotation-line {
+        stroke: #555;
+        stroke-width: 1;
+        stroke-dasharray: 3, 3;
+      }
+
+      .domain-language {
+        fill: #2e5eaa;
+        stroke: #2e5eaa;
+      }
+
+      .domain-image {
+        fill: #20a39e;
+        stroke: #20a39e;
+      }
+
+      .domain-gaming {
+        fill: #f58a07;
+        stroke: #f58a07;
+      }
+
+      .domain-biology {
+        fill: #5cad4a;
+        stroke: #5cad4a;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Growth of Notable AI Systems by Domain (2017-2024)</div>
-        <div class="subtitle">Cumulative number of notable AI systems developed across major domains</div>
-        <div id="chart"></div>
-        <div class="source">Source: Our World in Data, 2024</div>
+      <div class="title">Growth of Notable AI Systems by Domain (2017-2024)</div>
+      <div class="subtitle">
+        Cumulative number of notable AI systems developed across major domains
+      </div>
+      <div id="chart"></div>
+      <div class="source">Source: Our World in Data, 2024</div>
     </div>
 
     <script>
-        // Set up dimensions and margins
-        const margin = {top: 40, right: 90, bottom: 50, left: 70};
-        const width = 850 - margin.left - margin.right;
-        const height = 550 - margin.top - margin.bottom - 60; // Adjust for title and source
-        
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-            
-        // Data
-        const data = {
-            "Language-based": [
-                {year: 2017, value: 50},
-                {year: 2018, value: 70},
-                {year: 2019, value: 100},
-                {year: 2020, value: 130},
-                {year: 2021, value: 170},
-                {year: 2022, value: 210},
-                {year: 2023, value: 260},
-                {year: 2024, value: 300}
-            ],
-            "Image-based": [
-                {year: 2017, value: 20},
-                {year: 2018, value: 30},
-                {year: 2019, value: 40},
-                {year: 2020, value: 50},
-                {year: 2021, value: 60},
-                {year: 2022, value: 75},
-                {year: 2023, value: 90},
-                {year: 2024, value: 100}
-            ],
-            "Gaming": [
-                {year: 2017, value: 15},
-                {year: 2018, value: 20},
-                {year: 2019, value: 25},
-                {year: 2020, value: 30},
-                {year: 2021, value: 35},
-                {year: 2022, value: 45},
-                {year: 2023, value: 55},
-                {year: 2024, value: 60}
-            ],
-            "Biology-focused": [
-                {year: 2017, value: 5},
-                {year: 2018, value: 7},
-                {year: 2019, value: 10},
-                {year: 2020, value: 15},
-                {year: 2021, value: 18},
-                {year: 2022, value: 22},
-                {year: 2023, value: 26},
-                {year: 2024, value: 30}
-            ]
-        };
-        
-        // Set up scales
-        const x = d3.scaleLinear()
-            .domain([2017, 2024])
-            .range([0, width]);
-            
-        const y = d3.scaleLinear()
-            .domain([0, 350])
-            .range([height, 0]);
-            
-        // Define colors and symbols
-        const colors = {
-            "Language-based": "#2E5EAA",
-            "Image-based": "#20A39E",
-            "Gaming": "#F58A07",
-            "Biology-focused": "#5CAD4A"
-        };
-        
-        const symbolTypes = {
-            "Language-based": d3.symbolCircle,
-            "Image-based": d3.symbolSquare,
-            "Gaming": d3.symbolDiamond,
-            "Biology-focused": d3.symbolTriangle
-        };
-        
-        const symbolGenerator = d3.symbol().size(120); // Increased symbol size
-        
-        // Create line generator
-        const line = d3.line()
-            .x(d => x(d.year))
-            .y(d => y(d.value))
-            .curve(d3.curveMonotoneX);
-            
-        // Add gridlines
-        svg.selectAll("grid-line")
-            .data(y.ticks(7))
-            .enter()
-            .append("line")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", d => y(d))
-            .attr("y2", d => y(d))
-            .attr("stroke", "#e0e0e0")
-            .attr("stroke-width", 1);
-            
-        // Add x-axis
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x)
-                .tickFormat(d3.format("d"))
-                .ticks(8))
-            .call(g => g.select(".domain").attr("stroke", "#888"))
-            .call(g => g.selectAll(".tick line").attr("stroke", "#888"))
-            .call(g => g.selectAll(".tick text").attr("fill", "#666"));
-            
-        // Add y-axis
-        svg.append("g")
-            .call(d3.axisLeft(y)
-                .tickValues([0, 50, 100, 150, 200, 250, 300, 350]))
-            .call(g => g.select(".domain").attr("stroke", "#888"))
-            .call(g => g.selectAll(".tick line").attr("stroke", "#888"))
-            .call(g => g.selectAll(".tick text").attr("fill", "#666"));
-            
-        // Add y-axis label - fixed vertical alignment
-        svg.append("text")
-            .attr("text-anchor", "middle")
-            .attr("fill", "#666")
-            .style("font-size", "12px")
-            .attr("transform", "translate(-45," + (height/2) + ")rotate(-90)")
-            .text("Cumulative Number of Systems");
-            
-        // Draw lines for each domain
-        Object.keys(data).forEach(domain => {
-            // Draw line
-            svg.append("path")
-                .datum(data[domain])
-                .attr("fill", "none")
-                .attr("stroke", colors[domain])
-                .attr("stroke-width", domain === "Language-based" ? 3 : 2)
-                .attr("d", line);
-                
-            // Add symbols at data points
-            svg.selectAll(`.point-${domain.toLowerCase().replace(/-/g, "")}`)
-                .data(data[domain])
-                .enter()
-                .append("path")
-                .attr("class", `domain-${domain.toLowerCase().replace(/-/g, "")}`)
-                .attr("d", d => {
-                    symbolGenerator.type(symbolTypes[domain]);
-                    return symbolGenerator();
-                })
-                .attr("transform", d => `translate(${x(d.year)},${y(d.value)})`)
-                .attr("stroke-width", 1.5);
-                
-            // Add value label at the end of each line with improved spacing
-            const lastDataPoint = data[domain][data[domain].length - 1];
-            svg.append("text")
-                .attr("x", x(lastDataPoint.year) + 15) // Increased spacing
-                .attr("y", y(lastDataPoint.value))
-                .attr("dy", "0.35em")
-                .attr("fill", colors[domain])
-                .style("font-family", "Georgia, serif")
-                .style("font-size", "14px")
-                .style("font-weight", "bold")
-                .text(lastDataPoint.value);
-        });
-        
-        // Add legend with larger symbols
-        const legend = svg.append("g")
-            .attr("transform", "translate(10,10)");
-            
-        Object.keys(data).forEach((domain, i) => {
-            const legendRow = legend.append("g")
-                .attr("transform", `translate(0, ${i * 25})`); // Increased spacing
-                
-            // Symbol for legend - increased size
-            legendRow.append("path")
-                .attr("d", () => {
-                    symbolGenerator.type(symbolTypes[domain]);
-                    return symbolGenerator();
-                })
-                .attr("class", `domain-${domain.toLowerCase().replace(/-/g, "")}`)
-                .attr("transform", "translate(10,10)")
-                .attr("stroke-width", 1.5);
-                
-            // Line for legend
-            legendRow.append("line")
-                .attr("x1", 20)
-                .attr("x2", 45) // Extended line
-                .attr("y1", 10)
-                .attr("y2", 10)
-                .attr("stroke", colors[domain])
-                .attr("stroke-width", domain === "Language-based" ? 3 : 2);
-                
-            // Text for legend
-            legendRow.append("text")
-                .attr("x", 55) // Increased spacing
-                .attr("y", 10)
-                .attr("dy", "0.35em")
-                .attr("fill", "#666")
-                .style("font-size", "13px")
-                .text(domain);
-        });
-        
-        // Improved annotation for transformer architecture - repositioned to point directly at inflection point
-        // Find the point on the Language-based line at 2019
-        const annotationPoint = data["Language-based"].find(d => d.year === 2019);
-        const annotationX = x(annotationPoint.year);
-        const annotationY = y(annotationPoint.value);
-        
-        // Add annotation line - repositioned to better indicate the inflection point
-        svg.append("line")
-            .attr("class", "annotation-line")
-            .attr("x1", annotationX)
-            .attr("x2", annotationX - 30) // Changed direction to point from left
-            .attr("y1", annotationY)
-            .attr("y2", annotationY - 30);
-            
-        // Add annotation background for better readability
-        svg.append("rect")
-            .attr("x", annotationX - 160) // Repositioned
-            .attr("y", annotationY - 55)
-            .attr("width", 180)
-            .attr("height", 45)
-            .attr("fill", "rgba(255, 255, 255, 0.9)") // Increased opacity
-            .attr("rx", 3)
-            .attr("ry", 3);
-            
-        // Add annotation text (single, clear message)
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", annotationX - 155) // Repositioned
-            .attr("y", annotationY - 40)
-            .attr("text-anchor", "start")
-            .style("font-size", "12px")
-            .style("font-weight", "bold")
-            .text("Significant acceleration");
-            
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", annotationX - 155) // Repositioned
-            .attr("y", annotationY - 25)
-            .attr("text-anchor", "start")
-            .style("font-size", "12px")
-            .text("with transformer models (2019+)");
+      // Set up dimensions and margins
+      const margin = { top: 40, right: 90, bottom: 50, left: 70 }
+      const width = 850 - margin.left - margin.right
+      const height = 550 - margin.top - margin.bottom - 60 // Adjust for title and source
+
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
+
+      // Data
+      const data = {
+        'Language-based': [
+          { year: 2017, value: 50 },
+          { year: 2018, value: 70 },
+          { year: 2019, value: 100 },
+          { year: 2020, value: 130 },
+          { year: 2021, value: 170 },
+          { year: 2022, value: 210 },
+          { year: 2023, value: 260 },
+          { year: 2024, value: 300 },
+        ],
+        'Image-based': [
+          { year: 2017, value: 20 },
+          { year: 2018, value: 30 },
+          { year: 2019, value: 40 },
+          { year: 2020, value: 50 },
+          { year: 2021, value: 60 },
+          { year: 2022, value: 75 },
+          { year: 2023, value: 90 },
+          { year: 2024, value: 100 },
+        ],
+        Gaming: [
+          { year: 2017, value: 15 },
+          { year: 2018, value: 20 },
+          { year: 2019, value: 25 },
+          { year: 2020, value: 30 },
+          { year: 2021, value: 35 },
+          { year: 2022, value: 45 },
+          { year: 2023, value: 55 },
+          { year: 2024, value: 60 },
+        ],
+        'Biology-focused': [
+          { year: 2017, value: 5 },
+          { year: 2018, value: 7 },
+          { year: 2019, value: 10 },
+          { year: 2020, value: 15 },
+          { year: 2021, value: 18 },
+          { year: 2022, value: 22 },
+          { year: 2023, value: 26 },
+          { year: 2024, value: 30 },
+        ],
+      }
+
+      // Set up scales
+      const x = d3.scaleLinear().domain([2017, 2024]).range([0, width])
+
+      const y = d3.scaleLinear().domain([0, 350]).range([height, 0])
+
+      // Define colors and symbols
+      const colors = {
+        'Language-based': '#2E5EAA',
+        'Image-based': '#20A39E',
+        Gaming: '#F58A07',
+        'Biology-focused': '#5CAD4A',
+      }
+
+      const symbolTypes = {
+        'Language-based': d3.symbolCircle,
+        'Image-based': d3.symbolSquare,
+        Gaming: d3.symbolDiamond,
+        'Biology-focused': d3.symbolTriangle,
+      }
+
+      const symbolGenerator = d3.symbol().size(120) // Increased symbol size
+
+      // Create line generator
+      const line = d3
+        .line()
+        .x((d) => x(d.year))
+        .y((d) => y(d.value))
+        .curve(d3.curveMonotoneX)
+
+      // Add gridlines
+      svg
+        .selectAll('grid-line')
+        .data(y.ticks(7))
+        .enter()
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', (d) => y(d))
+        .attr('y2', (d) => y(d))
+        .attr('stroke', '#e0e0e0')
+        .attr('stroke-width', 1)
+
+      // Add x-axis
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickFormat(d3.format('d')).ticks(8))
+        .call((g) => g.select('.domain').attr('stroke', '#888'))
+        .call((g) => g.selectAll('.tick line').attr('stroke', '#888'))
+        .call((g) => g.selectAll('.tick text').attr('fill', '#666'))
+
+      // Add y-axis
+      svg
+        .append('g')
+        .call(d3.axisLeft(y).tickValues([0, 50, 100, 150, 200, 250, 300, 350]))
+        .call((g) => g.select('.domain').attr('stroke', '#888'))
+        .call((g) => g.selectAll('.tick line').attr('stroke', '#888'))
+        .call((g) => g.selectAll('.tick text').attr('fill', '#666'))
+
+      // Add y-axis label - fixed vertical alignment
+      svg
+        .append('text')
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#666')
+        .style('font-size', '12px')
+        .attr('transform', 'translate(-45,' + height / 2 + ')rotate(-90)')
+        .text('Cumulative Number of Systems')
+
+      // Draw lines for each domain
+      Object.keys(data).forEach((domain) => {
+        // Draw line
+        svg
+          .append('path')
+          .datum(data[domain])
+          .attr('fill', 'none')
+          .attr('stroke', colors[domain])
+          .attr('stroke-width', domain === 'Language-based' ? 3 : 2)
+          .attr('d', line)
+
+        // Add symbols at data points
+        svg
+          .selectAll(`.point-${domain.toLowerCase().replace(/-/g, '')}`)
+          .data(data[domain])
+          .enter()
+          .append('path')
+          .attr('class', `domain-${domain.toLowerCase().replace(/-/g, '')}`)
+          .attr('d', (d) => {
+            symbolGenerator.type(symbolTypes[domain])
+            return symbolGenerator()
+          })
+          .attr('transform', (d) => `translate(${x(d.year)},${y(d.value)})`)
+          .attr('stroke-width', 1.5)
+
+        // Add value label at the end of each line with improved spacing
+        const lastDataPoint = data[domain][data[domain].length - 1]
+        svg
+          .append('text')
+          .attr('x', x(lastDataPoint.year) + 15) // Increased spacing
+          .attr('y', y(lastDataPoint.value))
+          .attr('dy', '0.35em')
+          .attr('fill', colors[domain])
+          .style('font-family', 'Georgia, serif')
+          .style('font-size', '14px')
+          .style('font-weight', 'bold')
+          .text(lastDataPoint.value)
+      })
+
+      // Add legend with larger symbols
+      const legend = svg.append('g').attr('transform', 'translate(10,10)')
+
+      Object.keys(data).forEach((domain, i) => {
+        const legendRow = legend.append('g').attr('transform', `translate(0, ${i * 25})`) // Increased spacing
+
+        // Symbol for legend - increased size
+        legendRow
+          .append('path')
+          .attr('d', () => {
+            symbolGenerator.type(symbolTypes[domain])
+            return symbolGenerator()
+          })
+          .attr('class', `domain-${domain.toLowerCase().replace(/-/g, '')}`)
+          .attr('transform', 'translate(10,10)')
+          .attr('stroke-width', 1.5)
+
+        // Line for legend
+        legendRow
+          .append('line')
+          .attr('x1', 20)
+          .attr('x2', 45) // Extended line
+          .attr('y1', 10)
+          .attr('y2', 10)
+          .attr('stroke', colors[domain])
+          .attr('stroke-width', domain === 'Language-based' ? 3 : 2)
+
+        // Text for legend
+        legendRow
+          .append('text')
+          .attr('x', 55) // Increased spacing
+          .attr('y', 10)
+          .attr('dy', '0.35em')
+          .attr('fill', '#666')
+          .style('font-size', '13px')
+          .text(domain)
+      })
+
+      // Improved annotation for transformer architecture - repositioned to point directly at inflection point
+      // Find the point on the Language-based line at 2019
+      const annotationPoint = data['Language-based'].find((d) => d.year === 2019)
+      const annotationX = x(annotationPoint.year)
+      const annotationY = y(annotationPoint.value)
+
+      // Add annotation line - repositioned to better indicate the inflection point
+      svg
+        .append('line')
+        .attr('class', 'annotation-line')
+        .attr('x1', annotationX)
+        .attr('x2', annotationX - 30) // Changed direction to point from left
+        .attr('y1', annotationY)
+        .attr('y2', annotationY - 30)
+
+      // Add annotation background for better readability
+      svg
+        .append('rect')
+        .attr('x', annotationX - 160) // Repositioned
+        .attr('y', annotationY - 55)
+        .attr('width', 180)
+        .attr('height', 45)
+        .attr('fill', 'rgba(255, 255, 255, 0.9)') // Increased opacity
+        .attr('rx', 3)
+        .attr('ry', 3)
+
+      // Add annotation text (single, clear message)
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', annotationX - 155) // Repositioned
+        .attr('y', annotationY - 40)
+        .attr('text-anchor', 'start')
+        .style('font-size', '12px')
+        .style('font-weight', 'bold')
+        .text('Significant acceleration')
+
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', annotationX - 155) // Repositioned
+        .attr('y', annotationY - 25)
+        .attr('text-anchor', 'start')
+        .style('font-size', '12px')
+        .text('with transformer models (2019+)')
     </script>
-</body>
+  </body>
 </html>

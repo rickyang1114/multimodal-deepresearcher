@@ -1,341 +1,352 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>National Meat Supply Shares</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .visualization-container {
-            width: 800px;
-            height: 600px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .title {
-            font-size: 22px;
-            font-weight: bold;
-            text-align: left;
-            margin-bottom: 5px;
-            padding-left: 20px;
-        }
-        
-        .subtitle {
-            font-size: 16px;
-            text-align: left;
-            color: #666;
-            margin-bottom: 30px;
-            padding-left: 20px;
-        }
-        
-        .source {
-            font-size: 12px;
-            color: #666;
-            text-align: right;
-            margin-top: 10px;
-            padding-right: 20px;
-        }
-        
-        .legend-container {
-            position: absolute;
-            top: 0;
-            right: 20px;
-            width: 300px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            z-index: 10;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-left: 15px;
-            margin-bottom: 5px;
-            font-size: 12px;
-        }
-        
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            margin-right: 5px;
-            display: inline-block;
-        }
-        
-        .axis-label {
-            font-size: 14px;
-            fill: #333;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-opacity: 0.7;
-            shape-rendering: crispEdges;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
 
-        .chart-area {
-            flex-grow: 1;
-            position: relative;
-        }
+      .visualization-container {
+        width: 800px;
+        height: 600px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
 
-        .small-segment-label {
-            font-size: 10px;
-            font-weight: bold;
-        }
+      .title {
+        font-size: 22px;
+        font-weight: bold;
+        text-align: left;
+        margin-bottom: 5px;
+        padding-left: 20px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        text-align: left;
+        color: #666;
+        margin-bottom: 30px;
+        padding-left: 20px;
+      }
+
+      .source {
+        font-size: 12px;
+        color: #666;
+        text-align: right;
+        margin-top: 10px;
+        padding-right: 20px;
+      }
+
+      .legend-container {
+        position: absolute;
+        top: 0;
+        right: 20px;
+        width: 300px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        z-index: 10;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin-left: 15px;
+        margin-bottom: 5px;
+        font-size: 12px;
+      }
+
+      .legend-color {
+        width: 12px;
+        height: 12px;
+        margin-right: 5px;
+        display: inline-block;
+      }
+
+      .axis-label {
+        font-size: 14px;
+        fill: #333;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+      }
+
+      .chart-area {
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .small-segment-label {
+        font-size: 10px;
+        font-weight: bold;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">National meat supply shares differ dramatically across countries</div>
-        <div class="subtitle">Breakdown of meat supply by type (%), 2022</div>
-        <div class="legend-container">
-            <!-- Legend will be added here by D3 -->
-        </div>
-        <div class="chart-area" id="chart"></div>
-        <div class="source">Source: Our World in Data, 2025</div>
+      <div class="title">National meat supply shares differ dramatically across countries</div>
+      <div class="subtitle">Breakdown of meat supply by type (%), 2022</div>
+      <div class="legend-container">
+        <!-- Legend will be added here by D3 -->
+      </div>
+      <div class="chart-area" id="chart"></div>
+      <div class="source">Source: Our World in Data, 2025</div>
     </div>
 
     <script>
-        // Data preparation
-        const data = [
-            {
-                country: "Argentina",
-                values: [
-                    { type: "Beef", value: 40, color: "#8B0000" },
-                    { type: "Poultry", value: 40, color: "#FFD700" },
-                    { type: "Fish & Seafood", value: 10, color: "#4682B4" },
-                    { type: "Pork", value: 8, color: "#FFC0CB" },
-                    { type: "Other", value: 2, color: "#808080" }
-                ]
-            },
-            {
-                country: "United States",
-                values: [
-                    { type: "Poultry", value: 50, color: "#FFD700" },
-                    { type: "Beef", value: 25, color: "#8B0000" },
-                    { type: "Pork", value: 20, color: "#FFC0CB" },
-                    { type: "Fish & Seafood", value: 5, color: "#4682B4" }
-                ]
-            },
-            {
-                country: "Japan",
-                values: [
-                    { type: "Fish & Seafood", value: 44, color: "#4682B4" },
-                    { type: "Poultry", value: 30, color: "#FFD700" },
-                    { type: "Pork", value: 20, color: "#FFC0CB" },
-                    { type: "Beef", value: 6, color: "#8B0000" }
-                ]
-            },
-            {
-                country: "Germany",
-                values: [
-                    { type: "Pork", value: 48, color: "#FFC0CB" },
-                    { type: "Poultry", value: 30, color: "#FFD700" },
-                    { type: "Beef", value: 15, color: "#8B0000" },
-                    { type: "Fish & Seafood", value: 7, color: "#4682B4" }
-                ]
-            },
-            {
-                country: "Ethiopia",
-                values: [
-                    { type: "Beef", value: 45, color: "#8B0000" },
-                    { type: "Sheep & Goat", value: 28, color: "#FFA500" },
-                    { type: "Poultry", value: 15, color: "#FFD700" },
-                    { type: "Fish & Seafood", value: 10, color: "#4682B4" },
-                    { type: "Other", value: 2, color: "#808080" }
-                ]
-            }
-        ];
+      // Data preparation
+      const data = [
+        {
+          country: 'Argentina',
+          values: [
+            { type: 'Beef', value: 40, color: '#8B0000' },
+            { type: 'Poultry', value: 40, color: '#FFD700' },
+            { type: 'Fish & Seafood', value: 10, color: '#4682B4' },
+            { type: 'Pork', value: 8, color: '#FFC0CB' },
+            { type: 'Other', value: 2, color: '#808080' },
+          ],
+        },
+        {
+          country: 'United States',
+          values: [
+            { type: 'Poultry', value: 50, color: '#FFD700' },
+            { type: 'Beef', value: 25, color: '#8B0000' },
+            { type: 'Pork', value: 20, color: '#FFC0CB' },
+            { type: 'Fish & Seafood', value: 5, color: '#4682B4' },
+          ],
+        },
+        {
+          country: 'Japan',
+          values: [
+            { type: 'Fish & Seafood', value: 44, color: '#4682B4' },
+            { type: 'Poultry', value: 30, color: '#FFD700' },
+            { type: 'Pork', value: 20, color: '#FFC0CB' },
+            { type: 'Beef', value: 6, color: '#8B0000' },
+          ],
+        },
+        {
+          country: 'Germany',
+          values: [
+            { type: 'Pork', value: 48, color: '#FFC0CB' },
+            { type: 'Poultry', value: 30, color: '#FFD700' },
+            { type: 'Beef', value: 15, color: '#8B0000' },
+            { type: 'Fish & Seafood', value: 7, color: '#4682B4' },
+          ],
+        },
+        {
+          country: 'Ethiopia',
+          values: [
+            { type: 'Beef', value: 45, color: '#8B0000' },
+            { type: 'Sheep & Goat', value: 28, color: '#FFA500' },
+            { type: 'Poultry', value: 15, color: '#FFD700' },
+            { type: 'Fish & Seafood', value: 10, color: '#4682B4' },
+            { type: 'Other', value: 2, color: '#808080' },
+          ],
+        },
+      ]
 
-        // Legend data
-        const legendData = [
-            { type: "Beef", color: "#8B0000" },
-            { type: "Pork", color: "#FFC0CB" },
-            { type: "Poultry", color: "#FFD700" },
-            { type: "Fish & Seafood", color: "#4682B4" },
-            { type: "Sheep & Goat", color: "#FFA500" },
-            { type: "Other", color: "#808080" }
-        ];
+      // Legend data
+      const legendData = [
+        { type: 'Beef', color: '#8B0000' },
+        { type: 'Pork', color: '#FFC0CB' },
+        { type: 'Poultry', color: '#FFD700' },
+        { type: 'Fish & Seafood', color: '#4682B4' },
+        { type: 'Sheep & Goat', color: '#FFA500' },
+        { type: 'Other', color: '#808080' },
+      ]
 
-        // Set up dimensions
-        const margin = { top: 20, right: 30, bottom: 40, left: 120 };
-        const width = 800 - margin.left - margin.right;
-        const height = 400 - margin.top - margin.bottom;
-        const barHeight = 40;
-        const barPadding = 15;
+      // Set up dimensions
+      const margin = { top: 20, right: 30, bottom: 40, left: 120 }
+      const width = 800 - margin.left - margin.right
+      const height = 400 - margin.top - margin.bottom
+      const barHeight = 40
+      const barPadding = 15
 
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
 
-        // Create legend
-        const legend = d3.select(".legend-container");
+      // Create legend
+      const legend = d3.select('.legend-container')
 
-        legendData.forEach(item => {
-            const legendItem = legend.append("div")
-                .attr("class", "legend-item");
-            
-            legendItem.append("div")
-                .attr("class", "legend-color")
-                .style("background-color", item.color);
-            
-            legendItem.append("div")
-                .text(item.type);
-        });
+      legendData.forEach((item) => {
+        const legendItem = legend.append('div').attr('class', 'legend-item')
 
-        // Create scales
-        const x = d3.scaleLinear()
-            .domain([0, 100])
-            .range([0, width]);
+        legendItem.append('div').attr('class', 'legend-color').style('background-color', item.color)
 
-        const y = d3.scaleBand()
-            .domain(data.map(d => d.country))
-            .range([0, data.length * (barHeight + barPadding) - barPadding])
-            .padding(0.1);
+        legendItem.append('div').text(item.type)
+      })
 
-        // Add x-axis
-        svg.append("g")
-            .attr("transform", `translate(0,${data.length * (barHeight + barPadding) - barPadding})`)
-            .call(d3.axisBottom(x)
-                .tickValues([0, 20, 40, 60, 80, 100])
-                .tickFormat(d => `${d}%`))
-            .call(g => g.select(".domain").remove());
+      // Create scales
+      const x = d3.scaleLinear().domain([0, 100]).range([0, width])
 
-        // Add y-axis
-        svg.append("g")
-            .call(d3.axisLeft(y))
-            .call(g => g.select(".domain").remove())
-            .selectAll(".tick text")
-            .attr("class", "axis-label");
+      const y = d3
+        .scaleBand()
+        .domain(data.map((d) => d.country))
+        .range([0, data.length * (barHeight + barPadding) - barPadding])
+        .padding(0.1)
 
-        // Add vertical gridlines
-        svg.append("g")
-            .attr("class", "grid")
-            .call(d3.axisBottom(x)
-                .tickValues([20, 40, 60, 80])
-                .tickSize(-(data.length * (barHeight + barPadding) - barPadding))
-                .tickFormat(""))
-            .call(g => g.select(".domain").remove());
+      // Add x-axis
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${data.length * (barHeight + barPadding) - barPadding})`)
+        .call(
+          d3
+            .axisBottom(x)
+            .tickValues([0, 20, 40, 60, 80, 100])
+            .tickFormat((d) => `${d}%`)
+        )
+        .call((g) => g.select('.domain').remove())
 
-        // Create country groups
-        const countryGroups = svg.selectAll(".country-group")
-            .data(data)
-            .enter()
-            .append("g")
-            .attr("class", "country-group")
-            .attr("transform", d => `translate(0,${y(d.country)})`);
+      // Add y-axis
+      svg
+        .append('g')
+        .call(d3.axisLeft(y))
+        .call((g) => g.select('.domain').remove())
+        .selectAll('.tick text')
+        .attr('class', 'axis-label')
 
-        // Process data to get cumulative values for stacking
-        data.forEach(country => {
-            let cumulative = 0;
-            country.values.forEach(item => {
-                item.start = cumulative;
-                cumulative += item.value;
-                item.end = cumulative;
-            });
-        });
+      // Add vertical gridlines
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .call(
+          d3
+            .axisBottom(x)
+            .tickValues([20, 40, 60, 80])
+            .tickSize(-(data.length * (barHeight + barPadding) - barPadding))
+            .tickFormat('')
+        )
+        .call((g) => g.select('.domain').remove())
 
-        // Add bar segments
-        countryGroups.selectAll("rect")
-            .data(d => d.values)
-            .enter()
-            .append("rect")
-            .attr("x", d => x(d.start))
-            .attr("y", 0)
-            .attr("width", d => x(d.value))
-            .attr("height", barHeight)
-            .attr("fill", d => d.color);
+      // Create country groups
+      const countryGroups = svg
+        .selectAll('.country-group')
+        .data(data)
+        .enter()
+        .append('g')
+        .attr('class', 'country-group')
+        .attr('transform', (d) => `translate(0,${y(d.country)})`)
 
-        // Add percentage labels for segments >= 5%
-        countryGroups.selectAll(".value-label")
-            .data(d => d.values.filter(v => v.value >= 5))
-            .enter()
-            .append("text")
-            .attr("class", "value-label")
-            .attr("x", d => x(d.start) + x(d.value) / 2)
-            .attr("y", barHeight / 2)
-            .attr("dy", "0.35em")
-            .attr("text-anchor", "middle")
-            .attr("fill", d => {
-                // Use white text for dark backgrounds, black for light backgrounds
-                const isDark = ["#8B0000", "#4682B4"].includes(d.color);
-                return isDark ? "white" : "black";
-            })
-            .style("font-size", "12px")
-            .style("font-weight", "bold")
-            .style("pointer-events", "none")
-            .text(d => `${d.value}%`)
-            .each(function(d) {
-                // Add class for key numbers (values >= 40%)
-                if (d.value >= 40) {
-                    d3.select(this).classed("key-number", true)
-                        .style("font-size", "14px");
-                }
-            });
+      // Process data to get cumulative values for stacking
+      data.forEach((country) => {
+        let cumulative = 0
+        country.values.forEach((item) => {
+          item.start = cumulative
+          cumulative += item.value
+          item.end = cumulative
+        })
+      })
 
-        // Add labels for small segments (< 5%) with leader lines
-        countryGroups.selectAll(".small-segment-label")
-            .data(d => d.values.filter(v => v.value < 5))
-            .enter()
-            .append("g")
-            .attr("class", "small-segment-label")
-            .each(function(d) {
-                const g = d3.select(this);
-                const centerX = x(d.start) + x(d.value) / 2;
-                
-                // Only add leader lines for very small segments (≤ 3%)
-                if (d.value <= 3) {
-                    // Add a leader line
-                    g.append("line")
-                        .attr("x1", centerX)
-                        .attr("y1", barHeight)
-                        .attr("x2", centerX)
-                        .attr("y2", barHeight + 10)
-                        .attr("stroke", "#666")
-                        .attr("stroke-width", 1);
-                    
-                    // Add the label at the end of the leader line
-                    g.append("text")
-                        .attr("x", centerX)
-                        .attr("y", barHeight + 15)
-                        .attr("text-anchor", "middle")
-                        .attr("class", "small-segment-label")
-                        .style("fill", "#333")
-                        .text(`${d.value}%`);
-                } else {
-                    // For segments between 3% and 5%, add label directly on segment
-                    g.append("text")
-                        .attr("x", centerX)
-                        .attr("y", barHeight / 2)
-                        .attr("dy", "0.35em")
-                        .attr("text-anchor", "middle")
-                        .attr("class", "small-segment-label")
-                        .style("fill", "black")
-                        .text(`${d.value}%`);
-                }
-            });
+      // Add bar segments
+      countryGroups
+        .selectAll('rect')
+        .data((d) => d.values)
+        .enter()
+        .append('rect')
+        .attr('x', (d) => x(d.start))
+        .attr('y', 0)
+        .attr('width', (d) => x(d.value))
+        .attr('height', barHeight)
+        .attr('fill', (d) => d.color)
+
+      // Add percentage labels for segments >= 5%
+      countryGroups
+        .selectAll('.value-label')
+        .data((d) => d.values.filter((v) => v.value >= 5))
+        .enter()
+        .append('text')
+        .attr('class', 'value-label')
+        .attr('x', (d) => x(d.start) + x(d.value) / 2)
+        .attr('y', barHeight / 2)
+        .attr('dy', '0.35em')
+        .attr('text-anchor', 'middle')
+        .attr('fill', (d) => {
+          // Use white text for dark backgrounds, black for light backgrounds
+          const isDark = ['#8B0000', '#4682B4'].includes(d.color)
+          return isDark ? 'white' : 'black'
+        })
+        .style('font-size', '12px')
+        .style('font-weight', 'bold')
+        .style('pointer-events', 'none')
+        .text((d) => `${d.value}%`)
+        .each(function (d) {
+          // Add class for key numbers (values >= 40%)
+          if (d.value >= 40) {
+            d3.select(this).classed('key-number', true).style('font-size', '14px')
+          }
+        })
+
+      // Add labels for small segments (< 5%) with leader lines
+      countryGroups
+        .selectAll('.small-segment-label')
+        .data((d) => d.values.filter((v) => v.value < 5))
+        .enter()
+        .append('g')
+        .attr('class', 'small-segment-label')
+        .each(function (d) {
+          const g = d3.select(this)
+          const centerX = x(d.start) + x(d.value) / 2
+
+          // Only add leader lines for very small segments (≤ 3%)
+          if (d.value <= 3) {
+            // Add a leader line
+            g.append('line')
+              .attr('x1', centerX)
+              .attr('y1', barHeight)
+              .attr('x2', centerX)
+              .attr('y2', barHeight + 10)
+              .attr('stroke', '#666')
+              .attr('stroke-width', 1)
+
+            // Add the label at the end of the leader line
+            g.append('text')
+              .attr('x', centerX)
+              .attr('y', barHeight + 15)
+              .attr('text-anchor', 'middle')
+              .attr('class', 'small-segment-label')
+              .style('fill', '#333')
+              .text(`${d.value}%`)
+          } else {
+            // For segments between 3% and 5%, add label directly on segment
+            g.append('text')
+              .attr('x', centerX)
+              .attr('y', barHeight / 2)
+              .attr('dy', '0.35em')
+              .attr('text-anchor', 'middle')
+              .attr('class', 'small-segment-label')
+              .style('fill', 'black')
+              .text(`${d.value}%`)
+          }
+        })
     </script>
-</body>
+  </body>
 </html>

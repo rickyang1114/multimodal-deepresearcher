@@ -1,451 +1,465 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>China-US GDP Comparison</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 10px;
-        }
-        
-        .visualization-container {
-            width: 800px;
-            height: 580px;
-            position: relative;
-        }
-        
-        .title {
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .section-title {
-            text-align: center;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .legend {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 5px 0 10px 0;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 0 15px;
-        }
-        
-        .legend-color {
-            width: 25px;
-            height: 3px;
-            margin-right: 5px;
-        }
-        
-        .source {
-            position: absolute;
-            bottom: 10px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .annotation {
-            font-size: 11px;
-            fill: #555;
-        }
-        
-        .value-label {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            font-size: 12px;
-        }
-        
-        .crossover-annotation {
-            font-size: 11px;
-            font-weight: bold;
-            fill: #333;
-        }
-        
-        .explanation {
-            font-size: 11px;
-            fill: #555;
-            font-style: italic;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 10px;
+      }
+
+      .visualization-container {
+        width: 800px;
+        height: 580px;
+        position: relative;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .legend {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 5px 0 10px 0;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin: 0 15px;
+      }
+
+      .legend-color {
+        width: 25px;
+        height: 3px;
+        margin-right: 5px;
+      }
+
+      .source {
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+      }
+
+      .annotation {
+        font-size: 11px;
+        fill: #555;
+      }
+
+      .value-label {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        font-size: 12px;
+      }
+
+      .crossover-annotation {
+        font-size: 11px;
+        font-weight: bold;
+        fill: #333;
+      }
+
+      .explanation {
+        font-size: 11px;
+        fill: #555;
+        font-style: italic;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">China-US GDP Comparison: Nominal vs. PPP Measures (1990-2023)</div>
-        
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #C6002B;"></div>
-                <span>China</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #004E8C;"></div>
-                <span>US</span>
-            </div>
+      <div class="title">China-US GDP Comparison: Nominal vs. PPP Measures (1990-2023)</div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #c6002b"></div>
+          <span>China</span>
         </div>
-        
-        <svg id="chart"></svg>
-        
-        <div class="source">Source: World Bank, StatsTimes (2023)</div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #004e8c"></div>
+          <span>US</span>
+        </div>
+      </div>
+
+      <svg id="chart"></svg>
+
+      <div class="source">Source: World Bank, StatsTimes (2023)</div>
     </div>
 
     <script>
-        // Set up dimensions
-        const width = 800;
-        const height = 520;
-        const margin = { top: 30, right: 70, bottom: 90, left: 50 };
-        const innerWidth = width - margin.left - margin.right;
-        const innerHeight = height - margin.top - margin.bottom;
-        const sectionWidth = innerWidth / 2 - 10;
-        
-        // Create SVG
-        const svg = d3.select("#chart")
-            .attr("width", width)
-            .attr("height", height);
-        
-        // Create container for the visualization
-        const g = svg.append("g")
-            .attr("transform", `translate(${margin.left}, ${margin.top})`);
-        
-        // Add section titles
-        g.append("text")
-            .attr("class", "section-title")
-            .attr("x", sectionWidth / 2)
-            .attr("y", -15)
-            .attr("text-anchor", "middle")
-            .text("Nominal GDP (USD Trillion)");
-        
-        g.append("text")
-            .attr("class", "section-title")
-            .attr("x", sectionWidth + 20 + sectionWidth / 2)
-            .attr("y", -15)
-            .attr("text-anchor", "middle")
-            .text("PPP GDP (Int. Trillion)");
-        
-        // Create data
-        const years = Array.from({length: 2023-1990+1}, (_, i) => 1990 + i);
-        
-        // Nominal GDP data (in trillions)
-        const nominalUS = [
-            5.96, 6.17, 6.54, 6.88, 7.31, 7.66, 8.10, 8.61, 9.06, 9.63,
-            10.28, 10.62, 10.98, 11.51, 12.27, 13.04, 13.86, 14.48, 14.77, 14.45,
-            14.99, 15.54, 16.20, 16.78, 17.52, 18.22, 18.71, 19.52, 20.58, 21.43,
-            20.94, 23.00, 25.46, 27.72
-        ];
-        
-        const nominalChina = [
-            0.36, 0.38, 0.42, 0.44, 0.56, 0.73, 0.86, 0.96, 1.03, 1.09,
-            1.21, 1.34, 1.47, 1.66, 1.96, 2.29, 2.75, 3.55, 4.60, 5.10,
-            6.09, 7.55, 8.53, 9.57, 10.48, 11.06, 11.23, 12.31, 13.89, 14.34,
-            14.72, 17.73, 17.96, 17.76
-        ];
-        
-        // PPP GDP data (in international trillions)
-        const pppUS = [
-            5.96, 6.17, 6.54, 6.88, 7.31, 7.66, 8.10, 8.61, 9.06, 9.63,
-            10.28, 10.62, 10.98, 11.51, 12.27, 13.04, 13.86, 14.48, 14.77, 14.45,
-            14.99, 15.54, 16.20, 16.78, 17.52, 18.22, 18.71, 19.52, 20.58, 21.43,
-            20.94, 23.00, 25.46, 27.72
-        ];
-        
-        const pppChina = [
-            1.12, 1.26, 1.47, 1.70, 1.96, 2.22, 2.48, 2.73, 2.97, 3.23,
-            3.55, 3.91, 4.32, 4.82, 5.42, 6.16, 7.04, 8.19, 9.09, 10.00,
-            11.24, 12.48, 13.86, 15.24, 16.70, 18.05, 19.33, 21.11, 23.12, 24.77,
-            25.28, 28.37, 31.70, 34.54
-        ];
-        
-        // Combine data for easier processing
-        const data = years.map((year, i) => ({
-            year,
-            nominalUS: nominalUS[i],
-            nominalChina: nominalChina[i],
-            pppUS: pppUS[i],
-            pppChina: pppChina[i]
-        }));
-        
-        // Create scales
-        const xScale = d3.scaleLinear()
-            .domain([1990, 2023])
-            .range([0, sectionWidth]);
-        
-        const yScaleNominal = d3.scaleLinear()
-            .domain([0, 30])
-            .range([innerHeight, 0]);
-        
-        const yScalePPP = d3.scaleLinear()
-            .domain([0, 40])
-            .range([innerHeight, 0]);
-        
-        // Create axes
-        const xAxisNominal = d3.axisBottom(xScale)
-            .tickValues([1990, 1995, 2000, 2005, 2010, 2015, 2020, 2023])
-            .tickFormat(d => d);
-        
-        const xAxisPPP = d3.axisBottom(xScale)
-            .tickValues([1990, 1995, 2000, 2005, 2010, 2015, 2020, 2023])
-            .tickFormat(d => d);
-        
-        const yAxisNominal = d3.axisLeft(yScaleNominal)
-            .tickValues([0, 5, 10, 15, 20, 25, 30])
-            .tickFormat(d => d);
-        
-        const yAxisPPP = d3.axisLeft(yScalePPP)
-            .tickValues([0, 10, 20, 30, 40])
-            .tickFormat(d => d);
-        
-        // Add axes to the chart
-        // Nominal GDP section
-        const nominalSection = g.append("g");
-        
-        nominalSection.append("g")
-            .attr("transform", `translate(0, ${innerHeight})`)
-            .call(xAxisNominal)
-            .selectAll("text")
-            .attr("font-size", "10px")
-            .attr("dx", "-0.8em")
-            .attr("dy", "0.6em")
-            .attr("transform", "rotate(-25)");
-        
-        nominalSection.append("g")
-            .call(yAxisNominal);
-        
-        // PPP GDP section
-        const pppSection = g.append("g")
-            .attr("transform", `translate(${sectionWidth + 20}, 0)`);
-        
-        pppSection.append("g")
-            .attr("transform", `translate(0, ${innerHeight})`)
-            .call(xAxisPPP)
-            .selectAll("text")
-            .attr("font-size", "10px")
-            .attr("dx", "-0.8em")
-            .attr("dy", "0.6em")
-            .attr("transform", "rotate(-25)");
-        
-        pppSection.append("g")
-            .call(yAxisPPP);
-        
-        // Add gridlines
-        nominalSection.selectAll(".gridline")
-            .data([0, 5, 10, 15, 20, 25, 30])
-            .enter()
-            .append("line")
-            .attr("class", "gridline")
-            .attr("x1", 0)
-            .attr("x2", sectionWidth)
-            .attr("y1", d => yScaleNominal(d))
-            .attr("y2", d => yScaleNominal(d))
-            .attr("stroke", "#e0e0e0")
-            .attr("stroke-width", 1);
-        
-        pppSection.selectAll(".gridline")
-            .data([0, 10, 20, 30, 40])
-            .enter()
-            .append("line")
-            .attr("class", "gridline")
-            .attr("x1", 0)
-            .attr("x2", sectionWidth)
-            .attr("y1", d => yScalePPP(d))
-            .attr("y2", d => yScalePPP(d))
-            .attr("stroke", "#e0e0e0")
-            .attr("stroke-width", 1);
-        
-        // Create line generators
-        const nominalUSLine = d3.line()
-            .x(d => xScale(d.year))
-            .y(d => yScaleNominal(d.nominalUS));
-        
-        const nominalChinaLine = d3.line()
-            .x(d => xScale(d.year))
-            .y(d => yScaleNominal(d.nominalChina));
-        
-        const pppUSLine = d3.line()
-            .x(d => xScale(d.year))
-            .y(d => yScalePPP(d.pppUS));
-        
-        const pppChinaLine = d3.line()
-            .x(d => xScale(d.year))
-            .y(d => yScalePPP(d.pppChina));
-        
-        // Add lines to the chart
-        // Nominal GDP lines
-        nominalSection.append("path")
-            .datum(data)
-            .attr("fill", "none")
-            .attr("stroke", "#004E8C")
-            .attr("stroke-width", 2.5)
-            .attr("d", nominalUSLine);
-        
-        nominalSection.append("path")
-            .datum(data)
-            .attr("fill", "none")
-            .attr("stroke", "#C6002B")
-            .attr("stroke-width", 2.5)
-            .attr("d", nominalChinaLine);
-        
-        // PPP GDP lines
-        pppSection.append("path")
-            .datum(data)
-            .attr("fill", "none")
-            .attr("stroke", "#004E8C")
-            .attr("stroke-width", 2.5)
-            .attr("d", pppUSLine);
-        
-        pppSection.append("path")
-            .datum(data)
-            .attr("fill", "none")
-            .attr("stroke", "#C6002B")
-            .attr("stroke-width", 2.5)
-            .attr("d", pppChinaLine);
-        
-        // Add data points at 5-year intervals with consistent size
-        const markerYears = [1990, 1995, 2000, 2005, 2010, 2015, 2020, 2023];
-        const markerSize = 4; // Consistent marker size
-        
-        markerYears.forEach(year => {
-            const yearData = data.find(d => d.year === year);
-            
-            // Nominal GDP markers
-            nominalSection.append("circle")
-                .attr("cx", xScale(year))
-                .attr("cy", yScaleNominal(yearData.nominalUS))
-                .attr("r", markerSize)
-                .attr("fill", "#004E8C");
-            
-            nominalSection.append("circle")
-                .attr("cx", xScale(year))
-                .attr("cy", yScaleNominal(yearData.nominalChina))
-                .attr("r", markerSize)
-                .attr("fill", "#C6002B");
-            
-            // PPP GDP markers
-            pppSection.append("circle")
-                .attr("cx", xScale(year))
-                .attr("cy", yScalePPP(yearData.pppUS))
-                .attr("r", markerSize)
-                .attr("fill", "#004E8C");
-            
-            pppSection.append("circle")
-                .attr("cx", xScale(year))
-                .attr("cy", yScalePPP(yearData.pppChina))
-                .attr("r", markerSize)
-                .attr("fill", "#C6002B");
-        });
-        
-        // Add vertical separator line
-        g.append("line")
-            .attr("x1", sectionWidth + 10)
-            .attr("x2", sectionWidth + 10)
-            .attr("y1", -20)
-            .attr("y2", innerHeight + 10)
-            .attr("stroke", "#888")
-            .attr("stroke-width", 1.5);
-        
-        // Add 2023 value labels with better positioning
-        const lastDataPoint = data[data.length - 1];
-        
-        // Nominal GDP labels
-        nominalSection.append("text")
-            .attr("class", "value-label")
-            .attr("x", xScale(2023) - 5)
-            .attr("y", yScaleNominal(lastDataPoint.nominalUS) - 10)
-            .attr("text-anchor", "end")
-            .attr("fill", "#004E8C")
-            .text(`$${lastDataPoint.nominalUS.toFixed(2)}T`);
-        
-        nominalSection.append("text")
-            .attr("class", "value-label")
-            .attr("x", xScale(2023) - 5)
-            .attr("y", yScaleNominal(lastDataPoint.nominalChina) - 10)
-            .attr("text-anchor", "end")
-            .attr("fill", "#C6002B")
-            .text(`$${lastDataPoint.nominalChina.toFixed(2)}T`);
-        
-        // PPP GDP labels - positioned to avoid overlap
-        pppSection.append("text")
-            .attr("class", "value-label")
-            .attr("x", xScale(2023) - 5)
-            .attr("y", yScalePPP(lastDataPoint.pppUS) + 20)
-            .attr("text-anchor", "end")
-            .attr("fill", "#004E8C")
-            .text(`Int.$${lastDataPoint.pppUS.toFixed(2)}T`);
-        
-        pppSection.append("text")
-            .attr("class", "value-label")
-            .attr("x", xScale(2023) - 5)
-            .attr("y", yScalePPP(lastDataPoint.pppChina) - 10)
-            .attr("text-anchor", "end")
-            .attr("fill", "#C6002B")
-            .text(`Int.$${lastDataPoint.pppChina.toFixed(2)}T`);
-        
-        // Add crossover annotation with improved visibility
-        const crossoverYear = 2017;
-        const crossoverData = data.find(d => d.year === crossoverYear);
-        
-        // Add dashed vertical line for crossover point
-        pppSection.append("line")
-            .attr("x1", xScale(crossoverYear))
-            .attr("x2", xScale(crossoverYear))
-            .attr("y1", yScalePPP(crossoverData.pppChina) - 30)
-            .attr("y2", yScalePPP(crossoverData.pppChina) + 30)
-            .attr("stroke", "#FFB300")
-            .attr("stroke-width", 2)
-            .attr("stroke-dasharray", "4,3");
-        
-        // Add crossover annotation text with better positioning
-        pppSection.append("text")
-            .attr("class", "crossover-annotation")
-            .attr("x", xScale(crossoverYear) - 50)
-            .attr("y", yScalePPP(crossoverData.pppChina) - 35)
-            .attr("text-anchor", "start")
-            .attr("fill", "#333")
-            .text("China surpasses US");
-        
-        pppSection.append("text")
-            .attr("class", "crossover-annotation")
-            .attr("x", xScale(crossoverYear) - 50)
-            .attr("y", yScalePPP(crossoverData.pppChina) - 20)
-            .attr("text-anchor", "start")
-            .attr("fill", "#333")
-            .text("in PPP terms (2017)");
-        
-        // Add explanation text with better positioning and formatting
-        g.append("text")
-            .attr("class", "explanation")
-            .attr("x", innerWidth / 2)
-            .attr("y", innerHeight + 50)
-            .attr("text-anchor", "middle")
-            .attr("font-size", "12px")
-            .text("PPP measures account for price differences between countries,");
-        
-        g.append("text")
-            .attr("class", "explanation")
-            .attr("x", innerWidth / 2)
-            .attr("y", innerHeight + 70)
-            .attr("text-anchor", "middle")
-            .attr("font-size", "12px")
-            .text("giving higher weight to economies with lower price levels");
+      // Set up dimensions
+      const width = 800
+      const height = 520
+      const margin = { top: 30, right: 70, bottom: 90, left: 50 }
+      const innerWidth = width - margin.left - margin.right
+      const innerHeight = height - margin.top - margin.bottom
+      const sectionWidth = innerWidth / 2 - 10
+
+      // Create SVG
+      const svg = d3.select('#chart').attr('width', width).attr('height', height)
+
+      // Create container for the visualization
+      const g = svg.append('g').attr('transform', `translate(${margin.left}, ${margin.top})`)
+
+      // Add section titles
+      g.append('text')
+        .attr('class', 'section-title')
+        .attr('x', sectionWidth / 2)
+        .attr('y', -15)
+        .attr('text-anchor', 'middle')
+        .text('Nominal GDP (USD Trillion)')
+
+      g.append('text')
+        .attr('class', 'section-title')
+        .attr('x', sectionWidth + 20 + sectionWidth / 2)
+        .attr('y', -15)
+        .attr('text-anchor', 'middle')
+        .text('PPP GDP (Int. Trillion)')
+
+      // Create data
+      const years = Array.from({ length: 2023 - 1990 + 1 }, (_, i) => 1990 + i)
+
+      // Nominal GDP data (in trillions)
+      const nominalUS = [
+        5.96, 6.17, 6.54, 6.88, 7.31, 7.66, 8.1, 8.61, 9.06, 9.63, 10.28, 10.62, 10.98, 11.51,
+        12.27, 13.04, 13.86, 14.48, 14.77, 14.45, 14.99, 15.54, 16.2, 16.78, 17.52, 18.22, 18.71,
+        19.52, 20.58, 21.43, 20.94, 23.0, 25.46, 27.72,
+      ]
+
+      const nominalChina = [
+        0.36, 0.38, 0.42, 0.44, 0.56, 0.73, 0.86, 0.96, 1.03, 1.09, 1.21, 1.34, 1.47, 1.66, 1.96,
+        2.29, 2.75, 3.55, 4.6, 5.1, 6.09, 7.55, 8.53, 9.57, 10.48, 11.06, 11.23, 12.31, 13.89,
+        14.34, 14.72, 17.73, 17.96, 17.76,
+      ]
+
+      // PPP GDP data (in international trillions)
+      const pppUS = [
+        5.96, 6.17, 6.54, 6.88, 7.31, 7.66, 8.1, 8.61, 9.06, 9.63, 10.28, 10.62, 10.98, 11.51,
+        12.27, 13.04, 13.86, 14.48, 14.77, 14.45, 14.99, 15.54, 16.2, 16.78, 17.52, 18.22, 18.71,
+        19.52, 20.58, 21.43, 20.94, 23.0, 25.46, 27.72,
+      ]
+
+      const pppChina = [
+        1.12, 1.26, 1.47, 1.7, 1.96, 2.22, 2.48, 2.73, 2.97, 3.23, 3.55, 3.91, 4.32, 4.82, 5.42,
+        6.16, 7.04, 8.19, 9.09, 10.0, 11.24, 12.48, 13.86, 15.24, 16.7, 18.05, 19.33, 21.11, 23.12,
+        24.77, 25.28, 28.37, 31.7, 34.54,
+      ]
+
+      // Combine data for easier processing
+      const data = years.map((year, i) => ({
+        year,
+        nominalUS: nominalUS[i],
+        nominalChina: nominalChina[i],
+        pppUS: pppUS[i],
+        pppChina: pppChina[i],
+      }))
+
+      // Create scales
+      const xScale = d3.scaleLinear().domain([1990, 2023]).range([0, sectionWidth])
+
+      const yScaleNominal = d3.scaleLinear().domain([0, 30]).range([innerHeight, 0])
+
+      const yScalePPP = d3.scaleLinear().domain([0, 40]).range([innerHeight, 0])
+
+      // Create axes
+      const xAxisNominal = d3
+        .axisBottom(xScale)
+        .tickValues([1990, 1995, 2000, 2005, 2010, 2015, 2020, 2023])
+        .tickFormat((d) => d)
+
+      const xAxisPPP = d3
+        .axisBottom(xScale)
+        .tickValues([1990, 1995, 2000, 2005, 2010, 2015, 2020, 2023])
+        .tickFormat((d) => d)
+
+      const yAxisNominal = d3
+        .axisLeft(yScaleNominal)
+        .tickValues([0, 5, 10, 15, 20, 25, 30])
+        .tickFormat((d) => d)
+
+      const yAxisPPP = d3
+        .axisLeft(yScalePPP)
+        .tickValues([0, 10, 20, 30, 40])
+        .tickFormat((d) => d)
+
+      // Add axes to the chart
+      // Nominal GDP section
+      const nominalSection = g.append('g')
+
+      nominalSection
+        .append('g')
+        .attr('transform', `translate(0, ${innerHeight})`)
+        .call(xAxisNominal)
+        .selectAll('text')
+        .attr('font-size', '10px')
+        .attr('dx', '-0.8em')
+        .attr('dy', '0.6em')
+        .attr('transform', 'rotate(-25)')
+
+      nominalSection.append('g').call(yAxisNominal)
+
+      // PPP GDP section
+      const pppSection = g.append('g').attr('transform', `translate(${sectionWidth + 20}, 0)`)
+
+      pppSection
+        .append('g')
+        .attr('transform', `translate(0, ${innerHeight})`)
+        .call(xAxisPPP)
+        .selectAll('text')
+        .attr('font-size', '10px')
+        .attr('dx', '-0.8em')
+        .attr('dy', '0.6em')
+        .attr('transform', 'rotate(-25)')
+
+      pppSection.append('g').call(yAxisPPP)
+
+      // Add gridlines
+      nominalSection
+        .selectAll('.gridline')
+        .data([0, 5, 10, 15, 20, 25, 30])
+        .enter()
+        .append('line')
+        .attr('class', 'gridline')
+        .attr('x1', 0)
+        .attr('x2', sectionWidth)
+        .attr('y1', (d) => yScaleNominal(d))
+        .attr('y2', (d) => yScaleNominal(d))
+        .attr('stroke', '#e0e0e0')
+        .attr('stroke-width', 1)
+
+      pppSection
+        .selectAll('.gridline')
+        .data([0, 10, 20, 30, 40])
+        .enter()
+        .append('line')
+        .attr('class', 'gridline')
+        .attr('x1', 0)
+        .attr('x2', sectionWidth)
+        .attr('y1', (d) => yScalePPP(d))
+        .attr('y2', (d) => yScalePPP(d))
+        .attr('stroke', '#e0e0e0')
+        .attr('stroke-width', 1)
+
+      // Create line generators
+      const nominalUSLine = d3
+        .line()
+        .x((d) => xScale(d.year))
+        .y((d) => yScaleNominal(d.nominalUS))
+
+      const nominalChinaLine = d3
+        .line()
+        .x((d) => xScale(d.year))
+        .y((d) => yScaleNominal(d.nominalChina))
+
+      const pppUSLine = d3
+        .line()
+        .x((d) => xScale(d.year))
+        .y((d) => yScalePPP(d.pppUS))
+
+      const pppChinaLine = d3
+        .line()
+        .x((d) => xScale(d.year))
+        .y((d) => yScalePPP(d.pppChina))
+
+      // Add lines to the chart
+      // Nominal GDP lines
+      nominalSection
+        .append('path')
+        .datum(data)
+        .attr('fill', 'none')
+        .attr('stroke', '#004E8C')
+        .attr('stroke-width', 2.5)
+        .attr('d', nominalUSLine)
+
+      nominalSection
+        .append('path')
+        .datum(data)
+        .attr('fill', 'none')
+        .attr('stroke', '#C6002B')
+        .attr('stroke-width', 2.5)
+        .attr('d', nominalChinaLine)
+
+      // PPP GDP lines
+      pppSection
+        .append('path')
+        .datum(data)
+        .attr('fill', 'none')
+        .attr('stroke', '#004E8C')
+        .attr('stroke-width', 2.5)
+        .attr('d', pppUSLine)
+
+      pppSection
+        .append('path')
+        .datum(data)
+        .attr('fill', 'none')
+        .attr('stroke', '#C6002B')
+        .attr('stroke-width', 2.5)
+        .attr('d', pppChinaLine)
+
+      // Add data points at 5-year intervals with consistent size
+      const markerYears = [1990, 1995, 2000, 2005, 2010, 2015, 2020, 2023]
+      const markerSize = 4 // Consistent marker size
+
+      markerYears.forEach((year) => {
+        const yearData = data.find((d) => d.year === year)
+
+        // Nominal GDP markers
+        nominalSection
+          .append('circle')
+          .attr('cx', xScale(year))
+          .attr('cy', yScaleNominal(yearData.nominalUS))
+          .attr('r', markerSize)
+          .attr('fill', '#004E8C')
+
+        nominalSection
+          .append('circle')
+          .attr('cx', xScale(year))
+          .attr('cy', yScaleNominal(yearData.nominalChina))
+          .attr('r', markerSize)
+          .attr('fill', '#C6002B')
+
+        // PPP GDP markers
+        pppSection
+          .append('circle')
+          .attr('cx', xScale(year))
+          .attr('cy', yScalePPP(yearData.pppUS))
+          .attr('r', markerSize)
+          .attr('fill', '#004E8C')
+
+        pppSection
+          .append('circle')
+          .attr('cx', xScale(year))
+          .attr('cy', yScalePPP(yearData.pppChina))
+          .attr('r', markerSize)
+          .attr('fill', '#C6002B')
+      })
+
+      // Add vertical separator line
+      g.append('line')
+        .attr('x1', sectionWidth + 10)
+        .attr('x2', sectionWidth + 10)
+        .attr('y1', -20)
+        .attr('y2', innerHeight + 10)
+        .attr('stroke', '#888')
+        .attr('stroke-width', 1.5)
+
+      // Add 2023 value labels with better positioning
+      const lastDataPoint = data[data.length - 1]
+
+      // Nominal GDP labels
+      nominalSection
+        .append('text')
+        .attr('class', 'value-label')
+        .attr('x', xScale(2023) - 5)
+        .attr('y', yScaleNominal(lastDataPoint.nominalUS) - 10)
+        .attr('text-anchor', 'end')
+        .attr('fill', '#004E8C')
+        .text(`$${lastDataPoint.nominalUS.toFixed(2)}T`)
+
+      nominalSection
+        .append('text')
+        .attr('class', 'value-label')
+        .attr('x', xScale(2023) - 5)
+        .attr('y', yScaleNominal(lastDataPoint.nominalChina) - 10)
+        .attr('text-anchor', 'end')
+        .attr('fill', '#C6002B')
+        .text(`$${lastDataPoint.nominalChina.toFixed(2)}T`)
+
+      // PPP GDP labels - positioned to avoid overlap
+      pppSection
+        .append('text')
+        .attr('class', 'value-label')
+        .attr('x', xScale(2023) - 5)
+        .attr('y', yScalePPP(lastDataPoint.pppUS) + 20)
+        .attr('text-anchor', 'end')
+        .attr('fill', '#004E8C')
+        .text(`Int.$${lastDataPoint.pppUS.toFixed(2)}T`)
+
+      pppSection
+        .append('text')
+        .attr('class', 'value-label')
+        .attr('x', xScale(2023) - 5)
+        .attr('y', yScalePPP(lastDataPoint.pppChina) - 10)
+        .attr('text-anchor', 'end')
+        .attr('fill', '#C6002B')
+        .text(`Int.$${lastDataPoint.pppChina.toFixed(2)}T`)
+
+      // Add crossover annotation with improved visibility
+      const crossoverYear = 2017
+      const crossoverData = data.find((d) => d.year === crossoverYear)
+
+      // Add dashed vertical line for crossover point
+      pppSection
+        .append('line')
+        .attr('x1', xScale(crossoverYear))
+        .attr('x2', xScale(crossoverYear))
+        .attr('y1', yScalePPP(crossoverData.pppChina) - 30)
+        .attr('y2', yScalePPP(crossoverData.pppChina) + 30)
+        .attr('stroke', '#FFB300')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '4,3')
+
+      // Add crossover annotation text with better positioning
+      pppSection
+        .append('text')
+        .attr('class', 'crossover-annotation')
+        .attr('x', xScale(crossoverYear) - 50)
+        .attr('y', yScalePPP(crossoverData.pppChina) - 35)
+        .attr('text-anchor', 'start')
+        .attr('fill', '#333')
+        .text('China surpasses US')
+
+      pppSection
+        .append('text')
+        .attr('class', 'crossover-annotation')
+        .attr('x', xScale(crossoverYear) - 50)
+        .attr('y', yScalePPP(crossoverData.pppChina) - 20)
+        .attr('text-anchor', 'start')
+        .attr('fill', '#333')
+        .text('in PPP terms (2017)')
+
+      // Add explanation text with better positioning and formatting
+      g.append('text')
+        .attr('class', 'explanation')
+        .attr('x', innerWidth / 2)
+        .attr('y', innerHeight + 50)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '12px')
+        .text('PPP measures account for price differences between countries,')
+
+      g.append('text')
+        .attr('class', 'explanation')
+        .attr('x', innerWidth / 2)
+        .attr('y', innerHeight + 70)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '12px')
+        .text('giving higher weight to economies with lower price levels')
     </script>
-</body>
+  </body>
 </html>

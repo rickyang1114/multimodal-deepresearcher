@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { ReactNode, useEffect, useState, useRef } from 'react'
 import { CoreContent } from 'pliny/utils/contentlayer'
@@ -42,7 +42,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
   const basePath = path.split('/')[0]
   const [toc, setToc] = useState<TOCItem[]>([])
   const [showToc, setShowToc] = useState(false)
-  const [activeId, setActiveId] = useState("")
+  const [activeId, setActiveId] = useState('')
   const headingElementsRef = useRef<Record<string, IntersectionObserverEntry>>({})
   const tocRef = useRef<HTMLDivElement>(null)
   const activeItemRef = useRef<HTMLLIElement>(null)
@@ -69,10 +69,10 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
   useEffect(() => {
     if (toc.length === 0) return
 
-    const headingElements = toc.map(item => document.getElementById(item.id))
-    
+    const headingElements = toc.map((item) => document.getElementById(item.id))
+
     const callback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach(entry => {
+      entries.forEach((entry) => {
         headingElementsRef.current[entry.target.id] = entry
       })
 
@@ -84,10 +84,10 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
       })
 
       if (visibleHeadings.length === 0) return
-      
+
       // 找到最靠近顶部的标题
       let closestHeading = visibleHeadings[0]
-      visibleHeadings.forEach(heading => {
+      visibleHeadings.forEach((heading) => {
         if (heading.boundingClientRect.top < closestHeading.boundingClientRect.top) {
           closestHeading = heading
         }
@@ -98,15 +98,15 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
 
     const observer = new IntersectionObserver(callback, {
       rootMargin: '-20px 0px -20px 0px',
-      threshold: [0, 1]
+      threshold: [0, 1],
     })
 
-    headingElements.forEach(element => {
+    headingElements.forEach((element) => {
       if (element) observer.observe(element)
     })
 
     return () => {
-      headingElements.forEach(element => {
+      headingElements.forEach((element) => {
         if (element) observer.unobserve(element)
       })
     }
@@ -117,29 +117,25 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
     if (showToc && activeItemRef.current && tocRef.current) {
       const tocContainer = tocRef.current
       const activeElement = activeItemRef.current
-      
+
       // 计算元素相对于容器的位置
       const activeRect = activeElement.getBoundingClientRect()
       const containerRect = tocContainer.getBoundingClientRect()
-      
+
       // 检查元素是否在容器可视区域内
-      const isInView = (
-        activeRect.top >= containerRect.top &&
-        activeRect.bottom <= containerRect.bottom
-      )
-      
+      const isInView =
+        activeRect.top >= containerRect.top && activeRect.bottom <= containerRect.bottom
+
       // 如果不在可视区域内，滚动容器
       if (!isInView) {
         // 计算滚动位置，使活动项在容器中间
-        const scrollTop = 
-          activeElement.offsetTop - 
-          tocContainer.offsetHeight / 2 + 
-          activeElement.offsetHeight / 2
-        
+        const scrollTop =
+          activeElement.offsetTop - tocContainer.offsetHeight / 2 + activeElement.offsetHeight / 2
+
         // 平滑滚动到该位置
         tocContainer.scrollTo({
           top: scrollTop,
-          behavior: 'smooth'
+          behavior: 'smooth',
         })
       }
     }
@@ -153,19 +149,19 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
   // 处理目录项点击，跳转到对应标题但不关闭TOC
   const handleTocItemClick = (e, id) => {
     e.preventDefault()
-    
+
     // 获取目标元素
     const targetElement = document.getElementById(id)
     if (targetElement) {
       // 平滑滚动到目标元素
       targetElement.scrollIntoView({ behavior: 'smooth' })
-      
+
       // 设置当前活动标题（不等待IntersectionObserver触发）
       setActiveId(id)
-      
+
       // 可选：更新浏览器URL，但不导致页面跳转
       if (history.pushState) {
-        history.pushState(null, "", `#${id}`)
+        history.pushState(null, '', `#${id}`)
       }
     }
   }
@@ -173,37 +169,59 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
   return (
     <SectionContainer>
       <ScrollTopAndComment />
-      
+
       {/* 固定位置的TOC按钮和面板容器 */}
       {toc.length > 0 && (
-        <div className="fixed left-4 bottom-24 z-40 md:left-6">
-          <button 
+        <div className="fixed bottom-24 left-4 z-40 md:left-6">
+          <button
             onClick={toggleToc}
-            className={`bg-primary-500 text-white rounded-full p-3 shadow-lg hover:bg-primary-600 transition-all duration-200 flex items-center justify-center ${showToc ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+            className={`bg-primary-500 hover:bg-primary-600 flex items-center justify-center rounded-full p-3 text-white shadow-lg transition-all duration-200 ${showToc ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
             aria-label="Show Table of Contents"
             title="Table of Contents"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h7"
+              />
             </svg>
           </button>
-          
+
           {/* TOC展开面板 */}
-          <div 
+          <div
             ref={tocRef}
-            className={`fixed left-4 bottom-24 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 md:left-6 transition-all duration-300 max-h-[60vh] overflow-auto w-64 ${showToc ? 'opacity-100 transform translate-y-0' : 'opacity-0 pointer-events-none transform translate-y-4'}`}
+            className={`fixed bottom-24 left-4 z-50 max-h-[60vh] w-64 overflow-auto rounded-lg bg-white p-4 shadow-xl transition-all duration-300 md:left-6 dark:bg-gray-800 ${showToc ? 'translate-y-0 transform opacity-100' : 'pointer-events-none translate-y-4 transform opacity-0'}`}
           >
-            <div className="flex justify-between items-center mb-4 sticky top-0 bg-white dark:bg-gray-800 py-1">
-              <h2 className="text-sm tracking-wide text-gray-500 uppercase font-bold dark:text-gray-400">
+            <div className="sticky top-0 mb-4 flex items-center justify-between bg-white py-1 dark:bg-gray-800">
+              <h2 className="text-sm font-bold tracking-wide text-gray-500 uppercase dark:text-gray-400">
                 Table of Contents
               </h2>
-              <button 
+              <button
                 onClick={toggleToc}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 aria-label="Close Table of Contents"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -212,17 +230,17 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                 {toc.map((item) => {
                   const isActive = activeId === item.id
                   return (
-                    <li 
+                    <li
                       key={item.id}
                       ref={isActive ? activeItemRef : null}
                       style={{ paddingLeft: `${(item.level - 2) * 0.75}rem` }}
-                      className={`truncate transition-colors duration-200 py-1 ${isActive ? 'border-l-2 border-primary-500 pl-2 -ml-2' : ''}`}
+                      className={`truncate py-1 transition-colors duration-200 ${isActive ? 'border-primary-500 -ml-2 border-l-2 pl-2' : ''}`}
                     >
                       <a
                         href={`#${item.id}`}
-                        className={`text-sm hover:text-primary-500 dark:hover:text-primary-400 ${
-                          isActive 
-                            ? 'text-primary-500 font-medium dark:text-primary-400' 
+                        className={`hover:text-primary-500 dark:hover:text-primary-400 text-sm ${
+                          isActive
+                            ? 'text-primary-500 dark:text-primary-400 font-medium'
                             : 'text-gray-700 dark:text-gray-300'
                         }`}
                         onClick={(e) => handleTocItemClick(e, item.id)}
@@ -237,7 +255,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
           </div>
         </div>
       )}
-      
+
       <article>
         <div className="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700">
           <header className="pt-6 xl:pb-6">
@@ -264,10 +282,15 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                   link.download = `${slug}.pdf`
                   link.click()
                 }}
-                className="inline-flex items-center px-4 py-2 text-sm bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md transition-colors duration-200 cursor-pointer"
+                className="bg-primary-600 hover:bg-primary-700 inline-flex cursor-pointer items-center rounded-md px-4 py-2 text-sm font-medium text-white transition-colors duration-200"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-4-4m4 4l4-4M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 10v6m0 0l-4-4m4 4l4-4M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
+                  />
                 </svg>
                 Download PDF
               </button>
@@ -310,56 +333,56 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                   ))}
                 </ul>
               </dd>
-              
+
               <footer>
-              <div className="divide-gray-200 text-sm leading-5 font-medium xl:col-start-1 xl:row-start-2 xl:divide-y dark:divide-gray-700">
-                {tags && (
-                  <div className="py-4 xl:py-8">
-                    <h2 className="text-xs tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                      Tags
-                    </h2>
-                    <div className="flex flex-wrap">
-                      {tags.map((tag) => (
-                        <Tag key={tag} text={tag} />
-                      ))}
+                <div className="divide-gray-200 text-sm leading-5 font-medium xl:col-start-1 xl:row-start-2 xl:divide-y dark:divide-gray-700">
+                  {tags && (
+                    <div className="py-4 xl:py-8">
+                      <h2 className="text-xs tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                        Tags
+                      </h2>
+                      <div className="flex flex-wrap">
+                        {tags.map((tag) => (
+                          <Tag key={tag} text={tag} />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-                {(next || prev) && (
-                  <div className="flex justify-between py-4 xl:block xl:space-y-8 xl:py-8">
-                    {prev && prev.path && (
-                      <div>
-                        <h2 className="text-xs tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                          Previous Article
-                        </h2>
-                        <div className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
-                          <Link href={`/${prev.path}`}>{prev.title}</Link>
+                  )}
+                  {(next || prev) && (
+                    <div className="flex justify-between py-4 xl:block xl:space-y-8 xl:py-8">
+                      {prev && prev.path && (
+                        <div>
+                          <h2 className="text-xs tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                            Previous Article
+                          </h2>
+                          <div className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+                            <Link href={`/${prev.path}`}>{prev.title}</Link>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    {next && next.path && (
-                      <div>
-                        <h2 className="text-xs tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                          Next Article
-                        </h2>
-                        <div className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
-                          <Link href={`/${next.path}`}>{next.title}</Link>
+                      )}
+                      {next && next.path && (
+                        <div>
+                          <h2 className="text-xs tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                            Next Article
+                          </h2>
+                          <div className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+                            <Link href={`/${next.path}`}>{next.title}</Link>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="pt-4 xl:pt-8">
-                <Link
-                  href={`/${basePath}`}
-                  className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
-                  aria-label="Back to the report"
-                >
-                  &larr; Back to the report
-                </Link>
-              </div>
-            </footer>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="pt-4 xl:pt-8">
+                  <Link
+                    href={`/${basePath}`}
+                    className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+                    aria-label="Back to the report"
+                  >
+                    &larr; Back to the report
+                  </Link>
+                </div>
+              </footer>
             </dl>
             <div className="divide-y divide-gray-200 xl:col-span-3 xl:row-span-2 xl:pb-0 dark:divide-gray-700">
               <div className="prose dark:prose-invert max-w-none pt-10 pb-8">{children}</div>

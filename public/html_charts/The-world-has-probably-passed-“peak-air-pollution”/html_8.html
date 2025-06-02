@@ -1,305 +1,329 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agricultural Technologies Emission Reduction</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .container {
-            width: 900px;
-            background-color: white;
-        }
-        
-        .title {
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 13px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 25px;
-            color: #555;
-        }
-        
-        .category-label {
-            font-size: 13px;
-            font-weight: bold;
-            fill: #333;
-        }
-        
-        .intervention-label {
-            font-size: 11px;
-            fill: #444;
-        }
-        
-        .note {
-            font-size: 11px;
-            font-style: italic;
-            color: #666;
-            margin-top: 20px;
-            text-align: center;
-        }
-        
-        .source {
-            font-size: 10px;
-            color: #888;
-            margin-top: 15px;
-            text-align: right;
-        }
-        
-        .axis-title {
-            font-size: 11px;
-            fill: #555;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            font-size: 12px;
-            fill: #333;
-        }
-        
-        .annotation {
-            font-size: 10px;
-            fill: #FB9A99;
-            font-style: italic;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .container {
+        width: 900px;
+        background-color: white;
+      }
+
+      .title {
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 13px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 25px;
+        color: #555;
+      }
+
+      .category-label {
+        font-size: 13px;
+        font-weight: bold;
+        fill: #333;
+      }
+
+      .intervention-label {
+        font-size: 11px;
+        fill: #444;
+      }
+
+      .note {
+        font-size: 11px;
+        font-style: italic;
+        color: #666;
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .source {
+        font-size: 10px;
+        color: #888;
+        margin-top: 15px;
+        text-align: right;
+      }
+
+      .axis-title {
+        font-size: 11px;
+        fill: #555;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        font-size: 12px;
+        fill: #333;
+      }
+
+      .annotation {
+        font-size: 10px;
+        fill: #fb9a99;
+        font-style: italic;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="title">Agricultural Technologies Can Substantially Reduce Air Pollutant Emissions</div>
-        <div class="subtitle">Emission reduction potential by intervention type (%)</div>
-        <div id="chart"></div>
-        <div class="note">Emission reduction potential varies by climate, soil type, management practices, and implementation quality</div>
-        <div class="source">Source: Kazimierczuk et al. 2023; Sanches et al. 2022; Minasny et al. 2021</div>
+      <div class="title">
+        Agricultural Technologies Can Substantially Reduce Air Pollutant Emissions
+      </div>
+      <div class="subtitle">Emission reduction potential by intervention type (%)</div>
+      <div id="chart"></div>
+      <div class="note">
+        Emission reduction potential varies by climate, soil type, management practices, and
+        implementation quality
+      </div>
+      <div class="source">
+        Source: Kazimierczuk et al. 2023; Sanches et al. 2022; Minasny et al. 2021
+      </div>
     </div>
 
     <script>
-        // Data preparation
-        const data = [
-            { 
-                category: "Precision Agriculture",
-                intervention: "Optical sensors for variable-rate N",
-                min: 8,
-                max: 15,
-                color: "#08519C",
-                lightColor: "#9ECAE1",
-                note: ""
-            },
-            { 
-                category: "Precision Agriculture",
-                intervention: "Variable-rate N management",
-                min: 10,
-                max: 30,
-                color: "#08519C",
-                lightColor: "#9ECAE1",
-                note: ""
-            },
-            { 
-                category: "Precision Agriculture",
-                intervention: "Precision feeding",
-                min: 10,
-                max: 15,
-                color: "#08519C",
-                lightColor: "#9ECAE1",
-                note: ""
-            },
-            { 
-                category: "Precision Agriculture",
-                intervention: "Optimized fertilizer timing",
-                min: 15,
-                max: 40,
-                color: "#08519C",
-                lightColor: "#9ECAE1",
-                note: ""
-            },
-            { 
-                category: "Regenerative Practices",
-                intervention: "Cover cropping",
-                min: 10,
-                max: 20,
-                color: "#31A354",
-                lightColor: "#A1D99B",
-                note: "but may increase N₂O"
-            },
-            { 
-                category: "Regenerative Practices",
-                intervention: "Biochar amendments",
-                min: 30,
-                max: 40,
-                color: "#31A354",
-                lightColor: "#A1D99B",
-                note: ""
-            },
-            { 
-                category: "Regenerative Practices",
-                intervention: "Enhanced weathering",
-                min: 20,
-                max: 67,
-                color: "#31A354",
-                lightColor: "#A1D99B",
-                note: ""
-            }
-        ];
+      // Data preparation
+      const data = [
+        {
+          category: 'Precision Agriculture',
+          intervention: 'Optical sensors for variable-rate N',
+          min: 8,
+          max: 15,
+          color: '#08519C',
+          lightColor: '#9ECAE1',
+          note: '',
+        },
+        {
+          category: 'Precision Agriculture',
+          intervention: 'Variable-rate N management',
+          min: 10,
+          max: 30,
+          color: '#08519C',
+          lightColor: '#9ECAE1',
+          note: '',
+        },
+        {
+          category: 'Precision Agriculture',
+          intervention: 'Precision feeding',
+          min: 10,
+          max: 15,
+          color: '#08519C',
+          lightColor: '#9ECAE1',
+          note: '',
+        },
+        {
+          category: 'Precision Agriculture',
+          intervention: 'Optimized fertilizer timing',
+          min: 15,
+          max: 40,
+          color: '#08519C',
+          lightColor: '#9ECAE1',
+          note: '',
+        },
+        {
+          category: 'Regenerative Practices',
+          intervention: 'Cover cropping',
+          min: 10,
+          max: 20,
+          color: '#31A354',
+          lightColor: '#A1D99B',
+          note: 'but may increase N₂O',
+        },
+        {
+          category: 'Regenerative Practices',
+          intervention: 'Biochar amendments',
+          min: 30,
+          max: 40,
+          color: '#31A354',
+          lightColor: '#A1D99B',
+          note: '',
+        },
+        {
+          category: 'Regenerative Practices',
+          intervention: 'Enhanced weathering',
+          min: 20,
+          max: 67,
+          color: '#31A354',
+          lightColor: '#A1D99B',
+          note: '',
+        },
+      ]
 
-        // Set up dimensions and margins - adjusted for better spacing
-        const margin = {top: 40, right: 130, bottom: 60, left: 220};
-        const width = 900 - margin.left - margin.right;
-        const height = 450 - margin.top - margin.bottom;
-        const barHeight = 22;
-        const barPadding = 12;
-        const categoryPadding = 35;
+      // Set up dimensions and margins - adjusted for better spacing
+      const margin = { top: 40, right: 130, bottom: 60, left: 220 }
+      const width = 900 - margin.left - margin.right
+      const height = 450 - margin.top - margin.bottom
+      const barHeight = 22
+      const barPadding = 12
+      const categoryPadding = 35
 
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
 
-        // Set up scales
-        const x = d3.scaleLinear()
-            .domain([0, 70])
-            .range([0, width]);
+      // Set up scales
+      const x = d3.scaleLinear().domain([0, 70]).range([0, width])
 
-        // Calculate y positions with proper spacing and indentation
-        let currentY = 0;
-        let lastCategory = null;
-        const yPositions = [];
-        const categoryPositions = {};
+      // Calculate y positions with proper spacing and indentation
+      let currentY = 0
+      let lastCategory = null
+      const yPositions = []
+      const categoryPositions = {}
 
-        data.forEach((d, i) => {
-            if (d.category !== lastCategory) {
-                if (lastCategory !== null) {
-                    currentY += categoryPadding; // Extra space between categories
-                }
-                categoryPositions[d.category] = currentY;
-                lastCategory = d.category;
-                currentY += 25; // Add space after category label
-            }
-            yPositions.push(currentY);
-            currentY += barHeight + barPadding; // Space for each bar
-        });
+      data.forEach((d, i) => {
+        if (d.category !== lastCategory) {
+          if (lastCategory !== null) {
+            currentY += categoryPadding // Extra space between categories
+          }
+          categoryPositions[d.category] = currentY
+          lastCategory = d.category
+          currentY += 25 // Add space after category label
+        }
+        yPositions.push(currentY)
+        currentY += barHeight + barPadding // Space for each bar
+      })
 
-        // Add x-axis
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x)
-                .tickFormat(d => d + "%")
-                .tickSize(-height)
-                .ticks(8))
-            .call(g => g.select(".domain").remove())
-            .call(g => g.selectAll(".tick line")
-                .attr("stroke", "#ddd")
-                .attr("stroke-dasharray", "2,2"))
-            .call(g => g.selectAll(".tick text")
-                .attr("y", 10)
-                .attr("font-size", "10px")
-                .attr("dx", d => d % 20 === 0 ? 0 : -3)); // Adjust spacing for crowded labels
+      // Add x-axis
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(
+          d3
+            .axisBottom(x)
+            .tickFormat((d) => d + '%')
+            .tickSize(-height)
+            .ticks(8)
+        )
+        .call((g) => g.select('.domain').remove())
+        .call((g) =>
+          g.selectAll('.tick line').attr('stroke', '#ddd').attr('stroke-dasharray', '2,2')
+        )
+        .call((g) =>
+          g
+            .selectAll('.tick text')
+            .attr('y', 10)
+            .attr('font-size', '10px')
+            .attr('dx', (d) => (d % 20 === 0 ? 0 : -3))
+        ) // Adjust spacing for crowded labels
 
-        // Add x-axis label
-        svg.append("text")
-            .attr("class", "axis-title")
-            .attr("x", width / 2)
-            .attr("y", height + 40)
-            .attr("text-anchor", "middle")
-            .text("Emission reduction (%)");
+      // Add x-axis label
+      svg
+        .append('text')
+        .attr('class', 'axis-title')
+        .attr('x', width / 2)
+        .attr('y', height + 40)
+        .attr('text-anchor', 'middle')
+        .text('Emission reduction (%)')
 
-        // Add category labels with improved positioning
-        Object.entries(categoryPositions).forEach(([category, position]) => {
-            svg.append("text")
-                .attr("class", "category-label")
-                .attr("x", -190) // Fixed position from left edge
-                .attr("y", position + 15) // Better vertical positioning
-                .text(category);
-        });
+      // Add category labels with improved positioning
+      Object.entries(categoryPositions).forEach(([category, position]) => {
+        svg
+          .append('text')
+          .attr('class', 'category-label')
+          .attr('x', -190) // Fixed position from left edge
+          .attr('y', position + 15) // Better vertical positioning
+          .text(category)
+      })
 
-        // Add bars for ranges
-        svg.selectAll(".range-bar")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", "range-bar")
-            .attr("x", d => x(d.min))
-            .attr("y", (d, i) => yPositions[i])
-            .attr("width", d => x(d.max) - x(d.min))
-            .attr("height", barHeight)
-            .attr("fill", d => d.lightColor);
+      // Add bars for ranges
+      svg
+        .selectAll('.range-bar')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('class', 'range-bar')
+        .attr('x', (d) => x(d.min))
+        .attr('y', (d, i) => yPositions[i])
+        .attr('width', (d) => x(d.max) - x(d.min))
+        .attr('height', barHeight)
+        .attr('fill', (d) => d.lightColor)
 
-        // Add min markers
-        svg.selectAll(".min-marker")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", "min-marker")
-            .attr("x", d => x(d.min) - 2)
-            .attr("y", (d, i) => yPositions[i])
-            .attr("width", 4)
-            .attr("height", barHeight)
-            .attr("fill", d => d.color);
+      // Add min markers
+      svg
+        .selectAll('.min-marker')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('class', 'min-marker')
+        .attr('x', (d) => x(d.min) - 2)
+        .attr('y', (d, i) => yPositions[i])
+        .attr('width', 4)
+        .attr('height', barHeight)
+        .attr('fill', (d) => d.color)
 
-        // Add max markers
-        svg.selectAll(".max-marker")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", "max-marker")
-            .attr("x", d => x(d.max) - 2)
-            .attr("y", (d, i) => yPositions[i])
-            .attr("width", 4)
-            .attr("height", barHeight)
-            .attr("fill", d => d.color);
+      // Add max markers
+      svg
+        .selectAll('.max-marker')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('class', 'max-marker')
+        .attr('x', (d) => x(d.max) - 2)
+        .attr('y', (d, i) => yPositions[i])
+        .attr('width', 4)
+        .attr('height', barHeight)
+        .attr('fill', (d) => d.color)
 
-        // Add intervention labels with consistent indentation
-        svg.selectAll(".intervention-label")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("class", "intervention-label")
-            .attr("x", -15) // Consistent indentation
-            .attr("y", (d, i) => yPositions[i] + barHeight/2 + 4) // Centered vertically with bar
-            .attr("text-anchor", "end")
-            .text(d => d.intervention);
+      // Add intervention labels with consistent indentation
+      svg
+        .selectAll('.intervention-label')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'intervention-label')
+        .attr('x', -15) // Consistent indentation
+        .attr('y', (d, i) => yPositions[i] + barHeight / 2 + 4) // Centered vertically with bar
+        .attr('text-anchor', 'end')
+        .text((d) => d.intervention)
 
-        // Add percentage range labels - improved styling
-        svg.selectAll(".range-label")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("x", d => x(d.max) + 10)
-            .attr("y", (d, i) => yPositions[i] + barHeight/2 + 4) // Centered vertically with bar
-            .attr("text-anchor", "start")
-            .attr("class", "key-number")
-            .text(d => `${d.min}-${d.max}%`);
+      // Add percentage range labels - improved styling
+      svg
+        .selectAll('.range-label')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('x', (d) => x(d.max) + 10)
+        .attr('y', (d, i) => yPositions[i] + barHeight / 2 + 4) // Centered vertically with bar
+        .attr('text-anchor', 'start')
+        .attr('class', 'key-number')
+        .text((d) => `${d.min}-${d.max}%`)
 
-        // Add annotations with improved positioning
-        svg.selectAll(".note-annotation")
-            .data(data.filter(d => d.note !== ""))
-            .enter()
-            .append("text")
-            .attr("class", "annotation")
-            .attr("x", d => x(d.max) + 70) // Positioned after the percentage
-            .attr("y", (d, i) => {
-                const dataIndex = data.findIndex(item => item === d);
-                return yPositions[dataIndex] + barHeight/2 + 4; // Perfectly aligned with bar center
-            })
-            .text(d => d.note);
+      // Add annotations with improved positioning
+      svg
+        .selectAll('.note-annotation')
+        .data(data.filter((d) => d.note !== ''))
+        .enter()
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', (d) => x(d.max) + 70) // Positioned after the percentage
+        .attr('y', (d, i) => {
+          const dataIndex = data.findIndex((item) => item === d)
+          return yPositions[dataIndex] + barHeight / 2 + 4 // Perfectly aligned with bar center
+        })
+        .text((d) => d.note)
     </script>
-</body>
+  </body>
 </html>

@@ -1,257 +1,275 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Per-capita Meat Consumption Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        .visualization-container {
-            width: 800px;
-            background-color: white;
-        }
-        
-        .title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 16px;
-            color: #555;
-            margin-bottom: 20px;
-        }
-        
-        .bar-above-average {
-            fill: #1a478f;
-        }
-        
-        .bar-world-average {
-            fill: #4682B4;
-        }
-        
-        .bar-below-average {
-            fill: #a8cce8;
-        }
-        
-        .grid-line {
-            stroke: #e0e0e0;
-            stroke-width: 1px;
-        }
-        
-        .average-line {
-            stroke: #555;
-            stroke-width: 2.5px;
-            stroke-dasharray: 6, 4;
-        }
-        
-        .bar-value {
-            font-weight: bold;
-            font-family: 'Georgia', serif;
-            font-size: 14px;
-        }
-        
-        .axis-label {
-            font-size: 12px;
-        }
-        
-        .source-note {
-            font-size: 11px;
-            color: #666;
-            margin-top: 25px;
-        }
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 20px;
+      }
 
-        .tick text {
-            font-size: 12px;
-        }
+      .visualization-container {
+        width: 800px;
+        background-color: white;
+      }
 
-        .world-average-label {
-            font-size: 11px;
-            font-style: italic;
-            fill: #555;
-        }
+      .title {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 20px;
+      }
+
+      .bar-above-average {
+        fill: #1a478f;
+      }
+
+      .bar-world-average {
+        fill: #4682b4;
+      }
+
+      .bar-below-average {
+        fill: #a8cce8;
+      }
+
+      .grid-line {
+        stroke: #e0e0e0;
+        stroke-width: 1px;
+      }
+
+      .average-line {
+        stroke: #555;
+        stroke-width: 2.5px;
+        stroke-dasharray: 6, 4;
+      }
+
+      .bar-value {
+        font-weight: bold;
+        font-family: 'Georgia', serif;
+        font-size: 14px;
+      }
+
+      .axis-label {
+        font-size: 12px;
+      }
+
+      .source-note {
+        font-size: 11px;
+        color: #666;
+        margin-top: 25px;
+      }
+
+      .tick text {
+        font-size: 12px;
+      }
+
+      .world-average-label {
+        font-size: 11px;
+        font-style: italic;
+        fill: #555;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Per-capita meat consumption varies more than twentyfold across countries</div>
-        <div class="subtitle">Total meat consumption per person (kg/year), 2022</div>
-        <div id="chart"></div>
-        <div class="source-note">
-            <p>Data represents supply-side figures which may overstate actual consumption due to waste and methodological differences.</p>
-            <p>Source: Our World in Data, 2022</p>
-        </div>
+      <div class="title">
+        Per-capita meat consumption varies more than twentyfold across countries
+      </div>
+      <div class="subtitle">Total meat consumption per person (kg/year), 2022</div>
+      <div id="chart"></div>
+      <div class="source-note">
+        <p>
+          Data represents supply-side figures which may overstate actual consumption due to waste
+          and methodological differences.
+        </p>
+        <p>Source: Our World in Data, 2022</p>
+      </div>
     </div>
 
     <script>
-        // Data
-        const data = [
-            { country: "Portugal", value: 151, category: "above" },
-            { country: "Spain", value: 144, category: "above" },
-            { country: "United States", value: 144, category: "above" },
-            { country: "Argentina", value: 121, category: "above" },
-            { country: "China", value: 112, category: "above" },
-            { country: "Brazil", value: 109, category: "above" },
-            { country: "Japan", value: 105, category: "above" },
-            { country: "Germany", value: 84, category: "above" },
-            { country: "World Average", value: 64, category: "average" },
-            { country: "India", value: 15, category: "below" },
-            { country: "Ethiopia", value: 7, category: "below" }
-        ];
+      // Data
+      const data = [
+        { country: 'Portugal', value: 151, category: 'above' },
+        { country: 'Spain', value: 144, category: 'above' },
+        { country: 'United States', value: 144, category: 'above' },
+        { country: 'Argentina', value: 121, category: 'above' },
+        { country: 'China', value: 112, category: 'above' },
+        { country: 'Brazil', value: 109, category: 'above' },
+        { country: 'Japan', value: 105, category: 'above' },
+        { country: 'Germany', value: 84, category: 'above' },
+        { country: 'World Average', value: 64, category: 'average' },
+        { country: 'India', value: 15, category: 'below' },
+        { country: 'Ethiopia', value: 7, category: 'below' },
+      ]
 
-        // Sort data in descending order
-        data.sort((a, b) => b.value - a.value);
+      // Sort data in descending order
+      data.sort((a, b) => b.value - a.value)
 
-        // Set up dimensions and margins - increased right margin for value labels
-        const margin = { top: 20, right: 80, bottom: 40, left: 150 };
-        const width = 800 - margin.left - margin.right;
-        const height = 450 - margin.top - margin.bottom;
-        const barHeight = 25;
-        const barPadding = 5;
+      // Set up dimensions and margins - increased right margin for value labels
+      const margin = { top: 20, right: 80, bottom: 40, left: 150 }
+      const width = 800 - margin.left - margin.right
+      const height = 450 - margin.top - margin.bottom
+      const barHeight = 25
+      const barPadding = 5
 
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
 
-        // Set up scales
-        const xScale = d3.scaleLinear()
-            .domain([0, 160])
-            .range([0, width]);
+      // Set up scales
+      const xScale = d3.scaleLinear().domain([0, 160]).range([0, width])
 
-        const yScale = d3.scaleBand()
-            .domain(data.map(d => d.country))
-            .range([0, data.length * (barHeight + barPadding)])
-            .padding(0.1);
+      const yScale = d3
+        .scaleBand()
+        .domain(data.map((d) => d.country))
+        .range([0, data.length * (barHeight + barPadding)])
+        .padding(0.1)
 
-        // Add x-axis with improved alignment
-        svg.append("g")
-            .attr("transform", `translate(0, ${data.length * (barHeight + barPadding)})`)
-            .call(d3.axisBottom(xScale)
-                .tickValues([0, 25, 50, 75, 100, 125, 150])
-                .tickSize(-data.length * (barHeight + barPadding))
-                .tickFormat(d => d))
-            .call(g => g.select(".domain").remove())
-            .call(g => g.selectAll(".tick line")
-                .attr("stroke", "#e0e0e0")
-                .attr("stroke-width", 0.5))
-            .call(g => g.selectAll(".tick text")
-                .attr("dy", "1em")); // Better align tick labels
+      // Add x-axis with improved alignment
+      svg
+        .append('g')
+        .attr('transform', `translate(0, ${data.length * (barHeight + barPadding)})`)
+        .call(
+          d3
+            .axisBottom(xScale)
+            .tickValues([0, 25, 50, 75, 100, 125, 150])
+            .tickSize(-data.length * (barHeight + barPadding))
+            .tickFormat((d) => d)
+        )
+        .call((g) => g.select('.domain').remove())
+        .call((g) => g.selectAll('.tick line').attr('stroke', '#e0e0e0').attr('stroke-width', 0.5))
+        .call((g) => g.selectAll('.tick text').attr('dy', '1em')) // Better align tick labels
 
-        // Add y-axis
-        svg.append("g")
-            .call(d3.axisLeft(yScale))
-            .call(g => g.select(".domain").remove())
-            .call(g => g.selectAll(".tick line").remove());
+      // Add y-axis
+      svg
+        .append('g')
+        .call(d3.axisLeft(yScale))
+        .call((g) => g.select('.domain').remove())
+        .call((g) => g.selectAll('.tick line').remove())
 
-        // Add horizontal grid lines - improved alignment
-        svg.selectAll(".grid-line")
-            .data(data)
-            .enter()
-            .append("line")
-            .attr("class", "grid-line")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", d => yScale(d.country) + yScale.bandwidth() / 2)
-            .attr("y2", d => yScale(d.country) + yScale.bandwidth() / 2);
+      // Add horizontal grid lines - improved alignment
+      svg
+        .selectAll('.grid-line')
+        .data(data)
+        .enter()
+        .append('line')
+        .attr('class', 'grid-line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', (d) => yScale(d.country) + yScale.bandwidth() / 2)
+        .attr('y2', (d) => yScale(d.country) + yScale.bandwidth() / 2)
 
-        // Add vertical line for world average - improved visibility
-        const worldAvgValue = data.find(d => d.country === "World Average").value;
-        svg.append("line")
-            .attr("class", "average-line")
-            .attr("x1", xScale(worldAvgValue))
-            .attr("x2", xScale(worldAvgValue))
-            .attr("y1", -10) // Extend slightly above
-            .attr("y2", data.length * (barHeight + barPadding) + 10); // Extend slightly below
+      // Add vertical line for world average - improved visibility
+      const worldAvgValue = data.find((d) => d.country === 'World Average').value
+      svg
+        .append('line')
+        .attr('class', 'average-line')
+        .attr('x1', xScale(worldAvgValue))
+        .attr('x2', xScale(worldAvgValue))
+        .attr('y1', -10) // Extend slightly above
+        .attr('y2', data.length * (barHeight + barPadding) + 10) // Extend slightly below
 
-        // Add "World Average" label to the vertical line
-        svg.append("text")
-            .attr("class", "world-average-label")
-            .attr("x", xScale(worldAvgValue) + 5)
-            .attr("y", -5)
-            .text("World Average (64 kg)");
+      // Add "World Average" label to the vertical line
+      svg
+        .append('text')
+        .attr('class', 'world-average-label')
+        .attr('x', xScale(worldAvgValue) + 5)
+        .attr('y', -5)
+        .text('World Average (64 kg)')
 
-        // Add bars
-        svg.selectAll(".bar")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", d => {
-                if (d.category === "above") return "bar-above-average";
-                else if (d.category === "average") return "bar-world-average";
-                else return "bar-below-average";
-            })
-            .attr("x", 0)
-            .attr("y", d => yScale(d.country))
-            .attr("width", d => xScale(d.value))
-            .attr("height", yScale.bandwidth());
+      // Add bars
+      svg
+        .selectAll('.bar')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('class', (d) => {
+          if (d.category === 'above') return 'bar-above-average'
+          else if (d.category === 'average') return 'bar-world-average'
+          else return 'bar-below-average'
+        })
+        .attr('x', 0)
+        .attr('y', (d) => yScale(d.country))
+        .attr('width', (d) => xScale(d.value))
+        .attr('height', yScale.bandwidth())
 
-        // Add value labels with improved contrast
-        svg.selectAll(".bar-value")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("class", "bar-value")
-            .attr("x", d => {
-                // Position labels outside for short bars, inside for long bars
-                const threshold = 30; // Increased threshold for better readability
-                return d.value < threshold ? xScale(d.value) + 5 : xScale(d.value) - 8;
-            })
-            .attr("y", d => yScale(d.country) + yScale.bandwidth() / 2)
-            .attr("dy", "0.35em") // Better vertical centering
-            .attr("text-anchor", d => d.value < 30 ? "start" : "end")
-            .attr("fill", d => {
-                // Ensure proper contrast for all bars
-                if (d.value < 30) return "#000"; // Black text for short bars (outside)
-                return "#fff"; // White text for longer bars (inside)
-            })
-            .text(d => d.value);
+      // Add value labels with improved contrast
+      svg
+        .selectAll('.bar-value')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'bar-value')
+        .attr('x', (d) => {
+          // Position labels outside for short bars, inside for long bars
+          const threshold = 30 // Increased threshold for better readability
+          return d.value < threshold ? xScale(d.value) + 5 : xScale(d.value) - 8
+        })
+        .attr('y', (d) => yScale(d.country) + yScale.bandwidth() / 2)
+        .attr('dy', '0.35em') // Better vertical centering
+        .attr('text-anchor', (d) => (d.value < 30 ? 'start' : 'end'))
+        .attr('fill', (d) => {
+          // Ensure proper contrast for all bars
+          if (d.value < 30) return '#000' // Black text for short bars (outside)
+          return '#fff' // White text for longer bars (inside)
+        })
+        .text((d) => d.value)
 
-        // Add background for short bar labels to improve contrast
-        svg.selectAll(".label-bg")
-            .data(data.filter(d => d.value < 30)) // Only for short bars
-            .enter()
-            .append("rect")
-            .attr("x", d => xScale(d.value) + 3)
-            .attr("y", d => yScale(d.country) + yScale.bandwidth() / 2 - 9)
-            .attr("width", 25)
-            .attr("height", 18)
-            .attr("fill", "white")
-            .attr("opacity", 0.7)
-            .attr("rx", 2);
+      // Add background for short bar labels to improve contrast
+      svg
+        .selectAll('.label-bg')
+        .data(data.filter((d) => d.value < 30)) // Only for short bars
+        .enter()
+        .append('rect')
+        .attr('x', (d) => xScale(d.value) + 3)
+        .attr('y', (d) => yScale(d.country) + yScale.bandwidth() / 2 - 9)
+        .attr('width', 25)
+        .attr('height', 18)
+        .attr('fill', 'white')
+        .attr('opacity', 0.7)
+        .attr('rx', 2)
 
-        // Re-add the value labels for short bars on top of the background
-        svg.selectAll(".short-bar-value")
-            .data(data.filter(d => d.value < 30))
-            .enter()
-            .append("text")
-            .attr("class", "bar-value")
-            .attr("x", d => xScale(d.value) + 5)
-            .attr("y", d => yScale(d.country) + yScale.bandwidth() / 2)
-            .attr("dy", "0.35em")
-            .attr("text-anchor", "start")
-            .attr("fill", "#000")
-            .text(d => d.value);
+      // Re-add the value labels for short bars on top of the background
+      svg
+        .selectAll('.short-bar-value')
+        .data(data.filter((d) => d.value < 30))
+        .enter()
+        .append('text')
+        .attr('class', 'bar-value')
+        .attr('x', (d) => xScale(d.value) + 5)
+        .attr('y', (d) => yScale(d.country) + yScale.bandwidth() / 2)
+        .attr('dy', '0.35em')
+        .attr('text-anchor', 'start')
+        .attr('fill', '#000')
+        .text((d) => d.value)
 
-        // Highlight world average
-        svg.selectAll(".bar")
-            .filter(d => d.country === "World Average")
-            .attr("stroke", "#666")
-            .attr("stroke-width", 1);
+      // Highlight world average
+      svg
+        .selectAll('.bar')
+        .filter((d) => d.country === 'World Average')
+        .attr('stroke', '#666')
+        .attr('stroke-width', 1)
     </script>
-</body>
+  </body>
 </html>

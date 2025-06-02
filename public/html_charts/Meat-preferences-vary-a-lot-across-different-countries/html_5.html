@@ -1,434 +1,461 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Meat Consumption Trajectories</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-        }
-        
-        .visualization-container {
-            width: 800px;
-            height: 550px;
-        }
-        
-        .title {
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 16px;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #555;
-        }
-        
-        .axis-label {
-            font-size: 12px;
-            fill: #333;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-opacity: 0.7;
-            shape-rendering: crispEdges;
-        }
-        
-        .annotation {
-            font-size: 12px;
-            fill: #333;
-        }
-        
-        .annotation-box {
-            fill: rgba(255, 255, 255, 0.9);
-            stroke: #ccc;
-            stroke-width: 1px;
-            rx: 4px;
-            ry: 4px;
-        }
-        
-        .annotation-line {
-            stroke: #999;
-            stroke-width: 1px;
-            stroke-dasharray: 3,3;
-        }
-        
-        .notes {
-            font-size: 11px;
-            fill: #666;
-        }
-        
-        .source {
-            font-size: 11px;
-            fill: #666;
-            font-style: italic;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        
-        .endpoint-line {
-            stroke-width: 1px;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+      }
+
+      .visualization-container {
+        width: 800px;
+        height: 550px;
+      }
+
+      .title {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #555;
+      }
+
+      .axis-label {
+        font-size: 12px;
+        fill: #333;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+      }
+
+      .annotation {
+        font-size: 12px;
+        fill: #333;
+      }
+
+      .annotation-box {
+        fill: rgba(255, 255, 255, 0.9);
+        stroke: #ccc;
+        stroke-width: 1px;
+        rx: 4px;
+        ry: 4px;
+      }
+
+      .annotation-line {
+        stroke: #999;
+        stroke-width: 1px;
+        stroke-dasharray: 3, 3;
+      }
+
+      .notes {
+        font-size: 11px;
+        fill: #666;
+      }
+
+      .source {
+        font-size: 11px;
+        fill: #666;
+        font-style: italic;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .endpoint-line {
+        stroke-width: 1px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container" id="chart"></div>
 
     <script>
-        // Data for Switzerland and Vietnam
-        const switzerlandData = [
-            {year: 1960, value: 65},
-            {year: 1970, value: 75},
-            {year: 1980, value: 85},
-            {year: 1990, value: 80},
-            {year: 2000, value: 75},
-            {year: 2010, value: 70},
-            {year: 2020, value: 66}
-        ];
-        
-        const vietnamData = [
-            {year: 1960, value: 20},
-            {year: 1970, value: 22},
-            {year: 1980, value: 25},
-            {year: 1990, value: 30},
-            {year: 2000, value: 40},
-            {year: 2010, value: 50},
-            {year: 2020, value: 61}
-        ];
+      // Data for Switzerland and Vietnam
+      const switzerlandData = [
+        { year: 1960, value: 65 },
+        { year: 1970, value: 75 },
+        { year: 1980, value: 85 },
+        { year: 1990, value: 80 },
+        { year: 2000, value: 75 },
+        { year: 2010, value: 70 },
+        { year: 2020, value: 66 },
+      ]
 
-        // Set up dimensions and margins - increased top margin to prevent title overlap
-        const margin = {top: 80, right: 120, bottom: 80, left: 70};
-        const width = 800 - margin.left - margin.right;
-        const height = 550 - margin.top - margin.bottom;
+      const vietnamData = [
+        { year: 1960, value: 20 },
+        { year: 1970, value: 22 },
+        { year: 1980, value: 25 },
+        { year: 1990, value: 30 },
+        { year: 2000, value: 40 },
+        { year: 2010, value: 50 },
+        { year: 2020, value: 61 },
+      ]
 
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+      // Set up dimensions and margins - increased top margin to prevent title overlap
+      const margin = { top: 80, right: 120, bottom: 80, left: 70 }
+      const width = 800 - margin.left - margin.right
+      const height = 550 - margin.top - margin.bottom
 
-        // Add title and subtitle - positioned higher to avoid overlap
-        svg.append("text")
-            .attr("class", "title")
-            .attr("x", width / 2)
-            .attr("y", -50)
-            .attr("text-anchor", "middle")
-            .text("National meat consumption trajectories diverge over time");
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
 
-        svg.append("text")
-            .attr("class", "subtitle")
-            .attr("x", width / 2)
-            .attr("y", -30)
-            .attr("text-anchor", "middle")
-            .text("Per-capita meat supply (kg/year), 1960-2020");
+      // Add title and subtitle - positioned higher to avoid overlap
+      svg
+        .append('text')
+        .attr('class', 'title')
+        .attr('x', width / 2)
+        .attr('y', -50)
+        .attr('text-anchor', 'middle')
+        .text('National meat consumption trajectories diverge over time')
 
-        // Set up scales
-        const x = d3.scaleLinear()
-            .domain([1960, 2020])
-            .range([0, width]);
+      svg
+        .append('text')
+        .attr('class', 'subtitle')
+        .attr('x', width / 2)
+        .attr('y', -30)
+        .attr('text-anchor', 'middle')
+        .text('Per-capita meat supply (kg/year), 1960-2020')
 
-        const y = d3.scaleLinear()
-            .domain([0, 90])
-            .range([height, 0]);
+      // Set up scales
+      const x = d3.scaleLinear().domain([1960, 2020]).range([0, width])
 
-        // Add X axis
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x)
-                .tickValues([1960, 1970, 1980, 1990, 2000, 2010, 2020])
-                .tickFormat(d3.format("d")))
-            .selectAll("text")
-            .attr("class", "axis-label");
+      const y = d3.scaleLinear().domain([0, 90]).range([height, 0])
 
-        // Add Y axis
-        svg.append("g")
-            .call(d3.axisLeft(y)
-                .tickValues([0, 10, 20, 30, 40, 50, 60, 70, 80, 90]))
-            .selectAll("text")
-            .attr("class", "axis-label");
+      // Add X axis
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(
+          d3
+            .axisBottom(x)
+            .tickValues([1960, 1970, 1980, 1990, 2000, 2010, 2020])
+            .tickFormat(d3.format('d'))
+        )
+        .selectAll('text')
+        .attr('class', 'axis-label')
 
-        // Add Y axis label - properly positioned and rotated
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -45)
-            .attr("x", -height / 2)
-            .attr("text-anchor", "middle")
-            .text("Per-capita meat supply (kg/year)");
+      // Add Y axis
+      svg
+        .append('g')
+        .call(d3.axisLeft(y).tickValues([0, 10, 20, 30, 40, 50, 60, 70, 80, 90]))
+        .selectAll('text')
+        .attr('class', 'axis-label')
 
-        // Add grid lines
-        svg.append("g")
-            .attr("class", "grid")
-            .call(d3.axisLeft(y)
-                .tickValues([0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
-                .tickSize(-width)
-                .tickFormat(""))
-            .selectAll("line")
-            .attr("stroke", "#e0e0e0");
+      // Add Y axis label - properly positioned and rotated
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', -45)
+        .attr('x', -height / 2)
+        .attr('text-anchor', 'middle')
+        .text('Per-capita meat supply (kg/year)')
 
-        // Define line generator
-        const line = d3.line()
-            .x(d => x(d.year))
-            .y(d => y(d.value))
-            .curve(d3.curveMonotoneX);
+      // Add grid lines
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .call(
+          d3
+            .axisLeft(y)
+            .tickValues([0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
+            .tickSize(-width)
+            .tickFormat('')
+        )
+        .selectAll('line')
+        .attr('stroke', '#e0e0e0')
 
-        // Add Switzerland line
-        svg.append("path")
-            .datum(switzerlandData)
-            .attr("fill", "none")
-            .attr("stroke", "#4682B4") // Medium blue
-            .attr("stroke-width", 2.5)
-            .attr("d", line);
+      // Define line generator
+      const line = d3
+        .line()
+        .x((d) => x(d.year))
+        .y((d) => y(d.value))
+        .curve(d3.curveMonotoneX)
 
-        // Add Vietnam line
-        svg.append("path")
-            .datum(vietnamData)
-            .attr("fill", "none")
-            .attr("stroke", "#20B2AA") // Teal green
-            .attr("stroke-width", 2.5)
-            .attr("d", line);
+      // Add Switzerland line
+      svg
+        .append('path')
+        .datum(switzerlandData)
+        .attr('fill', 'none')
+        .attr('stroke', '#4682B4') // Medium blue
+        .attr('stroke-width', 2.5)
+        .attr('d', line)
 
-        // Add data points for Switzerland
-        svg.selectAll(".dot-switzerland")
-            .data(switzerlandData)
-            .enter()
-            .append("circle")
-            .attr("class", "dot-switzerland")
-            .attr("cx", d => x(d.year))
-            .attr("cy", d => y(d.value))
-            .attr("r", 4)
-            .attr("fill", "#4682B4");
+      // Add Vietnam line
+      svg
+        .append('path')
+        .datum(vietnamData)
+        .attr('fill', 'none')
+        .attr('stroke', '#20B2AA') // Teal green
+        .attr('stroke-width', 2.5)
+        .attr('d', line)
 
-        // Add data points for Vietnam
-        svg.selectAll(".dot-vietnam")
-            .data(vietnamData)
-            .enter()
-            .append("circle")
-            .attr("class", "dot-vietnam")
-            .attr("cx", d => x(d.year))
-            .attr("cy", d => y(d.value))
-            .attr("r", 4)
-            .attr("fill", "#20B2AA");
+      // Add data points for Switzerland
+      svg
+        .selectAll('.dot-switzerland')
+        .data(switzerlandData)
+        .enter()
+        .append('circle')
+        .attr('class', 'dot-switzerland')
+        .attr('cx', (d) => x(d.year))
+        .attr('cy', (d) => y(d.value))
+        .attr('r', 4)
+        .attr('fill', '#4682B4')
 
-        // Add endpoint lines
-        svg.append("line")
-            .attr("class", "endpoint-line")
-            .attr("x1", x(2020))
-            .attr("y1", y(switzerlandData[6].value))
-            .attr("x2", x(2020) + 30)
-            .attr("y2", y(switzerlandData[6].value))
-            .attr("stroke", "#4682B4");
+      // Add data points for Vietnam
+      svg
+        .selectAll('.dot-vietnam')
+        .data(vietnamData)
+        .enter()
+        .append('circle')
+        .attr('class', 'dot-vietnam')
+        .attr('cx', (d) => x(d.year))
+        .attr('cy', (d) => y(d.value))
+        .attr('r', 4)
+        .attr('fill', '#20B2AA')
 
-        svg.append("line")
-            .attr("class", "endpoint-line")
-            .attr("x1", x(2020))
-            .attr("y1", y(vietnamData[6].value))
-            .attr("x2", x(2020) + 30)
-            .attr("y2", y(vietnamData[6].value))
-            .attr("stroke", "#20B2AA");
+      // Add endpoint lines
+      svg
+        .append('line')
+        .attr('class', 'endpoint-line')
+        .attr('x1', x(2020))
+        .attr('y1', y(switzerlandData[6].value))
+        .attr('x2', x(2020) + 30)
+        .attr('y2', y(switzerlandData[6].value))
+        .attr('stroke', '#4682B4')
 
-        // Add endpoint values
-        svg.append("text")
-            .attr("x", x(2020) + 35)
-            .attr("y", y(switzerlandData[6].value) + 4)
-            .attr("class", "key-number")
-            .attr("fill", "#4682B4")
-            .text(`${switzerlandData[6].value} kg`);
+      svg
+        .append('line')
+        .attr('class', 'endpoint-line')
+        .attr('x1', x(2020))
+        .attr('y1', y(vietnamData[6].value))
+        .attr('x2', x(2020) + 30)
+        .attr('y2', y(vietnamData[6].value))
+        .attr('stroke', '#20B2AA')
 
-        svg.append("text")
-            .attr("x", x(2020) + 35)
-            .attr("y", y(vietnamData[6].value) + 4)
-            .attr("class", "key-number")
-            .attr("fill", "#20B2AA")
-            .text(`${vietnamData[6].value} kg`);
+      // Add endpoint values
+      svg
+        .append('text')
+        .attr('x', x(2020) + 35)
+        .attr('y', y(switzerlandData[6].value) + 4)
+        .attr('class', 'key-number')
+        .attr('fill', '#4682B4')
+        .text(`${switzerlandData[6].value} kg`)
 
-        // Add legend - repositioned to avoid overlap
-        const legend = svg.append("g")
-            .attr("transform", `translate(${width - 120}, 20)`);
+      svg
+        .append('text')
+        .attr('x', x(2020) + 35)
+        .attr('y', y(vietnamData[6].value) + 4)
+        .attr('class', 'key-number')
+        .attr('fill', '#20B2AA')
+        .text(`${vietnamData[6].value} kg`)
 
-        // Switzerland legend
-        legend.append("line")
-            .attr("x1", 0)
-            .attr("y1", 0)
-            .attr("x2", 20)
-            .attr("y2", 0)
-            .attr("stroke", "#4682B4")
-            .attr("stroke-width", 2.5);
+      // Add legend - repositioned to avoid overlap
+      const legend = svg.append('g').attr('transform', `translate(${width - 120}, 20)`)
 
-        legend.append("circle")
-            .attr("cx", 10)
-            .attr("cy", 0)
-            .attr("r", 4)
-            .attr("fill", "#4682B4");
+      // Switzerland legend
+      legend
+        .append('line')
+        .attr('x1', 0)
+        .attr('y1', 0)
+        .attr('x2', 20)
+        .attr('y2', 0)
+        .attr('stroke', '#4682B4')
+        .attr('stroke-width', 2.5)
 
-        legend.append("text")
-            .attr("x", 25)
-            .attr("y", 4)
-            .text("Switzerland")
-            .style("font-size", "12px")
-            .style("font-weight", "medium");
+      legend.append('circle').attr('cx', 10).attr('cy', 0).attr('r', 4).attr('fill', '#4682B4')
 
-        // Vietnam legend
-        legend.append("line")
-            .attr("x1", 0)
-            .attr("y1", 20)
-            .attr("x2", 20)
-            .attr("y2", 20)
-            .attr("stroke", "#20B2AA")
-            .attr("stroke-width", 2.5);
+      legend
+        .append('text')
+        .attr('x', 25)
+        .attr('y', 4)
+        .text('Switzerland')
+        .style('font-size', '12px')
+        .style('font-weight', 'medium')
 
-        legend.append("circle")
-            .attr("cx", 10)
-            .attr("cy", 20)
-            .attr("r", 4)
-            .attr("fill", "#20B2AA");
+      // Vietnam legend
+      legend
+        .append('line')
+        .attr('x1', 0)
+        .attr('y1', 20)
+        .attr('x2', 20)
+        .attr('y2', 20)
+        .attr('stroke', '#20B2AA')
+        .attr('stroke-width', 2.5)
 
-        legend.append("text")
-            .attr("x", 25)
-            .attr("y", 24)
-            .text("Vietnam")
-            .style("font-size", "12px")
-            .style("font-weight", "medium");
+      legend.append('circle').attr('cx', 10).attr('cy', 20).attr('r', 4).attr('fill', '#20B2AA')
 
-        // Switzerland annotation - repositioned to avoid title overlap
-        const switzAnnotationX = x(1980);
-        const switzAnnotationY = y(85) + 30; // Moved down to avoid title overlap
-        
-        const switzBoxWidth = 240;
-        const switzBoxHeight = 60;
-        
-        svg.append("rect")
-            .attr("class", "annotation-box")
-            .attr("x", switzAnnotationX - switzBoxWidth/2)
-            .attr("y", switzAnnotationY - 40)
-            .attr("width", switzBoxWidth)
-            .attr("height", switzBoxHeight);
-            
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", switzAnnotationX)
-            .attr("y", switzAnnotationY - 25)
-            .attr("text-anchor", "middle")
-            .text("Peak in 1980s (")
-            .append("tspan")
-            .attr("class", "key-number")
-            .attr("fill", "#4682B4")
-            .text("85 kg")
-            .append("tspan")
-            .attr("class", "annotation")
-            .attr("fill", "#333")
-            .text(") followed by decline");
-            
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", switzAnnotationX)
-            .attr("y", switzAnnotationY - 5)
-            .attr("text-anchor", "middle")
-            .text("driven by health, environment and");
-            
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", switzAnnotationX)
-            .attr("y", switzAnnotationY + 15)
-            .attr("text-anchor", "middle")
-            .text("animal-welfare concerns");
-            
-        svg.append("line")
-            .attr("class", "annotation-line")
-            .attr("x1", switzAnnotationX)
-            .attr("y1", switzAnnotationY - 40)
-            .attr("x2", x(1980))
-            .attr("y2", y(85) + 5);
+      legend
+        .append('text')
+        .attr('x', 25)
+        .attr('y', 24)
+        .text('Vietnam')
+        .style('font-size', '12px')
+        .style('font-weight', 'medium')
 
-        // Vietnam annotation - fixed redundant text and repositioned
-        const vietAnnotationX = x(1990);
-        const vietAnnotationY = y(30) - 60;
-        
-        const vietBoxWidth = 240;
-        const vietBoxHeight = 60;
-        
-        svg.append("rect")
-            .attr("class", "annotation-box")
-            .attr("x", vietAnnotationX - vietBoxWidth/2)
-            .attr("y", vietAnnotationY - 40)
-            .attr("width", vietBoxWidth)
-            .attr("height", vietBoxHeight);
-            
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", vietAnnotationX)
-            .attr("y", vietAnnotationY - 25)
-            .attr("text-anchor", "middle")
-            .text("Steady rise from ")
-            .append("tspan")
-            .attr("class", "key-number")
-            .attr("fill", "#20B2AA")
-            .text("<30 kg")
-            .append("tspan")
-            .attr("class", "annotation")
-            .attr("fill", "#333")
-            .text(" pre-1980s");
-            
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", vietAnnotationX)
-            .attr("y", vietAnnotationY - 5)
-            .attr("text-anchor", "middle")
-            .text("to 2020, closely tied to GDP growth");
-            
-        svg.append("line")
-            .attr("class", "annotation-line")
-            .attr("x1", vietAnnotationX)
-            .attr("y1", vietAnnotationY + 20)
-            .attr("x2", x(1990))
-            .attr("y2", y(30) - 5);
+      // Switzerland annotation - repositioned to avoid title overlap
+      const switzAnnotationX = x(1980)
+      const switzAnnotationY = y(85) + 30 // Moved down to avoid title overlap
 
-        // Add notes at the bottom - improved text wrapping with multiple lines
-        svg.append("text")
-            .attr("class", "notes")
-            .attr("x", 0)
-            .attr("y", height + 30)
-            .text("Note: Supply figures overstate actual consumption. Swiss actual consumption was ");
-            
-        svg.append("text")
-            .attr("class", "notes")
-            .attr("x", 0)
-            .attr("y", height + 45)
-            .text("39 kg")
-            .attr("class", "key-number")
-            .append("tspan")
-            .attr("class", "notes")
-            .text(" in 2014/15, while Vietnam's was ")
-            .append("tspan")
-            .attr("class", "key-number")
-            .text("28 kg")
-            .append("tspan")
-            .attr("class", "notes")
-            .text(".");
+      const switzBoxWidth = 240
+      const switzBoxHeight = 60
 
-        // Add source attribution
-        svg.append("text")
-            .attr("class", "source")
-            .attr("x", 0)
-            .attr("y", height + 65)
-            .text("Source: Delley et al., 2024; Whitton et al., 2021");
+      svg
+        .append('rect')
+        .attr('class', 'annotation-box')
+        .attr('x', switzAnnotationX - switzBoxWidth / 2)
+        .attr('y', switzAnnotationY - 40)
+        .attr('width', switzBoxWidth)
+        .attr('height', switzBoxHeight)
+
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', switzAnnotationX)
+        .attr('y', switzAnnotationY - 25)
+        .attr('text-anchor', 'middle')
+        .text('Peak in 1980s (')
+        .append('tspan')
+        .attr('class', 'key-number')
+        .attr('fill', '#4682B4')
+        .text('85 kg')
+        .append('tspan')
+        .attr('class', 'annotation')
+        .attr('fill', '#333')
+        .text(') followed by decline')
+
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', switzAnnotationX)
+        .attr('y', switzAnnotationY - 5)
+        .attr('text-anchor', 'middle')
+        .text('driven by health, environment and')
+
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', switzAnnotationX)
+        .attr('y', switzAnnotationY + 15)
+        .attr('text-anchor', 'middle')
+        .text('animal-welfare concerns')
+
+      svg
+        .append('line')
+        .attr('class', 'annotation-line')
+        .attr('x1', switzAnnotationX)
+        .attr('y1', switzAnnotationY - 40)
+        .attr('x2', x(1980))
+        .attr('y2', y(85) + 5)
+
+      // Vietnam annotation - fixed redundant text and repositioned
+      const vietAnnotationX = x(1990)
+      const vietAnnotationY = y(30) - 60
+
+      const vietBoxWidth = 240
+      const vietBoxHeight = 60
+
+      svg
+        .append('rect')
+        .attr('class', 'annotation-box')
+        .attr('x', vietAnnotationX - vietBoxWidth / 2)
+        .attr('y', vietAnnotationY - 40)
+        .attr('width', vietBoxWidth)
+        .attr('height', vietBoxHeight)
+
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', vietAnnotationX)
+        .attr('y', vietAnnotationY - 25)
+        .attr('text-anchor', 'middle')
+        .text('Steady rise from ')
+        .append('tspan')
+        .attr('class', 'key-number')
+        .attr('fill', '#20B2AA')
+        .text('<30 kg')
+        .append('tspan')
+        .attr('class', 'annotation')
+        .attr('fill', '#333')
+        .text(' pre-1980s')
+
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', vietAnnotationX)
+        .attr('y', vietAnnotationY - 5)
+        .attr('text-anchor', 'middle')
+        .text('to 2020, closely tied to GDP growth')
+
+      svg
+        .append('line')
+        .attr('class', 'annotation-line')
+        .attr('x1', vietAnnotationX)
+        .attr('y1', vietAnnotationY + 20)
+        .attr('x2', x(1990))
+        .attr('y2', y(30) - 5)
+
+      // Add notes at the bottom - improved text wrapping with multiple lines
+      svg
+        .append('text')
+        .attr('class', 'notes')
+        .attr('x', 0)
+        .attr('y', height + 30)
+        .text('Note: Supply figures overstate actual consumption. Swiss actual consumption was ')
+
+      svg
+        .append('text')
+        .attr('class', 'notes')
+        .attr('x', 0)
+        .attr('y', height + 45)
+        .text('39 kg')
+        .attr('class', 'key-number')
+        .append('tspan')
+        .attr('class', 'notes')
+        .text(" in 2014/15, while Vietnam's was ")
+        .append('tspan')
+        .attr('class', 'key-number')
+        .text('28 kg')
+        .append('tspan')
+        .attr('class', 'notes')
+        .text('.')
+
+      // Add source attribution
+      svg
+        .append('text')
+        .attr('class', 'source')
+        .attr('x', 0)
+        .attr('y', height + 65)
+        .text('Source: Delley et al., 2024; Whitton et al., 2021')
     </script>
-</body>
+  </body>
 </html>

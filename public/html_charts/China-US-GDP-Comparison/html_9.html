@@ -1,501 +1,760 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Regional GDP Per Capita Disparities in China</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://d3js.org/topojson.v3.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            margin: 0;
-            padding: 10px;
-        }
-        
-        .visualization-container {
-            width: 900px;
-            height: 750px;
-            position: relative;
-        }
-        
-        .title {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        
-        .maps-container {
-            display: flex;
-            justify-content: space-between;
-            height: 450px;
-        }
-        
-        .map-panel {
-            width: 420px;
-            height: 420px;
-            position: relative;
-            border: 1px solid #eee;
-            background-color: #f9f9f9;
-        }
-        
-        .map-title {
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            padding-top: 5px;
-        }
-        
-        .legend-container {
-            width: 60px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .legend {
-            width: 60px;
-            margin: 10px 0;
-        }
-        
-        .bar-chart-container {
-            height: 250px;
-            margin-top: 20px;
-            position: relative;
-        }
-        
-        .annotation-box {
-            background-color: #f8f8f8;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 12px;
-            font-size: 14px;
-            width: 380px;
-            position: absolute;
-            bottom: 60px;
-            right: 20px;
-        }
-        
-        .source {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .inset-map {
-            position: absolute;
-            width: 80px;
-            height: 60px;
-            bottom: 10px;
-            left: 10px;
-            border: 1px solid #ccc;
-            background-color: #f0f0f0;
-            border-radius: 3px;
-        }
-        
-        .province {
-            stroke: #aaa;
-            stroke-width: 0.5;
-        }
-        
-        .coastal-boundary {
-            stroke: #444;
-            stroke-width: 1.5;
-            stroke-dasharray: 4,3;
-            fill: none;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-size: 18px;
-            font-weight: bold;
-            color: #C6002B;
-        }
-        
-        .bar-label {
-            text-anchor: middle;
-            font-size: 14px;
-        }
-        
-        .ratio-value {
-            text-anchor: middle;
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            font-size: 16px;
-            fill: white;
-        }
-        
-        .region-label {
-            font-size: 11px;
-            font-weight: bold;
-            text-anchor: middle;
-            pointer-events: none;
-        }
-        
-        .legend-label {
-            font-size: 10px;
-        }
-        
-        .legend-title {
-            font-size: 12px;
-            font-weight: bold;
-            text-anchor: middle;
-        }
-        
-        .axis-label {
-            font-size: 12px;
-            text-anchor: middle;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        margin: 0;
+        padding: 10px;
+      }
+
+      .visualization-container {
+        width: 900px;
+        height: 750px;
+        position: relative;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+
+      .maps-container {
+        display: flex;
+        justify-content: space-between;
+        height: 450px;
+      }
+
+      .map-panel {
+        width: 420px;
+        height: 420px;
+        position: relative;
+        border: 1px solid #eee;
+        background-color: #f9f9f9;
+      }
+
+      .map-title {
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 5px;
+        padding-top: 5px;
+      }
+
+      .legend-container {
+        width: 60px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .legend {
+        width: 60px;
+        margin: 10px 0;
+      }
+
+      .bar-chart-container {
+        height: 250px;
+        margin-top: 20px;
+        position: relative;
+      }
+
+      .annotation-box {
+        background-color: #f8f8f8;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 12px;
+        font-size: 14px;
+        width: 380px;
+        position: absolute;
+        bottom: 60px;
+        right: 20px;
+      }
+
+      .source {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        font-size: 12px;
+        color: #666;
+      }
+
+      .inset-map {
+        position: absolute;
+        width: 80px;
+        height: 60px;
+        bottom: 10px;
+        left: 10px;
+        border: 1px solid #ccc;
+        background-color: #f0f0f0;
+        border-radius: 3px;
+      }
+
+      .province {
+        stroke: #aaa;
+        stroke-width: 0.5;
+      }
+
+      .coastal-boundary {
+        stroke: #444;
+        stroke-width: 1.5;
+        stroke-dasharray: 4, 3;
+        fill: none;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-size: 18px;
+        font-weight: bold;
+        color: #c6002b;
+      }
+
+      .bar-label {
+        text-anchor: middle;
+        font-size: 14px;
+      }
+
+      .ratio-value {
+        text-anchor: middle;
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        font-size: 16px;
+        fill: white;
+      }
+
+      .region-label {
+        font-size: 11px;
+        font-weight: bold;
+        text-anchor: middle;
+        pointer-events: none;
+      }
+
+      .legend-label {
+        font-size: 10px;
+      }
+
+      .legend-title {
+        font-size: 12px;
+        font-weight: bold;
+        text-anchor: middle;
+      }
+
+      .axis-label {
+        font-size: 12px;
+        text-anchor: middle;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Regional GDP Per Capita Disparities in China (2010-2030)</div>
-        
-        <div class="maps-container">
-            <div class="map-panel">
-                <div class="map-title">2010 GDP Per Capita</div>
-                <svg id="map-2010" width="420" height="400"></svg>
-            </div>
-            
-            <div class="legend-container">
-                <svg id="legend" width="60" height="400"></svg>
-            </div>
-            
-            <div class="map-panel">
-                <div class="map-title">Projected 2030 GDP Per Capita</div>
-                <svg id="map-2030" width="420" height="400"></svg>
-            </div>
+      <div class="title">Regional GDP Per Capita Disparities in China (2010-2030)</div>
+
+      <div class="maps-container">
+        <div class="map-panel">
+          <div class="map-title">2010 GDP Per Capita</div>
+          <svg id="map-2010" width="420" height="400"></svg>
         </div>
-        
-        <div class="bar-chart-container">
-            <svg id="bar-chart" width="900" height="250"></svg>
+
+        <div class="legend-container">
+          <svg id="legend" width="60" height="400"></svg>
         </div>
-        
-        <div class="annotation-box">
-            China's regional development strategy aims to narrow the substantial coastal-inland income gap from a 
-            <span class="key-number">3.2:1</span> ratio in 2010 to about 
-            <span class="key-number">2.4:1</span> by 2030 through improved connectivity and targeted investments in lagging regions.
-            <br><br>
-            <i class="fas fa-info-circle"></i> <em>Drivers of convergence: Improved transport infrastructure, market integration reforms, and enhanced fiscal transfers for education and health</em>
+
+        <div class="map-panel">
+          <div class="map-title">Projected 2030 GDP Per Capita</div>
+          <svg id="map-2030" width="420" height="400"></svg>
         </div>
-        
-        <div class="source">Source: World Bank China 2030 report</div>
+      </div>
+
+      <div class="bar-chart-container">
+        <svg id="bar-chart" width="900" height="250"></svg>
+      </div>
+
+      <div class="annotation-box">
+        China's regional development strategy aims to narrow the substantial coastal-inland income
+        gap from a
+        <span class="key-number">3.2:1</span> ratio in 2010 to about
+        <span class="key-number">2.4:1</span> by 2030 through improved connectivity and targeted
+        investments in lagging regions. <br /><br />
+        <i class="fas fa-info-circle"></i>
+        <em
+          >Drivers of convergence: Improved transport infrastructure, market integration reforms,
+          and enhanced fiscal transfers for education and health</em
+        >
+      </div>
+
+      <div class="source">Source: World Bank China 2030 report</div>
     </div>
 
     <script>
-        // Define simplified China provinces data
-        // This is a simplified representation of Chinese provinces for visualization purposes
-        const provinces = [
-            // Coastal provinces
-            { id: "beijing", name: "Beijing", path: "M200,120 L220,120 L220,140 L200,140 Z", gdp2010: 13000, gdp2030: 27000, type: "coastal" },
-            { id: "tianjin", name: "Tianjin", path: "M220,140 L235,140 L235,155 L220,155 Z", gdp2010: 12000, gdp2030: 26000, type: "coastal" },
-            { id: "shanghai", name: "Shanghai", path: "M300,210 L310,210 L310,220 L300,220 Z", gdp2010: 14000, gdp2030: 28000, type: "coastal" },
-            { id: "jiangsu", name: "Jiangsu", path: "M270,180 L300,180 L300,210 L270,210 Z", gdp2010: 8500, gdp2030: 23000, type: "coastal" },
-            { id: "zhejiang", name: "Zhejiang", path: "M280,220 L310,220 L310,250 L280,250 Z", gdp2010: 8200, gdp2030: 22000, type: "coastal" },
-            { id: "fujian", name: "Fujian", path: "M270,250 L300,250 L300,280 L270,280 Z", gdp2010: 7500, gdp2030: 21000, type: "coastal" },
-            { id: "guangdong", name: "Guangdong", path: "M240,280 L280,280 L280,320 L240,320 Z", gdp2010: 9000, gdp2030: 24000, type: "coastal" },
-            { id: "shandong", name: "Shandong", path: "M230,150 L270,150 L270,180 L230,180 Z", gdp2010: 7800, gdp2030: 22000, type: "coastal" },
-            { id: "liaoning", name: "Liaoning", path: "M220,90 L260,90 L260,130 L220,130 Z", gdp2010: 7200, gdp2030: 20000, type: "coastal" },
-            { id: "hainan", name: "Hainan", path: "M230,330 L245,330 L245,345 L230,345 Z", gdp2010: 3500, gdp2030: 14000, type: "coastal" },
-            
-            // Interior provinces
-            { id: "hebei", name: "Hebei", path: "M180,110 L200,110 L200,140 L235,140 L235,155 L230,155 L230,180 L180,180 Z", gdp2010: 5000, gdp2030: 17000, type: "inland" },
-            { id: "shanxi", name: "Shanxi", path: "M160,140 L180,140 L180,180 L160,180 Z", gdp2010: 4200, gdp2030: 15000, type: "inland" },
-            { id: "henan", name: "Henan", path: "M180,180 L230,180 L230,210 L180,210 Z", gdp2010: 3800, gdp2030: 14500, type: "inland" },
-            { id: "anhui", name: "Anhui", path: "M230,180 L270,180 L270,220 L230,220 Z", gdp2010: 3600, gdp2030: 14000, type: "inland" },
-            { id: "hubei", name: "Hubei", path: "M180,210 L230,210 L230,240 L180,240 Z", gdp2010: 4500, gdp2030: 16000, type: "inland" },
-            { id: "hunan", name: "Hunan", path: "M180,240 L230,240 L230,280 L180,280 Z", gdp2010: 4000, gdp2030: 15000, type: "inland" },
-            { id: "jiangxi", name: "Jiangxi", path: "M230,220 L270,220 L270,280 L230,280 Z", gdp2010: 3500, gdp2030: 14000, type: "inland" },
-            { id: "sichuan", name: "Sichuan", path: "M120,210 L180,210 L180,260 L120,260 Z", gdp2010: 3500, gdp2030: 14000, type: "inland" },
-            { id: "chongqing", name: "Chongqing", path: "M180,210 L200,210 L200,230 L180,230 Z", gdp2010: 4200, gdp2030: 16000, type: "inland" },
-            { id: "shaanxi", name: "Shaanxi", path: "M140,170 L180,170 L180,220 L140,220 Z", gdp2010: 3200, gdp2030: 13000, type: "inland" },
-            { id: "gansu", name: "Gansu", path: "M80,160 L140,160 L140,200 L80,200 Z", gdp2010: 2200, gdp2030: 9500, type: "inland" },
-            { id: "yunnan", name: "Yunnan", path: "M120,260 L170,260 L170,310 L120,310 Z", gdp2010: 2500, gdp2030: 11000, type: "inland" },
-            { id: "guizhou", name: "Guizhou", path: "M170,260 L210,260 L210,290 L170,290 Z", gdp2010: 2000, gdp2030: 9000, type: "inland" },
-            { id: "guangxi", name: "Guangxi", path: "M180,280 L240,280 L240,320 L180,320 Z", gdp2010: 2800, gdp2030: 12000, type: "inland" },
-            { id: "inner_mongolia", name: "Inner Mongolia", path: "M120,70 L220,70 L220,110 L180,110 L180,140 L120,140 Z", gdp2010: 6000, gdp2030: 18000, type: "inland" },
-            { id: "heilongjiang", name: "Heilongjiang", path: "M220,40 L270,40 L270,90 L220,90 Z", gdp2010: 4000, gdp2030: 15000, type: "inland" },
-            { id: "jilin", name: "Jilin", path: "M220,90 L260,90 L260,110 L220,110 Z", gdp2010: 4500, gdp2030: 16000, type: "inland" },
-            { id: "xinjiang", name: "Xinjiang", path: "M30,80 L120,80 L120,150 L30,150 Z", gdp2010: 3000, gdp2030: 12000, type: "inland" },
-            { id: "qinghai", name: "Qinghai", path: "M60,150 L120,150 L120,200 L60,200 Z", gdp2010: 2800, gdp2030: 11000, type: "inland" },
-            { id: "tibet", name: "Tibet", path: "M30,150 L60,150 L60,230 L120,230 L120,260 L30,260 Z", gdp2010: 2000, gdp2030: 9000, type: "inland" },
-            { id: "ningxia", name: "Ningxia", path: "M140,150 L160,150 L160,170 L140,170 Z", gdp2010: 3200, gdp2030: 13000, type: "inland" }
-        ];
-        
-        // Define major regions for labeling
-        const majorRegions = [
-            { name: "Beijing-Tianjin Area", x: 210, y: 110 },
-            { name: "Yangtze River Delta", x: 290, y: 190 },
-            { name: "Pearl River Delta", x: 260, y: 300 },
-            { name: "Central Provinces", x: 200, y: 230 },
-            { name: "Western Provinces", x: 80, y: 180 }
-        ];
-        
-        // Define coastal boundary points
-        const coastalBoundaryPoints = [
-            [260, 40], [270, 60], [260, 90], [260, 110], 
-            [235, 140], [230, 150], [270, 150], [270, 180], 
-            [300, 180], [300, 210], [310, 210], [310, 220], 
-            [310, 250], [300, 250], [300, 280], [280, 280], 
-            [280, 320], [245, 330], [245, 345]
-        ];
-        
-        // Define color scales
-        const colorScale2010 = d3.scaleThreshold()
-            .domain([3000, 5000, 8000, 12000])
-            .range(d3.schemeYlOrRd[5]);
-            
-        const colorScale2030 = d3.scaleThreshold()
-            .domain([10000, 15000, 20000, 25000])
-            .range(d3.schemeYlOrRd[5]);
-        
-        // Create the maps
-        function createMap(elementId, year) {
-            const svg = d3.select(`#${elementId}`);
-            
-            // Draw provinces
-            svg.selectAll(".province")
-                .data(provinces)
-                .enter()
-                .append("path")
-                .attr("class", d => `province ${d.type}`)
-                .attr("d", d => d.path)
-                .attr("fill", d => {
-                    return year === "2010" ? 
-                        colorScale2010(d[`gdp${year}`]) : 
-                        colorScale2030(d[`gdp${year}`]);
-                })
-                .attr("stroke", "#aaa")
-                .attr("stroke-width", 0.5)
-                .append("title")
-                .text(d => `${d.name}: $${d[`gdp${year}`].toLocaleString()}`);
-            
-            // Draw coastal boundary
-            const lineGenerator = d3.line();
-            
-            svg.append("path")
-                .attr("class", "coastal-boundary")
-                .attr("d", lineGenerator(coastalBoundaryPoints))
-                .attr("stroke", "#444")
-                .attr("stroke-width", 1.5)
-                .attr("stroke-dasharray", "4,3")
-                .attr("fill", "none");
-            
-            // Add labels for major regions
-            svg.selectAll(".major-region-label")
-                .data(majorRegions)
-                .enter()
-                .append("text")
-                .attr("class", "region-label")
-                .attr("x", d => d.x)
-                .attr("y", d => d.y)
-                .text(d => d.name);
-            
-            // Add inset map
-            const inset = svg.append("g")
-                .attr("transform", "translate(10, 330)");
-                
-            inset.append("rect")
-                .attr("width", 80)
-                .attr("height", 60)
-                .attr("fill", "#f0f0f0")
-                .attr("stroke", "#ccc");
-                
-            // Asia outline for inset
-            inset.append("ellipse")
-                .attr("cx", 40)
-                .attr("cy", 30)
-                .attr("rx", 35)
-                .attr("ry", 25)
-                .attr("fill", "#ddd")
-                .attr("stroke", "#aaa");
-                
-            inset.append("rect")
-                .attr("x", 30)
-                .attr("y", 20)
-                .attr("width", 20)
-                .attr("height", 20)
-                .attr("fill", "#C6002B")
-                .attr("stroke", "#800");
-                
-            inset.append("text")
-                .attr("x", 40)
-                .attr("y", 33)
-                .attr("text-anchor", "middle")
-                .attr("font-size", "8px")
-                .attr("fill", "white")
-                .text("China");
-        }
-        
-        // Create legend
-        function createLegend() {
-            const svg = d3.select("#legend");
-            const legendHeight = 400;
-            
-            // 2010 Legend
-            const legend2010 = svg.append("g")
-                .attr("transform", "translate(0, 50)");
-                
-            legend2010.append("text")
-                .attr("class", "legend-title")
-                .attr("x", 30)
-                .attr("y", -15)
-                .text("2010");
-                
-            const colorRanges2010 = [
-                { color: colorScale2010.range()[0], label: "<$3k" },
-                { color: colorScale2010.range()[1], label: "$3-5k" },
-                { color: colorScale2010.range()[2], label: "$5-8k" },
-                { color: colorScale2010.range()[3], label: "$8-12k" },
-                { color: colorScale2010.range()[4], label: ">$12k" }
-            ];
-            
-            legend2010.selectAll("rect.legend-2010")
-                .data(colorRanges2010)
-                .enter()
-                .append("rect")
-                .attr("class", "legend-2010")
-                .attr("x", 10)
-                .attr("y", (d, i) => i * 25)
-                .attr("width", 20)
-                .attr("height", 20)
-                .attr("fill", d => d.color);
-                
-            legend2010.selectAll("text.legend-2010")
-                .data(colorRanges2010)
-                .enter()
-                .append("text")
-                .attr("class", "legend-label")
-                .attr("x", 35)
-                .attr("y", (d, i) => i * 25 + 14)
-                .text(d => d.label);
-            
-            // 2030 Legend
-            const legend2030 = svg.append("g")
-                .attr("transform", "translate(0, 220)");
-                
-            legend2030.append("text")
-                .attr("class", "legend-title")
-                .attr("x", 30)
-                .attr("y", -15)
-                .text("2030");
-                
-            const colorRanges2030 = [
-                { color: colorScale2030.range()[0], label: "<$10k" },
-                { color: colorScale2030.range()[1], label: "$10-15k" },
-                { color: colorScale2030.range()[2], label: "$15-20k" },
-                { color: colorScale2030.range()[3], label: "$20-25k" },
-                { color: colorScale2030.range()[4], label: ">$25k" }
-            ];
-            
-            legend2030.selectAll("rect.legend-2030")
-                .data(colorRanges2030)
-                .enter()
-                .append("rect")
-                .attr("class", "legend-2030")
-                .attr("x", 10)
-                .attr("y", (d, i) => i * 25)
-                .attr("width", 20)
-                .attr("height", 20)
-                .attr("fill", d => d.color);
-                
-            legend2030.selectAll("text.legend-2030")
-                .data(colorRanges2030)
-                .enter()
-                .append("text")
-                .attr("class", "legend-label")
-                .attr("x", 35)
-                .attr("y", (d, i) => i * 25 + 14)
-                .text(d => d.label);
-        }
-        
-        // Create bar chart
-        function createBarChart() {
-            const svg = d3.select("#bar-chart");
-            const width = 900;
-            const height = 250;
-            const margin = { top: 30, right: 30, bottom: 60, left: 60 };
-            
-            const data = [
-                { year: "2010", ratio: 3.2 },
-                { year: "2030", ratio: 2.4 }
-            ];
-            
-            const x = d3.scaleBand()
-                .domain(data.map(d => d.year))
-                .range([margin.left + 100, width - margin.right - 100])
-                .padding(0.4);
-                
-            const y = d3.scaleLinear()
-                .domain([0, 3.5])
-                .range([height - margin.bottom, margin.top]);
-            
-            // Add y-axis
-            svg.append("g")
-                .attr("transform", `translate(${margin.left + 100}, 0)`)
-                .call(d3.axisLeft(y).tickValues([0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5]));
-            
-            // Add x-axis
-            svg.append("g")
-                .attr("transform", `translate(0, ${height - margin.bottom})`)
-                .call(d3.axisBottom(x));
-            
-            // Add bars
-            svg.selectAll(".bar")
-                .data(data)
-                .enter()
-                .append("rect")
-                .attr("class", "bar")
-                .attr("x", d => x(d.year))
-                .attr("y", d => y(d.ratio))
-                .attr("width", x.bandwidth())
-                .attr("height", d => height - margin.bottom - y(d.ratio))
-                .attr("fill", (d, i) => i === 0 ? "#C6002B" : "#FF6B6B");
-            
-            // Add ratio values on top of bars
-            svg.selectAll(".ratio-value")
-                .data(data)
-                .enter()
-                .append("text")
-                .attr("class", "ratio-value")
-                .attr("x", d => x(d.year) + x.bandwidth() / 2)
-                .attr("y", d => y(d.ratio) + 25)
-                .text(d => d.ratio + ":1");
-            
-            // Add chart title
-            svg.append("text")
-                .attr("x", width / 2)
-                .attr("y", height - 15)
-                .attr("text-anchor", "middle")
-                .attr("font-size", "16px")
-                .attr("font-weight", "bold")
-                .text("Coastal-Inland GDP Per Capita Ratio");
-                
-            // Add y-axis label
-            svg.append("text")
-                .attr("class", "axis-label")
-                .attr("transform", "rotate(-90)")
-                .attr("x", -height / 2)
-                .attr("y", margin.left / 2)
-                .attr("text-anchor", "middle")
-                .text("Ratio");
-        }
-        
-        // Initialize visualization
-        createMap("map-2010", "2010");
-        createMap("map-2030", "2030");
-        createLegend();
-        createBarChart();
+      // Define simplified China provinces data
+      // This is a simplified representation of Chinese provinces for visualization purposes
+      const provinces = [
+        // Coastal provinces
+        {
+          id: 'beijing',
+          name: 'Beijing',
+          path: 'M200,120 L220,120 L220,140 L200,140 Z',
+          gdp2010: 13000,
+          gdp2030: 27000,
+          type: 'coastal',
+        },
+        {
+          id: 'tianjin',
+          name: 'Tianjin',
+          path: 'M220,140 L235,140 L235,155 L220,155 Z',
+          gdp2010: 12000,
+          gdp2030: 26000,
+          type: 'coastal',
+        },
+        {
+          id: 'shanghai',
+          name: 'Shanghai',
+          path: 'M300,210 L310,210 L310,220 L300,220 Z',
+          gdp2010: 14000,
+          gdp2030: 28000,
+          type: 'coastal',
+        },
+        {
+          id: 'jiangsu',
+          name: 'Jiangsu',
+          path: 'M270,180 L300,180 L300,210 L270,210 Z',
+          gdp2010: 8500,
+          gdp2030: 23000,
+          type: 'coastal',
+        },
+        {
+          id: 'zhejiang',
+          name: 'Zhejiang',
+          path: 'M280,220 L310,220 L310,250 L280,250 Z',
+          gdp2010: 8200,
+          gdp2030: 22000,
+          type: 'coastal',
+        },
+        {
+          id: 'fujian',
+          name: 'Fujian',
+          path: 'M270,250 L300,250 L300,280 L270,280 Z',
+          gdp2010: 7500,
+          gdp2030: 21000,
+          type: 'coastal',
+        },
+        {
+          id: 'guangdong',
+          name: 'Guangdong',
+          path: 'M240,280 L280,280 L280,320 L240,320 Z',
+          gdp2010: 9000,
+          gdp2030: 24000,
+          type: 'coastal',
+        },
+        {
+          id: 'shandong',
+          name: 'Shandong',
+          path: 'M230,150 L270,150 L270,180 L230,180 Z',
+          gdp2010: 7800,
+          gdp2030: 22000,
+          type: 'coastal',
+        },
+        {
+          id: 'liaoning',
+          name: 'Liaoning',
+          path: 'M220,90 L260,90 L260,130 L220,130 Z',
+          gdp2010: 7200,
+          gdp2030: 20000,
+          type: 'coastal',
+        },
+        {
+          id: 'hainan',
+          name: 'Hainan',
+          path: 'M230,330 L245,330 L245,345 L230,345 Z',
+          gdp2010: 3500,
+          gdp2030: 14000,
+          type: 'coastal',
+        },
+
+        // Interior provinces
+        {
+          id: 'hebei',
+          name: 'Hebei',
+          path: 'M180,110 L200,110 L200,140 L235,140 L235,155 L230,155 L230,180 L180,180 Z',
+          gdp2010: 5000,
+          gdp2030: 17000,
+          type: 'inland',
+        },
+        {
+          id: 'shanxi',
+          name: 'Shanxi',
+          path: 'M160,140 L180,140 L180,180 L160,180 Z',
+          gdp2010: 4200,
+          gdp2030: 15000,
+          type: 'inland',
+        },
+        {
+          id: 'henan',
+          name: 'Henan',
+          path: 'M180,180 L230,180 L230,210 L180,210 Z',
+          gdp2010: 3800,
+          gdp2030: 14500,
+          type: 'inland',
+        },
+        {
+          id: 'anhui',
+          name: 'Anhui',
+          path: 'M230,180 L270,180 L270,220 L230,220 Z',
+          gdp2010: 3600,
+          gdp2030: 14000,
+          type: 'inland',
+        },
+        {
+          id: 'hubei',
+          name: 'Hubei',
+          path: 'M180,210 L230,210 L230,240 L180,240 Z',
+          gdp2010: 4500,
+          gdp2030: 16000,
+          type: 'inland',
+        },
+        {
+          id: 'hunan',
+          name: 'Hunan',
+          path: 'M180,240 L230,240 L230,280 L180,280 Z',
+          gdp2010: 4000,
+          gdp2030: 15000,
+          type: 'inland',
+        },
+        {
+          id: 'jiangxi',
+          name: 'Jiangxi',
+          path: 'M230,220 L270,220 L270,280 L230,280 Z',
+          gdp2010: 3500,
+          gdp2030: 14000,
+          type: 'inland',
+        },
+        {
+          id: 'sichuan',
+          name: 'Sichuan',
+          path: 'M120,210 L180,210 L180,260 L120,260 Z',
+          gdp2010: 3500,
+          gdp2030: 14000,
+          type: 'inland',
+        },
+        {
+          id: 'chongqing',
+          name: 'Chongqing',
+          path: 'M180,210 L200,210 L200,230 L180,230 Z',
+          gdp2010: 4200,
+          gdp2030: 16000,
+          type: 'inland',
+        },
+        {
+          id: 'shaanxi',
+          name: 'Shaanxi',
+          path: 'M140,170 L180,170 L180,220 L140,220 Z',
+          gdp2010: 3200,
+          gdp2030: 13000,
+          type: 'inland',
+        },
+        {
+          id: 'gansu',
+          name: 'Gansu',
+          path: 'M80,160 L140,160 L140,200 L80,200 Z',
+          gdp2010: 2200,
+          gdp2030: 9500,
+          type: 'inland',
+        },
+        {
+          id: 'yunnan',
+          name: 'Yunnan',
+          path: 'M120,260 L170,260 L170,310 L120,310 Z',
+          gdp2010: 2500,
+          gdp2030: 11000,
+          type: 'inland',
+        },
+        {
+          id: 'guizhou',
+          name: 'Guizhou',
+          path: 'M170,260 L210,260 L210,290 L170,290 Z',
+          gdp2010: 2000,
+          gdp2030: 9000,
+          type: 'inland',
+        },
+        {
+          id: 'guangxi',
+          name: 'Guangxi',
+          path: 'M180,280 L240,280 L240,320 L180,320 Z',
+          gdp2010: 2800,
+          gdp2030: 12000,
+          type: 'inland',
+        },
+        {
+          id: 'inner_mongolia',
+          name: 'Inner Mongolia',
+          path: 'M120,70 L220,70 L220,110 L180,110 L180,140 L120,140 Z',
+          gdp2010: 6000,
+          gdp2030: 18000,
+          type: 'inland',
+        },
+        {
+          id: 'heilongjiang',
+          name: 'Heilongjiang',
+          path: 'M220,40 L270,40 L270,90 L220,90 Z',
+          gdp2010: 4000,
+          gdp2030: 15000,
+          type: 'inland',
+        },
+        {
+          id: 'jilin',
+          name: 'Jilin',
+          path: 'M220,90 L260,90 L260,110 L220,110 Z',
+          gdp2010: 4500,
+          gdp2030: 16000,
+          type: 'inland',
+        },
+        {
+          id: 'xinjiang',
+          name: 'Xinjiang',
+          path: 'M30,80 L120,80 L120,150 L30,150 Z',
+          gdp2010: 3000,
+          gdp2030: 12000,
+          type: 'inland',
+        },
+        {
+          id: 'qinghai',
+          name: 'Qinghai',
+          path: 'M60,150 L120,150 L120,200 L60,200 Z',
+          gdp2010: 2800,
+          gdp2030: 11000,
+          type: 'inland',
+        },
+        {
+          id: 'tibet',
+          name: 'Tibet',
+          path: 'M30,150 L60,150 L60,230 L120,230 L120,260 L30,260 Z',
+          gdp2010: 2000,
+          gdp2030: 9000,
+          type: 'inland',
+        },
+        {
+          id: 'ningxia',
+          name: 'Ningxia',
+          path: 'M140,150 L160,150 L160,170 L140,170 Z',
+          gdp2010: 3200,
+          gdp2030: 13000,
+          type: 'inland',
+        },
+      ]
+
+      // Define major regions for labeling
+      const majorRegions = [
+        { name: 'Beijing-Tianjin Area', x: 210, y: 110 },
+        { name: 'Yangtze River Delta', x: 290, y: 190 },
+        { name: 'Pearl River Delta', x: 260, y: 300 },
+        { name: 'Central Provinces', x: 200, y: 230 },
+        { name: 'Western Provinces', x: 80, y: 180 },
+      ]
+
+      // Define coastal boundary points
+      const coastalBoundaryPoints = [
+        [260, 40],
+        [270, 60],
+        [260, 90],
+        [260, 110],
+        [235, 140],
+        [230, 150],
+        [270, 150],
+        [270, 180],
+        [300, 180],
+        [300, 210],
+        [310, 210],
+        [310, 220],
+        [310, 250],
+        [300, 250],
+        [300, 280],
+        [280, 280],
+        [280, 320],
+        [245, 330],
+        [245, 345],
+      ]
+
+      // Define color scales
+      const colorScale2010 = d3
+        .scaleThreshold()
+        .domain([3000, 5000, 8000, 12000])
+        .range(d3.schemeYlOrRd[5])
+
+      const colorScale2030 = d3
+        .scaleThreshold()
+        .domain([10000, 15000, 20000, 25000])
+        .range(d3.schemeYlOrRd[5])
+
+      // Create the maps
+      function createMap(elementId, year) {
+        const svg = d3.select(`#${elementId}`)
+
+        // Draw provinces
+        svg
+          .selectAll('.province')
+          .data(provinces)
+          .enter()
+          .append('path')
+          .attr('class', (d) => `province ${d.type}`)
+          .attr('d', (d) => d.path)
+          .attr('fill', (d) => {
+            return year === '2010'
+              ? colorScale2010(d[`gdp${year}`])
+              : colorScale2030(d[`gdp${year}`])
+          })
+          .attr('stroke', '#aaa')
+          .attr('stroke-width', 0.5)
+          .append('title')
+          .text((d) => `${d.name}: $${d[`gdp${year}`].toLocaleString()}`)
+
+        // Draw coastal boundary
+        const lineGenerator = d3.line()
+
+        svg
+          .append('path')
+          .attr('class', 'coastal-boundary')
+          .attr('d', lineGenerator(coastalBoundaryPoints))
+          .attr('stroke', '#444')
+          .attr('stroke-width', 1.5)
+          .attr('stroke-dasharray', '4,3')
+          .attr('fill', 'none')
+
+        // Add labels for major regions
+        svg
+          .selectAll('.major-region-label')
+          .data(majorRegions)
+          .enter()
+          .append('text')
+          .attr('class', 'region-label')
+          .attr('x', (d) => d.x)
+          .attr('y', (d) => d.y)
+          .text((d) => d.name)
+
+        // Add inset map
+        const inset = svg.append('g').attr('transform', 'translate(10, 330)')
+
+        inset
+          .append('rect')
+          .attr('width', 80)
+          .attr('height', 60)
+          .attr('fill', '#f0f0f0')
+          .attr('stroke', '#ccc')
+
+        // Asia outline for inset
+        inset
+          .append('ellipse')
+          .attr('cx', 40)
+          .attr('cy', 30)
+          .attr('rx', 35)
+          .attr('ry', 25)
+          .attr('fill', '#ddd')
+          .attr('stroke', '#aaa')
+
+        inset
+          .append('rect')
+          .attr('x', 30)
+          .attr('y', 20)
+          .attr('width', 20)
+          .attr('height', 20)
+          .attr('fill', '#C6002B')
+          .attr('stroke', '#800')
+
+        inset
+          .append('text')
+          .attr('x', 40)
+          .attr('y', 33)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '8px')
+          .attr('fill', 'white')
+          .text('China')
+      }
+
+      // Create legend
+      function createLegend() {
+        const svg = d3.select('#legend')
+        const legendHeight = 400
+
+        // 2010 Legend
+        const legend2010 = svg.append('g').attr('transform', 'translate(0, 50)')
+
+        legend2010
+          .append('text')
+          .attr('class', 'legend-title')
+          .attr('x', 30)
+          .attr('y', -15)
+          .text('2010')
+
+        const colorRanges2010 = [
+          { color: colorScale2010.range()[0], label: '<$3k' },
+          { color: colorScale2010.range()[1], label: '$3-5k' },
+          { color: colorScale2010.range()[2], label: '$5-8k' },
+          { color: colorScale2010.range()[3], label: '$8-12k' },
+          { color: colorScale2010.range()[4], label: '>$12k' },
+        ]
+
+        legend2010
+          .selectAll('rect.legend-2010')
+          .data(colorRanges2010)
+          .enter()
+          .append('rect')
+          .attr('class', 'legend-2010')
+          .attr('x', 10)
+          .attr('y', (d, i) => i * 25)
+          .attr('width', 20)
+          .attr('height', 20)
+          .attr('fill', (d) => d.color)
+
+        legend2010
+          .selectAll('text.legend-2010')
+          .data(colorRanges2010)
+          .enter()
+          .append('text')
+          .attr('class', 'legend-label')
+          .attr('x', 35)
+          .attr('y', (d, i) => i * 25 + 14)
+          .text((d) => d.label)
+
+        // 2030 Legend
+        const legend2030 = svg.append('g').attr('transform', 'translate(0, 220)')
+
+        legend2030
+          .append('text')
+          .attr('class', 'legend-title')
+          .attr('x', 30)
+          .attr('y', -15)
+          .text('2030')
+
+        const colorRanges2030 = [
+          { color: colorScale2030.range()[0], label: '<$10k' },
+          { color: colorScale2030.range()[1], label: '$10-15k' },
+          { color: colorScale2030.range()[2], label: '$15-20k' },
+          { color: colorScale2030.range()[3], label: '$20-25k' },
+          { color: colorScale2030.range()[4], label: '>$25k' },
+        ]
+
+        legend2030
+          .selectAll('rect.legend-2030')
+          .data(colorRanges2030)
+          .enter()
+          .append('rect')
+          .attr('class', 'legend-2030')
+          .attr('x', 10)
+          .attr('y', (d, i) => i * 25)
+          .attr('width', 20)
+          .attr('height', 20)
+          .attr('fill', (d) => d.color)
+
+        legend2030
+          .selectAll('text.legend-2030')
+          .data(colorRanges2030)
+          .enter()
+          .append('text')
+          .attr('class', 'legend-label')
+          .attr('x', 35)
+          .attr('y', (d, i) => i * 25 + 14)
+          .text((d) => d.label)
+      }
+
+      // Create bar chart
+      function createBarChart() {
+        const svg = d3.select('#bar-chart')
+        const width = 900
+        const height = 250
+        const margin = { top: 30, right: 30, bottom: 60, left: 60 }
+
+        const data = [
+          { year: '2010', ratio: 3.2 },
+          { year: '2030', ratio: 2.4 },
+        ]
+
+        const x = d3
+          .scaleBand()
+          .domain(data.map((d) => d.year))
+          .range([margin.left + 100, width - margin.right - 100])
+          .padding(0.4)
+
+        const y = d3
+          .scaleLinear()
+          .domain([0, 3.5])
+          .range([height - margin.bottom, margin.top])
+
+        // Add y-axis
+        svg
+          .append('g')
+          .attr('transform', `translate(${margin.left + 100}, 0)`)
+          .call(d3.axisLeft(y).tickValues([0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5]))
+
+        // Add x-axis
+        svg
+          .append('g')
+          .attr('transform', `translate(0, ${height - margin.bottom})`)
+          .call(d3.axisBottom(x))
+
+        // Add bars
+        svg
+          .selectAll('.bar')
+          .data(data)
+          .enter()
+          .append('rect')
+          .attr('class', 'bar')
+          .attr('x', (d) => x(d.year))
+          .attr('y', (d) => y(d.ratio))
+          .attr('width', x.bandwidth())
+          .attr('height', (d) => height - margin.bottom - y(d.ratio))
+          .attr('fill', (d, i) => (i === 0 ? '#C6002B' : '#FF6B6B'))
+
+        // Add ratio values on top of bars
+        svg
+          .selectAll('.ratio-value')
+          .data(data)
+          .enter()
+          .append('text')
+          .attr('class', 'ratio-value')
+          .attr('x', (d) => x(d.year) + x.bandwidth() / 2)
+          .attr('y', (d) => y(d.ratio) + 25)
+          .text((d) => d.ratio + ':1')
+
+        // Add chart title
+        svg
+          .append('text')
+          .attr('x', width / 2)
+          .attr('y', height - 15)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '16px')
+          .attr('font-weight', 'bold')
+          .text('Coastal-Inland GDP Per Capita Ratio')
+
+        // Add y-axis label
+        svg
+          .append('text')
+          .attr('class', 'axis-label')
+          .attr('transform', 'rotate(-90)')
+          .attr('x', -height / 2)
+          .attr('y', margin.left / 2)
+          .attr('text-anchor', 'middle')
+          .text('Ratio')
+      }
+
+      // Initialize visualization
+      createMap('map-2010', '2010')
+      createMap('map-2030', '2030')
+      createLegend()
+      createBarChart()
     </script>
-</body>
+  </body>
 </html>

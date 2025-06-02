@@ -1,259 +1,332 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Climate Finance Waterfall Chart</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .container {
-            width: 980px;
-            padding: 10px;
-        }
-        
-        .title {
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 14px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #555;
-        }
-        
-        .note {
-            font-size: 12px;
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #f8f8f8;
-            border-left: 4px solid #31A354;
-        }
-        
-        .source {
-            font-size: 10px;
-            color: #777;
-            margin-top: 10px;
-            text-align: right;
-        }
-        
-        .value-label {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-        }
-        
-        .column-label {
-            font-size: 11px;
-            text-anchor: middle;
-            font-weight: 500;
-        }
-        
-        .annotation {
-            font-size: 12px;
-            fill: #31A354;
-            font-weight: bold;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .container {
+        width: 980px;
+        padding: 10px;
+      }
+
+      .title {
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #555;
+      }
+
+      .note {
+        font-size: 12px;
+        margin-top: 15px;
+        padding: 10px;
+        background-color: #f8f8f8;
+        border-left: 4px solid #31a354;
+      }
+
+      .source {
+        font-size: 10px;
+        color: #777;
+        margin-top: 10px;
+        text-align: right;
+      }
+
+      .value-label {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+      }
+
+      .column-label {
+        font-size: 11px;
+        text-anchor: middle;
+        font-weight: 500;
+      }
+
+      .annotation {
+        font-size: 12px;
+        fill: #31a354;
+        font-weight: bold;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="title">Closing the Climate and Clean Air Finance Gap Requires Major Investment in Underfunded Sectors</div>
-        <div class="subtitle">Climate finance flows and needs by 2030 (USD trillion per year)</div>
-        <div id="chart"></div>
-        <div class="note"><i class="fas fa-info-circle"></i> <strong>Note:</strong> Agriculture and waste management sectors are currently severely underfunded despite high mitigation potential and significant air quality co-benefits.</div>
-        <div class="source">Source: Climate Policy Initiative 2023; Independent High-Level Expert Group 2024</div>
+      <div class="title">
+        Closing the Climate and Clean Air Finance Gap Requires Major Investment in Underfunded
+        Sectors
+      </div>
+      <div class="subtitle">Climate finance flows and needs by 2030 (USD trillion per year)</div>
+      <div id="chart"></div>
+      <div class="note">
+        <i class="fas fa-info-circle"></i> <strong>Note:</strong> Agriculture and waste management
+        sectors are currently severely underfunded despite high mitigation potential and significant
+        air quality co-benefits.
+      </div>
+      <div class="source">
+        Source: Climate Policy Initiative 2023; Independent High-Level Expert Group 2024
+      </div>
     </div>
 
     <script>
-        // Data for the waterfall chart
-        const data = [
-            { name: "Current flows\n(2021/22)", value: 1.3, type: "start", color: "#08519C", cumulative: 1.3 },
-            { name: "Additional\nenergy transition", value: 2.5, type: "step", color: "#9EC5E8", cumulative: 3.8 },
-            { name: "Additional\ntransportation", value: 1.7, type: "step", color: "#9EC5E8", cumulative: 5.5 },
-            { name: "Additional\nagriculture &\nforestry", value: 1.2, type: "step", color: "#31A354", cumulative: 6.7 },
-            { name: "Additional\nwaste\nmanagement", value: 0.4, type: "step", color: "#31A354", cumulative: 7.1 },
-            { name: "Additional\nindustry", value: 1.0, type: "step", color: "#FB9A99", cumulative: 8.1 },
-            { name: "Total 2030\nrequirement", value: 8.1, type: "end", color: "#333333", cumulative: 8.1 }
-        ];
+      // Data for the waterfall chart
+      const data = [
+        {
+          name: 'Current flows\n(2021/22)',
+          value: 1.3,
+          type: 'start',
+          color: '#08519C',
+          cumulative: 1.3,
+        },
+        {
+          name: 'Additional\nenergy transition',
+          value: 2.5,
+          type: 'step',
+          color: '#9EC5E8',
+          cumulative: 3.8,
+        },
+        {
+          name: 'Additional\ntransportation',
+          value: 1.7,
+          type: 'step',
+          color: '#9EC5E8',
+          cumulative: 5.5,
+        },
+        {
+          name: 'Additional\nagriculture &\nforestry',
+          value: 1.2,
+          type: 'step',
+          color: '#31A354',
+          cumulative: 6.7,
+        },
+        {
+          name: 'Additional\nwaste\nmanagement',
+          value: 0.4,
+          type: 'step',
+          color: '#31A354',
+          cumulative: 7.1,
+        },
+        {
+          name: 'Additional\nindustry',
+          value: 1.0,
+          type: 'step',
+          color: '#FB9A99',
+          cumulative: 8.1,
+        },
+        {
+          name: 'Total 2030\nrequirement',
+          value: 8.1,
+          type: 'end',
+          color: '#333333',
+          cumulative: 8.1,
+        },
+      ]
 
-        // Set up dimensions and margins
-        const margin = { top: 70, right: 60, bottom: 140, left: 70 };
-        const width = 940 - margin.left - margin.right;
-        const height = 550 - margin.top - margin.bottom;
+      // Set up dimensions and margins
+      const margin = { top: 70, right: 60, bottom: 140, left: 70 }
+      const width = 940 - margin.left - margin.right
+      const height = 550 - margin.top - margin.bottom
 
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
 
-        // Set up scales
-        const x = d3.scaleBand()
-            .domain(data.map(d => d.name))
-            .range([0, width])
-            .padding(0.3);
+      // Set up scales
+      const x = d3
+        .scaleBand()
+        .domain(data.map((d) => d.name))
+        .range([0, width])
+        .padding(0.3)
 
-        const y = d3.scaleLinear()
-            .domain([0, 9])
-            .range([height, 0]);
+      const y = d3.scaleLinear().domain([0, 9]).range([height, 0])
 
-        // Add gridlines
-        svg.selectAll("gridLines")
-            .data(d3.range(0, 10, 1))
-            .enter()
-            .append("line")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", d => y(d))
-            .attr("y2", d => y(d))
-            .attr("stroke", "#e0e0e0")
-            .attr("stroke-width", 1);
+      // Add gridlines
+      svg
+        .selectAll('gridLines')
+        .data(d3.range(0, 10, 1))
+        .enter()
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', (d) => y(d))
+        .attr('y2', (d) => y(d))
+        .attr('stroke', '#e0e0e0')
+        .attr('stroke-width', 1)
 
-        // Add y-axis
-        svg.append("g")
-            .call(d3.axisLeft(y)
-                .tickFormat(d => `$${d}T`) // Consistent formatting for all ticks
-                .tickSize(0)
-                .tickPadding(10))
-            .call(g => g.select(".domain").remove())
-            .selectAll("text")
-            .style("font-size", "12px");
+      // Add y-axis
+      svg
+        .append('g')
+        .call(
+          d3
+            .axisLeft(y)
+            .tickFormat((d) => `$${d}T`) // Consistent formatting for all ticks
+            .tickSize(0)
+            .tickPadding(10)
+        )
+        .call((g) => g.select('.domain').remove())
+        .selectAll('text')
+        .style('font-size', '12px')
 
-        // Add y-axis label
-        svg.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -margin.left + 20)
-            .attr("x", -height / 2)
-            .attr("text-anchor", "middle")
-            .style("font-size", "13px")
-            .text("Annual climate finance (USD trillion)");
+      // Add y-axis label
+      svg
+        .append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', -margin.left + 20)
+        .attr('x', -height / 2)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '13px')
+        .text('Annual climate finance (USD trillion)')
 
-        // Draw the waterfall columns
-        const bars = svg.selectAll(".bar")
-            .data(data)
-            .enter()
-            .append("g");
+      // Draw the waterfall columns
+      const bars = svg.selectAll('.bar').data(data).enter().append('g')
 
-        // Draw the bars
-        bars.append("rect")
-            .attr("class", "bar")
-            .attr("x", d => x(d.name))
-            .attr("y", d => d.type === "start" || d.type === "end" ? y(d.value) : y(d.cumulative))
-            .attr("width", x.bandwidth())
-            .attr("height", d => {
-                if (d.type === "start" || d.type === "end") {
-                    return height - y(d.value);
-                } else {
-                    return y(d.cumulative - d.value) - y(d.cumulative);
-                }
-            })
-            .attr("fill", d => d.color);
+      // Draw the bars
+      bars
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', (d) => x(d.name))
+        .attr('y', (d) => (d.type === 'start' || d.type === 'end' ? y(d.value) : y(d.cumulative)))
+        .attr('width', x.bandwidth())
+        .attr('height', (d) => {
+          if (d.type === 'start' || d.type === 'end') {
+            return height - y(d.value)
+          } else {
+            return y(d.cumulative - d.value) - y(d.cumulative)
+          }
+        })
+        .attr('fill', (d) => d.color)
 
-        // Add connecting lines for the waterfall - improved visibility
-        for (let i = 0; i < data.length - 1; i++) {
-            if (data[i].type !== "end" && data[i+1].type !== "start") {
-                svg.append("line")
-                    .attr("x1", x(data[i].name) + x.bandwidth())
-                    .attr("x2", x(data[i+1].name))
-                    .attr("y1", y(data[i].cumulative))
-                    .attr("y2", y(data[i].cumulative))
-                    .attr("stroke", "#888")
-                    .attr("stroke-width", 1.5)
-                    .attr("stroke-dasharray", "4,3");
-            }
+      // Add connecting lines for the waterfall - improved visibility
+      for (let i = 0; i < data.length - 1; i++) {
+        if (data[i].type !== 'end' && data[i + 1].type !== 'start') {
+          svg
+            .append('line')
+            .attr('x1', x(data[i].name) + x.bandwidth())
+            .attr('x2', x(data[i + 1].name))
+            .attr('y1', y(data[i].cumulative))
+            .attr('y2', y(data[i].cumulative))
+            .attr('stroke', '#888')
+            .attr('stroke-width', 1.5)
+            .attr('stroke-dasharray', '4,3')
         }
+      }
 
-        // Add value labels - positioned higher to avoid overlap with annotation
-        bars.append("text")
-            .attr("class", "value-label")
-            .attr("x", d => x(d.name) + x.bandwidth() / 2)
-            .attr("y", d => {
-                // Adjust position for agriculture and waste management to avoid annotation overlap
-                if (d.name === "Additional\nagriculture &\nforestry" || d.name === "Additional\nwaste\nmanagement") {
-                    return y(d.cumulative) - 20;
-                } else if (d.type === "start" || d.type === "end") {
-                    return y(d.value) - 12;
-                } else {
-                    return y(d.cumulative) - 12;
-                }
-            })
-            .attr("text-anchor", "middle")
-            .style("fill", d => d.color)
-            .style("font-size", "15px")
-            .text(d => `$${d.value}T`);
+      // Add value labels - positioned higher to avoid overlap with annotation
+      bars
+        .append('text')
+        .attr('class', 'value-label')
+        .attr('x', (d) => x(d.name) + x.bandwidth() / 2)
+        .attr('y', (d) => {
+          // Adjust position for agriculture and waste management to avoid annotation overlap
+          if (
+            d.name === 'Additional\nagriculture &\nforestry' ||
+            d.name === 'Additional\nwaste\nmanagement'
+          ) {
+            return y(d.cumulative) - 20
+          } else if (d.type === 'start' || d.type === 'end') {
+            return y(d.value) - 12
+          } else {
+            return y(d.cumulative) - 12
+          }
+        })
+        .attr('text-anchor', 'middle')
+        .style('fill', (d) => d.color)
+        .style('font-size', '15px')
+        .text((d) => `$${d.value}T`)
 
-        // Add column labels - increased spacing between lines
-        bars.append("text")
-            .attr("class", "column-label")
-            .attr("x", d => x(d.name) + x.bandwidth() / 2)
-            .attr("y", height + 20) // Increased spacing from x-axis
-            .attr("text-anchor", "middle")
-            .style("fill", "#333")
-            .each(function(d) {
-                const text = d3.select(this);
-                const lines = d.name.split('\n');
-                
-                lines.forEach((line, i) => {
-                    text.append("tspan")
-                        .attr("x", x(d.name) + x.bandwidth() / 2)
-                        .attr("dy", i === 0 ? 0 : 16) // Increased line spacing from 14px to 16px
-                        .text(line);
-                });
-            });
+      // Add column labels - increased spacing between lines
+      bars
+        .append('text')
+        .attr('class', 'column-label')
+        .attr('x', (d) => x(d.name) + x.bandwidth() / 2)
+        .attr('y', height + 20) // Increased spacing from x-axis
+        .attr('text-anchor', 'middle')
+        .style('fill', '#333')
+        .each(function (d) {
+          const text = d3.select(this)
+          const lines = d.name.split('\n')
 
-        // Add annotation for underfunded sectors - improved positioning and clarity
-        const agricultureX = x("Additional\nagriculture &\nforestry") + x.bandwidth()/2;
-        const wasteX = x("Additional\nwaste\nmanagement") + x.bandwidth()/2;
-        const midpointX = (agricultureX + wasteX) / 2;
-        
-        // Create a smoother, more visible annotation path
-        svg.append("path")
-            .attr("d", `M${agricultureX},${y(6.7) - 30} 
+          lines.forEach((line, i) => {
+            text
+              .append('tspan')
+              .attr('x', x(d.name) + x.bandwidth() / 2)
+              .attr('dy', i === 0 ? 0 : 16) // Increased line spacing from 14px to 16px
+              .text(line)
+          })
+        })
+
+      // Add annotation for underfunded sectors - improved positioning and clarity
+      const agricultureX = x('Additional\nagriculture &\nforestry') + x.bandwidth() / 2
+      const wasteX = x('Additional\nwaste\nmanagement') + x.bandwidth() / 2
+      const midpointX = (agricultureX + wasteX) / 2
+
+      // Create a smoother, more visible annotation path
+      svg
+        .append('path')
+        .attr(
+          'd',
+          `M${agricultureX},${y(6.7) - 30} 
                         Q${midpointX},${y(7.1) - 80} 
-                        ${wasteX},${y(7.1) - 30}`)
-            .attr("fill", "none")
-            .attr("stroke", "#31A354")
-            .attr("stroke-width", 2)
-            .attr("stroke-dasharray", "5,3");
+                        ${wasteX},${y(7.1) - 30}`
+        )
+        .attr('fill', 'none')
+        .attr('stroke', '#31A354')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,3')
 
-        // Add arrowheads to make the annotation clearer
-        svg.append("path")
-            .attr("d", "M" + agricultureX + "," + (y(6.7) - 30) + " l-5,-5 l10,0 z")
-            .attr("fill", "#31A354");
-            
-        svg.append("path")
-            .attr("d", "M" + wasteX + "," + (y(7.1) - 30) + " l-5,-5 l10,0 z")
-            .attr("fill", "#31A354");
+      // Add arrowheads to make the annotation clearer
+      svg
+        .append('path')
+        .attr('d', 'M' + agricultureX + ',' + (y(6.7) - 30) + ' l-5,-5 l10,0 z')
+        .attr('fill', '#31A354')
 
-        // Single, clearer annotation text positioned to avoid overlap
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", midpointX)
-            .attr("y", y(7.1) - 85)
-            .attr("text-anchor", "middle")
-            .text("Severely underfunded sectors");
+      svg
+        .append('path')
+        .attr('d', 'M' + wasteX + ',' + (y(7.1) - 30) + ' l-5,-5 l10,0 z')
+        .attr('fill', '#31A354')
 
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", midpointX)
-            .attr("y", y(7.1) - 70)
-            .attr("text-anchor", "middle")
-            .text("with high mitigation potential");
+      // Single, clearer annotation text positioned to avoid overlap
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', midpointX)
+        .attr('y', y(7.1) - 85)
+        .attr('text-anchor', 'middle')
+        .text('Severely underfunded sectors')
+
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', midpointX)
+        .attr('y', y(7.1) - 70)
+        .attr('text-anchor', 'middle')
+        .text('with high mitigation potential')
     </script>
-</body>
+  </body>
 </html>

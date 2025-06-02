@@ -1,428 +1,494 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Structural Evolution of China and US Economies (1980-2023)</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        .container {
-            width: 900px;
-            height: 700px;
-        }
-        
-        .title {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        
-        .panel-title {
-            font-size: 14px;
-            font-weight: bold;
-            text-anchor: middle;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-width: 0.5px;
-        }
-        
-        .axis text {
-            font-size: 10px;
-        }
-        
-        .axis path, .axis line {
-            stroke: #999;
-        }
-        
-        .source {
-            font-size: 10px;
-            text-anchor: start;
-            fill: #666;
-        }
-        
-        .footnote {
-            font-size: 10px;
-            text-anchor: start;
-            fill: #666;
-        }
-        
-        .analysis {
-            font-size: 12px;
-            text-anchor: middle;
-            fill: #333;
-        }
-        
-        .event-marker {
-            fill: #FFB300;
-            stroke: #E65100;
-            stroke-width: 1px;
-        }
-        
-        .event-text {
-            font-size: 9px;
-            fill: #333;
-            font-weight: bold;
-        }
-        
-        .event-line {
-            stroke: #FFB300;
-            stroke-width: 1px;
-        }
-        
-        .value-label {
-            font-family: 'Georgia', serif;
-            font-size: 12px;
-            font-weight: bold;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        width: 900px;
+        height: 700px;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+
+      .panel-title {
+        font-size: 14px;
+        font-weight: bold;
+        text-anchor: middle;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-width: 0.5px;
+      }
+
+      .axis text {
+        font-size: 10px;
+      }
+
+      .axis path,
+      .axis line {
+        stroke: #999;
+      }
+
+      .source {
+        font-size: 10px;
+        text-anchor: start;
+        fill: #666;
+      }
+
+      .footnote {
+        font-size: 10px;
+        text-anchor: start;
+        fill: #666;
+      }
+
+      .analysis {
+        font-size: 12px;
+        text-anchor: middle;
+        fill: #333;
+      }
+
+      .event-marker {
+        fill: #ffb300;
+        stroke: #e65100;
+        stroke-width: 1px;
+      }
+
+      .event-text {
+        font-size: 9px;
+        fill: #333;
+        font-weight: bold;
+      }
+
+      .event-line {
+        stroke: #ffb300;
+        stroke-width: 1px;
+      }
+
+      .value-label {
+        font-family: 'Georgia', serif;
+        font-size: 12px;
+        font-weight: bold;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container" id="visualization"></div>
 
     <script>
-        // Set up dimensions and margins
-        const margin = {top: 60, right: 60, bottom: 120, left: 50};
-        const width = 900 - margin.left - margin.right;
-        const height = 700 - margin.top - margin.bottom;
-        
-        // Panel dimensions
-        const panelWidth = width / 2;
-        const panelHeight = (height - 40) / 2; // 40px for spacing between panels
-        
-        // Create SVG
-        const svg = d3.select("#visualization")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-        
-        // Add title
-        svg.append("text")
-            .attr("class", "title")
-            .attr("x", width / 2)
-            .attr("y", -30)
-            .attr("text-anchor", "middle")
-            .text("Structural Evolution of China and US Economies (1980-2023)");
-        
-        // Create scales
-        const xScale = d3.scaleLinear()
-            .domain([1980, 2023])
-            .range([0, panelWidth - 10]);
-        
-        const yScale = d3.scaleLinear()
-            .domain([0, 80])
-            .range([panelHeight, 0]);
-        
-        // Define data
-        const data = {
-            china: {
-                services: [
-                    {year: 1980, value: 22},
-                    {year: 1985, value: 26},
-                    {year: 1990, value: 31},
-                    {year: 1995, value: 33},
-                    {year: 2000, value: 39},
-                    {year: 2005, value: 41},
-                    {year: 2010, value: 44},
-                    {year: 2015, value: 50},
-                    {year: 2020, value: 54},
-                    {year: 2023, value: 55}
-                ],
-                agriculture: [
-                    {year: 1980, value: 30},
-                    {year: 1985, value: 28},
-                    {year: 1990, value: 25},
-                    {year: 1995, value: 20},
-                    {year: 2000, value: 15},
-                    {year: 2005, value: 12},
-                    {year: 2010, value: 10},
-                    {year: 2015, value: 8},
-                    {year: 2020, value: 7},
-                    {year: 2023, value: 5}
-                ],
-                industry: [
-                    {year: 1980, value: 48},
-                    {year: 1985, value: 46},
-                    {year: 1990, value: 44},
-                    {year: 1995, value: 47},
-                    {year: 2000, value: 46},
-                    {year: 2005, value: 47},
-                    {year: 2010, value: 46},
-                    {year: 2015, value: 42},
-                    {year: 2020, value: 39},
-                    {year: 2023, value: 40}
-                ],
-                manufacturing: [
-                    {year: 1980, value: 25},
-                    {year: 1985, value: 26},
-                    {year: 1990, value: 27},
-                    {year: 1995, value: 29},
-                    {year: 2000, value: 30},
-                    {year: 2005, value: 32},
-                    {year: 2010, value: 31},
-                    {year: 2015, value: 30},
-                    {year: 2020, value: 30},
-                    {year: 2023, value: 31}
-                ]
+      // Set up dimensions and margins
+      const margin = { top: 60, right: 60, bottom: 120, left: 50 }
+      const width = 900 - margin.left - margin.right
+      const height = 700 - margin.top - margin.bottom
+
+      // Panel dimensions
+      const panelWidth = width / 2
+      const panelHeight = (height - 40) / 2 // 40px for spacing between panels
+
+      // Create SVG
+      const svg = d3
+        .select('#visualization')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
+
+      // Add title
+      svg
+        .append('text')
+        .attr('class', 'title')
+        .attr('x', width / 2)
+        .attr('y', -30)
+        .attr('text-anchor', 'middle')
+        .text('Structural Evolution of China and US Economies (1980-2023)')
+
+      // Create scales
+      const xScale = d3
+        .scaleLinear()
+        .domain([1980, 2023])
+        .range([0, panelWidth - 10])
+
+      const yScale = d3.scaleLinear().domain([0, 80]).range([panelHeight, 0])
+
+      // Define data
+      const data = {
+        china: {
+          services: [
+            { year: 1980, value: 22 },
+            { year: 1985, value: 26 },
+            { year: 1990, value: 31 },
+            { year: 1995, value: 33 },
+            { year: 2000, value: 39 },
+            { year: 2005, value: 41 },
+            { year: 2010, value: 44 },
+            { year: 2015, value: 50 },
+            { year: 2020, value: 54 },
+            { year: 2023, value: 55 },
+          ],
+          agriculture: [
+            { year: 1980, value: 30 },
+            { year: 1985, value: 28 },
+            { year: 1990, value: 25 },
+            { year: 1995, value: 20 },
+            { year: 2000, value: 15 },
+            { year: 2005, value: 12 },
+            { year: 2010, value: 10 },
+            { year: 2015, value: 8 },
+            { year: 2020, value: 7 },
+            { year: 2023, value: 5 },
+          ],
+          industry: [
+            { year: 1980, value: 48 },
+            { year: 1985, value: 46 },
+            { year: 1990, value: 44 },
+            { year: 1995, value: 47 },
+            { year: 2000, value: 46 },
+            { year: 2005, value: 47 },
+            { year: 2010, value: 46 },
+            { year: 2015, value: 42 },
+            { year: 2020, value: 39 },
+            { year: 2023, value: 40 },
+          ],
+          manufacturing: [
+            { year: 1980, value: 25 },
+            { year: 1985, value: 26 },
+            { year: 1990, value: 27 },
+            { year: 1995, value: 29 },
+            { year: 2000, value: 30 },
+            { year: 2005, value: 32 },
+            { year: 2010, value: 31 },
+            { year: 2015, value: 30 },
+            { year: 2020, value: 30 },
+            { year: 2023, value: 31 },
+          ],
+        },
+        us: {
+          services: [
+            { year: 1980, value: 64 },
+            { year: 1985, value: 67 },
+            { year: 1990, value: 70 },
+            { year: 1995, value: 71 },
+            { year: 2000, value: 73 },
+            { year: 2005, value: 74 },
+            { year: 2010, value: 75 },
+            { year: 2015, value: 76 },
+            { year: 2020, value: 77 },
+            { year: 2023, value: 77 },
+          ],
+          agriculture: [
+            { year: 1980, value: 2.5 },
+            { year: 1985, value: 2.3 },
+            { year: 1990, value: 2.1 },
+            { year: 1995, value: 1.9 },
+            { year: 2000, value: 1.7 },
+            { year: 2005, value: 1.5 },
+            { year: 2010, value: 1.3 },
+            { year: 2015, value: 1.2 },
+            { year: 2020, value: 1.1 },
+            { year: 2023, value: 1.0 },
+          ],
+          industry: [
+            { year: 1980, value: 33.5 },
+            { year: 1985, value: 30.7 },
+            { year: 1990, value: 27.9 },
+            { year: 1995, value: 27.1 },
+            { year: 2000, value: 25.3 },
+            { year: 2005, value: 24.5 },
+            { year: 2010, value: 23.7 },
+            { year: 2015, value: 22.8 },
+            { year: 2020, value: 19.5 },
+            { year: 2023, value: 18.0 },
+          ],
+          manufacturing: [
+            { year: 1980, value: 20.0 },
+            { year: 1985, value: 18.5 },
+            { year: 1990, value: 17.0 },
+            { year: 1995, value: 16.5 },
+            { year: 2000, value: 15.0 },
+            { year: 2005, value: 14.0 },
+            { year: 2010, value: 13.0 },
+            { year: 2015, value: 12.5 },
+            { year: 2020, value: 11.5 },
+            { year: 2023, value: 11.0 },
+          ],
+        },
+      }
+
+      // Key events - simplified to avoid overlapping
+      const events = [
+        { year: 2001, text: "China's WTO entry", y: 15, panel: 'china-industry' },
+        { year: 2008, text: 'Global Financial Crisis', y: 15, panel: 'us-industry' },
+        { year: 2014, text: "China's 'New Normal' policy", y: 35, panel: 'us-industry' },
+      ]
+
+      // Line generators
+      const lineGenerator = d3
+        .line()
+        .x((d) => xScale(d.year))
+        .y((d) => yScale(d.value))
+        .curve(d3.curveMonotoneX)
+
+      // Create panels
+      const panels = [
+        {
+          id: 'china-services',
+          title: 'CHINA: Services & Agriculture',
+          x: 0,
+          y: 0,
+          data: [
+            { name: 'Services', values: data.china.services, color: '#EF5350' },
+            { name: 'Agriculture', values: data.china.agriculture, color: '#8BC34A' },
+          ],
+        },
+        {
+          id: 'us-services',
+          title: 'US: Services & Agriculture',
+          x: panelWidth + 20,
+          y: 0,
+          data: [
+            { name: 'Services', values: data.us.services, color: '#42A5F5' },
+            { name: 'Agriculture', values: data.us.agriculture, color: '#8BC34A' },
+          ],
+        },
+        {
+          id: 'china-industry',
+          title: 'CHINA: Industry & Manufacturing',
+          x: 0,
+          y: panelHeight + 40,
+          data: [
+            { name: 'Industry', values: data.china.industry, color: '#607D8B' },
+            {
+              name: 'Manufacturing',
+              values: data.china.manufacturing,
+              color: '#455A64',
+              dashed: true,
             },
-            us: {
-                services: [
-                    {year: 1980, value: 64},
-                    {year: 1985, value: 67},
-                    {year: 1990, value: 70},
-                    {year: 1995, value: 71},
-                    {year: 2000, value: 73},
-                    {year: 2005, value: 74},
-                    {year: 2010, value: 75},
-                    {year: 2015, value: 76},
-                    {year: 2020, value: 77},
-                    {year: 2023, value: 77}
-                ],
-                agriculture: [
-                    {year: 1980, value: 2.5},
-                    {year: 1985, value: 2.3},
-                    {year: 1990, value: 2.1},
-                    {year: 1995, value: 1.9},
-                    {year: 2000, value: 1.7},
-                    {year: 2005, value: 1.5},
-                    {year: 2010, value: 1.3},
-                    {year: 2015, value: 1.2},
-                    {year: 2020, value: 1.1},
-                    {year: 2023, value: 1.0}
-                ],
-                industry: [
-                    {year: 1980, value: 33.5},
-                    {year: 1985, value: 30.7},
-                    {year: 1990, value: 27.9},
-                    {year: 1995, value: 27.1},
-                    {year: 2000, value: 25.3},
-                    {year: 2005, value: 24.5},
-                    {year: 2010, value: 23.7},
-                    {year: 2015, value: 22.8},
-                    {year: 2020, value: 19.5},
-                    {year: 2023, value: 18.0}
-                ],
-                manufacturing: [
-                    {year: 1980, value: 20.0},
-                    {year: 1985, value: 18.5},
-                    {year: 1990, value: 17.0},
-                    {year: 1995, value: 16.5},
-                    {year: 2000, value: 15.0},
-                    {year: 2005, value: 14.0},
-                    {year: 2010, value: 13.0},
-                    {year: 2015, value: 12.5},
-                    {year: 2020, value: 11.5},
-                    {year: 2023, value: 11.0}
-                ]
+          ],
+        },
+        {
+          id: 'us-industry',
+          title: 'US: Industry & Manufacturing',
+          x: panelWidth + 20,
+          y: panelHeight + 40,
+          data: [
+            { name: 'Industry', values: data.us.industry, color: '#607D8B' },
+            {
+              name: 'Manufacturing',
+              values: data.us.manufacturing,
+              color: '#455A64',
+              dashed: true,
+            },
+          ],
+        },
+      ]
+
+      // Create each panel
+      panels.forEach((panel) => {
+        const panelG = svg
+          .append('g')
+          .attr('id', panel.id)
+          .attr('transform', `translate(${panel.x},${panel.y})`)
+
+        // Add panel title
+        panelG
+          .append('text')
+          .attr('class', 'panel-title')
+          .attr('x', panelWidth / 2)
+          .attr('y', -15)
+          .text(panel.title)
+
+        // Add gridlines
+        panelG
+          .append('g')
+          .attr('class', 'grid')
+          .selectAll('line')
+          .data([0, 20, 40, 60, 80])
+          .enter()
+          .append('line')
+          .attr('x1', 0)
+          .attr('x2', panelWidth - 10)
+          .attr('y1', (d) => yScale(d))
+          .attr('y2', (d) => yScale(d))
+
+        // Add x-axis
+        if (panel.y > 0) {
+          panelG
+            .append('g')
+            .attr('class', 'axis x-axis')
+            .attr('transform', `translate(0,${panelHeight})`)
+            .call(
+              d3
+                .axisBottom(xScale)
+                .tickValues([1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2023])
+                .tickFormat(d3.format('d'))
+            )
+        }
+
+        // Add y-axis
+        panelG
+          .append('g')
+          .attr('class', 'axis y-axis')
+          .call(
+            d3
+              .axisLeft(yScale)
+              .tickValues([0, 20, 40, 60, 80])
+              .tickFormat((d) => d + '%')
+          )
+
+        // Add lines
+        panel.data.forEach((series, index) => {
+          // Add line
+          panelG
+            .append('path')
+            .datum(series.values)
+            .attr('fill', 'none')
+            .attr('stroke', series.color)
+            .attr('stroke-width', 2)
+            .attr('stroke-dasharray', series.dashed ? '5,5' : '0')
+            .attr('d', lineGenerator)
+
+          // Add data points
+          panelG
+            .selectAll(`.point-${series.name}`)
+            .data(series.values)
+            .enter()
+            .append('circle')
+            .attr('class', `point-${series.name}`)
+            .attr('cx', (d) => xScale(d.year))
+            .attr('cy', (d) => yScale(d.value))
+            .attr('r', 3)
+            .attr('fill', series.color)
+
+          // Add endpoint label with improved positioning to prevent overlap
+          const lastPoint = series.values[series.values.length - 1]
+
+          // Adjust vertical position based on panel and series
+          let yOffset = 0
+
+          // Special handling for overlapping labels
+          if (panel.id === 'china-services') {
+            // For China Services panel
+            if (series.name === 'Services') {
+              yOffset = -10
+            } else if (series.name === 'Agriculture') {
+              yOffset = 15
             }
-        };
-        
-        // Key events - simplified to avoid overlapping
-        const events = [
-            {year: 2001, text: "China's WTO entry", y: 15, panel: "china-industry"},
-            {year: 2008, text: "Global Financial Crisis", y: 15, panel: "us-industry"},
-            {year: 2014, text: "China's 'New Normal' policy", y: 35, panel: "us-industry"}
-        ];
-        
-        // Line generators
-        const lineGenerator = d3.line()
-            .x(d => xScale(d.year))
-            .y(d => yScale(d.value))
-            .curve(d3.curveMonotoneX);
-        
-        // Create panels
-        const panels = [
-            {id: "china-services", title: "CHINA: Services & Agriculture", x: 0, y: 0, data: [
-                {name: "Services", values: data.china.services, color: "#EF5350"},
-                {name: "Agriculture", values: data.china.agriculture, color: "#8BC34A"}
-            ]},
-            {id: "us-services", title: "US: Services & Agriculture", x: panelWidth + 20, y: 0, data: [
-                {name: "Services", values: data.us.services, color: "#42A5F5"},
-                {name: "Agriculture", values: data.us.agriculture, color: "#8BC34A"}
-            ]},
-            {id: "china-industry", title: "CHINA: Industry & Manufacturing", x: 0, y: panelHeight + 40, data: [
-                {name: "Industry", values: data.china.industry, color: "#607D8B"},
-                {name: "Manufacturing", values: data.china.manufacturing, color: "#455A64", dashed: true}
-            ]},
-            {id: "us-industry", title: "US: Industry & Manufacturing", x: panelWidth + 20, y: panelHeight + 40, data: [
-                {name: "Industry", values: data.us.industry, color: "#607D8B"},
-                {name: "Manufacturing", values: data.us.manufacturing, color: "#455A64", dashed: true}
-            ]}
-        ];
-        
-        // Create each panel
-        panels.forEach(panel => {
-            const panelG = svg.append("g")
-                .attr("id", panel.id)
-                .attr("transform", `translate(${panel.x},${panel.y})`);
-            
-            // Add panel title
-            panelG.append("text")
-                .attr("class", "panel-title")
-                .attr("x", panelWidth / 2)
-                .attr("y", -15)
-                .text(panel.title);
-            
-            // Add gridlines
-            panelG.append("g")
-                .attr("class", "grid")
-                .selectAll("line")
-                .data([0, 20, 40, 60, 80])
-                .enter()
-                .append("line")
-                .attr("x1", 0)
-                .attr("x2", panelWidth - 10)
-                .attr("y1", d => yScale(d))
-                .attr("y2", d => yScale(d));
-            
-            // Add x-axis
-            if (panel.y > 0) {
-                panelG.append("g")
-                    .attr("class", "axis x-axis")
-                    .attr("transform", `translate(0,${panelHeight})`)
-                    .call(d3.axisBottom(xScale)
-                        .tickValues([1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2023])
-                        .tickFormat(d3.format("d")));
+          } else if (panel.id === 'us-industry') {
+            // For US Industry panel
+            if (series.name === 'Industry') {
+              yOffset = -10
+            } else if (series.name === 'Manufacturing') {
+              yOffset = 15
             }
-            
-            // Add y-axis
-            panelG.append("g")
-                .attr("class", "axis y-axis")
-                .call(d3.axisLeft(yScale)
-                    .tickValues([0, 20, 40, 60, 80])
-                    .tickFormat(d => d + "%"));
-            
-            // Add lines
-            panel.data.forEach((series, index) => {
-                // Add line
-                panelG.append("path")
-                    .datum(series.values)
-                    .attr("fill", "none")
-                    .attr("stroke", series.color)
-                    .attr("stroke-width", 2)
-                    .attr("stroke-dasharray", series.dashed ? "5,5" : "0")
-                    .attr("d", lineGenerator);
-                
-                // Add data points
-                panelG.selectAll(`.point-${series.name}`)
-                    .data(series.values)
-                    .enter()
-                    .append("circle")
-                    .attr("class", `point-${series.name}`)
-                    .attr("cx", d => xScale(d.year))
-                    .attr("cy", d => yScale(d.value))
-                    .attr("r", 3)
-                    .attr("fill", series.color);
-                
-                // Add endpoint label with improved positioning to prevent overlap
-                const lastPoint = series.values[series.values.length - 1];
-                
-                // Adjust vertical position based on panel and series
-                let yOffset = 0;
-                
-                // Special handling for overlapping labels
-                if (panel.id === "china-services") {
-                    // For China Services panel
-                    if (series.name === "Services") {
-                        yOffset = -10;
-                    } else if (series.name === "Agriculture") {
-                        yOffset = 15;
-                    }
-                } else if (panel.id === "us-industry") {
-                    // For US Industry panel
-                    if (series.name === "Industry") {
-                        yOffset = -10;
-                    } else if (series.name === "Manufacturing") {
-                        yOffset = 15;
-                    }
-                } else {
-                    // Default offset for other panels
-                    yOffset = index * 15;
-                }
-                
-                panelG.append("text")
-                    .attr("class", "value-label")
-                    .attr("x", xScale(lastPoint.year) + 5)
-                    .attr("y", yScale(lastPoint.value) + yOffset)
-                    .attr("fill", series.color)
-                    .text(`${lastPoint.value}%`);
-            });
-            
-            // Add event markers only to the specific panel mentioned in the event data
-            events.forEach(event => {
-                if (panel.id === event.panel) {
-                    panelG.append("circle")
-                        .attr("class", "event-marker")
-                        .attr("cx", xScale(event.year))
-                        .attr("cy", panelHeight)
-                        .attr("r", 5);
-                    
-                    panelG.append("line")
-                        .attr("class", "event-line")
-                        .attr("x1", xScale(event.year))
-                        .attr("y1", panelHeight)
-                        .attr("x2", xScale(event.year))
-                        .attr("y2", panelHeight - event.y - 10);
-                    
-                    panelG.append("text")
-                        .attr("class", "event-text")
-                        .attr("x", xScale(event.year))
-                        .attr("y", panelHeight - event.y - 15)
-                        .attr("text-anchor", "middle")
-                        .text(event.text);
-                }
-            });
-        });
-        
-        // Add source information
-        svg.append("text")
-            .attr("class", "source")
-            .attr("x", 0)
-            .attr("y", height + 30)
-            .text("Source: World Bank, National Bureau of Statistics of China, BEA");
-        
-        // Add footnote
-        svg.append("text")
-            .attr("class", "footnote")
-            .attr("x", 0)
-            .attr("y", height + 50)
-            .text("Manufacturing is a subset of Industry shown as a separate component for comparison.");
-        
-        // Add analysis note with more space
-        svg.append("text")
-            .attr("class", "analysis")
-            .attr("x", width / 2)
-            .attr("y", height + 70)
-            .attr("text-anchor", "middle")
-            .text("While both economies have shifted toward services, China has maintained a much more substantial");
-            
-        svg.append("text")
-            .attr("class", "analysis")
-            .attr("x", width / 2)
-            .attr("y", height + 70 + 15)
-            .attr("text-anchor", "middle")
-            .text("manufacturing base as a percentage of GDP. The US manufacturing sector has declined steadily");
-            
-        svg.append("text")
-            .attr("class", "analysis")
-            .attr("x", width / 2)
-            .attr("y", height + 70 + 30)
-            .attr("text-anchor", "middle")
-            .text("as a share of the economy since 1980.");
+          } else {
+            // Default offset for other panels
+            yOffset = index * 15
+          }
+
+          panelG
+            .append('text')
+            .attr('class', 'value-label')
+            .attr('x', xScale(lastPoint.year) + 5)
+            .attr('y', yScale(lastPoint.value) + yOffset)
+            .attr('fill', series.color)
+            .text(`${lastPoint.value}%`)
+        })
+
+        // Add event markers only to the specific panel mentioned in the event data
+        events.forEach((event) => {
+          if (panel.id === event.panel) {
+            panelG
+              .append('circle')
+              .attr('class', 'event-marker')
+              .attr('cx', xScale(event.year))
+              .attr('cy', panelHeight)
+              .attr('r', 5)
+
+            panelG
+              .append('line')
+              .attr('class', 'event-line')
+              .attr('x1', xScale(event.year))
+              .attr('y1', panelHeight)
+              .attr('x2', xScale(event.year))
+              .attr('y2', panelHeight - event.y - 10)
+
+            panelG
+              .append('text')
+              .attr('class', 'event-text')
+              .attr('x', xScale(event.year))
+              .attr('y', panelHeight - event.y - 15)
+              .attr('text-anchor', 'middle')
+              .text(event.text)
+          }
+        })
+      })
+
+      // Add source information
+      svg
+        .append('text')
+        .attr('class', 'source')
+        .attr('x', 0)
+        .attr('y', height + 30)
+        .text('Source: World Bank, National Bureau of Statistics of China, BEA')
+
+      // Add footnote
+      svg
+        .append('text')
+        .attr('class', 'footnote')
+        .attr('x', 0)
+        .attr('y', height + 50)
+        .text('Manufacturing is a subset of Industry shown as a separate component for comparison.')
+
+      // Add analysis note with more space
+      svg
+        .append('text')
+        .attr('class', 'analysis')
+        .attr('x', width / 2)
+        .attr('y', height + 70)
+        .attr('text-anchor', 'middle')
+        .text(
+          'While both economies have shifted toward services, China has maintained a much more substantial'
+        )
+
+      svg
+        .append('text')
+        .attr('class', 'analysis')
+        .attr('x', width / 2)
+        .attr('y', height + 70 + 15)
+        .attr('text-anchor', 'middle')
+        .text(
+          'manufacturing base as a percentage of GDP. The US manufacturing sector has declined steadily'
+        )
+
+      svg
+        .append('text')
+        .attr('class', 'analysis')
+        .attr('x', width / 2)
+        .attr('y', height + 70 + 30)
+        .attr('text-anchor', 'middle')
+        .text('as a share of the economy since 1980.')
     </script>
-</body>
+  </body>
 </html>

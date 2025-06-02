@@ -14,7 +14,7 @@ import {
   Bluesky,
   Homepage,
   GoogleScholar,
-  Arxiv
+  Arxiv,
 } from './icons'
 
 const components = {
@@ -32,7 +32,7 @@ const components = {
   bluesky: Bluesky,
   homepage: Homepage,
   googlescholar: GoogleScholar,
-  arxiv: Arxiv
+  arxiv: Arxiv,
 }
 
 type SocialIconProps = {

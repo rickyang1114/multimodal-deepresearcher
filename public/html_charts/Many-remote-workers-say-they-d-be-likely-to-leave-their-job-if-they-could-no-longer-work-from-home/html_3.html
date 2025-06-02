@@ -1,260 +1,275 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Remote Work Impact Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .visualization-container {
-            width: 900px;
-            padding: 0;
-            background-color: white;
-        }
-        
-        .title {
-            text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 30px;
-        }
-        
-        .charts-container {
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .chart-container {
-            width: 430px;
-        }
-        
-        .subtitle {
-            text-align: center;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            height: 40px;
-        }
-        
-        .donut-chart {
-            display: flex;
-            justify-content: center;
-        }
-        
-        .center-text {
-            font-family: 'Georgia', serif;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        
-        .additional-info {
-            background-color: #f8f8f8;
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 15px;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-        
-        .legend {
-            display: flex;
-            justify-content: center;
-            margin-top: 25px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            font-size: 13px;
-            margin: 0 15px 8px 0;
-            width: 45%;
-        }
-        
-        .legend-color {
-            width: 15px;
-            height: 15px;
-            margin-right: 8px;
-            border-radius: 3px;
-            flex-shrink: 0;
-        }
-        
-        .source {
-            font-size: 9px;
-            color: #666;
-            margin-top: 10px;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            color: #333;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
 
-        .segment-label {
-            font-family: 'Arial', sans-serif;
-            font-weight: bold;
-            font-size: 14px;
-            pointer-events: none;
-        }
+      .visualization-container {
+        width: 900px;
+        padding: 0;
+        background-color: white;
+      }
 
-        .segment-label-text {
-            paint-order: stroke;
-            stroke: rgba(255, 255, 255, 0.6);
-            stroke-width: 3px;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
+      .title {
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 30px;
+      }
+
+      .charts-container {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .chart-container {
+        width: 430px;
+      }
+
+      .subtitle {
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        height: 40px;
+      }
+
+      .donut-chart {
+        display: flex;
+        justify-content: center;
+      }
+
+      .center-text {
+        font-family: 'Georgia', serif;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .additional-info {
+        background-color: #f8f8f8;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 15px;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .legend {
+        display: flex;
+        justify-content: center;
+        margin-top: 25px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        font-size: 13px;
+        margin: 0 15px 8px 0;
+        width: 45%;
+      }
+
+      .legend-color {
+        width: 15px;
+        height: 15px;
+        margin-right: 8px;
+        border-radius: 3px;
+        flex-shrink: 0;
+      }
+
+      .source {
+        font-size: 9px;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .segment-label {
+        font-family: 'Arial', sans-serif;
+        font-weight: bold;
+        font-size: 14px;
+        pointer-events: none;
+      }
+
+      .segment-label-text {
+        paint-order: stroke;
+        stroke: rgba(255, 255, 255, 0.6);
+        stroke-width: 3px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Government and Financial Sectors Face High Turnover Risk from Reducing Remote Work</div>
-        
-        <div class="charts-container">
-            <div class="chart-container">
-                <div class="subtitle">US Government Employee Responses<br>(Eagle Hill Consulting, May 2023)</div>
-                <div class="donut-chart" id="government-chart"></div>
-                <div class="additional-info">
-                    <strong>Top concerns among government workers:</strong><br>
-                    Work/life balance (<span class="key-number">45%</span>), Commuting time (<span class="key-number">43%</span>), 
-                    Costs (<span class="key-number">38%</span>), Stress (<span class="key-number">34%</span>)
-                </div>
-                <div class="source">Source: Eagle Hill Consulting (Ipsos; N > 500 federal, state & local workers)</div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="subtitle">Financial Professionals Responses<br>(Bloomberg, June 2023)</div>
-                <div class="donut-chart" id="financial-chart"></div>
-                <div class="additional-info">
-                    Only <span class="key-number">~20%</span> of financial professionals prefer full-time office work; over <span class="key-number">50%</span> favor a hybrid model
-                </div>
-                <div class="source">Source: Bloomberg Markets Live Pulse survey (1,585 global respondents; 1,320 financial pros)</div>
-            </div>
+      <div class="title">
+        Government and Financial Sectors Face High Turnover Risk from Reducing Remote Work
+      </div>
+
+      <div class="charts-container">
+        <div class="chart-container">
+          <div class="subtitle">
+            US Government Employee Responses<br />(Eagle Hill Consulting, May 2023)
+          </div>
+          <div class="donut-chart" id="government-chart"></div>
+          <div class="additional-info">
+            <strong>Top concerns among government workers:</strong><br />
+            Work/life balance (<span class="key-number">45%</span>), Commuting time (<span
+              class="key-number"
+              >43%</span
+            >), Costs (<span class="key-number">38%</span>), Stress (<span class="key-number"
+              >34%</span
+            >)
+          </div>
+          <div class="source">
+            Source: Eagle Hill Consulting (Ipsos; N > 500 federal, state & local workers)
+          </div>
         </div>
-        
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #003f5c;"></div>
-                <div>Would consider leaving (Government)</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #2f7bbf;"></div>
-                <div>Would not consider leaving (Government)</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #ff7f0e;"></div>
-                <div>Have or would quit (Financial)</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #ffc08c;"></div>
-                <div>Would not quit (Financial)</div>
-            </div>
+
+        <div class="chart-container">
+          <div class="subtitle">Financial Professionals Responses<br />(Bloomberg, June 2023)</div>
+          <div class="donut-chart" id="financial-chart"></div>
+          <div class="additional-info">
+            Only <span class="key-number">~20%</span> of financial professionals prefer full-time
+            office work; over <span class="key-number">50%</span> favor a hybrid model
+          </div>
+          <div class="source">
+            Source: Bloomberg Markets Live Pulse survey (1,585 global respondents; 1,320 financial
+            pros)
+          </div>
         </div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #003f5c"></div>
+          <div>Would consider leaving (Government)</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #2f7bbf"></div>
+          <div>Would not consider leaving (Government)</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #ff7f0e"></div>
+          <div>Have or would quit (Financial)</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #ffc08c"></div>
+          <div>Would not quit (Financial)</div>
+        </div>
+      </div>
     </div>
 
     <script>
-        // Dimensions
-        const width = 300;
-        const height = 300;
-        const radius = Math.min(width, height) / 2;
-        const innerRadius = radius - 40;
-        
-        // Government chart data
-        const governmentData = [
-            { label: "Would consider looking for a new job", value: 45, color: "#003f5c" },
-            { label: "Would not consider leaving", value: 55, color: "#2f7bbf" }
-        ];
-        
-        // Financial chart data
-        const financialData = [
-            { label: "Have or would quit", value: 50, color: "#ff7f0e" },
-            { label: "Would not quit", value: 50, color: "#ffc08c" }
-        ];
-        
-        // Create government chart
-        createDonutChart("#government-chart", governmentData, "45%");
-        
-        // Create financial chart
-        createDonutChart("#financial-chart", financialData, "50%");
-        
-        function createDonutChart(selector, data, centerText) {
-            // Create SVG
-            const svg = d3.select(selector)
-                .append("svg")
-                .attr("width", width)
-                .attr("height", height)
-                .append("g")
-                .attr("transform", `translate(${width / 2}, ${height / 2})`);
-            
-            // Create pie generator
-            const pie = d3.pie()
-                .value(d => d.value)
-                .sort(null)
-                .padAngle(0.01);
-            
-            // Create arc generator
-            const arc = d3.arc()
-                .innerRadius(innerRadius)
-                .outerRadius(radius)
-                .cornerRadius(2);
-            
-            // Create arcs
-            const arcs = svg.selectAll(".arc")
-                .data(pie(data))
-                .enter()
-                .append("g")
-                .attr("class", "arc");
-            
-            // Draw arcs
-            arcs.append("path")
-                .attr("d", arc)
-                .attr("fill", d => d.data.color);
-            
-            // Add percentage labels inside the arcs
-            arcs.append("text")
-                .attr("class", "segment-label")
-                .attr("transform", d => {
-                    // Position the text in the middle of each arc segment
-                    const [x, y] = arc.centroid(d);
-                    // Scale the position slightly to ensure it's within the segment
-                    const scale = 0.7;
-                    return `translate(${x * scale}, ${y * scale})`;
-                })
-                .attr("text-anchor", "middle")
-                .attr("dy", ".35em")
-                .html(d => {
-                    // Add a text element with a white outline for better visibility
-                    return `<tspan class="segment-label-text" fill="${getContrastColor(d.data.color)}">${d.data.value}%</tspan>`;
-                });
-            
-            // Add center text
-            svg.append("text")
-                .attr("class", "center-text")
-                .attr("text-anchor", "middle")
-                .attr("dy", ".35em")
-                .text(centerText);
-                
-            // Helper function to determine text color based on background
-            function getContrastColor(backgroundColor) {
-                // For dark blue, use white text
-                if (backgroundColor === "#003f5c") {
-                    return "white";
-                }
-                // For all other colors, use black text
-                return "black";
-            }
+      // Dimensions
+      const width = 300
+      const height = 300
+      const radius = Math.min(width, height) / 2
+      const innerRadius = radius - 40
+
+      // Government chart data
+      const governmentData = [
+        { label: 'Would consider looking for a new job', value: 45, color: '#003f5c' },
+        { label: 'Would not consider leaving', value: 55, color: '#2f7bbf' },
+      ]
+
+      // Financial chart data
+      const financialData = [
+        { label: 'Have or would quit', value: 50, color: '#ff7f0e' },
+        { label: 'Would not quit', value: 50, color: '#ffc08c' },
+      ]
+
+      // Create government chart
+      createDonutChart('#government-chart', governmentData, '45%')
+
+      // Create financial chart
+      createDonutChart('#financial-chart', financialData, '50%')
+
+      function createDonutChart(selector, data, centerText) {
+        // Create SVG
+        const svg = d3
+          .select(selector)
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height)
+          .append('g')
+          .attr('transform', `translate(${width / 2}, ${height / 2})`)
+
+        // Create pie generator
+        const pie = d3
+          .pie()
+          .value((d) => d.value)
+          .sort(null)
+          .padAngle(0.01)
+
+        // Create arc generator
+        const arc = d3.arc().innerRadius(innerRadius).outerRadius(radius).cornerRadius(2)
+
+        // Create arcs
+        const arcs = svg.selectAll('.arc').data(pie(data)).enter().append('g').attr('class', 'arc')
+
+        // Draw arcs
+        arcs
+          .append('path')
+          .attr('d', arc)
+          .attr('fill', (d) => d.data.color)
+
+        // Add percentage labels inside the arcs
+        arcs
+          .append('text')
+          .attr('class', 'segment-label')
+          .attr('transform', (d) => {
+            // Position the text in the middle of each arc segment
+            const [x, y] = arc.centroid(d)
+            // Scale the position slightly to ensure it's within the segment
+            const scale = 0.7
+            return `translate(${x * scale}, ${y * scale})`
+          })
+          .attr('text-anchor', 'middle')
+          .attr('dy', '.35em')
+          .html((d) => {
+            // Add a text element with a white outline for better visibility
+            return `<tspan class="segment-label-text" fill="${getContrastColor(d.data.color)}">${d.data.value}%</tspan>`
+          })
+
+        // Add center text
+        svg
+          .append('text')
+          .attr('class', 'center-text')
+          .attr('text-anchor', 'middle')
+          .attr('dy', '.35em')
+          .text(centerText)
+
+        // Helper function to determine text color based on background
+        function getContrastColor(backgroundColor) {
+          // For dark blue, use white text
+          if (backgroundColor === '#003f5c') {
+            return 'white'
+          }
+          // For all other colors, use black text
+          return 'black'
         }
+      }
     </script>
-</body>
+  </body>
 </html>

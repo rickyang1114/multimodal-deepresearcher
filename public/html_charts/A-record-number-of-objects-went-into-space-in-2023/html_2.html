@@ -1,684 +1,726 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Evolution of Small Satellite Characteristics (2018-2023)</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        .visualization-container {
-            width: 900px;
-            height: 700px;
-            position: relative;
-        }
-        
-        .main-title {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 25px;
-        }
-        
-        .chart-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-        
-        .top-chart {
-            width: 435px;
-            height: 330px;
-        }
-        
-        .bottom-chart {
-            width: 100%;
-            height: 300px;
-            margin-top: 20px;
-        }
-        
-        .chart-title {
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        .source-attribution {
-            font-size: 12px;
-            color: #666;
-            margin-top: 15px;
-            text-align: center;
-        }
-        
-        .note {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-            text-align: center;
-            font-style: italic;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-size: 14px;
-            font-weight: bold;
-            color: #0a4a90;
-            text-shadow: 0px 0px 3px white, 0px 0px 3px white, 0px 0px 3px white;
-        }
-        
-        .axis-label {
-            font-size: 12px;
-            text-anchor: middle;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-opacity: 0.7;
-            shape-rendering: crispEdges;
-        }
-        
-        .annotation {
-            font-size: 11px;
-            font-style: italic;
-            fill: #333;
-            font-weight: bold;
-            text-shadow: 0px 0px 3px white, 0px 0px 3px white, 0px 0px 3px white;
-        }
-        
-        .legend-item {
-            font-size: 12px;
-        }
-        
-        .annotation-box {
-            fill: rgba(255, 255, 255, 0.8);
-            stroke: #ccc;
-            stroke-width: 1px;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .visualization-container {
+        width: 900px;
+        height: 700px;
+        position: relative;
+      }
+
+      .main-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 25px;
+      }
+
+      .chart-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+
+      .top-chart {
+        width: 435px;
+        height: 330px;
+      }
+
+      .bottom-chart {
+        width: 100%;
+        height: 300px;
+        margin-top: 20px;
+      }
+
+      .chart-title {
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .source-attribution {
+        font-size: 12px;
+        color: #666;
+        margin-top: 15px;
+        text-align: center;
+      }
+
+      .note {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+        text-align: center;
+        font-style: italic;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-size: 14px;
+        font-weight: bold;
+        color: #0a4a90;
+        text-shadow:
+          0px 0px 3px white,
+          0px 0px 3px white,
+          0px 0px 3px white;
+      }
+
+      .axis-label {
+        font-size: 12px;
+        text-anchor: middle;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+      }
+
+      .annotation {
+        font-size: 11px;
+        font-style: italic;
+        fill: #333;
+        font-weight: bold;
+        text-shadow:
+          0px 0px 3px white,
+          0px 0px 3px white,
+          0px 0px 3px white;
+      }
+
+      .legend-item {
+        font-size: 12px;
+      }
+
+      .annotation-box {
+        fill: rgba(255, 255, 255, 0.8);
+        stroke: #ccc;
+        stroke-width: 1px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="main-title">Evolution of Small Satellite Characteristics (2018-2023)</div>
-        
-        <div class="chart-container">
-            <div class="top-chart" id="mass-distribution-chart">
-                <div class="chart-title">Mass Distribution by Year (%)</div>
-            </div>
-            
-            <div class="top-chart" id="orbital-distribution-chart">
-                <div class="chart-title">Orbital Altitude Distribution by Year (%)</div>
-            </div>
-            
-            <div class="bottom-chart" id="mass-class-trends-chart">
-                <div class="chart-title">Small Satellite Launches by Mass Class (2018-2023)</div>
-            </div>
+      <div class="main-title">Evolution of Small Satellite Characteristics (2018-2023)</div>
+
+      <div class="chart-container">
+        <div class="top-chart" id="mass-distribution-chart">
+          <div class="chart-title">Mass Distribution by Year (%)</div>
         </div>
-        
-        <div class="source-attribution">Data sources: BryceTech, Space-Track.org</div>
-        <div class="note">Mini satellites (100-500kg) like Starlink dominate deployments, with most satellites launched to LEO below 600km</div>
+
+        <div class="top-chart" id="orbital-distribution-chart">
+          <div class="chart-title">Orbital Altitude Distribution by Year (%)</div>
+        </div>
+
+        <div class="bottom-chart" id="mass-class-trends-chart">
+          <div class="chart-title">Small Satellite Launches by Mass Class (2018-2023)</div>
+        </div>
+      </div>
+
+      <div class="source-attribution">Data sources: BryceTech, Space-Track.org</div>
+      <div class="note">
+        Mini satellites (100-500kg) like Starlink dominate deployments, with most satellites
+        launched to LEO below 600km
+      </div>
     </div>
 
     <script>
-        // Data for the charts
-        const years = [2018, 2019, 2020, 2021, 2022, 2023];
-        
-        // Mass distribution data (approximate percentages)
-        const massDistributionData = [
-            {year: 2018, Mini: 20, Micro: 35, Nano: 40, Pico: 5},
-            {year: 2019, Mini: 25, Micro: 35, Nano: 35, Pico: 5},
-            {year: 2020, Mini: 30, Micro: 30, Nano: 35, Pico: 5},
-            {year: 2021, Mini: 40, Micro: 30, Nano: 25, Pico: 5},
-            {year: 2022, Mini: 50, Micro: 25, Nano: 20, Pico: 5},
-            {year: 2023, Mini: 55, Micro: 25, Nano: 18, Pico: 2}
-        ];
-        
-        // Orbital altitude distribution data (approximate percentages)
-        const orbitalDistributionData = [
-            {year: 2018, ">1000km": 25, "600-1000km": 35, "<600km": 40},
-            {year: 2019, ">1000km": 20, "600-1000km": 30, "<600km": 50},
-            {year: 2020, ">1000km": 15, "600-1000km": 25, "<600km": 60},
-            {year: 2021, ">1000km": 12, "600-1000km": 20, "<600km": 68},
-            {year: 2022, ">1000km": 10, "600-1000km": 18, "<600km": 72},
-            {year: 2023, ">1000km": 8, "600-1000km": 15, "<600km": 77}
-        ];
-        
-        // Mass class trends data (approximate counts)
-        const massClassTrendsData = [
-            {year: 2018, Mini: 100, Micro: 180, Nano: 200, Pico: 25},
-            {year: 2019, Mini: 200, Micro: 250, Nano: 250, Pico: 35},
-            {year: 2020, Mini: 400, Micro: 300, Nano: 350, Pico: 50},
-            {year: 2021, Mini: 800, Micro: 450, Nano: 400, Pico: 60},
-            {year: 2022, Mini: 1200, Micro: 600, Nano: 450, Pico: 70},
-            {year: 2023, Mini: 1580, Micro: 715, Nano: 515, Pico: 50}
-        ];
-        
-        // Color scales
-        const massColorScale = d3.scaleOrdinal()
-            .domain(["Mini", "Micro", "Nano", "Pico"])
-            .range(["#0a4a90", "#3a7ca5", "#6aaed6", "#c6dbef"]);
-            
-        const altitudeColorScale = d3.scaleOrdinal()
-            .domain([">1000km", "600-1000km", "<600km"])
-            .range(["#0a4a90", "#3a7ca5", "#6aaed6"]);
-        
-        // Create the mass distribution chart
-        function createMassDistributionChart() {
-            const margin = {top: 30, right: 120, bottom: 60, left: 50};
-            const width = 435 - margin.left - margin.right;
-            const height = 330 - margin.top - margin.bottom;
-            
-            const svg = d3.select("#mass-distribution-chart")
-                .append("svg")
-                .attr("width", 435)
-                .attr("height", 330)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
-            
-            // Define arrow marker with larger size
-            svg.append("defs").append("marker")
-                .attr("id", "arrow-mass")
-                .attr("viewBox", "0 -5 10 10")
-                .attr("refX", 8)
-                .attr("refY", 0)
-                .attr("markerWidth", 8)
-                .attr("markerHeight", 8)
-                .attr("orient", "auto")
-                .append("path")
-                .attr("d", "M0,-5L10,0L0,5")
-                .attr("fill", "#333");
-            
-            // Stack the data
-            const massCategories = ["Mini", "Micro", "Nano", "Pico"];
-            const stackedData = d3.stack()
-                .keys(massCategories)
-                .order(d3.stackOrderNone)
-                .offset(d3.stackOffsetNone)(massDistributionData);
-            
-            // X scale
-            const x = d3.scaleBand()
-                .domain(years)
-                .range([0, width])
-                .padding(0.3);
-            
-            // Y scale
-            const y = d3.scaleLinear()
-                .domain([0, 100])
-                .range([height, 0]);
-            
-            // Add X axis
-            svg.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x).tickFormat(d => d))
-                .selectAll("text")
-                .attr("transform", "rotate(-45)")
-                .style("text-anchor", "end")
-                .attr("dx", "-.8em")
-                .attr("dy", ".15em");
-            
-            // Add Y axis
-            svg.append("g")
-                .call(d3.axisLeft(y).ticks(5).tickFormat(d => d + "%"));
-            
-            // Add Y axis label
-            svg.append("text")
-                .attr("class", "axis-label")
-                .attr("transform", "rotate(-90)")
-                .attr("y", -35)
-                .attr("x", -height / 2)
-                .style("text-anchor", "middle")
-                .text("Percentage");
-            
-            // Add grid lines
-            svg.append("g")
-                .attr("class", "grid")
-                .call(d3.axisLeft(y)
-                    .ticks(5)
-                    .tickSize(-width)
-                    .tickFormat("")
-                );
-            
-            // Create the stacked bars
-            svg.append("g")
-                .selectAll("g")
-                .data(stackedData)
-                .join("g")
-                .attr("fill", d => massColorScale(d.key))
-                .selectAll("rect")
-                .data(d => d)
-                .join("rect")
-                .attr("x", d => x(d.data.year))
-                .attr("y", d => y(d[1]))
-                .attr("height", d => y(d[0]) - y(d[1]))
-                .attr("width", x.bandwidth())
-                .append("title")
-                .text(d => `${d.data.year}: ${d[1] - d[0]}%`);
-            
-            // Add percentage labels to the 2023 data
-            const lastYearData = massDistributionData[massDistributionData.length - 1];
-            let cumulative = 0;
-            
-            massCategories.forEach(category => {
-                const value = lastYearData[category];
-                const y0 = cumulative;
-                cumulative += value;
-                
-                if (value >= 10) {  // Only add text if there's enough space
-                    svg.append("text")
-                        .attr("class", "key-number")
-                        .attr("x", x(2023) + x.bandwidth() / 2)
-                        .attr("y", y(y0 + value / 2))
-                        .attr("text-anchor", "middle")
-                        .attr("dominant-baseline", "middle")
-                        .text(`${value}%`);
-                }
-            });
-            
-            // Add legend with more spacing
-            const legend = svg.append("g")
-                .attr("transform", `translate(${width + 20}, 0)`);
-            
-            massCategories.forEach((category, i) => {
-                const legendRow = legend.append("g")
-                    .attr("transform", `translate(0, ${i * 20})`);
-                
-                legendRow.append("rect")
-                    .attr("width", 10)
-                    .attr("height", 10)
-                    .attr("fill", massColorScale(category));
-                
-                legendRow.append("text")
-                    .attr("x", 15)
-                    .attr("y", 10)
-                    .attr("class", "legend-item")
-                    .text(category);
-            });
-            
-            // Add annotation for the shift toward mini satellites with background
-            const annotX = x(2020) + x.bandwidth() / 2;
-            const annotY = y(85);
-            
-            // Add background for annotation
-            svg.append("rect")
-                .attr("class", "annotation-box")
-                .attr("x", annotX - 60)
-                .attr("y", annotY - 15)
-                .attr("width", 120)
-                .attr("height", 20)
-                .attr("rx", 5);
-            
-            svg.append("text")
-                .attr("class", "annotation")
-                .attr("x", annotX)
-                .attr("y", annotY)
-                .attr("text-anchor", "middle")
-                .text("Shift toward Mini satellites");
-            
-            svg.append("path")
-                .attr("d", `M${annotX},${annotY + 5} L${x(2022) + x.bandwidth()/2},${y(60)}`)
-                .attr("stroke", "#333")
-                .attr("stroke-width", 1.5)
-                .attr("fill", "none")
-                .attr("marker-end", "url(#arrow-mass)");
-        }
-        
-        // Create the orbital distribution chart
-        function createOrbitalDistributionChart() {
-            const margin = {top: 30, right: 120, bottom: 60, left: 50};
-            const width = 435 - margin.left - margin.right;
-            const height = 330 - margin.top - margin.bottom;
-            
-            const svg = d3.select("#orbital-distribution-chart")
-                .append("svg")
-                .attr("width", 435)
-                .attr("height", 330)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
-            
-            // Define arrow marker with larger size
-            svg.append("defs").append("marker")
-                .attr("id", "arrow-orbit")
-                .attr("viewBox", "0 -5 10 10")
-                .attr("refX", 8)
-                .attr("refY", 0)
-                .attr("markerWidth", 8)
-                .attr("markerHeight", 8)
-                .attr("orient", "auto")
-                .append("path")
-                .attr("d", "M0,-5L10,0L0,5")
-                .attr("fill", "#333");
-            
-            // Stack the data
-            const altitudeCategories = [">1000km", "600-1000km", "<600km"];
-            const stackedData = d3.stack()
-                .keys(altitudeCategories)
-                .order(d3.stackOrderNone)
-                .offset(d3.stackOffsetNone)(orbitalDistributionData);
-            
-            // X scale
-            const x = d3.scaleBand()
-                .domain(years)
-                .range([0, width])
-                .padding(0.3);
-            
-            // Y scale
-            const y = d3.scaleLinear()
-                .domain([0, 100])
-                .range([height, 0]);
-            
-            // Add X axis
-            svg.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x).tickFormat(d => d))
-                .selectAll("text")
-                .attr("transform", "rotate(-45)")
-                .style("text-anchor", "end")
-                .attr("dx", "-.8em")
-                .attr("dy", ".15em");
-            
-            // Add Y axis
-            svg.append("g")
-                .call(d3.axisLeft(y).ticks(5).tickFormat(d => d + "%"));
-            
-            // Add Y axis label
-            svg.append("text")
-                .attr("class", "axis-label")
-                .attr("transform", "rotate(-90)")
-                .attr("y", -35)
-                .attr("x", -height / 2)
-                .style("text-anchor", "middle")
-                .text("Percentage");
-            
-            // Add grid lines
-            svg.append("g")
-                .attr("class", "grid")
-                .call(d3.axisLeft(y)
-                    .ticks(5)
-                    .tickSize(-width)
-                    .tickFormat("")
-                );
-            
-            // Create the stacked bars
-            svg.append("g")
-                .selectAll("g")
-                .data(stackedData)
-                .join("g")
-                .attr("fill", d => altitudeColorScale(d.key))
-                .selectAll("rect")
-                .data(d => d)
-                .join("rect")
-                .attr("x", d => x(d.data.year))
-                .attr("y", d => y(d[1]))
-                .attr("height", d => y(d[0]) - y(d[1]))
-                .attr("width", x.bandwidth())
-                .append("title")
-                .text(d => `${d.data.year}: ${d[1] - d[0]}%`);
-            
-            // Add percentage labels to the 2023 data
-            const lastYearData = orbitalDistributionData[orbitalDistributionData.length - 1];
-            let cumulative = 0;
-            
-            altitudeCategories.forEach(category => {
-                const value = lastYearData[category];
-                const y0 = cumulative;
-                cumulative += value;
-                
-                if (value >= 10) {  // Only add text if there's enough space
-                    svg.append("text")
-                        .attr("class", "key-number")
-                        .attr("x", x(2023) + x.bandwidth() / 2)
-                        .attr("y", y(y0 + value / 2))
-                        .attr("text-anchor", "middle")
-                        .attr("dominant-baseline", "middle")
-                        .text(`${value}%`);
-                }
-            });
-            
-            // Add legend with more spacing
-            const legend = svg.append("g")
-                .attr("transform", `translate(${width + 20}, 0)`);
-            
-            altitudeCategories.forEach((category, i) => {
-                const legendRow = legend.append("g")
-                    .attr("transform", `translate(0, ${i * 20})`);
-                
-                legendRow.append("rect")
-                    .attr("width", 10)
-                    .attr("height", 10)
-                    .attr("fill", altitudeColorScale(category));
-                
-                legendRow.append("text")
-                    .attr("x", 15)
-                    .attr("y", 10)
-                    .attr("class", "legend-item")
-                    .text(category);
-            });
-            
-            // Add annotation for the shift toward lower orbits with background
-            const annotX = x(2020) + x.bandwidth() / 2;
-            const annotY = y(20);
-            
-            // Add background for annotation
-            svg.append("rect")
-                .attr("class", "annotation-box")
-                .attr("x", annotX - 60)
-                .attr("y", annotY - 15)
-                .attr("width", 120)
-                .attr("height", 20)
-                .attr("rx", 5);
-            
-            svg.append("text")
-                .attr("class", "annotation")
-                .attr("x", annotX)
-                .attr("y", annotY)
-                .attr("text-anchor", "middle")
-                .text("Trend toward lower orbits");
-            
-            svg.append("path")
-                .attr("d", `M${annotX},${annotY + 5} L${x(2022) + x.bandwidth()/2},${y(50)}`)
-                .attr("stroke", "#333")
-                .attr("stroke-width", 1.5)
-                .attr("fill", "none")
-                .attr("marker-end", "url(#arrow-orbit)");
-        }
-        
-        // Create the mass class trends chart
-        function createMassClassTrendsChart() {
-            const margin = {top: 30, right: 130, bottom: 60, left: 60};
-            const width = 900 - margin.left - margin.right;
-            const height = 300 - margin.top - margin.bottom;
-            
-            const svg = d3.select("#mass-class-trends-chart")
-                .append("svg")
-                .attr("width", 900)
-                .attr("height", 300)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
-            
-            // Define arrow marker with larger size
-            svg.append("defs").append("marker")
-                .attr("id", "arrow-trend")
-                .attr("viewBox", "0 -5 10 10")
-                .attr("refX", 8)
-                .attr("refY", 0)
-                .attr("markerWidth", 8)
-                .attr("markerHeight", 8)
-                .attr("orient", "auto")
-                .append("path")
-                .attr("d", "M0,-5L10,0L0,5")
-                .attr("fill", "#333");
-            
-            // X scale with more padding for year labels
-            const x = d3.scaleLinear()
-                .domain([2017.8, 2023.5])  // Extended domain slightly more
-                .range([0, width]);
-            
-            // Y scale
-            const y = d3.scaleLinear()
-                .domain([0, 1800])
-                .range([height, 0]);
-            
-            // Add X axis with more spacing between ticks
-            svg.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x)
-                    .tickFormat(d3.format("d"))
-                    .tickValues([2018, 2019, 2020, 2021, 2022, 2023]));
-            
-            // Add Y axis with more ticks
-            svg.append("g")
-                .call(d3.axisLeft(y).ticks(9));
-            
-            // Add X axis label
-            svg.append("text")
-                .attr("class", "axis-label")
-                .attr("x", width / 2)
-                .attr("y", height + 40)
-                .style("text-anchor", "middle")
-                .text("Year");
-            
-            // Add Y axis label
-            svg.append("text")
-                .attr("class", "axis-label")
-                .attr("transform", "rotate(-90)")
-                .attr("y", -45)
-                .attr("x", -height / 2)
-                .style("text-anchor", "middle")
-                .text("Number of Satellites");
-            
-            // Add grid lines
-            svg.append("g")
-                .attr("class", "grid")
-                .call(d3.axisLeft(y)
-                    .ticks(9)
-                    .tickSize(-width)
-                    .tickFormat("")
-                );
-            
-            // Line generator
-            const line = d3.line()
-                .x(d => x(d.year))
-                .y(d => y(d.value))
-                .curve(d3.curveMonotoneX);
-            
-            // Create lines for each mass class
-            const massCategories = ["Mini", "Micro", "Nano", "Pico"];
-            
-            massCategories.forEach(category => {
-                const categoryData = massClassTrendsData.map(d => ({
-                    year: d.year,
-                    value: d[category]
-                }));
-                
-                // Add the line
-                svg.append("path")
-                    .datum(categoryData)
-                    .attr("fill", "none")
-                    .attr("stroke", massColorScale(category))
-                    .attr("stroke-width", 2.5)
-                    .attr("d", line);
-                
-                // Add data points
-                svg.selectAll(`.dot-${category}`)
-                    .data(categoryData)
-                    .join("circle")
-                    .attr("class", `dot-${category}`)
-                    .attr("cx", d => x(d.year))
-                    .attr("cy", d => y(d.value))
-                    .attr("r", 4)
-                    .attr("fill", massColorScale(category))
-                    .append("title")
-                    .text(d => `${category} (${d.year}): ${d.value} satellites`);
-            });
-            
-            // Add value labels for 2023 with consistent vertical alignment and better positioning
-            const valueLabels = [
-                {category: "Mini", value: 1580, yOffset: -15},
-                {category: "Micro", value: 715, yOffset: -10},
-                {category: "Nano", value: 515, yOffset: 15},
-                {category: "Pico", value: 50, yOffset: 15}
-            ];
-            
-            valueLabels.forEach(item => {
-                svg.append("text")
-                    .attr("class", "key-number")
-                    .attr("x", x(2023) + 15)
-                    .attr("y", y(item.value) + item.yOffset)
-                    .attr("text-anchor", "start")
-                    .attr("dominant-baseline", "middle")
-                    .text(item.value);
-            });
-            
-            // Add legend with more spacing
-            const legend = svg.append("g")
-                .attr("transform", `translate(${width + 20}, 10)`);
-            
-            massCategories.forEach((category, i) => {
-                const legendRow = legend.append("g")
-                    .attr("transform", `translate(0, ${i * 25})`);  // Increased spacing between legend items
-                
-                legendRow.append("line")
-                    .attr("x1", 0)
-                    .attr("y1", 5)
-                    .attr("x2", 15)
-                    .attr("y2", 5)
-                    .attr("stroke", massColorScale(category))
-                    .attr("stroke-width", 2.5);
-                
-                legendRow.append("circle")
-                    .attr("cx", 7.5)
-                    .attr("cy", 5)
-                    .attr("r", 4)
-                    .attr("fill", massColorScale(category));
-                
-                legendRow.append("text")
-                    .attr("x", 20)
-                    .attr("y", 9)
-                    .attr("class", "legend-item")
-                    .text(category);
-            });
-            
-            // Reposition annotation for the rapid growth of Mini satellites to avoid crossing lines
-            const annotX = x(2019.5);  // Moved left to avoid crossing Micro line
-            const annotY = y(600);     // Moved up to better position
-            
-            // Add background for annotation
-            svg.append("rect")
-                .attr("class", "annotation-box")
-                .attr("x", annotX - 70)
-                .attr("y", annotY - 15)
-                .attr("width", 140)
-                .attr("height", 20)
-                .attr("rx", 5);
-            
-            svg.append("text")
-                .attr("class", "annotation")
-                .attr("x", annotX)
-                .attr("y", annotY)
-                .attr("text-anchor", "middle")
-                .text("Rapid growth of Mini satellites");
-            
-            svg.append("path")
-                .attr("d", `M${annotX + 50},${annotY} L${x(2021)},${y(800)}`)  // Adjusted path to avoid crossing other lines
-                .attr("stroke", "#333")
-                .attr("stroke-width", 1.5)
-                .attr("fill", "none")
-                .attr("marker-end", "url(#arrow-trend)");
-        }
-        
-        // Initialize all charts
-        createMassDistributionChart();
-        createOrbitalDistributionChart();
-        createMassClassTrendsChart();
+      // Data for the charts
+      const years = [2018, 2019, 2020, 2021, 2022, 2023]
+
+      // Mass distribution data (approximate percentages)
+      const massDistributionData = [
+        { year: 2018, Mini: 20, Micro: 35, Nano: 40, Pico: 5 },
+        { year: 2019, Mini: 25, Micro: 35, Nano: 35, Pico: 5 },
+        { year: 2020, Mini: 30, Micro: 30, Nano: 35, Pico: 5 },
+        { year: 2021, Mini: 40, Micro: 30, Nano: 25, Pico: 5 },
+        { year: 2022, Mini: 50, Micro: 25, Nano: 20, Pico: 5 },
+        { year: 2023, Mini: 55, Micro: 25, Nano: 18, Pico: 2 },
+      ]
+
+      // Orbital altitude distribution data (approximate percentages)
+      const orbitalDistributionData = [
+        { year: 2018, '>1000km': 25, '600-1000km': 35, '<600km': 40 },
+        { year: 2019, '>1000km': 20, '600-1000km': 30, '<600km': 50 },
+        { year: 2020, '>1000km': 15, '600-1000km': 25, '<600km': 60 },
+        { year: 2021, '>1000km': 12, '600-1000km': 20, '<600km': 68 },
+        { year: 2022, '>1000km': 10, '600-1000km': 18, '<600km': 72 },
+        { year: 2023, '>1000km': 8, '600-1000km': 15, '<600km': 77 },
+      ]
+
+      // Mass class trends data (approximate counts)
+      const massClassTrendsData = [
+        { year: 2018, Mini: 100, Micro: 180, Nano: 200, Pico: 25 },
+        { year: 2019, Mini: 200, Micro: 250, Nano: 250, Pico: 35 },
+        { year: 2020, Mini: 400, Micro: 300, Nano: 350, Pico: 50 },
+        { year: 2021, Mini: 800, Micro: 450, Nano: 400, Pico: 60 },
+        { year: 2022, Mini: 1200, Micro: 600, Nano: 450, Pico: 70 },
+        { year: 2023, Mini: 1580, Micro: 715, Nano: 515, Pico: 50 },
+      ]
+
+      // Color scales
+      const massColorScale = d3
+        .scaleOrdinal()
+        .domain(['Mini', 'Micro', 'Nano', 'Pico'])
+        .range(['#0a4a90', '#3a7ca5', '#6aaed6', '#c6dbef'])
+
+      const altitudeColorScale = d3
+        .scaleOrdinal()
+        .domain(['>1000km', '600-1000km', '<600km'])
+        .range(['#0a4a90', '#3a7ca5', '#6aaed6'])
+
+      // Create the mass distribution chart
+      function createMassDistributionChart() {
+        const margin = { top: 30, right: 120, bottom: 60, left: 50 }
+        const width = 435 - margin.left - margin.right
+        const height = 330 - margin.top - margin.bottom
+
+        const svg = d3
+          .select('#mass-distribution-chart')
+          .append('svg')
+          .attr('width', 435)
+          .attr('height', 330)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`)
+
+        // Define arrow marker with larger size
+        svg
+          .append('defs')
+          .append('marker')
+          .attr('id', 'arrow-mass')
+          .attr('viewBox', '0 -5 10 10')
+          .attr('refX', 8)
+          .attr('refY', 0)
+          .attr('markerWidth', 8)
+          .attr('markerHeight', 8)
+          .attr('orient', 'auto')
+          .append('path')
+          .attr('d', 'M0,-5L10,0L0,5')
+          .attr('fill', '#333')
+
+        // Stack the data
+        const massCategories = ['Mini', 'Micro', 'Nano', 'Pico']
+        const stackedData = d3
+          .stack()
+          .keys(massCategories)
+          .order(d3.stackOrderNone)
+          .offset(d3.stackOffsetNone)(massDistributionData)
+
+        // X scale
+        const x = d3.scaleBand().domain(years).range([0, width]).padding(0.3)
+
+        // Y scale
+        const y = d3.scaleLinear().domain([0, 100]).range([height, 0])
+
+        // Add X axis
+        svg
+          .append('g')
+          .attr('transform', `translate(0,${height})`)
+          .call(d3.axisBottom(x).tickFormat((d) => d))
+          .selectAll('text')
+          .attr('transform', 'rotate(-45)')
+          .style('text-anchor', 'end')
+          .attr('dx', '-.8em')
+          .attr('dy', '.15em')
+
+        // Add Y axis
+        svg.append('g').call(
+          d3
+            .axisLeft(y)
+            .ticks(5)
+            .tickFormat((d) => d + '%')
+        )
+
+        // Add Y axis label
+        svg
+          .append('text')
+          .attr('class', 'axis-label')
+          .attr('transform', 'rotate(-90)')
+          .attr('y', -35)
+          .attr('x', -height / 2)
+          .style('text-anchor', 'middle')
+          .text('Percentage')
+
+        // Add grid lines
+        svg
+          .append('g')
+          .attr('class', 'grid')
+          .call(d3.axisLeft(y).ticks(5).tickSize(-width).tickFormat(''))
+
+        // Create the stacked bars
+        svg
+          .append('g')
+          .selectAll('g')
+          .data(stackedData)
+          .join('g')
+          .attr('fill', (d) => massColorScale(d.key))
+          .selectAll('rect')
+          .data((d) => d)
+          .join('rect')
+          .attr('x', (d) => x(d.data.year))
+          .attr('y', (d) => y(d[1]))
+          .attr('height', (d) => y(d[0]) - y(d[1]))
+          .attr('width', x.bandwidth())
+          .append('title')
+          .text((d) => `${d.data.year}: ${d[1] - d[0]}%`)
+
+        // Add percentage labels to the 2023 data
+        const lastYearData = massDistributionData[massDistributionData.length - 1]
+        let cumulative = 0
+
+        massCategories.forEach((category) => {
+          const value = lastYearData[category]
+          const y0 = cumulative
+          cumulative += value
+
+          if (value >= 10) {
+            // Only add text if there's enough space
+            svg
+              .append('text')
+              .attr('class', 'key-number')
+              .attr('x', x(2023) + x.bandwidth() / 2)
+              .attr('y', y(y0 + value / 2))
+              .attr('text-anchor', 'middle')
+              .attr('dominant-baseline', 'middle')
+              .text(`${value}%`)
+          }
+        })
+
+        // Add legend with more spacing
+        const legend = svg.append('g').attr('transform', `translate(${width + 20}, 0)`)
+
+        massCategories.forEach((category, i) => {
+          const legendRow = legend.append('g').attr('transform', `translate(0, ${i * 20})`)
+
+          legendRow
+            .append('rect')
+            .attr('width', 10)
+            .attr('height', 10)
+            .attr('fill', massColorScale(category))
+
+          legendRow
+            .append('text')
+            .attr('x', 15)
+            .attr('y', 10)
+            .attr('class', 'legend-item')
+            .text(category)
+        })
+
+        // Add annotation for the shift toward mini satellites with background
+        const annotX = x(2020) + x.bandwidth() / 2
+        const annotY = y(85)
+
+        // Add background for annotation
+        svg
+          .append('rect')
+          .attr('class', 'annotation-box')
+          .attr('x', annotX - 60)
+          .attr('y', annotY - 15)
+          .attr('width', 120)
+          .attr('height', 20)
+          .attr('rx', 5)
+
+        svg
+          .append('text')
+          .attr('class', 'annotation')
+          .attr('x', annotX)
+          .attr('y', annotY)
+          .attr('text-anchor', 'middle')
+          .text('Shift toward Mini satellites')
+
+        svg
+          .append('path')
+          .attr('d', `M${annotX},${annotY + 5} L${x(2022) + x.bandwidth() / 2},${y(60)}`)
+          .attr('stroke', '#333')
+          .attr('stroke-width', 1.5)
+          .attr('fill', 'none')
+          .attr('marker-end', 'url(#arrow-mass)')
+      }
+
+      // Create the orbital distribution chart
+      function createOrbitalDistributionChart() {
+        const margin = { top: 30, right: 120, bottom: 60, left: 50 }
+        const width = 435 - margin.left - margin.right
+        const height = 330 - margin.top - margin.bottom
+
+        const svg = d3
+          .select('#orbital-distribution-chart')
+          .append('svg')
+          .attr('width', 435)
+          .attr('height', 330)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`)
+
+        // Define arrow marker with larger size
+        svg
+          .append('defs')
+          .append('marker')
+          .attr('id', 'arrow-orbit')
+          .attr('viewBox', '0 -5 10 10')
+          .attr('refX', 8)
+          .attr('refY', 0)
+          .attr('markerWidth', 8)
+          .attr('markerHeight', 8)
+          .attr('orient', 'auto')
+          .append('path')
+          .attr('d', 'M0,-5L10,0L0,5')
+          .attr('fill', '#333')
+
+        // Stack the data
+        const altitudeCategories = ['>1000km', '600-1000km', '<600km']
+        const stackedData = d3
+          .stack()
+          .keys(altitudeCategories)
+          .order(d3.stackOrderNone)
+          .offset(d3.stackOffsetNone)(orbitalDistributionData)
+
+        // X scale
+        const x = d3.scaleBand().domain(years).range([0, width]).padding(0.3)
+
+        // Y scale
+        const y = d3.scaleLinear().domain([0, 100]).range([height, 0])
+
+        // Add X axis
+        svg
+          .append('g')
+          .attr('transform', `translate(0,${height})`)
+          .call(d3.axisBottom(x).tickFormat((d) => d))
+          .selectAll('text')
+          .attr('transform', 'rotate(-45)')
+          .style('text-anchor', 'end')
+          .attr('dx', '-.8em')
+          .attr('dy', '.15em')
+
+        // Add Y axis
+        svg.append('g').call(
+          d3
+            .axisLeft(y)
+            .ticks(5)
+            .tickFormat((d) => d + '%')
+        )
+
+        // Add Y axis label
+        svg
+          .append('text')
+          .attr('class', 'axis-label')
+          .attr('transform', 'rotate(-90)')
+          .attr('y', -35)
+          .attr('x', -height / 2)
+          .style('text-anchor', 'middle')
+          .text('Percentage')
+
+        // Add grid lines
+        svg
+          .append('g')
+          .attr('class', 'grid')
+          .call(d3.axisLeft(y).ticks(5).tickSize(-width).tickFormat(''))
+
+        // Create the stacked bars
+        svg
+          .append('g')
+          .selectAll('g')
+          .data(stackedData)
+          .join('g')
+          .attr('fill', (d) => altitudeColorScale(d.key))
+          .selectAll('rect')
+          .data((d) => d)
+          .join('rect')
+          .attr('x', (d) => x(d.data.year))
+          .attr('y', (d) => y(d[1]))
+          .attr('height', (d) => y(d[0]) - y(d[1]))
+          .attr('width', x.bandwidth())
+          .append('title')
+          .text((d) => `${d.data.year}: ${d[1] - d[0]}%`)
+
+        // Add percentage labels to the 2023 data
+        const lastYearData = orbitalDistributionData[orbitalDistributionData.length - 1]
+        let cumulative = 0
+
+        altitudeCategories.forEach((category) => {
+          const value = lastYearData[category]
+          const y0 = cumulative
+          cumulative += value
+
+          if (value >= 10) {
+            // Only add text if there's enough space
+            svg
+              .append('text')
+              .attr('class', 'key-number')
+              .attr('x', x(2023) + x.bandwidth() / 2)
+              .attr('y', y(y0 + value / 2))
+              .attr('text-anchor', 'middle')
+              .attr('dominant-baseline', 'middle')
+              .text(`${value}%`)
+          }
+        })
+
+        // Add legend with more spacing
+        const legend = svg.append('g').attr('transform', `translate(${width + 20}, 0)`)
+
+        altitudeCategories.forEach((category, i) => {
+          const legendRow = legend.append('g').attr('transform', `translate(0, ${i * 20})`)
+
+          legendRow
+            .append('rect')
+            .attr('width', 10)
+            .attr('height', 10)
+            .attr('fill', altitudeColorScale(category))
+
+          legendRow
+            .append('text')
+            .attr('x', 15)
+            .attr('y', 10)
+            .attr('class', 'legend-item')
+            .text(category)
+        })
+
+        // Add annotation for the shift toward lower orbits with background
+        const annotX = x(2020) + x.bandwidth() / 2
+        const annotY = y(20)
+
+        // Add background for annotation
+        svg
+          .append('rect')
+          .attr('class', 'annotation-box')
+          .attr('x', annotX - 60)
+          .attr('y', annotY - 15)
+          .attr('width', 120)
+          .attr('height', 20)
+          .attr('rx', 5)
+
+        svg
+          .append('text')
+          .attr('class', 'annotation')
+          .attr('x', annotX)
+          .attr('y', annotY)
+          .attr('text-anchor', 'middle')
+          .text('Trend toward lower orbits')
+
+        svg
+          .append('path')
+          .attr('d', `M${annotX},${annotY + 5} L${x(2022) + x.bandwidth() / 2},${y(50)}`)
+          .attr('stroke', '#333')
+          .attr('stroke-width', 1.5)
+          .attr('fill', 'none')
+          .attr('marker-end', 'url(#arrow-orbit)')
+      }
+
+      // Create the mass class trends chart
+      function createMassClassTrendsChart() {
+        const margin = { top: 30, right: 130, bottom: 60, left: 60 }
+        const width = 900 - margin.left - margin.right
+        const height = 300 - margin.top - margin.bottom
+
+        const svg = d3
+          .select('#mass-class-trends-chart')
+          .append('svg')
+          .attr('width', 900)
+          .attr('height', 300)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`)
+
+        // Define arrow marker with larger size
+        svg
+          .append('defs')
+          .append('marker')
+          .attr('id', 'arrow-trend')
+          .attr('viewBox', '0 -5 10 10')
+          .attr('refX', 8)
+          .attr('refY', 0)
+          .attr('markerWidth', 8)
+          .attr('markerHeight', 8)
+          .attr('orient', 'auto')
+          .append('path')
+          .attr('d', 'M0,-5L10,0L0,5')
+          .attr('fill', '#333')
+
+        // X scale with more padding for year labels
+        const x = d3
+          .scaleLinear()
+          .domain([2017.8, 2023.5]) // Extended domain slightly more
+          .range([0, width])
+
+        // Y scale
+        const y = d3.scaleLinear().domain([0, 1800]).range([height, 0])
+
+        // Add X axis with more spacing between ticks
+        svg
+          .append('g')
+          .attr('transform', `translate(0,${height})`)
+          .call(
+            d3
+              .axisBottom(x)
+              .tickFormat(d3.format('d'))
+              .tickValues([2018, 2019, 2020, 2021, 2022, 2023])
+          )
+
+        // Add Y axis with more ticks
+        svg.append('g').call(d3.axisLeft(y).ticks(9))
+
+        // Add X axis label
+        svg
+          .append('text')
+          .attr('class', 'axis-label')
+          .attr('x', width / 2)
+          .attr('y', height + 40)
+          .style('text-anchor', 'middle')
+          .text('Year')
+
+        // Add Y axis label
+        svg
+          .append('text')
+          .attr('class', 'axis-label')
+          .attr('transform', 'rotate(-90)')
+          .attr('y', -45)
+          .attr('x', -height / 2)
+          .style('text-anchor', 'middle')
+          .text('Number of Satellites')
+
+        // Add grid lines
+        svg
+          .append('g')
+          .attr('class', 'grid')
+          .call(d3.axisLeft(y).ticks(9).tickSize(-width).tickFormat(''))
+
+        // Line generator
+        const line = d3
+          .line()
+          .x((d) => x(d.year))
+          .y((d) => y(d.value))
+          .curve(d3.curveMonotoneX)
+
+        // Create lines for each mass class
+        const massCategories = ['Mini', 'Micro', 'Nano', 'Pico']
+
+        massCategories.forEach((category) => {
+          const categoryData = massClassTrendsData.map((d) => ({
+            year: d.year,
+            value: d[category],
+          }))
+
+          // Add the line
+          svg
+            .append('path')
+            .datum(categoryData)
+            .attr('fill', 'none')
+            .attr('stroke', massColorScale(category))
+            .attr('stroke-width', 2.5)
+            .attr('d', line)
+
+          // Add data points
+          svg
+            .selectAll(`.dot-${category}`)
+            .data(categoryData)
+            .join('circle')
+            .attr('class', `dot-${category}`)
+            .attr('cx', (d) => x(d.year))
+            .attr('cy', (d) => y(d.value))
+            .attr('r', 4)
+            .attr('fill', massColorScale(category))
+            .append('title')
+            .text((d) => `${category} (${d.year}): ${d.value} satellites`)
+        })
+
+        // Add value labels for 2023 with consistent vertical alignment and better positioning
+        const valueLabels = [
+          { category: 'Mini', value: 1580, yOffset: -15 },
+          { category: 'Micro', value: 715, yOffset: -10 },
+          { category: 'Nano', value: 515, yOffset: 15 },
+          { category: 'Pico', value: 50, yOffset: 15 },
+        ]
+
+        valueLabels.forEach((item) => {
+          svg
+            .append('text')
+            .attr('class', 'key-number')
+            .attr('x', x(2023) + 15)
+            .attr('y', y(item.value) + item.yOffset)
+            .attr('text-anchor', 'start')
+            .attr('dominant-baseline', 'middle')
+            .text(item.value)
+        })
+
+        // Add legend with more spacing
+        const legend = svg.append('g').attr('transform', `translate(${width + 20}, 10)`)
+
+        massCategories.forEach((category, i) => {
+          const legendRow = legend.append('g').attr('transform', `translate(0, ${i * 25})`) // Increased spacing between legend items
+
+          legendRow
+            .append('line')
+            .attr('x1', 0)
+            .attr('y1', 5)
+            .attr('x2', 15)
+            .attr('y2', 5)
+            .attr('stroke', massColorScale(category))
+            .attr('stroke-width', 2.5)
+
+          legendRow
+            .append('circle')
+            .attr('cx', 7.5)
+            .attr('cy', 5)
+            .attr('r', 4)
+            .attr('fill', massColorScale(category))
+
+          legendRow
+            .append('text')
+            .attr('x', 20)
+            .attr('y', 9)
+            .attr('class', 'legend-item')
+            .text(category)
+        })
+
+        // Reposition annotation for the rapid growth of Mini satellites to avoid crossing lines
+        const annotX = x(2019.5) // Moved left to avoid crossing Micro line
+        const annotY = y(600) // Moved up to better position
+
+        // Add background for annotation
+        svg
+          .append('rect')
+          .attr('class', 'annotation-box')
+          .attr('x', annotX - 70)
+          .attr('y', annotY - 15)
+          .attr('width', 140)
+          .attr('height', 20)
+          .attr('rx', 5)
+
+        svg
+          .append('text')
+          .attr('class', 'annotation')
+          .attr('x', annotX)
+          .attr('y', annotY)
+          .attr('text-anchor', 'middle')
+          .text('Rapid growth of Mini satellites')
+
+        svg
+          .append('path')
+          .attr('d', `M${annotX + 50},${annotY} L${x(2021)},${y(800)}`) // Adjusted path to avoid crossing other lines
+          .attr('stroke', '#333')
+          .attr('stroke-width', 1.5)
+          .attr('fill', 'none')
+          .attr('marker-end', 'url(#arrow-trend)')
+      }
+
+      // Initialize all charts
+      createMassDistributionChart()
+      createOrbitalDistributionChart()
+      createMassClassTrendsChart()
     </script>
-</body>
+  </body>
 </html>

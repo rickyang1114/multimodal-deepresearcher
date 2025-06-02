@@ -1,220 +1,242 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Schedule Autonomy Impact on Job Retention</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .container {
-            width: 100%;
-        }
-        
-        .title {
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 16px;
-            text-align: center;
-            color: #555;
-            margin-bottom: 30px;
-        }
-        
-        .chart-container {
-            position: relative;
-            margin-bottom: 50px;
-        }
-        
-        .axis-label {
-            font-size: 14px;
-            font-weight: bold;
-        }
-        
-        .bar-label {
-            font-size: 14px;
-            text-anchor: end;
-        }
-        
-        .value-label {
-            font-size: 14px;
-            font-weight: bold;
-        }
-        
-        .annotation-box {
-            position: absolute;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 12px;
-            width: 280px;
-            font-size: 14px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .annotation-title {
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        
-        .source {
-            font-size: 12px;
-            color: #777;
-            margin-top: 20px;
-            text-align: left;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            font-size: 16px;
-            color: #006c70;
-        }
-        
-        .tick line {
-            stroke: #ddd;
-        }
-        
-        .domain {
-            stroke: #bbb;
-        }
-        
-        .zero-line {
-            stroke: #999;
-            stroke-width: 1.5px;
-            stroke-dasharray: 3,3;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .container {
+        width: 100%;
+      }
+
+      .title {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        text-align: center;
+        color: #555;
+        margin-bottom: 30px;
+      }
+
+      .chart-container {
+        position: relative;
+        margin-bottom: 50px;
+      }
+
+      .axis-label {
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .bar-label {
+        font-size: 14px;
+        text-anchor: end;
+      }
+
+      .value-label {
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .annotation-box {
+        position: absolute;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 12px;
+        width: 280px;
+        font-size: 14px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .annotation-title {
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      .source {
+        font-size: 12px;
+        color: #777;
+        margin-top: 20px;
+        text-align: left;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        font-size: 16px;
+        color: #006c70;
+      }
+
+      .tick line {
+        stroke: #ddd;
+      }
+
+      .domain {
+        stroke: #bbb;
+      }
+
+      .zero-line {
+        stroke: #999;
+        stroke-width: 1.5px;
+        stroke-dasharray: 3, 3;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="title">Schedule Autonomy Is the Most Powerful Retention Driver</div>
-        <div class="subtitle">Change in likelihood to look for a new job by work arrangement (Payscale, n = 309,971, 2021-2023)</div>
-        <div id="chart" class="chart-container"></div>
-        <div class="source">Source: Payscale logistic-regression analysis, August 2021–August 2023</div>
+      <div class="title">Schedule Autonomy Is the Most Powerful Retention Driver</div>
+      <div class="subtitle">
+        Change in likelihood to look for a new job by work arrangement (Payscale, n = 309,971,
+        2021-2023)
+      </div>
+      <div id="chart" class="chart-container"></div>
+      <div class="source">
+        Source: Payscale logistic-regression analysis, August 2021–August 2023
+      </div>
     </div>
 
     <script>
-        // Data preparation
-        const data = [
-            { arrangement: "Remote as-needed (schedule autonomy)", value: -32, color: "#006c70" },
-            { arrangement: "Fully remote", value: -13, color: "#2f7bbf" },
-            { arrangement: "Hybrid without autonomy", value: -5, color: "#9ecae1" },
-            { arrangement: "Fully on-site (reference)", value: 0, color: "#aaa" },
-            { arrangement: "Cannot work from home", value: 14, color: "#ff7f0e" }
-        ];
+      // Data preparation
+      const data = [
+        { arrangement: 'Remote as-needed (schedule autonomy)', value: -32, color: '#006c70' },
+        { arrangement: 'Fully remote', value: -13, color: '#2f7bbf' },
+        { arrangement: 'Hybrid without autonomy', value: -5, color: '#9ecae1' },
+        { arrangement: 'Fully on-site (reference)', value: 0, color: '#aaa' },
+        { arrangement: 'Cannot work from home', value: 14, color: '#ff7f0e' },
+      ]
 
-        // Sort data for visual presentation (most negative to most positive)
-        data.sort((a, b) => a.value - b.value);
+      // Sort data for visual presentation (most negative to most positive)
+      data.sort((a, b) => a.value - b.value)
 
-        // Chart dimensions - adjusted to fix issues
-        const margin = { top: 40, right: 120, bottom: 80, left: 300 };
-        const width = 900 - margin.left - margin.right;
-        const height = 400 - margin.top - margin.bottom;
+      // Chart dimensions - adjusted to fix issues
+      const margin = { top: 40, right: 120, bottom: 80, left: 300 }
+      const width = 900 - margin.left - margin.right
+      const height = 400 - margin.top - margin.bottom
 
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
 
-        // Scales
-        const x = d3.scaleLinear()
-            .domain([-35, 15])
-            .range([0, width]);
+      // Scales
+      const x = d3.scaleLinear().domain([-35, 15]).range([0, width])
 
-        const y = d3.scaleBand()
-            .domain(data.map(d => d.arrangement))
-            .range([0, height])
-            .padding(0.3);
+      const y = d3
+        .scaleBand()
+        .domain(data.map((d) => d.arrangement))
+        .range([0, height])
+        .padding(0.3)
 
-        // X-axis
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x)
-                .tickFormat(d => `${d}%`)
-                .tickSize(-height)
-                .ticks(10))
-            .call(g => g.select(".domain").attr("stroke", "#bbb"))
-            .call(g => g.selectAll(".tick line").attr("stroke", "#ddd"));
+      // X-axis
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(
+          d3
+            .axisBottom(x)
+            .tickFormat((d) => `${d}%`)
+            .tickSize(-height)
+            .ticks(10)
+        )
+        .call((g) => g.select('.domain').attr('stroke', '#bbb'))
+        .call((g) => g.selectAll('.tick line').attr('stroke', '#ddd'))
 
-        // X-axis label - fixed positioning
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("text-anchor", "middle")
-            .attr("x", width / 2)
-            .attr("y", height + 50)
-            .text("Change in likelihood to look for a new job (%)");
+      // X-axis label - fixed positioning
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('text-anchor', 'middle')
+        .attr('x', width / 2)
+        .attr('y', height + 50)
+        .text('Change in likelihood to look for a new job (%)')
 
-        // Y-axis (without lines, just labels)
-        svg.append("g")
-            .call(d3.axisLeft(y).tickSize(0))
-            .call(g => g.select(".domain").remove())
-            .selectAll(".tick text")
-            .attr("class", "bar-label")
-            .style("text-anchor", "end")
-            .attr("dx", "-0.5em");
+      // Y-axis (without lines, just labels)
+      svg
+        .append('g')
+        .call(d3.axisLeft(y).tickSize(0))
+        .call((g) => g.select('.domain').remove())
+        .selectAll('.tick text')
+        .attr('class', 'bar-label')
+        .style('text-anchor', 'end')
+        .attr('dx', '-0.5em')
 
-        // Zero reference line
-        svg.append("line")
-            .attr("class", "zero-line")
-            .attr("x1", x(0))
-            .attr("x2", x(0))
-            .attr("y1", 0)
-            .attr("y2", height);
+      // Zero reference line
+      svg
+        .append('line')
+        .attr('class', 'zero-line')
+        .attr('x1', x(0))
+        .attr('x2', x(0))
+        .attr('y1', 0)
+        .attr('y2', height)
 
-        // Bars
-        svg.selectAll(".bar")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", "bar")
-            .attr("x", d => d.value < 0 ? x(d.value) : x(0))
-            .attr("y", d => y(d.arrangement))
-            .attr("width", d => Math.abs(x(d.value) - x(0)))
-            .attr("height", y.bandwidth())
-            .attr("fill", d => d.color);
+      // Bars
+      svg
+        .selectAll('.bar')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', (d) => (d.value < 0 ? x(d.value) : x(0)))
+        .attr('y', (d) => y(d.arrangement))
+        .attr('width', (d) => Math.abs(x(d.value) - x(0)))
+        .attr('height', y.bandwidth())
+        .attr('fill', (d) => d.color)
 
-        // Value labels
-        svg.selectAll(".value-label")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("class", "value-label")
-            .attr("x", d => d.value < 0 ? x(d.value) - 5 : x(d.value) + 5)
-            .attr("y", d => y(d.arrangement) + y.bandwidth() / 2 + 5)
-            .attr("text-anchor", d => d.value < 0 ? "end" : "start")
-            .text(d => d.value === 0 ? "0%" : `${d.value > 0 ? "+" : ""}${d.value}%`);
+      // Value labels
+      svg
+        .selectAll('.value-label')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'value-label')
+        .attr('x', (d) => (d.value < 0 ? x(d.value) - 5 : x(d.value) + 5))
+        .attr('y', (d) => y(d.arrangement) + y.bandwidth() / 2 + 5)
+        .attr('text-anchor', (d) => (d.value < 0 ? 'end' : 'start'))
+        .text((d) => (d.value === 0 ? '0%' : `${d.value > 0 ? '+' : ''}${d.value}%`))
 
-        // Annotation box - repositioned below the chart
-        const annotationBox = d3.select("#chart")
-            .append("div")
-            .attr("class", "annotation-box")
-            .style("left", `${margin.left + 20}px`)
-            .style("top", `${margin.top + height + margin.bottom - 10}px`);
+      // Annotation box - repositioned below the chart
+      const annotationBox = d3
+        .select('#chart')
+        .append('div')
+        .attr('class', 'annotation-box')
+        .style('left', `${margin.left + 20}px`)
+        .style('top', `${margin.top + height + margin.bottom - 10}px`)
 
-        annotationBox.append("div")
-            .attr("class", "annotation-title")
-            .html("Key Insights:");
+      annotationBox.append('div').attr('class', 'annotation-title').html('Key Insights:')
 
-        annotationBox.append("p")
-            .html("Employees with schedule autonomy are <span class='key-number'>32%</span> less likely to seek a new job than those working fully on-site.");
+      annotationBox
+        .append('p')
+        .html(
+          "Employees with schedule autonomy are <span class='key-number'>32%</span> less likely to seek a new job than those working fully on-site."
+        )
 
-        annotationBox.append("p")
-            .html("Gallup found 31% of hybrid employees have full autonomy over their office schedule, correlating with higher engagement.");
+      annotationBox
+        .append('p')
+        .html(
+          'Gallup found 31% of hybrid employees have full autonomy over their office schedule, correlating with higher engagement.'
+        )
     </script>
-</body>
+  </body>
 </html>

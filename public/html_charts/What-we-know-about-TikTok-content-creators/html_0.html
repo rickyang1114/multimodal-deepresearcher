@@ -1,375 +1,392 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TikTok Creator Demographics & Top Influencers</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #FFFFFF;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        
-        .visualization-container {
-            width: 1200px;
-            height: 650px;
-            display: flex;
-            flex-direction: column;
-            background-color: #FFFFFF;
-        }
-        
-        .title-container {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .title {
-            font-size: 16pt;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #333333;
-        }
-        
-        .subtitle {
-            font-size: 12pt;
-            color: #666666;
-            margin-top: 0;
-        }
-        
-        .charts-container {
-            display: flex;
-            flex: 1;
-        }
-        
-        .chart-panel {
-            flex: 1;
-            padding: 10px;
-            position: relative;
-        }
-        
-        .panel-subtitle {
-            font-size: 14pt;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333333;
-        }
-        
-        .source-attribution {
-            position: absolute;
-            bottom: 5px;
-            right: 10px;
-            font-size: 8pt;
-            color: #999999;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-weight: 600;
-            color: #333333;
-        }
-        
-        .pie-label {
-            font-size: 10pt;
-        }
-        
-        .creator-name {
-            font-size: 12pt;
-            font-weight: 600;
-        }
-        
-        .follower-count {
-            font-size: 10pt;
-        }
-        
-        .pie-segment {
-            filter: drop-shadow(2px 3px 3px rgba(0, 0, 0, 0.2));
-        }
-        
-        .creator-icon {
-            font-size: 14pt;
-            fill: #009FE3;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        background-color: #ffffff;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .visualization-container {
+        width: 1200px;
+        height: 650px;
+        display: flex;
+        flex-direction: column;
+        background-color: #ffffff;
+      }
+
+      .title-container {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .title {
+        font-size: 16pt;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #333333;
+      }
+
+      .subtitle {
+        font-size: 12pt;
+        color: #666666;
+        margin-top: 0;
+      }
+
+      .charts-container {
+        display: flex;
+        flex: 1;
+      }
+
+      .chart-panel {
+        flex: 1;
+        padding: 10px;
+        position: relative;
+      }
+
+      .panel-subtitle {
+        font-size: 14pt;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333333;
+      }
+
+      .source-attribution {
+        position: absolute;
+        bottom: 5px;
+        right: 10px;
+        font-size: 8pt;
+        color: #999999;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-weight: 600;
+        color: #333333;
+      }
+
+      .pie-label {
+        font-size: 10pt;
+      }
+
+      .creator-name {
+        font-size: 12pt;
+        font-weight: 600;
+      }
+
+      .follower-count {
+        font-size: 10pt;
+      }
+
+      .pie-segment {
+        filter: drop-shadow(2px 3px 3px rgba(0, 0, 0, 0.2));
+      }
+
+      .creator-icon {
+        font-size: 14pt;
+        fill: #009fe3;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title-container">
-            <h1 class="title">TikTok Creator Demographics & Top Influencers</h1>
-            <p class="subtitle">Age Distribution of Content Creators and Most-Followed Accounts (as of January 2025)</p>
+      <div class="title-container">
+        <h1 class="title">TikTok Creator Demographics & Top Influencers</h1>
+        <p class="subtitle">
+          Age Distribution of Content Creators and Most-Followed Accounts (as of January 2025)
+        </p>
+      </div>
+      <div class="charts-container">
+        <div class="chart-panel" id="pie-chart-panel">
+          <div class="panel-subtitle">Creator Age Distribution (%)</div>
+          <div id="pie-chart"></div>
+          <div class="source-attribution">Source: Exploding Topics, 2025</div>
         </div>
-        <div class="charts-container">
-            <div class="chart-panel" id="pie-chart-panel">
-                <div class="panel-subtitle">Creator Age Distribution (%)</div>
-                <div id="pie-chart"></div>
-                <div class="source-attribution">Source: Exploding Topics, 2025</div>
-            </div>
-            <div class="chart-panel" id="bar-chart-panel">
-                <div class="panel-subtitle">Top Creators by Follower Count (millions)</div>
-                <div id="bar-chart"></div>
-                <div class="source-attribution">Source: Exploding Topics, 2025</div>
-            </div>
+        <div class="chart-panel" id="bar-chart-panel">
+          <div class="panel-subtitle">Top Creators by Follower Count (millions)</div>
+          <div id="bar-chart"></div>
+          <div class="source-attribution">Source: Exploding Topics, 2025</div>
         </div>
+      </div>
     </div>
 
     <script>
-        // Data for pie chart
-        const pieData = [
-            { age: "Under 18", percentage: 27.47, color: "#00B79A" },
-            { age: "18-24", percentage: 52.83, color: "#009FE3" },
-            { age: "25-34", percentage: 12.69, color: "#F58534" },
-            { age: "35-54", percentage: 6.65, color: "#8E44AD" },
-            { age: "55+", percentage: 0.36, color: "#4A4A4A" }
-        ];
+      // Data for pie chart
+      const pieData = [
+        { age: 'Under 18', percentage: 27.47, color: '#00B79A' },
+        { age: '18-24', percentage: 52.83, color: '#009FE3' },
+        { age: '25-34', percentage: 12.69, color: '#F58534' },
+        { age: '35-54', percentage: 6.65, color: '#8E44AD' },
+        { age: '55+', percentage: 0.36, color: '#4A4A4A' },
+      ]
 
-        // Data for bar chart with unique icons for each creator
-        const barData = [
-            { creator: "Khaby Lame", followers: 162.4, icon: "fa-solid fa-laugh" },
-            { creator: "Charli D'Amelio", followers: 157.4, icon: "fa-solid fa-music" },
-            { creator: "MrBeast", followers: 114.1, icon: "fa-solid fa-crown" },
-            { creator: "Bella Poarch", followers: 94.2, icon: "fa-solid fa-heart" },
-            { creator: "Addison Rae", followers: 88.6, icon: "fa-solid fa-star" }
-        ];
+      // Data for bar chart with unique icons for each creator
+      const barData = [
+        { creator: 'Khaby Lame', followers: 162.4, icon: 'fa-solid fa-laugh' },
+        { creator: "Charli D'Amelio", followers: 157.4, icon: 'fa-solid fa-music' },
+        { creator: 'MrBeast', followers: 114.1, icon: 'fa-solid fa-crown' },
+        { creator: 'Bella Poarch', followers: 94.2, icon: 'fa-solid fa-heart' },
+        { creator: 'Addison Rae', followers: 88.6, icon: 'fa-solid fa-star' },
+      ]
 
-        // Sort bar data in descending order
-        barData.sort((a, b) => b.followers - a.followers);
+      // Sort bar data in descending order
+      barData.sort((a, b) => b.followers - a.followers)
 
-        // Create pie chart
-        function createPieChart() {
-            const width = 500;
-            const height = 450;
-            const radius = Math.min(width, height) / 2 - 80;
+      // Create pie chart
+      function createPieChart() {
+        const width = 500
+        const height = 450
+        const radius = Math.min(width, height) / 2 - 80
 
-            const svg = d3.select("#pie-chart")
-                .append("svg")
-                .attr("width", width)
-                .attr("height", height)
-                .append("g")
-                .attr("transform", `translate(${width / 2}, ${height / 2})`);
+        const svg = d3
+          .select('#pie-chart')
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height)
+          .append('g')
+          .attr('transform', `translate(${width / 2}, ${height / 2})`)
 
-            // Add subtle grid lines
-            svg.append("circle")
-                .attr("cx", 0)
-                .attr("cy", 0)
-                .attr("r", radius)
-                .attr("fill", "none")
-                .attr("stroke", "#F2F2F2")
-                .attr("stroke-width", 1);
+        // Add subtle grid lines
+        svg
+          .append('circle')
+          .attr('cx', 0)
+          .attr('cy', 0)
+          .attr('r', radius)
+          .attr('fill', 'none')
+          .attr('stroke', '#F2F2F2')
+          .attr('stroke-width', 1)
 
-            // Create pie generator
-            const pie = d3.pie()
-                .value(d => d.percentage)
-                .sort(null);
+        // Create pie generator
+        const pie = d3
+          .pie()
+          .value((d) => d.percentage)
+          .sort(null)
 
-            // Create arc generator
-            const arc = d3.arc()
-                .innerRadius(0)
-                .outerRadius(radius);
+        // Create arc generator
+        const arc = d3.arc().innerRadius(0).outerRadius(radius)
 
-            // Create outer arc for labels - increased radius for better spacing
-            const outerArc = d3.arc()
-                .innerRadius(radius * 1.2)
-                .outerRadius(radius * 1.2);
+        // Create outer arc for labels - increased radius for better spacing
+        const outerArc = d3
+          .arc()
+          .innerRadius(radius * 1.2)
+          .outerRadius(radius * 1.2)
 
-            // Create pie segments with drop shadow
-            const segments = svg.selectAll(".segment")
-                .data(pie(pieData))
-                .enter()
-                .append("g");
+        // Create pie segments with drop shadow
+        const segments = svg.selectAll('.segment').data(pie(pieData)).enter().append('g')
 
-            segments.append("path")
-                .attr("d", arc)
-                .attr("class", "pie-segment")
-                .attr("fill", d => d.data.color)
-                .attr("stroke", "#FFFFFF")
-                .attr("stroke-width", 2);
+        segments
+          .append('path')
+          .attr('d', arc)
+          .attr('class', 'pie-segment')
+          .attr('fill', (d) => d.data.color)
+          .attr('stroke', '#FFFFFF')
+          .attr('stroke-width', 2)
 
-            // Add labels with connecting lines - improved positioning
-            segments.each(function(d) {
-                const pos = outerArc.centroid(d);
-                const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
-                
-                // Adjust label position based on angle and segment size
-                let labelRadius = radius * 1.3;
-                
-                // Special handling for small segments
-                if (d.data.percentage < 1) {
-                    labelRadius = radius * 1.5;
-                } else if (d.data.percentage < 10) {
-                    labelRadius = radius * 1.4;
-                }
-                
-                // Calculate position based on angle
-                pos[0] = labelRadius * Math.sin(midAngle);
-                pos[1] = -labelRadius * Math.cos(midAngle);
-                
-                const percent = d.data.percentage.toFixed(1);
-                
-                // Line from pie to label
-                const startPoint = arc.centroid(d);
-                const midPoint = [
-                    startPoint[0] + (pos[0] - startPoint[0]) * 0.5,
-                    startPoint[1] + (pos[1] - startPoint[1]) * 0.5
-                ];
-                const endPoint = [pos[0], pos[1]];
-                
-                // Only draw connecting lines for segments with percentage > 1%
-                if (d.data.percentage > 1) {
-                    d3.select(this).append("polyline")
-                        .attr("points", `${startPoint}, ${midPoint}, ${endPoint}`)
-                        .attr("fill", "none")
-                        .attr("stroke", "#CCCCCC")
-                        .attr("stroke-width", 1);
-                }
-                
-                // Text label
-                const textGroup = d3.select(this).append("g")
-                    .attr("transform", `translate(${pos[0]}, ${pos[1]})`);
-                
-                // Adjust text-anchor based on position
-                const textAnchor = (midAngle > Math.PI / 2 && midAngle < Math.PI * 1.5) ? "end" : "start";
-                
-                textGroup.append("text")
-                    .attr("class", "pie-label")
-                    .attr("dy", "-0.5em")
-                    .attr("text-anchor", textAnchor)
-                    .text(d.data.age);
-                
-                textGroup.append("text")
-                    .attr("class", "pie-label key-number")
-                    .attr("dy", "1em")
-                    .attr("text-anchor", textAnchor)
-                    .text(`${percent}%`);
-            });
+        // Add labels with connecting lines - improved positioning
+        segments.each(function (d) {
+          const pos = outerArc.centroid(d)
+          const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2
+
+          // Adjust label position based on angle and segment size
+          let labelRadius = radius * 1.3
+
+          // Special handling for small segments
+          if (d.data.percentage < 1) {
+            labelRadius = radius * 1.5
+          } else if (d.data.percentage < 10) {
+            labelRadius = radius * 1.4
+          }
+
+          // Calculate position based on angle
+          pos[0] = labelRadius * Math.sin(midAngle)
+          pos[1] = -labelRadius * Math.cos(midAngle)
+
+          const percent = d.data.percentage.toFixed(1)
+
+          // Line from pie to label
+          const startPoint = arc.centroid(d)
+          const midPoint = [
+            startPoint[0] + (pos[0] - startPoint[0]) * 0.5,
+            startPoint[1] + (pos[1] - startPoint[1]) * 0.5,
+          ]
+          const endPoint = [pos[0], pos[1]]
+
+          // Only draw connecting lines for segments with percentage > 1%
+          if (d.data.percentage > 1) {
+            d3.select(this)
+              .append('polyline')
+              .attr('points', `${startPoint}, ${midPoint}, ${endPoint}`)
+              .attr('fill', 'none')
+              .attr('stroke', '#CCCCCC')
+              .attr('stroke-width', 1)
+          }
+
+          // Text label
+          const textGroup = d3
+            .select(this)
+            .append('g')
+            .attr('transform', `translate(${pos[0]}, ${pos[1]})`)
+
+          // Adjust text-anchor based on position
+          const textAnchor = midAngle > Math.PI / 2 && midAngle < Math.PI * 1.5 ? 'end' : 'start'
+
+          textGroup
+            .append('text')
+            .attr('class', 'pie-label')
+            .attr('dy', '-0.5em')
+            .attr('text-anchor', textAnchor)
+            .text(d.data.age)
+
+          textGroup
+            .append('text')
+            .attr('class', 'pie-label key-number')
+            .attr('dy', '1em')
+            .attr('text-anchor', textAnchor)
+            .text(`${percent}%`)
+        })
+      }
+
+      // Create bar chart
+      function createBarChart() {
+        const margin = { top: 30, right: 60, bottom: 50, left: 140 }
+        const width = 500 - margin.left - margin.right
+        const height = 450 - margin.top - margin.bottom
+
+        const svg = d3
+          .select('#bar-chart')
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+          .attr('transform', `translate(${margin.left}, ${margin.top})`)
+
+        // Create scales
+        const xScale = d3.scaleLinear().domain([0, 170]).range([0, width])
+
+        const yScale = d3
+          .scaleBand()
+          .domain(barData.map((d) => d.creator))
+          .range([0, height])
+          .padding(0.3)
+
+        // Add horizontal grid lines
+        for (let i = 0; i <= 4; i++) {
+          svg
+            .append('line')
+            .attr('x1', 0)
+            .attr('y1', i * (height / 4))
+            .attr('x2', width)
+            .attr('y2', i * (height / 4))
+            .attr('stroke', '#F2F2F2')
+            .attr('stroke-width', 1)
         }
 
-        // Create bar chart
-        function createBarChart() {
-            const margin = { top: 30, right: 60, bottom: 50, left: 140 };
-            const width = 500 - margin.left - margin.right;
-            const height = 450 - margin.top - margin.bottom;
-
-            const svg = d3.select("#bar-chart")
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-            // Create scales
-            const xScale = d3.scaleLinear()
-                .domain([0, 170])
-                .range([0, width]);
-
-            const yScale = d3.scaleBand()
-                .domain(barData.map(d => d.creator))
-                .range([0, height])
-                .padding(0.3);
-
-            // Add horizontal grid lines
-            for (let i = 0; i <= 4; i++) {
-                svg.append("line")
-                    .attr("x1", 0)
-                    .attr("y1", i * (height / 4))
-                    .attr("x2", width)
-                    .attr("y2", i * (height / 4))
-                    .attr("stroke", "#F2F2F2")
-                    .attr("stroke-width", 1);
-            }
-
-            // Add vertical grid lines
-            for (let i = 0; i <= 4; i++) {
-                svg.append("line")
-                    .attr("x1", i * (width / 4))
-                    .attr("y1", 0)
-                    .attr("x2", i * (width / 4))
-                    .attr("y2", height)
-                    .attr("stroke", "#F2F2F2")
-                    .attr("stroke-width", 1);
-            }
-
-            // Add x-axis
-            svg.append("g")
-                .attr("transform", `translate(0, ${height})`)
-                .call(d3.axisBottom(xScale)
-                    .ticks(5)
-                    .tickFormat(d => d)
-                )
-                .call(g => g.select(".domain").remove())
-                .call(g => g.selectAll(".tick line")
-                    .attr("stroke", "#CCCCCC")
-                    .attr("stroke-width", 0.5)
-                )
-                .call(g => g.selectAll(".tick text")
-                    .attr("fill", "#666666")
-                    .attr("font-size", "9pt")
-                );
-
-            // Add axis label with improved positioning
-            svg.append("text")
-                .attr("x", width / 2)
-                .attr("y", height + 35)
-                .attr("text-anchor", "middle")
-                .attr("font-size", "10pt")
-                .attr("fill", "#666666")
-                .text("Followers (millions)");
-
-            // Create bar groups
-            const barGroups = svg.selectAll(".bar-group")
-                .data(barData)
-                .enter()
-                .append("g")
-                .attr("class", "bar-group")
-                .attr("transform", d => `translate(0, ${yScale(d.creator)})`);
-
-            // Add creator names with left alignment
-            barGroups.append("text")
-                .attr("x", -10)
-                .attr("y", yScale.bandwidth() / 2)
-                .attr("dy", "0.35em")
-                .attr("text-anchor", "start")
-                .attr("class", "creator-name")
-                .attr("transform", "translate(-90, 0)")
-                .text(d => d.creator);
-
-            // Add icons for each creator
-            barGroups.append("text")
-                .attr("x", -110)
-                .attr("y", yScale.bandwidth() / 2)
-                .attr("dy", "0.35em")
-                .attr("text-anchor", "middle")
-                .attr("class", d => d.icon)
-                .style("font-family", "FontAwesome")
-                .style("fill", "#009FE3");
-
-            // Add bars
-            barGroups.append("rect")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("width", d => xScale(d.followers))
-                .attr("height", yScale.bandwidth())
-                .attr("fill", "#009FE3");
-
-            // Add follower count labels
-            barGroups.append("text")
-                .attr("x", d => xScale(d.followers) + 5)
-                .attr("y", yScale.bandwidth() / 2)
-                .attr("dy", "0.35em")
-                .attr("class", "follower-count key-number")
-                .text(d => `${d.followers}M`);
+        // Add vertical grid lines
+        for (let i = 0; i <= 4; i++) {
+          svg
+            .append('line')
+            .attr('x1', i * (width / 4))
+            .attr('y1', 0)
+            .attr('x2', i * (width / 4))
+            .attr('y2', height)
+            .attr('stroke', '#F2F2F2')
+            .attr('stroke-width', 1)
         }
 
-        // Initialize charts
-        createPieChart();
-        createBarChart();
+        // Add x-axis
+        svg
+          .append('g')
+          .attr('transform', `translate(0, ${height})`)
+          .call(
+            d3
+              .axisBottom(xScale)
+              .ticks(5)
+              .tickFormat((d) => d)
+          )
+          .call((g) => g.select('.domain').remove())
+          .call((g) =>
+            g.selectAll('.tick line').attr('stroke', '#CCCCCC').attr('stroke-width', 0.5)
+          )
+          .call((g) => g.selectAll('.tick text').attr('fill', '#666666').attr('font-size', '9pt'))
+
+        // Add axis label with improved positioning
+        svg
+          .append('text')
+          .attr('x', width / 2)
+          .attr('y', height + 35)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '10pt')
+          .attr('fill', '#666666')
+          .text('Followers (millions)')
+
+        // Create bar groups
+        const barGroups = svg
+          .selectAll('.bar-group')
+          .data(barData)
+          .enter()
+          .append('g')
+          .attr('class', 'bar-group')
+          .attr('transform', (d) => `translate(0, ${yScale(d.creator)})`)
+
+        // Add creator names with left alignment
+        barGroups
+          .append('text')
+          .attr('x', -10)
+          .attr('y', yScale.bandwidth() / 2)
+          .attr('dy', '0.35em')
+          .attr('text-anchor', 'start')
+          .attr('class', 'creator-name')
+          .attr('transform', 'translate(-90, 0)')
+          .text((d) => d.creator)
+
+        // Add icons for each creator
+        barGroups
+          .append('text')
+          .attr('x', -110)
+          .attr('y', yScale.bandwidth() / 2)
+          .attr('dy', '0.35em')
+          .attr('text-anchor', 'middle')
+          .attr('class', (d) => d.icon)
+          .style('font-family', 'FontAwesome')
+          .style('fill', '#009FE3')
+
+        // Add bars
+        barGroups
+          .append('rect')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', (d) => xScale(d.followers))
+          .attr('height', yScale.bandwidth())
+          .attr('fill', '#009FE3')
+
+        // Add follower count labels
+        barGroups
+          .append('text')
+          .attr('x', (d) => xScale(d.followers) + 5)
+          .attr('y', yScale.bandwidth() / 2)
+          .attr('dy', '0.35em')
+          .attr('class', 'follower-count key-number')
+          .text((d) => `${d.followers}M`)
+      }
+
+      // Initialize charts
+      createPieChart()
+      createBarChart()
     </script>
-</body>
+  </body>
 </html>

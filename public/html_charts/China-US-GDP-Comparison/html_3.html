@@ -1,329 +1,360 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sectoral Composition of GDP: China vs. US (2023)</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .visualization-container {
-            width: 800px;
-            height: 600px;
-            position: relative;
-            padding: 10px;
-        }
-        
-        .title {
-            text-align: center;
-            font-size: 16pt;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        
-        .country-label {
-            font-size: 14pt;
-            font-weight: bold;
-        }
-        
-        .gdp-value {
-            font-family: 'Georgia', serif;
-            font-size: 15pt;
-            font-weight: bold;
-        }
-        
-        .segment-label {
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .manufacturing-label {
-            font-size: 11px;
-            font-weight: bold;
-        }
-        
-        .legend {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 30px;
-            margin-bottom: 15px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 0 15px 5px 0;
-        }
-        
-        .legend-color {
-            width: 15px;
-            height: 15px;
-            margin-right: 5px;
-            border: 1px solid #ddd;
-        }
-        
-        .source {
-            text-align: center;
-            font-size: 10pt;
-            margin-top: 15px;
-            color: #666;
-        }
-        
-        .note {
-            text-align: center;
-            font-size: 10pt;
-            margin-top: 10px;
-            color: #666;
-            font-style: italic;
-        }
-        
-        .key-contrast {
-            position: relative;
-            width: 80%;
-            margin: 20px auto 0;
-            padding: 10px;
-            background-color: #f8f8f8;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 11px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        
-        .key-contrast strong {
-            font-family: 'Georgia', serif;
-            color: #333;
-        }
-        
-        .label-background {
-            fill: rgba(0, 0, 0, 0.6);
-        }
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+
+      .visualization-container {
+        width: 800px;
+        height: 600px;
+        position: relative;
+        padding: 10px;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 16pt;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+
+      .country-label {
+        font-size: 14pt;
+        font-weight: bold;
+      }
+
+      .gdp-value {
+        font-family: 'Georgia', serif;
+        font-size: 15pt;
+        font-weight: bold;
+      }
+
+      .segment-label {
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .manufacturing-label {
+        font-size: 11px;
+        font-weight: bold;
+      }
+
+      .legend {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 30px;
+        margin-bottom: 15px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin: 0 15px 5px 0;
+      }
+
+      .legend-color {
+        width: 15px;
+        height: 15px;
+        margin-right: 5px;
+        border: 1px solid #ddd;
+      }
+
+      .source {
+        text-align: center;
+        font-size: 10pt;
+        margin-top: 15px;
+        color: #666;
+      }
+
+      .note {
+        text-align: center;
+        font-size: 10pt;
+        margin-top: 10px;
+        color: #666;
+        font-style: italic;
+      }
+
+      .key-contrast {
+        position: relative;
+        width: 80%;
+        margin: 20px auto 0;
+        padding: 10px;
+        background-color: #f8f8f8;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 11px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      .key-contrast strong {
+        font-family: 'Georgia', serif;
+        color: #333;
+      }
+
+      .label-background {
+        fill: rgba(0, 0, 0, 0.6);
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Sectoral Composition of GDP: China vs. US (2023)</div>
-        <div id="chart"></div>
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #8BC34A;"></div>
-                <div>Agriculture</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #607D8B;"></div>
-                <div>Industry</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #455A64;"></div>
-                <div>Manufacturing</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #EF5350;"></div>
-                <div>Services (China)</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #42A5F5;"></div>
-                <div>Services (US)</div>
-            </div>
+      <div class="title">Sectoral Composition of GDP: China vs. US (2023)</div>
+      <div id="chart"></div>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #8bc34a"></div>
+          <div>Agriculture</div>
         </div>
-        <div class="note">Industry includes manufacturing, mining, utilities, and construction</div>
-        <div class="source">Source: World Bank, 2023 data</div>
-        <div class="key-contrast">
-            <strong>Key Contrast:</strong> China's industrial sector is <strong>2.2×</strong> larger as a share of GDP than the US's, while the US services sector is <strong>1.4×</strong> larger proportionally than China's
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #607d8b"></div>
+          <div>Industry</div>
         </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #455a64"></div>
+          <div>Manufacturing</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #ef5350"></div>
+          <div>Services (China)</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #42a5f5"></div>
+          <div>Services (US)</div>
+        </div>
+      </div>
+      <div class="note">Industry includes manufacturing, mining, utilities, and construction</div>
+      <div class="source">Source: World Bank, 2023 data</div>
+      <div class="key-contrast">
+        <strong>Key Contrast:</strong> China's industrial sector is <strong>2.2×</strong> larger as
+        a share of GDP than the US's, while the US services sector is <strong>1.4×</strong> larger
+        proportionally than China's
+      </div>
     </div>
 
     <script>
-        // Data preparation
-        const data = {
-            china: [
-                { sector: "Agriculture", percentage: 5, color: "#8BC34A", textColor: "black" },
-                { sector: "Industry", percentage: 40, color: "#607D8B", textColor: "white", manufacturing: 31 },
-                { sector: "Services", percentage: 55, color: "#EF5350", textColor: "white" }
-            ],
-            us: [
-                { sector: "Agriculture", percentage: 1, color: "#8BC34A", textColor: "black" },
-                { sector: "Industry", percentage: 18, color: "#607D8B", textColor: "white", manufacturing: 11 },
-                { sector: "Services", percentage: 77, color: "#42A5F5", textColor: "white" }
-            ]
-        };
+      // Data preparation
+      const data = {
+        china: [
+          { sector: 'Agriculture', percentage: 5, color: '#8BC34A', textColor: 'black' },
+          {
+            sector: 'Industry',
+            percentage: 40,
+            color: '#607D8B',
+            textColor: 'white',
+            manufacturing: 31,
+          },
+          { sector: 'Services', percentage: 55, color: '#EF5350', textColor: 'white' },
+        ],
+        us: [
+          { sector: 'Agriculture', percentage: 1, color: '#8BC34A', textColor: 'black' },
+          {
+            sector: 'Industry',
+            percentage: 18,
+            color: '#607D8B',
+            textColor: 'white',
+            manufacturing: 11,
+          },
+          { sector: 'Services', percentage: 77, color: '#42A5F5', textColor: 'white' },
+        ],
+      }
 
-        // Chart dimensions
-        const margin = { top: 60, right: 80, bottom: 120, left: 60 };
-        const width = 800 - margin.left - margin.right;
-        const height = 400 - margin.top - margin.bottom;
+      // Chart dimensions
+      const margin = { top: 60, right: 80, bottom: 120, left: 60 }
+      const width = 800 - margin.left - margin.right
+      const height = 400 - margin.top - margin.bottom
 
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
 
-        // Y scale
-        const y = d3.scaleLinear()
-            .domain([0, 100])
-            .range([height, 0]);
+      // Y scale
+      const y = d3.scaleLinear().domain([0, 100]).range([height, 0])
 
-        // Add Y axis
-        svg.append("g")
-            .call(d3.axisLeft(y)
-                .tickValues([0, 25, 50, 75, 100])
-                .tickFormat(d => d + "%"))
-            .call(g => g.select(".domain").remove());
+      // Add Y axis
+      svg
+        .append('g')
+        .call(
+          d3
+            .axisLeft(y)
+            .tickValues([0, 25, 50, 75, 100])
+            .tickFormat((d) => d + '%')
+        )
+        .call((g) => g.select('.domain').remove())
 
-        // Add horizontal gridlines
-        svg.append("g")
-            .attr("class", "grid")
-            .selectAll("line")
-            .data([0, 25, 50, 75, 100])
-            .enter()
-            .append("line")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", d => y(d))
-            .attr("y2", d => y(d))
-            .attr("stroke", "#e0e0e0")
-            .attr("stroke-width", 1);
+      // Add horizontal gridlines
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .selectAll('line')
+        .data([0, 25, 50, 75, 100])
+        .enter()
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', (d) => y(d))
+        .attr('y2', (d) => y(d))
+        .attr('stroke', '#e0e0e0')
+        .attr('stroke-width', 1)
 
-        // Bar width and positions
-        const barWidth = 120;
-        const chinaX = width / 4 - barWidth / 2;
-        const usX = (width * 3) / 4 - barWidth / 2;
+      // Bar width and positions
+      const barWidth = 120
+      const chinaX = width / 4 - barWidth / 2
+      const usX = (width * 3) / 4 - barWidth / 2
 
-        // Function to create stacked bars
-        function createStackedBar(data, x, country) {
-            let cumulative = 0;
-            
-            // Create each segment
-            data.forEach(d => {
-                const segmentHeight = (d.percentage / 100) * height;
-                const y0 = height - cumulative - segmentHeight;
-                
-                // Add segment
-                svg.append("rect")
-                    .attr("x", x)
-                    .attr("y", y0)
-                    .attr("width", barWidth)
-                    .attr("height", segmentHeight)
-                    .attr("fill", d.color);
-                
-                // Add percentage label if segment is large enough
-                if (d.percentage >= 5) {
-                    svg.append("text")
-                        .attr("x", x + barWidth / 2)
-                        .attr("y", y0 + segmentHeight / 2)
-                        .attr("text-anchor", "middle")
-                        .attr("dominant-baseline", "middle")
-                        .attr("fill", d.textColor)
-                        .attr("class", "segment-label")
-                        .text(`${d.percentage}%`);
-                } else if (d.percentage > 0) {
-                    // For small segments, add a label with a line pointing to it
-                    const labelX = country === "china" ? x - 40 : x + barWidth + 40;
-                    const lineX2 = country === "china" ? x - 5 : x + barWidth + 5;
-                    
-                    svg.append("line")
-                        .attr("x1", x + barWidth / 2)
-                        .attr("y1", y0 + segmentHeight / 2)
-                        .attr("x2", lineX2)
-                        .attr("y2", y0 + segmentHeight / 2)
-                        .attr("stroke", "#333")
-                        .attr("stroke-width", 1);
-                    
-                    svg.append("text")
-                        .attr("x", labelX)
-                        .attr("y", y0 + segmentHeight / 2)
-                        .attr("text-anchor", country === "china" ? "end" : "start")
-                        .attr("dominant-baseline", "middle")
-                        .attr("fill", "#333")
-                        .attr("class", "segment-label")
-                        .text(`${d.percentage}%`);
-                }
-                
-                // Add manufacturing component if exists
-                if (d.manufacturing) {
-                    const mfgHeight = (d.manufacturing / 100) * height;
-                    const mfgY = height - cumulative - mfgHeight;
-                    
-                    // Add manufacturing segment
-                    svg.append("rect")
-                        .attr("x", x)
-                        .attr("y", mfgY)
-                        .attr("width", barWidth)
-                        .attr("height", mfgHeight)
-                        .attr("fill", "#455A64");
-                    
-                    // Add dotted line to separate manufacturing
-                    svg.append("line")
-                        .attr("x1", x)
-                        .attr("x2", x + barWidth)
-                        .attr("y1", mfgY)
-                        .attr("y2", mfgY)
-                        .attr("stroke", "white")
-                        .attr("stroke-width", 1)
-                        .attr("stroke-dasharray", "3,3");
-                    
-                    // Add manufacturing label with background for better visibility
-                    const labelText = `Manufacturing: ${d.manufacturing}%`;
-                    
-                    // First add the background rectangle
-                    const bgRect = svg.append("rect")
-                        .attr("class", "label-background")
-                        .attr("x", x + barWidth / 2 - 60)
-                        .attr("y", mfgY + mfgHeight / 2 - 10)
-                        .attr("width", 120)
-                        .attr("height", 20)
-                        .attr("rx", 3)
-                        .attr("ry", 3);
-                    
-                    // Then add the text on top
-                    svg.append("text")
-                        .attr("class", "manufacturing-label")
-                        .attr("x", x + barWidth / 2)
-                        .attr("y", mfgY + mfgHeight / 2)
-                        .attr("text-anchor", "middle")
-                        .attr("dominant-baseline", "middle")
-                        .attr("fill", "white")
-                        .text(labelText);
-                }
-                
-                cumulative += segmentHeight;
-            });
-            
-            // Add country label
-            svg.append("text")
-                .attr("x", x + barWidth / 2)
-                .attr("y", height + 30)
-                .attr("text-anchor", "middle")
-                .attr("class", "country-label")
-                .attr("fill", country === "china" ? "#d32f2f" : "#1565C0")
-                .text(country === "china" ? "CHINA" : "UNITED STATES");
-            
-            // Add GDP value
-            svg.append("text")
-                .attr("x", x + barWidth / 2)
-                .attr("y", -25)
-                .attr("text-anchor", "middle")
-                .attr("class", "gdp-value")
-                .text(country === "china" ? "$17.76T" : "$27.72T");
-        }
+      // Function to create stacked bars
+      function createStackedBar(data, x, country) {
+        let cumulative = 0
 
-        // Create the stacked bars
-        createStackedBar(data.china, chinaX, "china");
-        createStackedBar(data.us, usX, "us");
+        // Create each segment
+        data.forEach((d) => {
+          const segmentHeight = (d.percentage / 100) * height
+          const y0 = height - cumulative - segmentHeight
+
+          // Add segment
+          svg
+            .append('rect')
+            .attr('x', x)
+            .attr('y', y0)
+            .attr('width', barWidth)
+            .attr('height', segmentHeight)
+            .attr('fill', d.color)
+
+          // Add percentage label if segment is large enough
+          if (d.percentage >= 5) {
+            svg
+              .append('text')
+              .attr('x', x + barWidth / 2)
+              .attr('y', y0 + segmentHeight / 2)
+              .attr('text-anchor', 'middle')
+              .attr('dominant-baseline', 'middle')
+              .attr('fill', d.textColor)
+              .attr('class', 'segment-label')
+              .text(`${d.percentage}%`)
+          } else if (d.percentage > 0) {
+            // For small segments, add a label with a line pointing to it
+            const labelX = country === 'china' ? x - 40 : x + barWidth + 40
+            const lineX2 = country === 'china' ? x - 5 : x + barWidth + 5
+
+            svg
+              .append('line')
+              .attr('x1', x + barWidth / 2)
+              .attr('y1', y0 + segmentHeight / 2)
+              .attr('x2', lineX2)
+              .attr('y2', y0 + segmentHeight / 2)
+              .attr('stroke', '#333')
+              .attr('stroke-width', 1)
+
+            svg
+              .append('text')
+              .attr('x', labelX)
+              .attr('y', y0 + segmentHeight / 2)
+              .attr('text-anchor', country === 'china' ? 'end' : 'start')
+              .attr('dominant-baseline', 'middle')
+              .attr('fill', '#333')
+              .attr('class', 'segment-label')
+              .text(`${d.percentage}%`)
+          }
+
+          // Add manufacturing component if exists
+          if (d.manufacturing) {
+            const mfgHeight = (d.manufacturing / 100) * height
+            const mfgY = height - cumulative - mfgHeight
+
+            // Add manufacturing segment
+            svg
+              .append('rect')
+              .attr('x', x)
+              .attr('y', mfgY)
+              .attr('width', barWidth)
+              .attr('height', mfgHeight)
+              .attr('fill', '#455A64')
+
+            // Add dotted line to separate manufacturing
+            svg
+              .append('line')
+              .attr('x1', x)
+              .attr('x2', x + barWidth)
+              .attr('y1', mfgY)
+              .attr('y2', mfgY)
+              .attr('stroke', 'white')
+              .attr('stroke-width', 1)
+              .attr('stroke-dasharray', '3,3')
+
+            // Add manufacturing label with background for better visibility
+            const labelText = `Manufacturing: ${d.manufacturing}%`
+
+            // First add the background rectangle
+            const bgRect = svg
+              .append('rect')
+              .attr('class', 'label-background')
+              .attr('x', x + barWidth / 2 - 60)
+              .attr('y', mfgY + mfgHeight / 2 - 10)
+              .attr('width', 120)
+              .attr('height', 20)
+              .attr('rx', 3)
+              .attr('ry', 3)
+
+            // Then add the text on top
+            svg
+              .append('text')
+              .attr('class', 'manufacturing-label')
+              .attr('x', x + barWidth / 2)
+              .attr('y', mfgY + mfgHeight / 2)
+              .attr('text-anchor', 'middle')
+              .attr('dominant-baseline', 'middle')
+              .attr('fill', 'white')
+              .text(labelText)
+          }
+
+          cumulative += segmentHeight
+        })
+
+        // Add country label
+        svg
+          .append('text')
+          .attr('x', x + barWidth / 2)
+          .attr('y', height + 30)
+          .attr('text-anchor', 'middle')
+          .attr('class', 'country-label')
+          .attr('fill', country === 'china' ? '#d32f2f' : '#1565C0')
+          .text(country === 'china' ? 'CHINA' : 'UNITED STATES')
+
+        // Add GDP value
+        svg
+          .append('text')
+          .attr('x', x + barWidth / 2)
+          .attr('y', -25)
+          .attr('text-anchor', 'middle')
+          .attr('class', 'gdp-value')
+          .text(country === 'china' ? '$17.76T' : '$27.72T')
+      }
+
+      // Create the stacked bars
+      createStackedBar(data.china, chinaX, 'china')
+      createStackedBar(data.us, usX, 'us')
     </script>
-</body>
+  </body>
 </html>

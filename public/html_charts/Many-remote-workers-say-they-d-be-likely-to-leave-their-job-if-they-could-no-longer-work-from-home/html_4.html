@@ -1,464 +1,479 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Remote Work and Productivity Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: white;
-            color: #333;
-        }
-        
-        .visualization-container {
-            width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .title {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            text-align: center;
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 30px;
-        }
-        
-        .charts-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-        
-        .chart-section {
-            width: 48%;
-        }
-        
-        .chart-title {
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        
-        .key-findings {
-            width: 220px;
-            background-color: #f2f2f2;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 13px;
-            line-height: 1.5;
-            margin: 0 10px;
-        }
-        
-        .key-findings-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .key-findings-icon {
-            margin-right: 8px;
-            color: #f39c12;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-size: 18px;
-            color: #00507a;
-            font-weight: bold;
-        }
-        
-        .source {
-            font-size: 12px;
-            color: #444;
-            text-align: right;
-            margin-top: 25px;
-            font-style: italic;
-        }
-        
-        .axis-label {
-            font-size: 11px;
-            fill: #444;
-            font-weight: 500;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-opacity: 0.7;
-            shape-rendering: crispEdges;
-        }
-        
-        .trend-line-label {
-            font-size: 13px;
-            font-weight: 600;
-            fill: #003f5c;
-        }
-        
-        .value-label {
-            font-size: 11px;
-            font-weight: 500;
-        }
-        
-        .confidence-area {
-            fill: #003f5c;
-            opacity: 0.1;
-        }
-        
-        .range-annotation {
-            font-style: italic;
-            font-size: 11px;
-            fill: #555;
-        }
+      body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: white;
+        color: #333;
+      }
+
+      .visualization-container {
+        width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        text-align: center;
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 30px;
+      }
+
+      .charts-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+
+      .chart-section {
+        width: 48%;
+      }
+
+      .chart-title {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 15px;
+      }
+
+      .key-findings {
+        width: 220px;
+        background-color: #f2f2f2;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 13px;
+        line-height: 1.5;
+        margin: 0 10px;
+      }
+
+      .key-findings-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+      }
+
+      .key-findings-icon {
+        margin-right: 8px;
+        color: #f39c12;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-size: 18px;
+        color: #00507a;
+        font-weight: bold;
+      }
+
+      .source {
+        font-size: 12px;
+        color: #444;
+        text-align: right;
+        margin-top: 25px;
+        font-style: italic;
+      }
+
+      .axis-label {
+        font-size: 11px;
+        fill: #444;
+        font-weight: 500;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+      }
+
+      .trend-line-label {
+        font-size: 13px;
+        font-weight: 600;
+        fill: #003f5c;
+      }
+
+      .value-label {
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      .confidence-area {
+        fill: #003f5c;
+        opacity: 0.1;
+      }
+
+      .range-annotation {
+        font-style: italic;
+        font-size: 11px;
+        fill: #555;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Remote Work Correlates with Productivity Gains and Cost Reductions</div>
-        <div class="subtitle">Analysis of 61 private-sector industries, 2019-2022</div>
-        
-        <div class="charts-container">
-            <div class="chart-section">
-                <div class="chart-title">Remote Work and Total Factor Productivity (TFP) Growth</div>
-                <div id="scatter-plot"></div>
-            </div>
-            
-            <div class="key-findings">
-                <div class="key-findings-title">
-                    <svg class="key-findings-icon" width="16" height="16" viewBox="0 0 512 512">
-                        <path fill="#f39c12" d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 448c-110.532 0-200-89.431-200-200 0-110.495 89.472-200 200-200 110.491 0 200 89.471 200 200 0 110.53-89.431 200-200 200zm0-338c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"/>
-                    </svg>
-                    Key Findings
-                </div>
-                <p>Industries with higher remote work adoption showed significant productivity gains.</p>
-                <p>On average, a <span class="key-number">1 p.p.</span> increase in remote work participation correlated with a <span class="key-number">0.08 p.p.</span> increase in TFP.</p>
-                <p>The average <span class="key-number">14.9 p.p.</span> increase in remote participation implied a <span class="key-number">1.2 p.p.</span> TFP boost.</p>
-                <p>Remote work also correlated with significant cost reductions across multiple categories.</p>
-            </div>
-            
-            <div class="chart-section">
-                <div class="chart-title">Cost Impact per 1 Percentage Point Increase in Remote Work</div>
-                <div id="bar-chart"></div>
-            </div>
+      <div class="title">Remote Work Correlates with Productivity Gains and Cost Reductions</div>
+      <div class="subtitle">Analysis of 61 private-sector industries, 2019-2022</div>
+
+      <div class="charts-container">
+        <div class="chart-section">
+          <div class="chart-title">Remote Work and Total Factor Productivity (TFP) Growth</div>
+          <div id="scatter-plot"></div>
         </div>
-        
-        <div class="source">Source: Bureau of Labor Statistics (BLS), October 2024</div>
+
+        <div class="key-findings">
+          <div class="key-findings-title">
+            <svg class="key-findings-icon" width="16" height="16" viewBox="0 0 512 512">
+              <path
+                fill="#f39c12"
+                d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 448c-110.532 0-200-89.431-200-200 0-110.495 89.472-200 200-200 110.491 0 200 89.471 200 200 0 110.53-89.431 200-200 200zm0-338c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"
+              />
+            </svg>
+            Key Findings
+          </div>
+          <p>Industries with higher remote work adoption showed significant productivity gains.</p>
+          <p>
+            On average, a <span class="key-number">1 p.p.</span> increase in remote work
+            participation correlated with a <span class="key-number">0.08 p.p.</span> increase in
+            TFP.
+          </p>
+          <p>
+            The average <span class="key-number">14.9 p.p.</span> increase in remote participation
+            implied a <span class="key-number">1.2 p.p.</span> TFP boost.
+          </p>
+          <p>
+            Remote work also correlated with significant cost reductions across multiple categories.
+          </p>
+        </div>
+
+        <div class="chart-section">
+          <div class="chart-title">Cost Impact per 1 Percentage Point Increase in Remote Work</div>
+          <div id="bar-chart"></div>
+        </div>
+      </div>
+
+      <div class="source">Source: Bureau of Labor Statistics (BLS), October 2024</div>
     </div>
 
     <script>
-        // Scatter plot data (simulated with more pronounced trend)
-        const scatterData = [];
-        for (let i = 0; i < 61; i++) {
-            const remoteWorkChange = Math.random() * 30;
-            // Create a more visible correlation (0.08 slope)
-            const tfpGrowth = 0.08 * remoteWorkChange + (Math.random() * 3 - 1.5);
-            scatterData.push({
-                remoteWorkChange: remoteWorkChange,
-                tfpGrowth: tfpGrowth
-            });
-        }
-        
-        // Bar chart data
-        const barData = [
-            { category: "Unit nonlabor costs", value: -0.3, range: 0.1, label: "-0.2 to -0.4 p.p." },
-            { category: "Capital costs", value: -0.25, range: 0, label: "-0.25 p.p." },
-            { category: "Materials costs", value: -0.15, range: 0, label: "-0.15 p.p." },
-            { category: "Services costs", value: -0.3, range: 0, label: "-0.30 p.p." },
-            { category: "Real hourly compensation", value: 0, range: 0, label: "No significant relationship" }
-        ];
-        
-        // Create scatter plot
-        function createScatterPlot() {
-            const margin = {top: 40, right: 40, bottom: 60, left: 70};
-            const width = 520 - margin.left - margin.right;
-            const height = 420 - margin.top - margin.bottom;
-            
-            const svg = d3.select("#scatter-plot")
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
-            
-            // X scale
-            const x = d3.scaleLinear()
-                .domain([0, 30])
-                .range([0, width]);
-            
-            // Y scale
-            const y = d3.scaleLinear()
-                .domain([-2, 4])
-                .range([height, 0]);
-            
-            // Add X grid lines
-            svg.append("g")
-                .attr("class", "grid")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x)
-                    .tickSize(-height)
-                    .tickFormat("")
-                );
-            
-            // Add Y grid lines
-            svg.append("g")
-                .attr("class", "grid")
-                .call(d3.axisLeft(y)
-                    .tickSize(-width)
-                    .tickFormat("")
-                );
-            
-            // Add X axis
-            svg.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x));
-            
-            // Add Y axis
-            svg.append("g")
-                .call(d3.axisLeft(y));
-            
-            // Add X axis label
-            svg.append("text")
-                .attr("class", "axis-label")
-                .attr("text-anchor", "middle")
-                .attr("x", width / 2)
-                .attr("y", height + margin.bottom - 15)
-                .text("Change in remote work participation (percentage points, 2019-2021)");
-            
-            // Add Y axis label
-            svg.append("text")
-                .attr("class", "axis-label")
-                .attr("text-anchor", "middle")
-                .attr("transform", "rotate(-90)")
-                .attr("y", -margin.left + 20)
-                .attr("x", -height / 2)
-                .text("TFP growth (percentage points)");
-            
-            // Calculate trend line
-            const xValues = scatterData.map(d => d.remoteWorkChange);
-            const yValues = scatterData.map(d => d.tfpGrowth);
-            
-            // Simple linear regression
-            const n = xValues.length;
-            const xMean = xValues.reduce((a, b) => a + b, 0) / n;
-            const yMean = yValues.reduce((a, b) => a + b, 0) / n;
-            
-            const numerator = xValues.map((x, i) => (x - xMean) * (yValues[i] - yMean)).reduce((a, b) => a + b, 0);
-            const denominator = xValues.map(x => Math.pow(x - xMean, 2)).reduce((a, b) => a + b, 0);
-            
-            const slope = 0.08; // Fixed slope as per specification
-            const intercept = yMean - slope * xMean;
-            
-            // Add confidence interval area (smooth)
-            const confidenceArea = d3.area()
-                .x(d => x(d))
-                .y0(d => y(intercept + slope * d - 0.5))
-                .y1(d => y(intercept + slope * d + 0.5));
-                
-            svg.append("path")
-                .datum([0, 5, 10, 15, 20, 25, 30])
-                .attr("class", "confidence-area")
-                .attr("d", confidenceArea);
-            
-            // Add trend line
-            const line = d3.line()
-                .x(d => x(d))
-                .y(d => y(intercept + slope * d));
-            
-            svg.append("path")
-                .datum([0, 30])
-                .attr("fill", "none")
-                .attr("stroke", "#003f5c")
-                .attr("stroke-width", 2)
-                .attr("d", line);
-            
-            // Add scatter points
-            svg.selectAll("circle")
-                .data(scatterData)
-                .enter()
-                .append("circle")
-                .attr("cx", d => x(d.remoteWorkChange))
-                .attr("cy", d => y(d.tfpGrowth))
-                .attr("r", 4)
-                .style("fill", "#006c70")
-                .style("opacity", 0.7);
-            
-            // Add trend line equation with better positioning and visibility
-            // First add background rectangle for better readability
-            svg.append("rect")
-                .attr("x", width - 280)
-                .attr("y", 10)
-                .attr("width", 270)
-                .attr("height", 24)
-                .attr("fill", "white")
-                .attr("opacity", 0.8)
-                .attr("rx", 3)
-                .attr("ry", 3);
-                
-            // Then add the trend line text
-            svg.append("text")
-                .attr("class", "trend-line-label")
-                .attr("x", width - 15)
-                .attr("y", 27)
-                .attr("text-anchor", "end")
-                .style("fill", "#003f5c")
-                .text("0.08 p.p. TFP increase per 1 p.p. rise in remote work");
-        }
-        
-        // Create bar chart
-        function createBarChart() {
-            const margin = {top: 40, right: 150, bottom: 60, left: 180};
-            const width = 520 - margin.left - margin.right;
-            const height = 420 - margin.top - margin.bottom;
-            
-            const svg = d3.select("#bar-chart")
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
-            
-            // X scale with fewer ticks to prevent overlapping
-            const x = d3.scaleLinear()
-                .domain([-0.5, 0.2])
-                .range([0, width]);
-            
-            // Y scale
-            const y = d3.scaleBand()
-                .domain(barData.map(d => d.category))
-                .range([0, height])
-                .padding(0.3);
-            
-            // Add X grid lines with fewer ticks
-            svg.append("g")
-                .attr("class", "grid")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x)
-                    .tickSize(-height)
-                    .tickFormat("")
-                    .ticks(7) // Reduced number of ticks
-                );
-            
-            // Add X axis with fewer ticks to prevent overlapping
-            svg.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x).ticks(7)); // Reduced number of ticks
-            
-            // Add Y axis
-            svg.append("g")
-                .call(d3.axisLeft(y));
-            
-            // Add X axis label
-            svg.append("text")
-                .attr("class", "axis-label")
-                .attr("text-anchor", "middle")
-                .attr("x", width / 2)
-                .attr("y", height + margin.bottom - 15)
-                .text("Impact per 1 p.p. increase in remote work (percentage points)");
-            
-            // Add zero line
-            svg.append("line")
-                .attr("x1", x(0))
-                .attr("x2", x(0))
-                .attr("y1", 0)
-                .attr("y2", height)
-                .style("stroke", "#999")
-                .style("stroke-dasharray", "4,4");
-            
-            // Add bars
-            svg.selectAll(".bar")
-                .data(barData)
-                .enter()
-                .append("rect")
-                .attr("class", "bar")
-                .attr("y", d => y(d.category))
-                .attr("height", y.bandwidth())
-                .attr("x", d => d.value < 0 ? x(d.value) : x(0))
-                .attr("width", d => Math.abs(x(d.value) - x(0)))
-                .attr("fill", d => d.value < 0 ? "#2f7bbf" : "#ff7f0e");
-            
-            // Add error bars with improved visibility for ranges
-            svg.selectAll(".error-bar")
-                .data(barData.filter(d => d.range > 0))
-                .enter()
-                .append("line")
-                .attr("class", "error-bar")
-                .attr("x1", d => x(d.value - d.range))
-                .attr("x2", d => x(d.value + d.range))
-                .attr("y1", d => y(d.category) + y.bandwidth() / 2)
-                .attr("y2", d => y(d.category) + y.bandwidth() / 2)
-                .style("stroke", "#333")
-                .style("stroke-width", 2);
-            
-            svg.selectAll(".error-cap-left")
-                .data(barData.filter(d => d.range > 0))
-                .enter()
-                .append("line")
-                .attr("class", "error-cap")
-                .attr("x1", d => x(d.value - d.range))
-                .attr("x2", d => x(d.value - d.range))
-                .attr("y1", d => y(d.category) + y.bandwidth() / 2 - 7)
-                .attr("y2", d => y(d.category) + y.bandwidth() / 2 + 7)
-                .style("stroke", "#333")
-                .style("stroke-width", 2);
-            
-            svg.selectAll(".error-cap-right")
-                .data(barData.filter(d => d.range > 0))
-                .enter()
-                .append("line")
-                .attr("class", "error-cap")
-                .attr("x1", d => x(d.value + d.range))
-                .attr("x2", d => x(d.value + d.range))
-                .attr("y1", d => y(d.category) + y.bandwidth() / 2 - 7)
-                .attr("y2", d => y(d.category) + y.bandwidth() / 2 + 7)
-                .style("stroke", "#333")
-                .style("stroke-width", 2);
-            
-            // Add value labels with improved positioning
-            svg.selectAll(".value-label")
-                .data(barData)
-                .enter()
-                .append("text")
-                .attr("class", "value-label")
-                .attr("x", d => {
-                    // Special case for "No significant relationship"
-                    if (d.value === 0) return x(0) + 15;
-                    return d.value < 0 ? x(d.value) - 10 : x(d.value) + 10;
-                })
-                .attr("y", d => y(d.category) + y.bandwidth() / 2 + 4)
-                .attr("text-anchor", d => {
-                    // Special case for "No significant relationship"
-                    if (d.value === 0) return "start";
-                    return d.value < 0 ? "end" : "start";
-                })
-                .style("font-size", "11px")
-                .style("fill", "#333")
-                .text(d => d.label);
-                
-            // Add range annotation for the first bar with better positioning
-            svg.append("text")
-                .attr("class", "range-annotation")
-                .attr("x", x(-0.4) - 10) // Position it near the left error bar cap
-                .attr("y", y("Unit nonlabor costs") - 10)
-                .attr("text-anchor", "end")
-                .text("Range shown with error bars");
-        }
-        
-        // Initialize charts
-        createScatterPlot();
-        createBarChart();
+      // Scatter plot data (simulated with more pronounced trend)
+      const scatterData = []
+      for (let i = 0; i < 61; i++) {
+        const remoteWorkChange = Math.random() * 30
+        // Create a more visible correlation (0.08 slope)
+        const tfpGrowth = 0.08 * remoteWorkChange + (Math.random() * 3 - 1.5)
+        scatterData.push({
+          remoteWorkChange: remoteWorkChange,
+          tfpGrowth: tfpGrowth,
+        })
+      }
+
+      // Bar chart data
+      const barData = [
+        { category: 'Unit nonlabor costs', value: -0.3, range: 0.1, label: '-0.2 to -0.4 p.p.' },
+        { category: 'Capital costs', value: -0.25, range: 0, label: '-0.25 p.p.' },
+        { category: 'Materials costs', value: -0.15, range: 0, label: '-0.15 p.p.' },
+        { category: 'Services costs', value: -0.3, range: 0, label: '-0.30 p.p.' },
+        {
+          category: 'Real hourly compensation',
+          value: 0,
+          range: 0,
+          label: 'No significant relationship',
+        },
+      ]
+
+      // Create scatter plot
+      function createScatterPlot() {
+        const margin = { top: 40, right: 40, bottom: 60, left: 70 }
+        const width = 520 - margin.left - margin.right
+        const height = 420 - margin.top - margin.bottom
+
+        const svg = d3
+          .select('#scatter-plot')
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`)
+
+        // X scale
+        const x = d3.scaleLinear().domain([0, 30]).range([0, width])
+
+        // Y scale
+        const y = d3.scaleLinear().domain([-2, 4]).range([height, 0])
+
+        // Add X grid lines
+        svg
+          .append('g')
+          .attr('class', 'grid')
+          .attr('transform', `translate(0,${height})`)
+          .call(d3.axisBottom(x).tickSize(-height).tickFormat(''))
+
+        // Add Y grid lines
+        svg.append('g').attr('class', 'grid').call(d3.axisLeft(y).tickSize(-width).tickFormat(''))
+
+        // Add X axis
+        svg.append('g').attr('transform', `translate(0,${height})`).call(d3.axisBottom(x))
+
+        // Add Y axis
+        svg.append('g').call(d3.axisLeft(y))
+
+        // Add X axis label
+        svg
+          .append('text')
+          .attr('class', 'axis-label')
+          .attr('text-anchor', 'middle')
+          .attr('x', width / 2)
+          .attr('y', height + margin.bottom - 15)
+          .text('Change in remote work participation (percentage points, 2019-2021)')
+
+        // Add Y axis label
+        svg
+          .append('text')
+          .attr('class', 'axis-label')
+          .attr('text-anchor', 'middle')
+          .attr('transform', 'rotate(-90)')
+          .attr('y', -margin.left + 20)
+          .attr('x', -height / 2)
+          .text('TFP growth (percentage points)')
+
+        // Calculate trend line
+        const xValues = scatterData.map((d) => d.remoteWorkChange)
+        const yValues = scatterData.map((d) => d.tfpGrowth)
+
+        // Simple linear regression
+        const n = xValues.length
+        const xMean = xValues.reduce((a, b) => a + b, 0) / n
+        const yMean = yValues.reduce((a, b) => a + b, 0) / n
+
+        const numerator = xValues
+          .map((x, i) => (x - xMean) * (yValues[i] - yMean))
+          .reduce((a, b) => a + b, 0)
+        const denominator = xValues.map((x) => Math.pow(x - xMean, 2)).reduce((a, b) => a + b, 0)
+
+        const slope = 0.08 // Fixed slope as per specification
+        const intercept = yMean - slope * xMean
+
+        // Add confidence interval area (smooth)
+        const confidenceArea = d3
+          .area()
+          .x((d) => x(d))
+          .y0((d) => y(intercept + slope * d - 0.5))
+          .y1((d) => y(intercept + slope * d + 0.5))
+
+        svg
+          .append('path')
+          .datum([0, 5, 10, 15, 20, 25, 30])
+          .attr('class', 'confidence-area')
+          .attr('d', confidenceArea)
+
+        // Add trend line
+        const line = d3
+          .line()
+          .x((d) => x(d))
+          .y((d) => y(intercept + slope * d))
+
+        svg
+          .append('path')
+          .datum([0, 30])
+          .attr('fill', 'none')
+          .attr('stroke', '#003f5c')
+          .attr('stroke-width', 2)
+          .attr('d', line)
+
+        // Add scatter points
+        svg
+          .selectAll('circle')
+          .data(scatterData)
+          .enter()
+          .append('circle')
+          .attr('cx', (d) => x(d.remoteWorkChange))
+          .attr('cy', (d) => y(d.tfpGrowth))
+          .attr('r', 4)
+          .style('fill', '#006c70')
+          .style('opacity', 0.7)
+
+        // Add trend line equation with better positioning and visibility
+        // First add background rectangle for better readability
+        svg
+          .append('rect')
+          .attr('x', width - 280)
+          .attr('y', 10)
+          .attr('width', 270)
+          .attr('height', 24)
+          .attr('fill', 'white')
+          .attr('opacity', 0.8)
+          .attr('rx', 3)
+          .attr('ry', 3)
+
+        // Then add the trend line text
+        svg
+          .append('text')
+          .attr('class', 'trend-line-label')
+          .attr('x', width - 15)
+          .attr('y', 27)
+          .attr('text-anchor', 'end')
+          .style('fill', '#003f5c')
+          .text('0.08 p.p. TFP increase per 1 p.p. rise in remote work')
+      }
+
+      // Create bar chart
+      function createBarChart() {
+        const margin = { top: 40, right: 150, bottom: 60, left: 180 }
+        const width = 520 - margin.left - margin.right
+        const height = 420 - margin.top - margin.bottom
+
+        const svg = d3
+          .select('#bar-chart')
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`)
+
+        // X scale with fewer ticks to prevent overlapping
+        const x = d3.scaleLinear().domain([-0.5, 0.2]).range([0, width])
+
+        // Y scale
+        const y = d3
+          .scaleBand()
+          .domain(barData.map((d) => d.category))
+          .range([0, height])
+          .padding(0.3)
+
+        // Add X grid lines with fewer ticks
+        svg.append('g').attr('class', 'grid').attr('transform', `translate(0,${height})`).call(
+          d3.axisBottom(x).tickSize(-height).tickFormat('').ticks(7) // Reduced number of ticks
+        )
+
+        // Add X axis with fewer ticks to prevent overlapping
+        svg.append('g').attr('transform', `translate(0,${height})`).call(d3.axisBottom(x).ticks(7)) // Reduced number of ticks
+
+        // Add Y axis
+        svg.append('g').call(d3.axisLeft(y))
+
+        // Add X axis label
+        svg
+          .append('text')
+          .attr('class', 'axis-label')
+          .attr('text-anchor', 'middle')
+          .attr('x', width / 2)
+          .attr('y', height + margin.bottom - 15)
+          .text('Impact per 1 p.p. increase in remote work (percentage points)')
+
+        // Add zero line
+        svg
+          .append('line')
+          .attr('x1', x(0))
+          .attr('x2', x(0))
+          .attr('y1', 0)
+          .attr('y2', height)
+          .style('stroke', '#999')
+          .style('stroke-dasharray', '4,4')
+
+        // Add bars
+        svg
+          .selectAll('.bar')
+          .data(barData)
+          .enter()
+          .append('rect')
+          .attr('class', 'bar')
+          .attr('y', (d) => y(d.category))
+          .attr('height', y.bandwidth())
+          .attr('x', (d) => (d.value < 0 ? x(d.value) : x(0)))
+          .attr('width', (d) => Math.abs(x(d.value) - x(0)))
+          .attr('fill', (d) => (d.value < 0 ? '#2f7bbf' : '#ff7f0e'))
+
+        // Add error bars with improved visibility for ranges
+        svg
+          .selectAll('.error-bar')
+          .data(barData.filter((d) => d.range > 0))
+          .enter()
+          .append('line')
+          .attr('class', 'error-bar')
+          .attr('x1', (d) => x(d.value - d.range))
+          .attr('x2', (d) => x(d.value + d.range))
+          .attr('y1', (d) => y(d.category) + y.bandwidth() / 2)
+          .attr('y2', (d) => y(d.category) + y.bandwidth() / 2)
+          .style('stroke', '#333')
+          .style('stroke-width', 2)
+
+        svg
+          .selectAll('.error-cap-left')
+          .data(barData.filter((d) => d.range > 0))
+          .enter()
+          .append('line')
+          .attr('class', 'error-cap')
+          .attr('x1', (d) => x(d.value - d.range))
+          .attr('x2', (d) => x(d.value - d.range))
+          .attr('y1', (d) => y(d.category) + y.bandwidth() / 2 - 7)
+          .attr('y2', (d) => y(d.category) + y.bandwidth() / 2 + 7)
+          .style('stroke', '#333')
+          .style('stroke-width', 2)
+
+        svg
+          .selectAll('.error-cap-right')
+          .data(barData.filter((d) => d.range > 0))
+          .enter()
+          .append('line')
+          .attr('class', 'error-cap')
+          .attr('x1', (d) => x(d.value + d.range))
+          .attr('x2', (d) => x(d.value + d.range))
+          .attr('y1', (d) => y(d.category) + y.bandwidth() / 2 - 7)
+          .attr('y2', (d) => y(d.category) + y.bandwidth() / 2 + 7)
+          .style('stroke', '#333')
+          .style('stroke-width', 2)
+
+        // Add value labels with improved positioning
+        svg
+          .selectAll('.value-label')
+          .data(barData)
+          .enter()
+          .append('text')
+          .attr('class', 'value-label')
+          .attr('x', (d) => {
+            // Special case for "No significant relationship"
+            if (d.value === 0) return x(0) + 15
+            return d.value < 0 ? x(d.value) - 10 : x(d.value) + 10
+          })
+          .attr('y', (d) => y(d.category) + y.bandwidth() / 2 + 4)
+          .attr('text-anchor', (d) => {
+            // Special case for "No significant relationship"
+            if (d.value === 0) return 'start'
+            return d.value < 0 ? 'end' : 'start'
+          })
+          .style('font-size', '11px')
+          .style('fill', '#333')
+          .text((d) => d.label)
+
+        // Add range annotation for the first bar with better positioning
+        svg
+          .append('text')
+          .attr('class', 'range-annotation')
+          .attr('x', x(-0.4) - 10) // Position it near the left error bar cap
+          .attr('y', y('Unit nonlabor costs') - 10)
+          .attr('text-anchor', 'end')
+          .text('Range shown with error bars')
+      }
+
+      // Initialize charts
+      createScatterPlot()
+      createBarChart()
     </script>
-</body>
+  </body>
 </html>

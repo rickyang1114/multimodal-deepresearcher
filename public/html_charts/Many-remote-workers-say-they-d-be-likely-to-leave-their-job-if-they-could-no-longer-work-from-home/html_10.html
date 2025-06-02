@@ -1,331 +1,349 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Evolution and Future of Flexible Work</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f9f9f9;
-            color: #333;
-        }
-        
-        .visualization-container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            box-sizing: border-box;
-        }
-        
-        h1 {
-            text-align: center;
-            font-size: 28px;
-            margin-bottom: 40px;
-            color: #003f5c;
-        }
-        
-        .timeline-container {
-            position: relative;
-            padding-top: 60px;
-            margin-bottom: 40px;
-        }
-        
-        .timeline-line {
-            position: absolute;
-            top: 30px;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(to right, #666, #2f7bbf, #003f5c);
-            z-index: 1;
-        }
-        
-        .time-markers {
-            position: absolute;
-            top: 30px;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            z-index: 2;
-        }
-        
-        .time-marker {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            transform: translateY(-8px);
-        }
-        
-        .time-marker.past {
-            background-color: #666;
-        }
-        
-        .time-marker.present {
-            background-color: #2f7bbf;
-        }
-        
-        .time-marker.future {
-            background-color: #003f5c;
-        }
-        
-        .time-labels {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            z-index: 2;
-        }
-        
-        .time-label {
-            font-weight: bold;
-            text-align: center;
-            width: 33.33%;
-        }
-        
-        .time-label.past {
-            color: #666;
-        }
-        
-        .time-label.present {
-            color: #2f7bbf;
-        }
-        
-        .time-label.future {
-            color: #003f5c;
-        }
-        
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+        color: #333;
+      }
+
+      .visualization-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 30px;
+        box-sizing: border-box;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 28px;
+        margin-bottom: 40px;
+        color: #003f5c;
+      }
+
+      .timeline-container {
+        position: relative;
+        padding-top: 60px;
+        margin-bottom: 40px;
+      }
+
+      .timeline-line {
+        position: absolute;
+        top: 30px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(to right, #666, #2f7bbf, #003f5c);
+        z-index: 1;
+      }
+
+      .time-markers {
+        position: absolute;
+        top: 30px;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        z-index: 2;
+      }
+
+      .time-marker {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        transform: translateY(-8px);
+      }
+
+      .time-marker.past {
+        background-color: #666;
+      }
+
+      .time-marker.present {
+        background-color: #2f7bbf;
+      }
+
+      .time-marker.future {
+        background-color: #003f5c;
+      }
+
+      .time-labels {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        z-index: 2;
+      }
+
+      .time-label {
+        font-weight: bold;
+        text-align: center;
+        width: 33.33%;
+      }
+
+      .time-label.past {
+        color: #666;
+      }
+
+      .time-label.present {
+        color: #2f7bbf;
+      }
+
+      .time-label.future {
+        color: #003f5c;
+      }
+
+      .sections-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .section {
+        flex: 1;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .section.past {
+        background-color: #f5f5f5;
+        border-top: 4px solid #666;
+      }
+
+      .section.present {
+        background-color: #e1edf7;
+        border-top: 4px solid #2f7bbf;
+      }
+
+      .section.future {
+        background-color: #e6f0f7;
+        border-top: 4px solid #003f5c;
+      }
+
+      .trend-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 20px;
+      }
+
+      .trend-item i {
+        font-size: 18px;
+        margin-right: 15px;
+        min-width: 20px;
+        text-align: center;
+      }
+
+      .section.past i {
+        color: #555;
+      }
+
+      .section.present i {
+        color: #2f7bbf;
+      }
+
+      .section.future i {
+        color: #003f5c;
+      }
+
+      .trend-text {
+        flex: 1;
+        line-height: 1.4;
+      }
+
+      .stat-box {
+        background-color: white;
+        border-radius: 6px;
+        padding: 15px;
+        margin: 20px 0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-number {
+        font-family: 'Georgia', serif;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      .section.past .stat-number {
+        color: #444;
+      }
+
+      .section.present .stat-number {
+        color: #2f7bbf;
+      }
+
+      .section.future .stat-number {
+        color: #003f5c;
+      }
+
+      .source-info {
+        text-align: center;
+        font-style: italic;
+        color: #666;
+        margin-top: 30px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+      }
+
+      @media (max-width: 900px) {
         .sections-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
+          flex-direction: column;
         }
-        
+
         .section {
-            flex: 1;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          margin-bottom: 20px;
         }
-        
-        .section.past {
-            background-color: #f5f5f5;
-            border-top: 4px solid #666;
+
+        .time-markers,
+        .time-labels {
+          display: none;
         }
-        
-        .section.present {
-            background-color: #e1edf7;
-            border-top: 4px solid #2f7bbf;
+
+        .timeline-line {
+          display: none;
         }
-        
-        .section.future {
-            background-color: #e6f0f7;
-            border-top: 4px solid #003f5c;
+
+        .timeline-container {
+          padding-top: 0;
         }
-        
-        .trend-item {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
-        
-        .trend-item i {
-            font-size: 18px;
-            margin-right: 15px;
-            min-width: 20px;
-            text-align: center;
-        }
-        
-        .section.past i {
-            color: #555;
-        }
-        
-        .section.present i {
-            color: #2f7bbf;
-        }
-        
-        .section.future i {
-            color: #003f5c;
-        }
-        
-        .trend-text {
-            flex: 1;
-            line-height: 1.4;
-        }
-        
-        .stat-box {
-            background-color: white;
-            border-radius: 6px;
-            padding: 15px;
-            margin: 20px 0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        
-        .stat-number {
-            font-family: 'Georgia', serif;
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        
-        .section.past .stat-number {
-            color: #444;
-        }
-        
-        .section.present .stat-number {
-            color: #2f7bbf;
-        }
-        
-        .section.future .stat-number {
-            color: #003f5c;
-        }
-        
-        .source-info {
-            text-align: center;
-            font-style: italic;
-            color: #666;
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-        
-        @media (max-width: 900px) {
-            .sections-container {
-                flex-direction: column;
-            }
-            
-            .section {
-                margin-bottom: 20px;
-            }
-            
-            .time-markers, .time-labels {
-                display: none;
-            }
-            
-            .timeline-line {
-                display: none;
-            }
-            
-            .timeline-container {
-                padding-top: 0;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <h1>The Evolution and Future of Flexible Work</h1>
-        
-        <div class="timeline-container">
-            <div class="timeline-line"></div>
-            
-            <div class="time-markers">
-                <div class="time-marker past"></div>
-                <div class="time-marker present"></div>
-                <div class="time-marker future"></div>
-            </div>
-            
-            <div class="time-labels">
-                <div class="time-label past">Past (2020-2022)</div>
-                <div class="time-label present">Present (2023-2025)</div>
-                <div class="time-label future">Future (2026-2030)</div>
-            </div>
-            
-            <div class="sections-container">
-                <div class="section past">
-                    <div class="trend-item">
-                        <i class="fas fa-virus"></i>
-                        <div class="trend-text">Pandemic-driven remote work adoption</div>
-                    </div>
-                    
-                    <div class="trend-item">
-                        <i class="fas fa-chart-line"></i>
-                        <div class="trend-text">Initial productivity concerns followed by positive outcomes</div>
-                    </div>
-                    
-                    <div class="trend-item">
-                        <i class="fas fa-tools"></i>
-                        <div class="trend-text">Emergency measures with limited infrastructure</div>
-                    </div>
-                    
-                    <div class="stat-box">
-                        <div class="stat-number">61%</div>
-                        <div class="stat-text">of high-income workers reported working from home during peak pandemic periods</div>
-                    </div>
-                </div>
-                
-                <div class="section present">
-                    <div class="trend-item">
-                        <i class="fas fa-building"></i>
-                        <div class="trend-text">Return-to-office push meets resistance</div>
-                    </div>
-                    
-                    <div class="stat-box">
-                        <div class="stat-number">75%</div>
-                        <div class="stat-text">of non-full-time-remote workers face mandatory office days (up from 63% in 2023)</div>
-                    </div>
-                    
-                    <div class="stat-box">
-                        <div class="stat-number">46%</div>
-                        <div class="stat-text">of remote workers would be unlikely to stay if work-from-home ended</div>
-                    </div>
-                    
-                    <div class="trend-item">
-                        <i class="fas fa-calendar-alt"></i>
-                        <div class="trend-text">Schedule autonomy emerging as critical retention factor</div>
-                    </div>
-                </div>
-                
-                <div class="section future">
-                    <div class="trend-item">
-                        <i class="fas fa-tasks"></i>
-                        <div class="trend-text">Predicted shift from location-based to outcome-based work models</div>
-                    </div>
-                    
-                    <div class="trend-item">
-                        <i class="fas fa-robot"></i>
-                        <div class="trend-text">Integration of AI to enhance remote collaboration and productivity</div>
-                    </div>
-                    
-                    <div class="trend-item">
-                        <i class="fas fa-vr-cardboard"></i>
-                        <div class="trend-text">Digital-physical hybrid workspaces become standard</div>
-                    </div>
-                    
-                    <div class="trend-item">
-                        <i class="fas fa-globe"></i>
-                        <div class="trend-text">Growing emphasis on asynchronous work, reducing geographic barriers</div>
-                    </div>
-                </div>
-            </div>
+      <h1>The Evolution and Future of Flexible Work</h1>
+
+      <div class="timeline-container">
+        <div class="timeline-line"></div>
+
+        <div class="time-markers">
+          <div class="time-marker past"></div>
+          <div class="time-marker present"></div>
+          <div class="time-marker future"></div>
         </div>
-        
-        <div class="source-info">
-            Sources: Pew Research Center; Gallup; Great Place To Work; industry projections
+
+        <div class="time-labels">
+          <div class="time-label past">Past (2020-2022)</div>
+          <div class="time-label present">Present (2023-2025)</div>
+          <div class="time-label future">Future (2026-2030)</div>
         </div>
+
+        <div class="sections-container">
+          <div class="section past">
+            <div class="trend-item">
+              <i class="fas fa-virus"></i>
+              <div class="trend-text">Pandemic-driven remote work adoption</div>
+            </div>
+
+            <div class="trend-item">
+              <i class="fas fa-chart-line"></i>
+              <div class="trend-text">
+                Initial productivity concerns followed by positive outcomes
+              </div>
+            </div>
+
+            <div class="trend-item">
+              <i class="fas fa-tools"></i>
+              <div class="trend-text">Emergency measures with limited infrastructure</div>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-number">61%</div>
+              <div class="stat-text">
+                of high-income workers reported working from home during peak pandemic periods
+              </div>
+            </div>
+          </div>
+
+          <div class="section present">
+            <div class="trend-item">
+              <i class="fas fa-building"></i>
+              <div class="trend-text">Return-to-office push meets resistance</div>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-number">75%</div>
+              <div class="stat-text">
+                of non-full-time-remote workers face mandatory office days (up from 63% in 2023)
+              </div>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-number">46%</div>
+              <div class="stat-text">
+                of remote workers would be unlikely to stay if work-from-home ended
+              </div>
+            </div>
+
+            <div class="trend-item">
+              <i class="fas fa-calendar-alt"></i>
+              <div class="trend-text">Schedule autonomy emerging as critical retention factor</div>
+            </div>
+          </div>
+
+          <div class="section future">
+            <div class="trend-item">
+              <i class="fas fa-tasks"></i>
+              <div class="trend-text">
+                Predicted shift from location-based to outcome-based work models
+              </div>
+            </div>
+
+            <div class="trend-item">
+              <i class="fas fa-robot"></i>
+              <div class="trend-text">
+                Integration of AI to enhance remote collaboration and productivity
+              </div>
+            </div>
+
+            <div class="trend-item">
+              <i class="fas fa-vr-cardboard"></i>
+              <div class="trend-text">Digital-physical hybrid workspaces become standard</div>
+            </div>
+
+            <div class="trend-item">
+              <i class="fas fa-globe"></i>
+              <div class="trend-text">
+                Growing emphasis on asynchronous work, reducing geographic barriers
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="source-info">
+        Sources: Pew Research Center; Gallup; Great Place To Work; industry projections
+      </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Ensure all sections are visible with a fade-in effect
-            const sections = document.querySelectorAll('.section');
-            sections.forEach((section, index) => {
-                section.style.opacity = 0;
-                setTimeout(() => {
-                    section.style.opacity = 1;
-                    section.style.transition = 'opacity 0.5s ease-in-out';
-                }, index * 200);
-            });
-        });
+      document.addEventListener('DOMContentLoaded', function () {
+        // Ensure all sections are visible with a fade-in effect
+        const sections = document.querySelectorAll('.section')
+        sections.forEach((section, index) => {
+          section.style.opacity = 0
+          setTimeout(() => {
+            section.style.opacity = 1
+            section.style.transition = 'opacity 0.5s ease-in-out'
+          }, index * 200)
+        })
+      })
     </script>
-</body>
+  </body>
 </html>

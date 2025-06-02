@@ -1,494 +1,505 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Environmental Kuznets Curve Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .visualization-container {
-            width: 1200px;
-            padding: 10px;
-            position: relative;
-        }
-        
-        .main-title {
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto auto;
-            gap: 30px;
-        }
-        
-        .panel {
-            border: 1px solid #E1E1E1;
-            padding: 15px;
-            position: relative;
-        }
-        
-        .panel-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        
-        .ekc-note {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #9EC5E8;
-            border-radius: 5px;
-            padding: 10px;
-            width: 250px;
-            font-size: 12px;
-            line-height: 1.4;
-            z-index: 100;
-        }
-        
-        .source-note {
-            font-size: 10px;
-            color: #666;
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        .axis-label {
-            font-size: 11px;
-            fill: #333;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-size: 14px;
-            fill: #1a1a1a;
-            font-weight: bold;
-        }
-        
-        .annotation {
-            font-size: 10px;
-            fill: #333;
-        }
-        
-        .policy-annotation {
-            font-size: 10px;
-            fill: #1a7a33;
-            font-weight: 500;
-        }
-        
-        .time-arrow {
-            fill: #555;
-        }
-        
-        .tick text {
-            font-size: 9px;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .visualization-container {
+        width: 1200px;
+        padding: 10px;
+        position: relative;
+      }
+
+      .main-title {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 30px;
+      }
+
+      .panel {
+        border: 1px solid #e1e1e1;
+        padding: 15px;
+        position: relative;
+      }
+
+      .panel-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .ekc-note {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #9ec5e8;
+        border-radius: 5px;
+        padding: 10px;
+        width: 250px;
+        font-size: 12px;
+        line-height: 1.4;
+        z-index: 100;
+      }
+
+      .source-note {
+        font-size: 10px;
+        color: #666;
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .axis-label {
+        font-size: 11px;
+        fill: #333;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-size: 14px;
+        fill: #1a1a1a;
+        font-weight: bold;
+      }
+
+      .annotation {
+        font-size: 10px;
+        fill: #333;
+      }
+
+      .policy-annotation {
+        font-size: 10px;
+        fill: #1a7a33;
+        font-weight: 500;
+      }
+
+      .time-arrow {
+        fill: #555;
+      }
+
+      .tick text {
+        font-size: 9px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="main-title">The Environmental Kuznets Curve: Air Pollution Peaks and Declines with Development</div>
-        
-        <div class="ekc-note">
-            Environmental Kuznets Curve: Pollution first rises with development, then falls as economies transition and regulations strengthen
-        </div>
-        
-        <div class="grid-container">
-            <!-- Panels will be inserted here by D3 -->
-        </div>
-        
-        <div class="source-note">
-            Source: Our World in Data; Clean Air Fund; national air quality monitoring networks
-        </div>
+      <div class="main-title">
+        The Environmental Kuznets Curve: Air Pollution Peaks and Declines with Development
+      </div>
+
+      <div class="ekc-note">
+        Environmental Kuznets Curve: Pollution first rises with development, then falls as economies
+        transition and regulations strengthen
+      </div>
+
+      <div class="grid-container">
+        <!-- Panels will be inserted here by D3 -->
+      </div>
+
+      <div class="source-note">
+        Source: Our World in Data; Clean Air Fund; national air quality monitoring networks
+      </div>
     </div>
 
     <script>
-        // Configuration
-        const config = {
-            width: 520,
-            height: 380,
-            margin: { top: 40, right: 60, bottom: 60, left: 60 },
-            countries: [
-                {
-                    name: "UK",
-                    color: "#08519C",
-                    data: generateUKData(),
-                    policy: { year: 1956, name: "Clean Air Act 1956", gdp: 10000 },
-                    keyStat: { text: "94% reduction", position: { x: 0.75, y: 0.85 } }
-                },
-                {
-                    name: "US",
-                    color: "#9EC5E8",
-                    data: generateUSData(),
-                    policy: { year: 1970, name: "Clean Air Act 1970", gdp: 23000 },
-                    keyStat: { text: "80% decline since 1970s", position: { x: 0.65, y: 0.3 } }
-                },
-                {
-                    name: "China",
-                    color: "#FB9A99",
-                    data: generateChinaData(),
-                    policy: { year: 2013, name: "Air Pollution Plan 2013", gdp: 7000 },
-                    keyStat: { text: "35% reduction since 2013", position: { x: 0.7, y: 0.7 } }
-                },
-                {
-                    name: "India",
-                    color: "#333333",
-                    data: generateIndiaData(),
-                    policy: { year: 2019, name: "Clean Air Programme 2019", gdp: 2100 },
-                    keyStat: { text: "Approaching turning point", position: { x: 0.6, y: 0.4 } }
-                }
-            ]
-        };
+      // Configuration
+      const config = {
+        width: 520,
+        height: 380,
+        margin: { top: 40, right: 60, bottom: 60, left: 60 },
+        countries: [
+          {
+            name: 'UK',
+            color: '#08519C',
+            data: generateUKData(),
+            policy: { year: 1956, name: 'Clean Air Act 1956', gdp: 10000 },
+            keyStat: { text: '94% reduction', position: { x: 0.75, y: 0.85 } },
+          },
+          {
+            name: 'US',
+            color: '#9EC5E8',
+            data: generateUSData(),
+            policy: { year: 1970, name: 'Clean Air Act 1970', gdp: 23000 },
+            keyStat: { text: '80% decline since 1970s', position: { x: 0.65, y: 0.3 } },
+          },
+          {
+            name: 'China',
+            color: '#FB9A99',
+            data: generateChinaData(),
+            policy: { year: 2013, name: 'Air Pollution Plan 2013', gdp: 7000 },
+            keyStat: { text: '35% reduction since 2013', position: { x: 0.7, y: 0.7 } },
+          },
+          {
+            name: 'India',
+            color: '#333333',
+            data: generateIndiaData(),
+            policy: { year: 2019, name: 'Clean Air Programme 2019', gdp: 2100 },
+            keyStat: { text: 'Approaching turning point', position: { x: 0.6, y: 0.4 } },
+          },
+        ],
+      }
 
-        // Generate sample data for each country
-        function generateUKData() {
-            // UK data (1950-2020) showing complete inverted U-curve with peak around 1960s
-            const data = [];
-            // Pre-peak period (1950-1960)
-            for (let year = 1950; year <= 1960; year++) {
-                const gdp = 5000 + (year - 1950) * 500;
-                const pm25 = 30 + (year - 1950) * 5;
-                data.push({ year, gdp, pm25 });
-            }
-            // Peak and decline (1961-2020)
-            for (let year = 1961; year <= 2020; year++) {
-                const gdp = 10500 + (year - 1961) * 800;
-                const factor = Math.max(0.06, 1 - (year - 1961) * 0.03);
-                const pm25 = 85 * factor;
-                data.push({ year, gdp, pm25 });
-            }
-            return data;
+      // Generate sample data for each country
+      function generateUKData() {
+        // UK data (1950-2020) showing complete inverted U-curve with peak around 1960s
+        const data = []
+        // Pre-peak period (1950-1960)
+        for (let year = 1950; year <= 1960; year++) {
+          const gdp = 5000 + (year - 1950) * 500
+          const pm25 = 30 + (year - 1950) * 5
+          data.push({ year, gdp, pm25 })
+        }
+        // Peak and decline (1961-2020)
+        for (let year = 1961; year <= 2020; year++) {
+          const gdp = 10500 + (year - 1961) * 800
+          const factor = Math.max(0.06, 1 - (year - 1961) * 0.03)
+          const pm25 = 85 * factor
+          data.push({ year, gdp, pm25 })
+        }
+        return data
+      }
+
+      function generateUSData() {
+        // US data (1950-2020) showing complete inverted U-curve with peak in 1970s
+        const data = []
+        // Pre-peak period (1950-1970)
+        for (let year = 1950; year <= 1970; year++) {
+          const gdp = 13000 + (year - 1950) * 500
+          const pm25 = 40 + (year - 1950) * 2
+          data.push({ year, gdp, pm25 })
+        }
+        // Peak and decline (1971-2020)
+        for (let year = 1971; year <= 2020; year++) {
+          const gdp = 23000 + (year - 1971) * 1000
+          const factor = Math.max(0.1, 1 - (year - 1971) * 0.025)
+          const pm25 = 80 * factor
+          data.push({ year, gdp, pm25 })
+        }
+        return data
+      }
+
+      function generateChinaData() {
+        // China data (1980-2020) showing recent peak around 2011-2013
+        const data = []
+        // Pre-peak period (1980-2011)
+        for (let year = 1980; year <= 2011; year++) {
+          const gdp = 300 + (year - 1980) * 200
+          const pm25 = 30 + (year - 1980) * 2
+          data.push({ year, gdp, pm25 })
+        }
+        // Peak and decline (2012-2020)
+        for (let year = 2012; year <= 2020; year++) {
+          const gdp = 6500 + (year - 2012) * 800
+          const factor = Math.max(0.6, 1 - (year - 2012) * 0.07)
+          const pm25 = 90 * factor
+          data.push({ year, gdp, pm25 })
+        }
+        return data
+      }
+
+      function generateIndiaData() {
+        // India data (1990-2020) showing continuing increase with potential flattening
+        const data = []
+        for (let year = 1990; year <= 2020; year++) {
+          const gdp = 400 + (year - 1990) * 70
+          let pm25
+          if (year <= 2015) {
+            pm25 = 30 + (year - 1990) * 1.5
+          } else {
+            pm25 = 67.5 + (year - 2015) * 0.5 // Flattening in recent years
+          }
+          data.push({ year, gdp, pm25 })
+        }
+        return data
+      }
+
+      // Create panels
+      function createPanels() {
+        const gridContainer = d3.select('.grid-container')
+
+        config.countries.forEach((country, i) => {
+          const panel = gridContainer
+            .append('div')
+            .attr('class', 'panel')
+            .attr('id', `panel-${country.name.toLowerCase()}`)
+
+          panel.append('div').attr('class', 'panel-title').text(country.name)
+
+          const svg = panel.append('svg').attr('width', config.width).attr('height', config.height)
+
+          createChart(svg, country)
+        })
+      }
+
+      // Create chart for each panel
+      function createChart(svg, country) {
+        const width = config.width - config.margin.left - config.margin.right
+        const height = config.height - config.margin.top - config.margin.bottom
+
+        const g = svg
+          .append('g')
+          .attr('transform', `translate(${config.margin.left},${config.margin.top})`)
+
+        // X scale (log scale for GDP per capita)
+        const xScale = d3
+          .scaleLog()
+          .domain([
+            d3.min(country.data, (d) => d.gdp) * 0.8,
+            d3.max(country.data, (d) => d.gdp) * 1.2,
+          ])
+          .range([0, width])
+
+        // Y scale for PM2.5
+        const yScale = d3
+          .scaleLinear()
+          .domain([0, d3.max(country.data, (d) => d.pm25) * 1.1])
+          .range([height, 0])
+
+        // Add gridlines
+        g.append('g')
+          .attr('class', 'grid x-grid')
+          .attr('transform', `translate(0,${height})`)
+          .call(d3.axisBottom(xScale).tickSize(-height).tickFormat('').ticks(5))
+          .call((g) => g.select('.domain').remove())
+          .call((g) =>
+            g.selectAll('.tick line').attr('stroke', '#e0e0e0').attr('stroke-dasharray', '2,2')
+          )
+
+        g.append('g')
+          .attr('class', 'grid y-grid')
+          .call(d3.axisLeft(yScale).tickSize(-width).tickFormat('').ticks(5))
+          .call((g) => g.select('.domain').remove())
+          .call((g) =>
+            g.selectAll('.tick line').attr('stroke', '#e0e0e0').attr('stroke-dasharray', '2,2')
+          )
+
+        // Add axes with improved formatting
+        // Customize x-axis tick format based on country to reduce clutter
+        let xAxisTicks = 5
+        if (country.name === 'China') {
+          xAxisTicks = 4 // Fewer ticks for China to reduce clutter
         }
 
-        function generateUSData() {
-            // US data (1950-2020) showing complete inverted U-curve with peak in 1970s
-            const data = [];
-            // Pre-peak period (1950-1970)
-            for (let year = 1950; year <= 1970; year++) {
-                const gdp = 13000 + (year - 1950) * 500;
-                const pm25 = 40 + (year - 1950) * 2;
-                data.push({ year, gdp, pm25 });
-            }
-            // Peak and decline (1971-2020)
-            for (let year = 1971; year <= 2020; year++) {
-                const gdp = 23000 + (year - 1971) * 1000;
-                const factor = Math.max(0.1, 1 - (year - 1971) * 0.025);
-                const pm25 = 80 * factor;
-                data.push({ year, gdp, pm25 });
-            }
-            return data;
+        g.append('g')
+          .attr('class', 'x-axis')
+          .attr('transform', `translate(0,${height})`)
+          .call(
+            d3
+              .axisBottom(xScale)
+              .tickFormat((d) => {
+                if (d >= 1000) {
+                  return d3.format(',.0f')(d / 1000) + 'k'
+                }
+                return d3.format(',.0f')(d)
+              })
+              .ticks(xAxisTicks)
+          )
+          .selectAll('text')
+          .attr('y', 10)
+          .attr('x', 0)
+          .attr('dy', '.35em')
+          .style('text-anchor', 'middle')
+          .style('font-size', '10px')
+
+        g.append('g').attr('class', 'y-axis').call(d3.axisLeft(yScale))
+
+        // Add axis labels
+        g.append('text')
+          .attr('class', 'axis-label')
+          .attr('text-anchor', 'middle')
+          .attr('x', width / 2)
+          .attr('y', height + 40)
+          .text('GDP per capita (constant 2015 USD, log scale)')
+
+        g.append('text')
+          .attr('class', 'axis-label')
+          .attr('text-anchor', 'middle')
+          .attr('transform', 'rotate(-90)')
+          .attr('x', -height / 2)
+          .attr('y', -40)
+          .text('PM2.5 concentration')
+
+        // Create line generator
+        const line = d3
+          .line()
+          .x((d) => xScale(d.gdp))
+          .y((d) => yScale(d.pm25))
+          .curve(d3.curveMonotoneX)
+
+        // Add the line path
+        g.append('path')
+          .datum(country.data)
+          .attr('fill', 'none')
+          .attr('stroke', country.color)
+          .attr('stroke-width', 2)
+          .attr('d', line)
+
+        // Add decade markers (only key years to prevent overcrowding)
+        // Customize which years to show for each country to reduce overlap
+        let decadeYears
+        if (country.name === 'UK') {
+          decadeYears = [1950, 1970, 1990, 2020]
+        } else if (country.name === 'US') {
+          decadeYears = [1950, 1970, 1990, 2020]
+        } else if (country.name === 'China') {
+          decadeYears = [1990, 2020]
+        } else {
+          // India
+          decadeYears = [1990, 2010, 2020]
         }
 
-        function generateChinaData() {
-            // China data (1980-2020) showing recent peak around 2011-2013
-            const data = [];
-            // Pre-peak period (1980-2011)
-            for (let year = 1980; year <= 2011; year++) {
-                const gdp = 300 + (year - 1980) * 200;
-                const pm25 = 30 + (year - 1980) * 2;
-                data.push({ year, gdp, pm25 });
+        decadeYears.forEach((year) => {
+          const dataPoint = country.data.find((d) => d.year === year)
+          if (dataPoint) {
+            g.append('circle')
+              .attr('cx', xScale(dataPoint.gdp))
+              .attr('cy', yScale(dataPoint.pm25))
+              .attr('r', 4)
+              .attr('fill', country.color)
+
+            // Position year labels with specific adjustments to prevent overlap
+            let xPos = xScale(dataPoint.gdp)
+            let yPos = yScale(dataPoint.pm25) - 10
+            let anchor = 'middle'
+
+            // Custom positioning for specific years/countries to avoid overlap
+            if (country.name === 'UK' && year === 1990) {
+              xPos -= 5
             }
-            // Peak and decline (2012-2020)
-            for (let year = 2012; year <= 2020; year++) {
-                const gdp = 6500 + (year - 2012) * 800;
-                const factor = Math.max(0.6, 1 - (year - 2012) * 0.07);
-                const pm25 = 90 * factor;
-                data.push({ year, gdp, pm25 });
+
+            if (country.name === 'US' && year === 2020) {
+              xPos += 15
             }
-            return data;
+
+            if (country.name === 'China' && year === 2010) {
+              // Skip 2010 label for China to avoid overlap with policy annotation
+              return
+            }
+
+            if (country.name === 'India' && year === 2020) {
+              xPos -= 15
+              yPos -= 5
+            }
+
+            g.append('text')
+              .attr('class', 'annotation')
+              .attr('x', xPos)
+              .attr('y', yPos)
+              .attr('text-anchor', anchor)
+              .text(year)
+          }
+        })
+
+        // Add policy intervention marker with improved positioning
+        if (country.policy) {
+          const policyData = country.data.find((d) => d.year === country.policy.year) || {
+            gdp: country.policy.gdp,
+            pm25: yScale.domain()[1] / 2,
+          }
+
+          g.append('line')
+            .attr('x1', xScale(policyData.gdp))
+            .attr('y1', 10)
+            .attr('x2', xScale(policyData.gdp))
+            .attr('y2', height)
+            .attr('stroke', '#31A354')
+            .attr('stroke-width', 1.5)
+            .attr('stroke-dasharray', '4,4')
+
+          // Custom positioning for policy annotations to avoid truncation and overlap
+          let yOffset = 25
+          let xOffset = 0
+          let anchor = 'middle'
+
+          if (country.name === 'UK') {
+            xOffset = -20
+            anchor = 'end'
+          }
+
+          if (country.name === 'US') {
+            xOffset = 15
+            anchor = 'start'
+            yOffset = 20
+          }
+
+          if (country.name === 'China') {
+            xOffset = -20
+            anchor = 'end'
+            yOffset = 35 // Move down to avoid overlap with curve peak
+          }
+
+          if (country.name === 'India') {
+            yOffset = 20
+            xOffset = -40
+            anchor = 'end'
+          }
+
+          g.append('text')
+            .attr('class', 'policy-annotation')
+            .attr('x', xScale(policyData.gdp) + xOffset)
+            .attr('y', yOffset)
+            .attr('text-anchor', anchor)
+            .text(country.policy.name)
         }
 
-        function generateIndiaData() {
-            // India data (1990-2020) showing continuing increase with potential flattening
-            const data = [];
-            for (let year = 1990; year <= 2020; year++) {
-                const gdp = 400 + (year - 1990) * 70;
-                let pm25;
-                if (year <= 2015) {
-                    pm25 = 30 + (year - 1990) * 1.5;
-                } else {
-                    pm25 = 67.5 + (year - 2015) * 0.5; // Flattening in recent years
-                }
-                data.push({ year, gdp, pm25 });
-            }
-            return data;
-        }
+        // Add time direction arrow with improved visibility and consistent positioning
+        // Calculate position for arrow at approximately 60% along the curve for consistency
+        const arrowIndex = Math.floor(country.data.length * 0.6)
+        const arrowData = country.data[arrowIndex]
 
-        // Create panels
-        function createPanels() {
-            const gridContainer = d3.select(".grid-container");
-            
-            config.countries.forEach((country, i) => {
-                const panel = gridContainer.append("div")
-                    .attr("class", "panel")
-                    .attr("id", `panel-${country.name.toLowerCase()}`);
-                
-                panel.append("div")
-                    .attr("class", "panel-title")
-                    .text(country.name);
-                
-                const svg = panel.append("svg")
-                    .attr("width", config.width)
-                    .attr("height", config.height);
-                
-                createChart(svg, country);
-            });
-        }
+        // Calculate the angle for the arrow
+        const prevPoint = country.data[arrowIndex - 5]
+        const nextPoint = country.data[arrowIndex + 5]
+        const dx = xScale(nextPoint.gdp) - xScale(prevPoint.gdp)
+        const dy = yScale(nextPoint.pm25) - yScale(prevPoint.pm25)
+        const angle = (Math.atan2(dy, dx) * 180) / Math.PI
 
-        // Create chart for each panel
-        function createChart(svg, country) {
-            const width = config.width - config.margin.left - config.margin.right;
-            const height = config.height - config.margin.top - config.margin.bottom;
-            
-            const g = svg.append("g")
-                .attr("transform", `translate(${config.margin.left},${config.margin.top})`);
-            
-            // X scale (log scale for GDP per capita)
-            const xScale = d3.scaleLog()
-                .domain([d3.min(country.data, d => d.gdp) * 0.8, d3.max(country.data, d => d.gdp) * 1.2])
-                .range([0, width]);
-            
-            // Y scale for PM2.5
-            const yScale = d3.scaleLinear()
-                .domain([0, d3.max(country.data, d => d.pm25) * 1.1])
-                .range([height, 0]);
-            
-            // Add gridlines
-            g.append("g")
-                .attr("class", "grid x-grid")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(xScale)
-                    .tickSize(-height)
-                    .tickFormat("")
-                    .ticks(5))
-                .call(g => g.select(".domain").remove())
-                .call(g => g.selectAll(".tick line")
-                    .attr("stroke", "#e0e0e0")
-                    .attr("stroke-dasharray", "2,2"));
-            
-            g.append("g")
-                .attr("class", "grid y-grid")
-                .call(d3.axisLeft(yScale)
-                    .tickSize(-width)
-                    .tickFormat("")
-                    .ticks(5))
-                .call(g => g.select(".domain").remove())
-                .call(g => g.selectAll(".tick line")
-                    .attr("stroke", "#e0e0e0")
-                    .attr("stroke-dasharray", "2,2"));
-            
-            // Add axes with improved formatting
-            // Customize x-axis tick format based on country to reduce clutter
-            let xAxisTicks = 5;
-            if (country.name === "China") {
-                xAxisTicks = 4; // Fewer ticks for China to reduce clutter
-            }
-            
-            g.append("g")
-                .attr("class", "x-axis")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(xScale)
-                    .tickFormat(d => {
-                        if (d >= 1000) {
-                            return d3.format(",.0f")(d / 1000) + "k";
-                        }
-                        return d3.format(",.0f")(d);
-                    })
-                    .ticks(xAxisTicks))
-                .selectAll("text")
-                    .attr("y", 10)
-                    .attr("x", 0)
-                    .attr("dy", ".35em")
-                    .style("text-anchor", "middle")
-                    .style("font-size", "10px");
-            
-            g.append("g")
-                .attr("class", "y-axis")
-                .call(d3.axisLeft(yScale));
-            
-            // Add axis labels
-            g.append("text")
-                .attr("class", "axis-label")
-                .attr("text-anchor", "middle")
-                .attr("x", width / 2)
-                .attr("y", height + 40)
-                .text("GDP per capita (constant 2015 USD, log scale)");
-            
-            g.append("text")
-                .attr("class", "axis-label")
-                .attr("text-anchor", "middle")
-                .attr("transform", "rotate(-90)")
-                .attr("x", -height / 2)
-                .attr("y", -40)
-                .text("PM2.5 concentration");
-            
-            // Create line generator
-            const line = d3.line()
-                .x(d => xScale(d.gdp))
-                .y(d => yScale(d.pm25))
-                .curve(d3.curveMonotoneX);
-            
-            // Add the line path
-            g.append("path")
-                .datum(country.data)
-                .attr("fill", "none")
-                .attr("stroke", country.color)
-                .attr("stroke-width", 2)
-                .attr("d", line);
-            
-            // Add decade markers (only key years to prevent overcrowding)
-            // Customize which years to show for each country to reduce overlap
-            let decadeYears;
-            if (country.name === "UK") {
-                decadeYears = [1950, 1970, 1990, 2020];
-            } else if (country.name === "US") {
-                decadeYears = [1950, 1970, 1990, 2020];
-            } else if (country.name === "China") {
-                decadeYears = [1990, 2020];
-            } else { // India
-                decadeYears = [1990, 2010, 2020];
-            }
-            
-            decadeYears.forEach(year => {
-                const dataPoint = country.data.find(d => d.year === year);
-                if (dataPoint) {
-                    g.append("circle")
-                        .attr("cx", xScale(dataPoint.gdp))
-                        .attr("cy", yScale(dataPoint.pm25))
-                        .attr("r", 4)
-                        .attr("fill", country.color);
-                    
-                    // Position year labels with specific adjustments to prevent overlap
-                    let xPos = xScale(dataPoint.gdp);
-                    let yPos = yScale(dataPoint.pm25) - 10;
-                    let anchor = "middle";
-                    
-                    // Custom positioning for specific years/countries to avoid overlap
-                    if (country.name === "UK" && year === 1990) {
-                        xPos -= 5;
-                    }
-                    
-                    if (country.name === "US" && year === 2020) {
-                        xPos += 15;
-                    }
-                    
-                    if (country.name === "China" && year === 2010) {
-                        // Skip 2010 label for China to avoid overlap with policy annotation
-                        return;
-                    }
-                    
-                    if (country.name === "India" && year === 2020) {
-                        xPos -= 15;
-                        yPos -= 5;
-                    }
-                    
-                    g.append("text")
-                        .attr("class", "annotation")
-                        .attr("x", xPos)
-                        .attr("y", yPos)
-                        .attr("text-anchor", anchor)
-                        .text(year);
-                }
-            });
-            
-            // Add policy intervention marker with improved positioning
-            if (country.policy) {
-                const policyData = country.data.find(d => d.year === country.policy.year) || 
-                                  { gdp: country.policy.gdp, pm25: yScale.domain()[1] / 2 };
-                
-                g.append("line")
-                    .attr("x1", xScale(policyData.gdp))
-                    .attr("y1", 10)
-                    .attr("x2", xScale(policyData.gdp))
-                    .attr("y2", height)
-                    .attr("stroke", "#31A354")
-                    .attr("stroke-width", 1.5)
-                    .attr("stroke-dasharray", "4,4");
-                
-                // Custom positioning for policy annotations to avoid truncation and overlap
-                let yOffset = 25;
-                let xOffset = 0;
-                let anchor = "middle";
-                
-                if (country.name === "UK") {
-                    xOffset = -20;
-                    anchor = "end";
-                }
-                
-                if (country.name === "US") {
-                    xOffset = 15;
-                    anchor = "start";
-                    yOffset = 20;
-                }
-                
-                if (country.name === "China") {
-                    xOffset = -20;
-                    anchor = "end";
-                    yOffset = 35; // Move down to avoid overlap with curve peak
-                }
-                
-                if (country.name === "India") {
-                    yOffset = 20;
-                    xOffset = -40;
-                    anchor = "end";
-                }
-                
-                g.append("text")
-                    .attr("class", "policy-annotation")
-                    .attr("x", xScale(policyData.gdp) + xOffset)
-                    .attr("y", yOffset)
-                    .attr("text-anchor", anchor)
-                    .text(country.policy.name);
-            }
-            
-            // Add time direction arrow with improved visibility and consistent positioning
-            // Calculate position for arrow at approximately 60% along the curve for consistency
-            const arrowIndex = Math.floor(country.data.length * 0.6);
-            const arrowData = country.data[arrowIndex];
-            
-            // Calculate the angle for the arrow
-            const prevPoint = country.data[arrowIndex - 5];
-            const nextPoint = country.data[arrowIndex + 5];
-            const dx = xScale(nextPoint.gdp) - xScale(prevPoint.gdp);
-            const dy = yScale(nextPoint.pm25) - yScale(prevPoint.pm25);
-            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-            
-            // Make arrow more visible
-            g.append("path")
-                .attr("class", "time-arrow")
-                .attr("d", "M0,-6L12,0L0,6") // Slightly smaller arrow
-                .attr("transform", `translate(${xScale(arrowData.gdp)},${yScale(arrowData.pm25)}) rotate(${angle})`)
-                .attr("fill", "#555")
-                .attr("stroke", "#555")
-                .attr("stroke-width", 1.5);
-            
-            // Add key statistics if applicable
-            if (country.keyStat) {
-                g.append("text")
-                    .attr("class", "key-number")
-                    .attr("x", width * country.keyStat.position.x)
-                    .attr("y", height * country.keyStat.position.y)
-                    .text(country.keyStat.text);
-            }
-        }
+        // Make arrow more visible
+        g.append('path')
+          .attr('class', 'time-arrow')
+          .attr('d', 'M0,-6L12,0L0,6') // Slightly smaller arrow
+          .attr(
+            'transform',
+            `translate(${xScale(arrowData.gdp)},${yScale(arrowData.pm25)}) rotate(${angle})`
+          )
+          .attr('fill', '#555')
+          .attr('stroke', '#555')
+          .attr('stroke-width', 1.5)
 
-        // Initialize visualization
-        createPanels();
+        // Add key statistics if applicable
+        if (country.keyStat) {
+          g.append('text')
+            .attr('class', 'key-number')
+            .attr('x', width * country.keyStat.position.x)
+            .attr('y', height * country.keyStat.position.y)
+            .text(country.keyStat.text)
+        }
+      }
+
+      // Initialize visualization
+      createPanels()
     </script>
-</body>
+  </body>
 </html>

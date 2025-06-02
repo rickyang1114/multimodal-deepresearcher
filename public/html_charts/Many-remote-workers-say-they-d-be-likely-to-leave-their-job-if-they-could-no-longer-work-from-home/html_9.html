@@ -1,309 +1,314 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tale of Two Approaches: RTO Strategies</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f9f9f9;
-            color: #333;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .visualization-container {
-            width: 1000px;
-            background-color: white;
-            padding: 30px;
-        }
-        
-        .title {
-            text-align: center;
-            margin-bottom: 5px;
-            font-size: 28px;
-            font-weight: 700;
-        }
-        
-        .subtitle {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 18px;
-            color: #555;
-            font-weight: 400;
-        }
-        
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+        color: #333;
+        display: flex;
+        justify-content: center;
+      }
+
+      .visualization-container {
+        width: 1000px;
+        background-color: white;
+        padding: 30px;
+      }
+
+      .title {
+        text-align: center;
+        margin-bottom: 5px;
+        font-size: 28px;
+        font-weight: 700;
+      }
+
+      .subtitle {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 18px;
+        color: #555;
+        font-weight: 400;
+      }
+
+      .comparison-container {
+        display: flex;
+        position: relative;
+      }
+
+      .column {
+        flex: 1;
+        padding: 0 20px;
+      }
+
+      .divider {
+        position: absolute;
+        width: 2px;
+        background-color: #7f7f7f;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .header {
+        padding: 12px 15px;
+        color: white;
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        text-align: center;
+      }
+
+      .failed-header {
+        background-color: #ff7f0e;
+      }
+
+      .success-header {
+        background-color: #006c70;
+      }
+
+      .case-study {
+        margin-bottom: 30px;
+      }
+
+      .case-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .failed-title {
+        color: #ff7f0e;
+      }
+
+      .success-title {
+        color: #006c70;
+      }
+
+      .case-icon {
+        margin-right: 10px;
+        font-size: 22px;
+      }
+
+      .case-details {
+        margin-left: 32px;
+        line-height: 1.5;
+      }
+
+      .bullet-point {
+        margin-bottom: 8px;
+        position: relative;
+        padding-left: 15px;
+      }
+
+      .bullet-point:before {
+        content: '•';
+        position: absolute;
+        left: 0;
+        font-weight: bold;
+      }
+
+      .failed-bullet:before {
+        color: #ff7f0e;
+      }
+
+      .success-bullet:before {
+        color: #006c70;
+      }
+
+      .highlight {
+        font-family: 'Georgia', serif;
+        font-weight: 600;
+        font-size: 17px;
+      }
+
+      .failed-highlight {
+        color: #e05e00;
+      }
+
+      .success-highlight {
+        color: #004e51;
+      }
+
+      .source {
+        text-align: center;
+        color: #7f7f7f;
+        font-size: 12px;
+        margin-top: 30px;
+        font-style: italic;
+      }
+
+      @media (max-width: 768px) {
         .comparison-container {
-            display: flex;
-            position: relative;
+          flex-direction: column;
         }
-        
-        .column {
-            flex: 1;
-            padding: 0 20px;
-        }
-        
+
         .divider {
-            position: absolute;
-            width: 2px;
-            background-color: #7f7f7f;
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
+          width: 100%;
+          height: 2px;
+          top: 50%;
+          left: 0;
+          transform: translateY(-50%);
         }
-        
-        .header {
-            padding: 12px 15px;
-            color: white;
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            text-align: center;
+
+        .column {
+          padding: 20px;
         }
-        
-        .failed-header {
-            background-color: #ff7f0e;
-        }
-        
-        .success-header {
-            background-color: #006c70;
-        }
-        
-        .case-study {
-            margin-bottom: 30px;
-        }
-        
-        .case-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .failed-title {
-            color: #ff7f0e;
-        }
-        
-        .success-title {
-            color: #006c70;
-        }
-        
-        .case-icon {
-            margin-right: 10px;
-            font-size: 22px;
-        }
-        
-        .case-details {
-            margin-left: 32px;
-            line-height: 1.5;
-        }
-        
-        .bullet-point {
-            margin-bottom: 8px;
-            position: relative;
-            padding-left: 15px;
-        }
-        
-        .bullet-point:before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            font-weight: bold;
-        }
-        
-        .failed-bullet:before {
-            color: #ff7f0e;
-        }
-        
-        .success-bullet:before {
-            color: #006c70;
-        }
-        
-        .highlight {
-            font-family: 'Georgia', serif;
-            font-weight: 600;
-            font-size: 17px;
-        }
-        
-        .failed-highlight {
-            color: #e05e00;
-        }
-        
-        .success-highlight {
-            color: #004e51;
-        }
-        
-        .source {
-            text-align: center;
-            color: #7f7f7f;
-            font-size: 12px;
-            margin-top: 30px;
-            font-style: italic;
-        }
-        
-        @media (max-width: 768px) {
-            .comparison-container {
-                flex-direction: column;
-            }
-            
-            .divider {
-                width: 100%;
-                height: 2px;
-                top: 50%;
-                left: 0;
-                transform: translateY(-50%);
-            }
-            
-            .column {
-                padding: 20px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <h1 class="title">Tale of Two Approaches: When Mandates Backfire vs. When Flexibility Works</h1>
-        <p class="subtitle">Contrasting outcomes from different return-to-office strategies</p>
-        
-        <div class="comparison-container">
-            <div class="divider"></div>
-            
-            <!-- Left Column: Failed Approach -->
-            <div class="column">
-                <div class="header failed-header">
-                    Failed Approach: Strict Mandates
-                </div>
-                
-                <div class="case-study">
-                    <div class="case-title failed-title">
-                        <i class="case-icon fas fa-building failed-title"></i>
-                        Federal Telework Rollback (Jan 2025)
-                    </div>
-                    <div class="case-details">
-                        <div class="bullet-point failed-bullet">
-                            <span class="highlight failed-highlight">2.28M</span> civilians across 24 federal agencies forced back to offices
-                        </div>
-                        <div class="bullet-point failed-bullet">
-                            Only <span class="highlight failed-highlight">10%</span> had been fully remote, <span class="highlight failed-highlight">46%</span> had telework eligibility
-                        </div>
-                        <div class="bullet-point failed-bullet">
-                            NPR interviews revealed "chaos" with shortages of desks, Wi-Fi, parking
-                        </div>
-                        <div class="bullet-point failed-bullet">
-                            Many viewed as indirect attrition strategy
-                        </div>
-                        <div class="bullet-point failed-bullet">
-                            Sacrificed <span class="highlight failed-highlight">$230M</span> in annual savings from telework
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="case-study">
-                    <div class="case-title failed-title">
-                        <i class="case-icon fas fa-chart-line failed-title"></i>
-                        S&P 500 Tech & Financial Firms
-                    </div>
-                    <div class="case-details">
-                        <div class="bullet-point failed-bullet">
-                            <span class="highlight failed-highlight">14%</span> jump in turnover following RTO mandates
-                        </div>
-                        <div class="bullet-point failed-bullet">
-                            Women saw <span class="highlight failed-highlight">20%</span> turnover increase vs <span class="highlight failed-highlight">7%</span> for men
-                        </div>
-                        <div class="bullet-point failed-bullet">
-                            Time-to-fill rose <span class="highlight failed-highlight">23%</span> (≈+12 days per role)
-                        </div>
-                        <div class="bullet-point failed-bullet">
-                            Hire rates fell by <span class="highlight failed-highlight">17%</span>
-                        </div>
-                        <div class="bullet-point failed-bullet">
-                            JPMorgan Chase disabled internal comments on its RTO announcement to quell dissent
-                        </div>
-                    </div>
-                </div>
+      <h1 class="title">
+        Tale of Two Approaches: When Mandates Backfire vs. When Flexibility Works
+      </h1>
+      <p class="subtitle">Contrasting outcomes from different return-to-office strategies</p>
+
+      <div class="comparison-container">
+        <div class="divider"></div>
+
+        <!-- Left Column: Failed Approach -->
+        <div class="column">
+          <div class="header failed-header">Failed Approach: Strict Mandates</div>
+
+          <div class="case-study">
+            <div class="case-title failed-title">
+              <i class="case-icon fas fa-building failed-title"></i>
+              Federal Telework Rollback (Jan 2025)
             </div>
-            
-            <!-- Right Column: Successful Approach -->
-            <div class="column">
-                <div class="header success-header">
-                    Successful Approach: Intentional Flexibility
-                </div>
-                
-                <div class="case-study">
-                    <div class="case-title success-title">
-                        <i class="case-icon fas fa-cloud success-title"></i>
-                        Dropbox "Virtual First" Policy
-                    </div>
-                    <div class="case-details">
-                        <div class="bullet-point success-bullet">
-                            Launched in <span class="highlight success-highlight">2020</span>, maintained instead of rolling back
-                        </div>
-                        <div class="bullet-point success-bullet">
-                            Designated remote work as primary mode
-                        </div>
-                        <div class="bullet-point success-bullet">
-                            Repurposed offices as "Dropbox Studios" for collaboration
-                        </div>
-                        <div class="bullet-point success-bullet">
-                            Reported improved employee engagement scores
-                        </div>
-                        <div class="bullet-point success-bullet">
-                            Enhanced global team efficiency through asynchronous work
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="case-study">
-                    <div class="case-title success-title">
-                        <i class="case-icon fas fa-globe success-title"></i>
-                        Atlassian's Work-From-Anywhere Model
-                    </div>
-                    <div class="case-details">
-                        <div class="bullet-point success-bullet">
-                            Employees can choose location based on personal needs
-                        </div>
-                        <div class="bullet-point success-bullet">
-                            Only requires overlap with team for <span class="highlight success-highlight">4 hours</span> in 24-hour period
-                        </div>
-                        <div class="bullet-point success-bullet">
-                            Shifted focus to outcome-based KPIs instead of seat-time
-                        </div>
-                        <div class="bullet-point success-bullet">
-                            Reports higher innovation output
-                        </div>
-                        <div class="bullet-point success-bullet">
-                            No productivity decrease after implementation
-                        </div>
-                    </div>
-                </div>
+            <div class="case-details">
+              <div class="bullet-point failed-bullet">
+                <span class="highlight failed-highlight">2.28M</span> civilians across 24 federal
+                agencies forced back to offices
+              </div>
+              <div class="bullet-point failed-bullet">
+                Only <span class="highlight failed-highlight">10%</span> had been fully remote,
+                <span class="highlight failed-highlight">46%</span> had telework eligibility
+              </div>
+              <div class="bullet-point failed-bullet">
+                NPR interviews revealed "chaos" with shortages of desks, Wi-Fi, parking
+              </div>
+              <div class="bullet-point failed-bullet">
+                Many viewed as indirect attrition strategy
+              </div>
+              <div class="bullet-point failed-bullet">
+                Sacrificed <span class="highlight failed-highlight">$230M</span> in annual savings
+                from telework
+              </div>
             </div>
+          </div>
+
+          <div class="case-study">
+            <div class="case-title failed-title">
+              <i class="case-icon fas fa-chart-line failed-title"></i>
+              S&P 500 Tech & Financial Firms
+            </div>
+            <div class="case-details">
+              <div class="bullet-point failed-bullet">
+                <span class="highlight failed-highlight">14%</span> jump in turnover following RTO
+                mandates
+              </div>
+              <div class="bullet-point failed-bullet">
+                Women saw <span class="highlight failed-highlight">20%</span> turnover increase vs
+                <span class="highlight failed-highlight">7%</span> for men
+              </div>
+              <div class="bullet-point failed-bullet">
+                Time-to-fill rose <span class="highlight failed-highlight">23%</span> (≈+12 days per
+                role)
+              </div>
+              <div class="bullet-point failed-bullet">
+                Hire rates fell by <span class="highlight failed-highlight">17%</span>
+              </div>
+              <div class="bullet-point failed-bullet">
+                JPMorgan Chase disabled internal comments on its RTO announcement to quell dissent
+              </div>
+            </div>
+          </div>
         </div>
-        
-        <div class="source">
-            Sources: NPR, March 2025; Dr. Mark Ma et al., SSRN, December 2024; company reports
+
+        <!-- Right Column: Successful Approach -->
+        <div class="column">
+          <div class="header success-header">Successful Approach: Intentional Flexibility</div>
+
+          <div class="case-study">
+            <div class="case-title success-title">
+              <i class="case-icon fas fa-cloud success-title"></i>
+              Dropbox "Virtual First" Policy
+            </div>
+            <div class="case-details">
+              <div class="bullet-point success-bullet">
+                Launched in <span class="highlight success-highlight">2020</span>, maintained
+                instead of rolling back
+              </div>
+              <div class="bullet-point success-bullet">Designated remote work as primary mode</div>
+              <div class="bullet-point success-bullet">
+                Repurposed offices as "Dropbox Studios" for collaboration
+              </div>
+              <div class="bullet-point success-bullet">
+                Reported improved employee engagement scores
+              </div>
+              <div class="bullet-point success-bullet">
+                Enhanced global team efficiency through asynchronous work
+              </div>
+            </div>
+          </div>
+
+          <div class="case-study">
+            <div class="case-title success-title">
+              <i class="case-icon fas fa-globe success-title"></i>
+              Atlassian's Work-From-Anywhere Model
+            </div>
+            <div class="case-details">
+              <div class="bullet-point success-bullet">
+                Employees can choose location based on personal needs
+              </div>
+              <div class="bullet-point success-bullet">
+                Only requires overlap with team for
+                <span class="highlight success-highlight">4 hours</span> in 24-hour period
+              </div>
+              <div class="bullet-point success-bullet">
+                Shifted focus to outcome-based KPIs instead of seat-time
+              </div>
+              <div class="bullet-point success-bullet">Reports higher innovation output</div>
+              <div class="bullet-point success-bullet">
+                No productivity decrease after implementation
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div class="source">
+        Sources: NPR, March 2025; Dr. Mark Ma et al., SSRN, December 2024; company reports
+      </div>
     </div>
 
     <script>
-        // D3.js is included for potential future enhancements or animations
-        // This visualization primarily uses HTML/CSS, but D3 could be used to:
-        // - Add data-driven animations
-        // - Create interactive elements
-        // - Generate dynamic content based on data updates
-        
-        d3.select('.visualization-container')
-          .style('opacity', 0)
-          .transition()
-          .duration(800)
-          .style('opacity', 1);
+      // D3.js is included for potential future enhancements or animations
+      // This visualization primarily uses HTML/CSS, but D3 could be used to:
+      // - Add data-driven animations
+      // - Create interactive elements
+      // - Generate dynamic content based on data updates
+
+      d3.select('.visualization-container')
+        .style('opacity', 0)
+        .transition()
+        .duration(800)
+        .style('opacity', 1)
     </script>
-</body>
+  </body>
 </html>

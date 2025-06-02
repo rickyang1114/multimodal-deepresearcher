@@ -1,298 +1,311 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Integrated Framework for Climate and Air Quality Policy Coordination</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .visualization-container {
-            width: 900px;
-            padding: 20px;
-            background-color: white;
-        }
-        
-        .title {
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 12px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #555;
-        }
-        
-        .chart-container {
-            display: flex;
-            justify-content: space-between;
-            padding: 15px;
-            position: relative;
-            height: 500px;
-        }
-        
-        .pyramid-container {
-            width: 40%;
-            height: 100%;
-            position: relative;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        
-        .mechanisms-container {
-            width: 55%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        
-        .mechanism-box {
-            border-radius: 4px;
-            padding: 10px;
-            margin: 5px 0;
-            box-sizing: border-box;
-            height: calc(20% - 10px);
-        }
-        
-        .mechanism-box h3 {
-            font-size: 12px;
-            font-weight: bold;
-            margin: 0 0 5px 0;
-            color: white;
-            text-align: center;
-        }
-        
-        .mechanism-box ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-        
-        .mechanism-box li {
-            font-size: 11px;
-            margin-bottom: 3px;
-            color: white;
-            text-shadow: 0px 0px 1px rgba(0,0,0,0.5); /* Improve text readability */
-        }
-        
-        /* Specific color adjustments for better readability */
-        .mechanism-box.regional li, .mechanism-box.subnational li {
-            color: #333; /* Darker text for light backgrounds */
-        }
-        
-        .note {
-            margin-top: 15px;
-            font-size: 11px;
-            color: #555;
-            display: flex;
-            align-items: center;
-        }
-        
-        .note i {
-            margin-right: 8px;
-            font-size: 14px;
-            color: #666;
-        }
-        
-        .source {
-            margin-top: 10px;
-            font-size: 10px;
-            color: #777;
-            font-style: italic;
-        }
-        
-        .connector {
-            stroke: #999;
-            stroke-width: 1.5;
-            stroke-dasharray: 3,2;
-        }
-        
-        .pyramid-level {
-            position: absolute;
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-            text-align: center;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .visualization-container {
+        width: 900px;
+        padding: 20px;
+        background-color: white;
+      }
+
+      .title {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #555;
+      }
+
+      .chart-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px;
+        position: relative;
+        height: 500px;
+      }
+
+      .pyramid-container {
+        width: 40%;
+        height: 100%;
+        position: relative;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      .mechanisms-container {
+        width: 55%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+
+      .mechanism-box {
+        border-radius: 4px;
+        padding: 10px;
+        margin: 5px 0;
+        box-sizing: border-box;
+        height: calc(20% - 10px);
+      }
+
+      .mechanism-box h3 {
+        font-size: 12px;
+        font-weight: bold;
+        margin: 0 0 5px 0;
+        color: white;
+        text-align: center;
+      }
+
+      .mechanism-box ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .mechanism-box li {
+        font-size: 11px;
+        margin-bottom: 3px;
+        color: white;
+        text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.5); /* Improve text readability */
+      }
+
+      /* Specific color adjustments for better readability */
+      .mechanism-box.regional li,
+      .mechanism-box.subnational li {
+        color: #333; /* Darker text for light backgrounds */
+      }
+
+      .note {
+        margin-top: 15px;
+        font-size: 11px;
+        color: #555;
+        display: flex;
+        align-items: center;
+      }
+
+      .note i {
+        margin-right: 8px;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .source {
+        margin-top: 10px;
+        font-size: 10px;
+        color: #777;
+        font-style: italic;
+      }
+
+      .connector {
+        stroke: #999;
+        stroke-width: 1.5;
+        stroke-dasharray: 3, 2;
+      }
+
+      .pyramid-level {
+        position: absolute;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 12px;
+        text-align: center;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Integrated Framework for Climate and Air Quality Policy Coordination</div>
-        <div class="subtitle">Multi-level governance approach for sustained clean air progress</div>
-        
-        <div class="chart-container" id="chart-container">
-            <div class="pyramid-container" id="pyramid"></div>
-            <div class="mechanisms-container" id="mechanisms"></div>
-            <svg id="connectors" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
-        </div>
-        
-        <div class="note">
-            <i class="fas fa-layer-group"></i>
-            <span>Effective clean air strategies require coordination across governance levels, with complementary policies addressing local pollution sources and global climate drivers</span>
-        </div>
-        
-        <div class="source">Source: UNEP 2024; Climate Policy Initiative 2023</div>
+      <div class="title">Integrated Framework for Climate and Air Quality Policy Coordination</div>
+      <div class="subtitle">Multi-level governance approach for sustained clean air progress</div>
+
+      <div class="chart-container" id="chart-container">
+        <div class="pyramid-container" id="pyramid"></div>
+        <div class="mechanisms-container" id="mechanisms"></div>
+        <svg
+          id="connectors"
+          style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+          "
+        ></svg>
+      </div>
+
+      <div class="note">
+        <i class="fas fa-layer-group"></i>
+        <span
+          >Effective clean air strategies require coordination across governance levels, with
+          complementary policies addressing local pollution sources and global climate drivers</span
+        >
+      </div>
+
+      <div class="source">Source: UNEP 2024; Climate Policy Initiative 2023</div>
     </div>
 
     <script>
-        // Data for the pyramid and mechanisms
-        const levels = [
-            {
-                name: "International",
-                color: "#08519C",
-                mechanisms: [
-                    "Paris Agreement NDCs",
-                    "UNEP Clean Air Coalition",
-                    "WHO Air Quality Guidelines"
-                ]
-            },
-            {
-                name: "Regional",
-                color: "#9EC5E8",
-                mechanisms: [
-                    "EU Clean Air Policy Package",
-                    "ASEAN Haze Agreement",
-                    "Regional Airshed Management"
-                ]
-            },
-            {
-                name: "National",
-                color: "#31A354",
-                mechanisms: [
-                    "Clean Air Acts",
-                    "Carbon Pricing",
-                    "Agricultural Subsidy Reform"
-                ]
-            },
-            {
-                name: "Subnational",
-                color: "#FB9A99",
-                mechanisms: [
-                    "State Implementation Plans",
-                    "Provincial Technical Standards",
-                    "Regional Transportation Planning"
-                ]
-            },
-            {
-                name: "Local",
-                color: "#333333",
-                mechanisms: [
-                    "Low Emission Zones",
-                    "Clean Cooking Programs",
-                    "Urban Planning and Green Infrastructure"
-                ]
-            }
-        ];
+      // Data for the pyramid and mechanisms
+      const levels = [
+        {
+          name: 'International',
+          color: '#08519C',
+          mechanisms: [
+            'Paris Agreement NDCs',
+            'UNEP Clean Air Coalition',
+            'WHO Air Quality Guidelines',
+          ],
+        },
+        {
+          name: 'Regional',
+          color: '#9EC5E8',
+          mechanisms: [
+            'EU Clean Air Policy Package',
+            'ASEAN Haze Agreement',
+            'Regional Airshed Management',
+          ],
+        },
+        {
+          name: 'National',
+          color: '#31A354',
+          mechanisms: ['Clean Air Acts', 'Carbon Pricing', 'Agricultural Subsidy Reform'],
+        },
+        {
+          name: 'Subnational',
+          color: '#FB9A99',
+          mechanisms: [
+            'State Implementation Plans',
+            'Provincial Technical Standards',
+            'Regional Transportation Planning',
+          ],
+        },
+        {
+          name: 'Local',
+          color: '#333333',
+          mechanisms: [
+            'Low Emission Zones',
+            'Clean Cooking Programs',
+            'Urban Planning and Green Infrastructure',
+          ],
+        },
+      ]
 
-        // Create the pyramid
-        const pyramidContainer = document.getElementById('pyramid');
-        const pyramidHeight = pyramidContainer.clientHeight;
-        const pyramidWidth = pyramidContainer.clientWidth;
-        const levelHeight = pyramidHeight / levels.length;
-        
-        // Create the pyramid levels with proper pyramid shape
-        levels.forEach((level, i) => {
-            // Calculate width to create a true pyramid shape
-            // Top level is narrowest, bottom level is widest
-            const widthPercentage = 40 + ((levels.length - i - 1) * 15); // 40% at top to 100% at bottom
-            const width = (pyramidWidth * widthPercentage) / 100;
-            
-            // Create the pyramid level div
-            const levelDiv = document.createElement('div');
-            levelDiv.className = 'pyramid-level';
-            levelDiv.id = `pyramid-level-${i}`;
-            levelDiv.style.backgroundColor = level.color;
-            levelDiv.style.width = `${width}px`;
-            levelDiv.style.height = `${levelHeight - 20}px`; // Reduced height for better spacing
-            levelDiv.style.left = `${(pyramidWidth - width) / 2}px`;
-            levelDiv.style.top = `${i * levelHeight + 10}px`; // Added offset for centering
-            levelDiv.textContent = level.name;
-            
-            pyramidContainer.appendChild(levelDiv);
-        });
-        
-        // Create the mechanisms boxes
-        const mechanismsContainer = document.getElementById('mechanisms');
-        
-        levels.forEach((level, i) => {
-            const mechanismDiv = document.createElement('div');
-            mechanismDiv.className = `mechanism-box ${level.name.toLowerCase()}`;
-            mechanismDiv.id = `mechanism-box-${i}`;
-            mechanismDiv.style.backgroundColor = level.color;
-            
-            const header = document.createElement('h3');
-            header.textContent = `${level.name} Mechanisms`;
-            mechanismDiv.appendChild(header);
-            
-            const ul = document.createElement('ul');
-            level.mechanisms.forEach(mechanism => {
-                const li = document.createElement('li');
-                li.textContent = mechanism;
-                ul.appendChild(li);
-            });
-            
-            mechanismDiv.appendChild(ul);
-            mechanismsContainer.appendChild(mechanismDiv);
-        });
-        
-        // Add connectors between pyramid levels and mechanism boxes
-        function drawConnectors() {
-            const connectorsSvg = document.getElementById('connectors');
-            // Clear existing connectors
-            while (connectorsSvg.firstChild) {
-                connectorsSvg.removeChild(connectorsSvg.firstChild);
-            }
-            
-            levels.forEach((_, i) => {
-                const pyramidLevel = document.getElementById(`pyramid-level-${i}`);
-                const mechanismBox = document.getElementById(`mechanism-box-${i}`);
-                
-                if (pyramidLevel && mechanismBox) {
-                    const pyramidRect = pyramidLevel.getBoundingClientRect();
-                    const mechanismRect = mechanismBox.getBoundingClientRect();
-                    const containerRect = document.getElementById('chart-container').getBoundingClientRect();
-                    
-                    // Calculate positions relative to the container
-                    const startX = pyramidRect.right - containerRect.left;
-                    const startY = pyramidRect.top + (pyramidRect.height / 2) - containerRect.top;
-                    const endX = mechanismRect.left - containerRect.left;
-                    const endY = mechanismRect.top + (mechanismRect.height / 2) - containerRect.top;
-                    
-                    // Create the connector line
-                    const connector = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                    connector.setAttribute('d', `M${startX},${startY} L${endX},${endY}`);
-                    connector.setAttribute('class', 'connector');
-                    
-                    connectorsSvg.appendChild(connector);
-                }
-            });
+      // Create the pyramid
+      const pyramidContainer = document.getElementById('pyramid')
+      const pyramidHeight = pyramidContainer.clientHeight
+      const pyramidWidth = pyramidContainer.clientWidth
+      const levelHeight = pyramidHeight / levels.length
+
+      // Create the pyramid levels with proper pyramid shape
+      levels.forEach((level, i) => {
+        // Calculate width to create a true pyramid shape
+        // Top level is narrowest, bottom level is widest
+        const widthPercentage = 40 + (levels.length - i - 1) * 15 // 40% at top to 100% at bottom
+        const width = (pyramidWidth * widthPercentage) / 100
+
+        // Create the pyramid level div
+        const levelDiv = document.createElement('div')
+        levelDiv.className = 'pyramid-level'
+        levelDiv.id = `pyramid-level-${i}`
+        levelDiv.style.backgroundColor = level.color
+        levelDiv.style.width = `${width}px`
+        levelDiv.style.height = `${levelHeight - 20}px` // Reduced height for better spacing
+        levelDiv.style.left = `${(pyramidWidth - width) / 2}px`
+        levelDiv.style.top = `${i * levelHeight + 10}px` // Added offset for centering
+        levelDiv.textContent = level.name
+
+        pyramidContainer.appendChild(levelDiv)
+      })
+
+      // Create the mechanisms boxes
+      const mechanismsContainer = document.getElementById('mechanisms')
+
+      levels.forEach((level, i) => {
+        const mechanismDiv = document.createElement('div')
+        mechanismDiv.className = `mechanism-box ${level.name.toLowerCase()}`
+        mechanismDiv.id = `mechanism-box-${i}`
+        mechanismDiv.style.backgroundColor = level.color
+
+        const header = document.createElement('h3')
+        header.textContent = `${level.name} Mechanisms`
+        mechanismDiv.appendChild(header)
+
+        const ul = document.createElement('ul')
+        level.mechanisms.forEach((mechanism) => {
+          const li = document.createElement('li')
+          li.textContent = mechanism
+          ul.appendChild(li)
+        })
+
+        mechanismDiv.appendChild(ul)
+        mechanismsContainer.appendChild(mechanismDiv)
+      })
+
+      // Add connectors between pyramid levels and mechanism boxes
+      function drawConnectors() {
+        const connectorsSvg = document.getElementById('connectors')
+        // Clear existing connectors
+        while (connectorsSvg.firstChild) {
+          connectorsSvg.removeChild(connectorsSvg.firstChild)
         }
-        
-        // Draw connectors after DOM is fully loaded and on window resize
-        window.addEventListener('load', drawConnectors);
-        window.addEventListener('resize', drawConnectors);
+
+        levels.forEach((_, i) => {
+          const pyramidLevel = document.getElementById(`pyramid-level-${i}`)
+          const mechanismBox = document.getElementById(`mechanism-box-${i}`)
+
+          if (pyramidLevel && mechanismBox) {
+            const pyramidRect = pyramidLevel.getBoundingClientRect()
+            const mechanismRect = mechanismBox.getBoundingClientRect()
+            const containerRect = document.getElementById('chart-container').getBoundingClientRect()
+
+            // Calculate positions relative to the container
+            const startX = pyramidRect.right - containerRect.left
+            const startY = pyramidRect.top + pyramidRect.height / 2 - containerRect.top
+            const endX = mechanismRect.left - containerRect.left
+            const endY = mechanismRect.top + mechanismRect.height / 2 - containerRect.top
+
+            // Create the connector line
+            const connector = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+            connector.setAttribute('d', `M${startX},${startY} L${endX},${endY}`)
+            connector.setAttribute('class', 'connector')
+
+            connectorsSvg.appendChild(connector)
+          }
+        })
+      }
+
+      // Draw connectors after DOM is fully loaded and on window resize
+      window.addEventListener('load', drawConnectors)
+      window.addEventListener('resize', drawConnectors)
     </script>
-</body>
+  </body>
 </html>

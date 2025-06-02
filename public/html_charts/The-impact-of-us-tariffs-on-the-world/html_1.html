@@ -1,337 +1,361 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GDP Growth Forecast Revisions</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Georgia&display=swap');
-        
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f9f9f9;
-        }
-        
-        .container {
-            width: 950px;
-            height: 650px;
-            background-color: white;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        
-        .title {
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            margin-top: 10px;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 15px;
-            text-align: center;
-            color: #666;
-            margin-bottom: 20px;
-        }
-        
-        .source {
-            font-size: 12px;
-            text-align: right;
-            color: #888;
-            margin-right: 30px;
-            margin-top: 15px;
-        }
-        
-        .legend {
-            display: flex;
-            justify-content: center;
-            margin-top: 5px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 0 15px;
-        }
-        
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-            border-radius: 3px;
-        }
-        
-        .original-color {
-            background-color: rgba(41, 128, 185, 0.8);
-        }
-        
-        .revised-color {
-            background-color: rgba(243, 156, 18, 0.8);
-        }
-        
-        .country-label {
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .highlighted-row {
-            fill: #f5f5f5;
-        }
-        
-        .value-label {
-            font-size: 13px;
-            font-weight: bold;
-        }
-        
-        .change-label {
-            font-family: 'Georgia', serif;
-            font-size: 15px;
-            font-weight: bold;
-        }
-        
-        .negative-change {
-            fill: #e74c3c;
-        }
-        
-        .bar {
-            filter: drop-shadow(2px 3px 3px rgba(0, 0, 0, 0.2));
-        }
-        
-        .gridline {
-            stroke: #e0e0e0;
-            stroke-width: 1px;
-        }
-        
-        .axis-label {
-            font-size: 12px;
-            fill: #666;
-        }
-        
-        .chart-container {
-            margin-top: 10px;
-        }
+      @import url('https://fonts.googleapis.com/css2?family=Georgia&display=swap');
+
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f9f9f9;
+      }
+
+      .container {
+        width: 950px;
+        height: 650px;
+        background-color: white;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      .title {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 10px;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 15px;
+        text-align: center;
+        color: #666;
+        margin-bottom: 20px;
+      }
+
+      .source {
+        font-size: 12px;
+        text-align: right;
+        color: #888;
+        margin-right: 30px;
+        margin-top: 15px;
+      }
+
+      .legend {
+        display: flex;
+        justify-content: center;
+        margin-top: 5px;
+        margin-bottom: 20px;
+        font-size: 14px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin: 0 15px;
+      }
+
+      .legend-color {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        border-radius: 3px;
+      }
+
+      .original-color {
+        background-color: rgba(41, 128, 185, 0.8);
+      }
+
+      .revised-color {
+        background-color: rgba(243, 156, 18, 0.8);
+      }
+
+      .country-label {
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      .highlighted-row {
+        fill: #f5f5f5;
+      }
+
+      .value-label {
+        font-size: 13px;
+        font-weight: bold;
+      }
+
+      .change-label {
+        font-family: 'Georgia', serif;
+        font-size: 15px;
+        font-weight: bold;
+      }
+
+      .negative-change {
+        fill: #e74c3c;
+      }
+
+      .bar {
+        filter: drop-shadow(2px 3px 3px rgba(0, 0, 0, 0.2));
+      }
+
+      .gridline {
+        stroke: #e0e0e0;
+        stroke-width: 1px;
+      }
+
+      .axis-label {
+        font-size: 12px;
+        fill: #666;
+      }
+
+      .chart-container {
+        margin-top: 10px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="title">Tariff Impact: GDP Growth Forecast Revisions (2025)</div>
-        <div class="subtitle">Year-over-year real GDP growth projections, before and after tariff implementation</div>
-        
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color original-color"></div>
-                <div>Original Forecast (Jan 2025)</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color revised-color"></div>
-                <div>Revised Forecast (Apr 2025)</div>
-            </div>
+      <div class="title">Tariff Impact: GDP Growth Forecast Revisions (2025)</div>
+      <div class="subtitle">
+        Year-over-year real GDP growth projections, before and after tariff implementation
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color original-color"></div>
+          <div>Original Forecast (Jan 2025)</div>
         </div>
-        
-        <div id="chart" class="chart-container"></div>
-        
-        <div class="source">Source: J.P. Morgan Research, Yale BudgetLab, 2025</div>
+        <div class="legend-item">
+          <div class="legend-color revised-color"></div>
+          <div>Revised Forecast (Apr 2025)</div>
+        </div>
+      </div>
+
+      <div id="chart" class="chart-container"></div>
+
+      <div class="source">Source: J.P. Morgan Research, Yale BudgetLab, 2025</div>
     </div>
 
     <script>
-        // Data preparation
-        const data = [
-            { region: "Global", original: 2.1, revised: 1.4, change: -0.7 },
-            { region: "United States", original: 1.9, revised: 1.6, change: -0.3 },
-            { region: "China", original: 4.6, revised: 4.4, change: -0.2 },
-            { region: "Canada", original: 1.2, revised: -0.8, change: -2.0, highlight: true },
-            { region: "Mexico", original: 1.5, revised: -1.1, change: -2.6, highlight: true },
-            { region: "Europe", original: 1.3, revised: 1.0, change: -0.3 },
-            { region: "Emerging Asia", original: 3.8, revised: 3.5, change: -0.3 }
-        ];
+      // Data preparation
+      const data = [
+        { region: 'Global', original: 2.1, revised: 1.4, change: -0.7 },
+        { region: 'United States', original: 1.9, revised: 1.6, change: -0.3 },
+        { region: 'China', original: 4.6, revised: 4.4, change: -0.2 },
+        { region: 'Canada', original: 1.2, revised: -0.8, change: -2.0, highlight: true },
+        { region: 'Mexico', original: 1.5, revised: -1.1, change: -2.6, highlight: true },
+        { region: 'Europe', original: 1.3, revised: 1.0, change: -0.3 },
+        { region: 'Emerging Asia', original: 3.8, revised: 3.5, change: -0.3 },
+      ]
 
-        // Chart dimensions - adjusted for better use of space
-        const margin = { top: 40, right: 150, bottom: 50, left: 150 };
-        const width = 900 - margin.left - margin.right;
-        const height = 480 - margin.top - margin.bottom;
-        
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left}, ${margin.top})`);
-            
-        // Scales
-        // Extend x-scale to include negative values
-        const xScale = d3.scaleLinear()
-            .domain([-1.5, 5])  // Extended to include negative values
-            .range([0, width]);
-            
-        const yScale = d3.scaleBand()
-            .domain(data.map(d => d.region))
-            .range([0, height])
-            .padding(0.35);
-            
-        const barHeight = yScale.bandwidth() / 2 - 5;
-        
-        // Add background for highlighted rows
-        svg.selectAll(".highlight-bg")
-            .data(data.filter(d => d.highlight))
-            .enter()
-            .append("rect")
-            .attr("class", "highlighted-row")
-            .attr("x", -margin.left + 20)  // Adjusted to not extend too far left
-            .attr("y", d => yScale(d.region) - 10)
-            .attr("width", width + margin.left + margin.right - 40)  // Adjusted width
-            .attr("height", yScale.bandwidth() + 20);
-        
-        // Add gridlines
-        for (let i = -1; i <= 5; i++) {
-            if (i >= 0) {  // Only draw positive gridlines
-                svg.append("line")
-                    .attr("class", "gridline")
-                    .attr("x1", xScale(i))
-                    .attr("y1", -10)
-                    .attr("x2", xScale(i))
-                    .attr("y2", height)
-                    .attr("stroke-dasharray", "3,3");
-            }
+      // Chart dimensions - adjusted for better use of space
+      const margin = { top: 40, right: 150, bottom: 50, left: 150 }
+      const width = 900 - margin.left - margin.right
+      const height = 480 - margin.top - margin.bottom
+
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
+
+      // Scales
+      // Extend x-scale to include negative values
+      const xScale = d3
+        .scaleLinear()
+        .domain([-1.5, 5]) // Extended to include negative values
+        .range([0, width])
+
+      const yScale = d3
+        .scaleBand()
+        .domain(data.map((d) => d.region))
+        .range([0, height])
+        .padding(0.35)
+
+      const barHeight = yScale.bandwidth() / 2 - 5
+
+      // Add background for highlighted rows
+      svg
+        .selectAll('.highlight-bg')
+        .data(data.filter((d) => d.highlight))
+        .enter()
+        .append('rect')
+        .attr('class', 'highlighted-row')
+        .attr('x', -margin.left + 20) // Adjusted to not extend too far left
+        .attr('y', (d) => yScale(d.region) - 10)
+        .attr('width', width + margin.left + margin.right - 40) // Adjusted width
+        .attr('height', yScale.bandwidth() + 20)
+
+      // Add gridlines
+      for (let i = -1; i <= 5; i++) {
+        if (i >= 0) {
+          // Only draw positive gridlines
+          svg
+            .append('line')
+            .attr('class', 'gridline')
+            .attr('x1', xScale(i))
+            .attr('y1', -10)
+            .attr('x2', xScale(i))
+            .attr('y2', height)
+            .attr('stroke-dasharray', '3,3')
         }
-        
-        // Add zero line (vertical axis)
-        svg.append("line")
-            .attr("class", "gridline")
-            .attr("x1", xScale(0))
-            .attr("y1", -10)
-            .attr("x2", xScale(0))
-            .attr("y2", height)
-            .attr("stroke", "#aaa")
-            .attr("stroke-width", 1.5);
-        
-        // X-axis
-        svg.append("g")
-            .attr("transform", `translate(0, ${height})`)
-            .call(d3.axisBottom(xScale)
-                .ticks(7)
-                .tickFormat(d => d + "%"))
-            .call(g => g.select(".domain").remove())
-            .selectAll("text")
-            .attr("class", "axis-label");
-            
-        // Y-axis
-        svg.append("g")
-            .call(d3.axisLeft(yScale))
-            .call(g => g.select(".domain").remove())
-            .selectAll("text")
-            .attr("class", "country-label");
-            
-        // Original forecast bars
-        svg.selectAll(".original-bar")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", "bar")
-            .attr("x", d => xScale(Math.min(0, d.original)))
-            .attr("y", d => yScale(d.region))
-            .attr("width", d => Math.abs(xScale(d.original) - xScale(0)))
-            .attr("height", barHeight)
-            .attr("fill", "rgba(41, 128, 185, 0.8)")
-            .attr("rx", 3);
-            
-        // Revised forecast bars
-        svg.selectAll(".revised-bar")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", "bar")
-            .attr("x", d => xScale(Math.min(0, d.revised)))
-            .attr("y", d => yScale(d.region) + barHeight + 10)
-            .attr("width", d => Math.abs(xScale(d.revised) - xScale(0)))
-            .attr("height", barHeight)
-            .attr("fill", "rgba(243, 156, 18, 0.8)")
-            .attr("rx", 3);
-            
-        // Circle markers at the end of each bar
-        svg.selectAll(".original-marker")
-            .data(data)
-            .enter()
-            .append("circle")
-            .attr("cx", d => xScale(d.original))
-            .attr("cy", d => yScale(d.region) + barHeight/2)
-            .attr("r", 4)  // Slightly reduced size
-            .attr("fill", "rgba(41, 128, 185, 1)")
-            .attr("stroke", "#fff")
-            .attr("stroke-width", 1.5);
-            
-        svg.selectAll(".revised-marker")
-            .data(data)
-            .enter()
-            .append("circle")
-            .attr("cx", d => xScale(d.revised))
-            .attr("cy", d => yScale(d.region) + barHeight + 10 + barHeight/2)
-            .attr("r", 4)  // Slightly reduced size
-            .attr("fill", "rgba(243, 156, 18, 1)")
-            .attr("stroke", "#fff")
-            .attr("stroke-width", 1.5);
-            
-        // Value labels with improved positioning
-        svg.selectAll(".original-label")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("class", "value-label")
-            .attr("x", d => {
-                // Position labels based on value with improved spacing
-                const offset = d.original >= 0 ? 15 : -15;  // Increased offset
-                return xScale(d.original) + offset;
-            })
-            .attr("y", d => yScale(d.region) + barHeight/2 + 4)
-            .attr("text-anchor", d => d.original >= 0 ? "start" : "end")
-            .text(d => d.original.toFixed(1) + "%");  // Ensure consistent decimal places
-            
-        svg.selectAll(".revised-label")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("class", "value-label")
-            .attr("x", d => {
-                // Position labels based on value with improved spacing
-                const offset = d.revised >= 0 ? 15 : -15;  // Increased offset
-                return xScale(d.revised) + offset;
-            })
-            .attr("y", d => yScale(d.region) + barHeight + 10 + barHeight/2 + 4)
-            .attr("text-anchor", d => d.revised >= 0 ? "start" : "end")
-            .text(d => d.revised.toFixed(1) + "%");  // Ensure consistent decimal places
-            
-        // Change indicators with improved alignment
-        svg.selectAll(".change-indicator")
-            .data(data)
-            .enter()
-            .append("g")
-            .attr("transform", d => {
-                // Improved vertical alignment to center between the two bars
-                const centerY = yScale(d.region) + yScale.bandwidth()/2;
-                return `translate(${width + 30}, ${centerY})`;
-            })
-            .each(function(d) {
-                const g = d3.select(this);
-                
-                // Arrow and text with proper spacing
-                g.append("text")
-                    .attr("class", "change-label negative-change")
-                    .attr("y", 5)
-                    .attr("text-anchor", "start")
-                    .style("font-family", "Georgia, serif")
-                    .html(d => `&#x2193; ${Math.abs(d.change).toFixed(1)}pp`);  // Using HTML entity for arrow
-            });
+      }
+
+      // Add zero line (vertical axis)
+      svg
+        .append('line')
+        .attr('class', 'gridline')
+        .attr('x1', xScale(0))
+        .attr('y1', -10)
+        .attr('x2', xScale(0))
+        .attr('y2', height)
+        .attr('stroke', '#aaa')
+        .attr('stroke-width', 1.5)
+
+      // X-axis
+      svg
+        .append('g')
+        .attr('transform', `translate(0, ${height})`)
+        .call(
+          d3
+            .axisBottom(xScale)
+            .ticks(7)
+            .tickFormat((d) => d + '%')
+        )
+        .call((g) => g.select('.domain').remove())
+        .selectAll('text')
+        .attr('class', 'axis-label')
+
+      // Y-axis
+      svg
+        .append('g')
+        .call(d3.axisLeft(yScale))
+        .call((g) => g.select('.domain').remove())
+        .selectAll('text')
+        .attr('class', 'country-label')
+
+      // Original forecast bars
+      svg
+        .selectAll('.original-bar')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', (d) => xScale(Math.min(0, d.original)))
+        .attr('y', (d) => yScale(d.region))
+        .attr('width', (d) => Math.abs(xScale(d.original) - xScale(0)))
+        .attr('height', barHeight)
+        .attr('fill', 'rgba(41, 128, 185, 0.8)')
+        .attr('rx', 3)
+
+      // Revised forecast bars
+      svg
+        .selectAll('.revised-bar')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', (d) => xScale(Math.min(0, d.revised)))
+        .attr('y', (d) => yScale(d.region) + barHeight + 10)
+        .attr('width', (d) => Math.abs(xScale(d.revised) - xScale(0)))
+        .attr('height', barHeight)
+        .attr('fill', 'rgba(243, 156, 18, 0.8)')
+        .attr('rx', 3)
+
+      // Circle markers at the end of each bar
+      svg
+        .selectAll('.original-marker')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('cx', (d) => xScale(d.original))
+        .attr('cy', (d) => yScale(d.region) + barHeight / 2)
+        .attr('r', 4) // Slightly reduced size
+        .attr('fill', 'rgba(41, 128, 185, 1)')
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 1.5)
+
+      svg
+        .selectAll('.revised-marker')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('cx', (d) => xScale(d.revised))
+        .attr('cy', (d) => yScale(d.region) + barHeight + 10 + barHeight / 2)
+        .attr('r', 4) // Slightly reduced size
+        .attr('fill', 'rgba(243, 156, 18, 1)')
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 1.5)
+
+      // Value labels with improved positioning
+      svg
+        .selectAll('.original-label')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'value-label')
+        .attr('x', (d) => {
+          // Position labels based on value with improved spacing
+          const offset = d.original >= 0 ? 15 : -15 // Increased offset
+          return xScale(d.original) + offset
+        })
+        .attr('y', (d) => yScale(d.region) + barHeight / 2 + 4)
+        .attr('text-anchor', (d) => (d.original >= 0 ? 'start' : 'end'))
+        .text((d) => d.original.toFixed(1) + '%') // Ensure consistent decimal places
+
+      svg
+        .selectAll('.revised-label')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'value-label')
+        .attr('x', (d) => {
+          // Position labels based on value with improved spacing
+          const offset = d.revised >= 0 ? 15 : -15 // Increased offset
+          return xScale(d.revised) + offset
+        })
+        .attr('y', (d) => yScale(d.region) + barHeight + 10 + barHeight / 2 + 4)
+        .attr('text-anchor', (d) => (d.revised >= 0 ? 'start' : 'end'))
+        .text((d) => d.revised.toFixed(1) + '%') // Ensure consistent decimal places
+
+      // Change indicators with improved alignment
+      svg
+        .selectAll('.change-indicator')
+        .data(data)
+        .enter()
+        .append('g')
+        .attr('transform', (d) => {
+          // Improved vertical alignment to center between the two bars
+          const centerY = yScale(d.region) + yScale.bandwidth() / 2
+          return `translate(${width + 30}, ${centerY})`
+        })
+        .each(function (d) {
+          const g = d3.select(this)
+
+          // Arrow and text with proper spacing
+          g.append('text')
+            .attr('class', 'change-label negative-change')
+            .attr('y', 5)
+            .attr('text-anchor', 'start')
+            .style('font-family', 'Georgia, serif')
+            .html((d) => `&#x2193; ${Math.abs(d.change).toFixed(1)}pp`) // Using HTML entity for arrow
+        })
     </script>
-</body>
+  </body>
 </html>

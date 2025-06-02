@@ -1,717 +1,768 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Space Activity Projections: 2023-2030</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        .visualization-container {
-            width: 850px;
-            height: 750px;
-            padding: 10px;
-        }
-        
-        .main-title {
-            font-size: 24pt;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #023e7d;
-        }
-        
-        .chart-container {
-            border: 1px solid #ddd;
-            margin-bottom: 20px;
-            padding: 15px;
-        }
-        
-        .chart-subtitle {
-            font-size: 16pt;
-            font-weight: 500;
-            margin-bottom: 10px;
-            text-align: center;
-            color: #0353a4;
-        }
-        
-        .axis-label {
-            font-size: 10pt;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            fill: #0a4c8a;
-            font-size: 12pt;
-        }
-        
-        .annotation {
-            font-size: 10pt;
-            font-style: italic;
-            fill: #333;
-            font-weight: 500;
-        }
-        
-        .annotation-background {
-            fill: rgba(255, 255, 255, 0.8);
-            stroke: #adb5bd;
-            stroke-width: 0.5px;
-        }
-        
-        .callout-box {
-            fill: #f8f9fa;
-            stroke: #adb5bd;
-            stroke-width: 1px;
-        }
-        
-        .callout-text {
-            font-size: 9pt;
-            fill: #495057;
-        }
-        
-        .source-attribution {
-            font-size: 10pt;
-            color: #6c757d;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .note {
-            font-size: 10pt;
-            font-style: italic;
-            color: #6c757d;
-            margin-top: 8px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .icon {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        
-        .database-icon {
-            background-color: #0466c8;
-            clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
-        }
-        
-        .info-icon {
-            background-color: #0466c8;
-            border-radius: 50%;
-        }
-        
-        .legend-item {
-            font-size: 10pt;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .visualization-container {
+        width: 850px;
+        height: 750px;
+        padding: 10px;
+      }
+
+      .main-title {
+        font-size: 24pt;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #023e7d;
+      }
+
+      .chart-container {
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+        padding: 15px;
+      }
+
+      .chart-subtitle {
+        font-size: 16pt;
+        font-weight: 500;
+        margin-bottom: 10px;
+        text-align: center;
+        color: #0353a4;
+      }
+
+      .axis-label {
+        font-size: 10pt;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        fill: #0a4c8a;
+        font-size: 12pt;
+      }
+
+      .annotation {
+        font-size: 10pt;
+        font-style: italic;
+        fill: #333;
+        font-weight: 500;
+      }
+
+      .annotation-background {
+        fill: rgba(255, 255, 255, 0.8);
+        stroke: #adb5bd;
+        stroke-width: 0.5px;
+      }
+
+      .callout-box {
+        fill: #f8f9fa;
+        stroke: #adb5bd;
+        stroke-width: 1px;
+      }
+
+      .callout-text {
+        font-size: 9pt;
+        fill: #495057;
+      }
+
+      .source-attribution {
+        font-size: 10pt;
+        color: #6c757d;
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .note {
+        font-size: 10pt;
+        font-style: italic;
+        color: #6c757d;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+      }
+
+      .icon {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+
+      .database-icon {
+        background-color: #0466c8;
+        clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+      }
+
+      .info-icon {
+        background-color: #0466c8;
+        border-radius: 50%;
+      }
+
+      .legend-item {
+        font-size: 10pt;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="main-title">Space Activity Projections: 2023-2030</div>
-        
-        <!-- Launch Projections Chart -->
-        <div class="chart-container" id="launch-chart">
-            <div class="chart-subtitle">Annual Launch Attempts Forecast</div>
-        </div>
-        
-        <!-- Satellite Population Chart -->
-        <div class="chart-container" id="satellite-chart">
-            <div class="chart-subtitle">Active Satellite Population Growth by Orbit</div>
-        </div>
-        
-        <!-- Market Segment Chart -->
-        <div class="chart-container" id="market-chart">
-            <div class="chart-subtitle">Market Segment Growth Projections</div>
-        </div>
-        
-        <div class="source-attribution">
-            <span class="icon database-icon"></span> Data sources: Historical data from Space-Track.org, projections based on announced constellation plans and industry reports
-        </div>
-        <div class="note">
-            <span class="icon info-icon"></span> Note: Projections assume continued regulatory support and no major launch or on-orbit failures disrupting growth trends
-        </div>
+      <div class="main-title">Space Activity Projections: 2023-2030</div>
+
+      <!-- Launch Projections Chart -->
+      <div class="chart-container" id="launch-chart">
+        <div class="chart-subtitle">Annual Launch Attempts Forecast</div>
+      </div>
+
+      <!-- Satellite Population Chart -->
+      <div class="chart-container" id="satellite-chart">
+        <div class="chart-subtitle">Active Satellite Population Growth by Orbit</div>
+      </div>
+
+      <!-- Market Segment Chart -->
+      <div class="chart-container" id="market-chart">
+        <div class="chart-subtitle">Market Segment Growth Projections</div>
+      </div>
+
+      <div class="source-attribution">
+        <span class="icon database-icon"></span> Data sources: Historical data from Space-Track.org,
+        projections based on announced constellation plans and industry reports
+      </div>
+      <div class="note">
+        <span class="icon info-icon"></span> Note: Projections assume continued regulatory support
+        and no major launch or on-orbit failures disrupting growth trends
+      </div>
     </div>
 
     <script>
-        // Common dimensions and margins
-        const margin = {top: 40, right: 60, bottom: 50, left: 80};
-        const width = 800 - margin.left - margin.right;
-        const height = 200 - margin.top - margin.bottom;
-        
-        // Color palette - improved contrast
-        const colors = {
-            main: "#0466c8",
-            light: "#4cc9f0",  // Lighter blue for better contrast
-            medium: "#0353a4", 
-            dark: "#023e7d",   // Darker blue
-            veryLight: "#90e0ef",
-            grid: "#e9ecef"
-        };
-        
-        // Data for all charts
-        const years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-        
-        // Launch projections data
-        const launchData = [
-            {year: 2023, launches: 223},
-            {year: 2024, launches: 260},
-            {year: 2025, launches: 300},
-            {year: 2026, launches: 335},
-            {year: 2027, launches: 365},
-            {year: 2028, launches: 390},
-            {year: 2029, launches: 410},
-            {year: 2030, launches: 425}
-        ];
-        
-        // Satellite population data
-        const leoData = [
-            {year: 2023, satellites: 8200},
-            {year: 2024, satellites: 10000},
-            {year: 2025, satellites: 12000},
-            {year: 2026, satellites: 14000},
-            {year: 2027, satellites: 16000},
-            {year: 2028, satellites: 18000},
-            {year: 2029, satellites: 20000},
-            {year: 2030, satellites: 22000}
-        ];
-        
-        const geoData = [
-            {year: 2023, satellites: 560},
-            {year: 2024, satellites: 570},
-            {year: 2025, satellites: 580},
-            {year: 2026, satellites: 590},
-            {year: 2027, satellites: 600},
-            {year: 2028, satellites: 620},
-            {year: 2029, satellites: 635},
-            {year: 2030, satellites: 650}
-        ];
-        
-        const meoHeoData = [
-            {year: 2023, satellites: 355},
-            {year: 2024, satellites: 380},
-            {year: 2025, satellites: 400},
-            {year: 2026, satellites: 425},
-            {year: 2027, satellites: 450},
-            {year: 2028, satellites: 480},
-            {year: 2029, satellites: 515},
-            {year: 2030, satellites: 550}
-        ];
-        
-        // Market segment data
-        const marketData = [
-            {segment: "Communications", value2023: 18, value2030: 31},
-            {segment: "Earth Observation", value2023: 3.5, value2030: 8},
-            {segment: "Navigation", value2023: 2.8, value2030: 5},
-            {segment: "Space Tourism", value2023: 0.5, value2030: 3},
-            {segment: "In-Space Manufacturing", value2023: 0.2, value2030: 2}
-        ];
-        
-        // 1. Launch Projections Chart
-        function createLaunchChart() {
-            const svg = d3.select("#launch-chart")
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
-            
-            // X scale
-            const x = d3.scaleLinear()
-                .domain([2023, 2030])
-                .range([0, width]);
-            
-            // Y scale
-            const y = d3.scaleLinear()
-                .domain([0, 500])
-                .range([height, 0]);
-            
-            // Add X axis
-            svg.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(8))
-                .attr("class", "axis-label");
-            
-            // Add Y axis
-            svg.append("g")
-                .call(d3.axisLeft(y).ticks(5))
-                .attr("class", "axis-label");
-            
-            // Add X axis label
-            svg.append("text")
-                .attr("text-anchor", "middle")
-                .attr("x", width / 2)
-                .attr("y", height + margin.bottom - 10)
-                .text("Year")
-                .attr("class", "axis-label");
-            
-            // Add Y axis label
-            svg.append("text")
-                .attr("text-anchor", "middle")
-                .attr("transform", "rotate(-90)")
-                .attr("y", -margin.left + 30)
-                .attr("x", -height / 2)
-                .text("Annual Launches")
-                .attr("class", "axis-label");
-            
-            // Add gridlines
-            svg.append("g")
-                .attr("class", "grid")
-                .selectAll("line")
-                .data(y.ticks(5))
-                .enter()
-                .append("line")
-                .attr("x1", 0)
-                .attr("x2", width)
-                .attr("y1", d => y(d))
-                .attr("y2", d => y(d))
-                .attr("stroke", colors.grid)
-                .attr("stroke-width", 0.5);
-            
-            // Add the line
-            const line = d3.line()
-                .x(d => x(d.year))
-                .y(d => y(d.launches))
-                .curve(d3.curveMonotoneX);
-            
-            svg.append("path")
-                .datum(launchData)
-                .attr("fill", "none")
-                .attr("stroke", colors.main)
-                .attr("stroke-width", 2.5)
-                .attr("d", line);
-            
-            // Add the points
-            svg.selectAll("dot")
-                .data(launchData)
-                .enter()
-                .append("circle")
-                .attr("cx", d => x(d.year))
-                .attr("cy", d => y(d.launches))
-                .attr("r", 4)
-                .attr("fill", colors.main);
-            
-            // Add value labels for first and last point
-            svg.append("text")
-                .attr("x", x(launchData[0].year) - 5)
-                .attr("y", y(launchData[0].launches) - 10)
-                .text(launchData[0].launches)
-                .attr("text-anchor", "end")
-                .attr("class", "key-number");
-            
-            svg.append("text")
-                .attr("x", x(launchData[launchData.length-1].year) + 5)
-                .attr("y", y(launchData[launchData.length-1].launches) - 10)
-                .text(launchData[launchData.length-1].launches)
-                .attr("text-anchor", "start")
-                .attr("class", "key-number");
-            
-            // Add projection range for 2028-2030
-            const upperBound = [
-                {year: 2028, launches: 410},
-                {year: 2029, launches: 435},
-                {year: 2030, launches: 460}
-            ];
-            
-            const lowerBound = [
-                {year: 2028, launches: 370},
-                {year: 2029, launches: 385},
-                {year: 2030, launches: 390}
-            ];
-            
-            // Upper bound line
-            const upperLine = d3.line()
-                .x(d => x(d.year))
-                .y(d => y(d.launches))
-                .curve(d3.curveMonotoneX);
-            
-            svg.append("path")
-                .datum(upperBound)
-                .attr("fill", "none")
-                .attr("stroke", colors.main)
-                .attr("stroke-width", 1)
-                .attr("stroke-dasharray", "4,4")
-                .attr("d", upperLine);
-            
-            // Lower bound line
-            const lowerLine = d3.line()
-                .x(d => x(d.year))
-                .y(d => y(d.launches))
-                .curve(d3.curveMonotoneX);
-            
-            svg.append("path")
-                .datum(lowerBound)
-                .attr("fill", "none")
-                .attr("stroke", colors.main)
-                .attr("stroke-width", 1)
-                .attr("stroke-dasharray", "4,4")
-                .attr("d", lowerLine);
-            
-            // Add annotation for projected range with background
-            const annotX = x(2029);
-            const annotY = y(470);
-            
-            // Background for annotation
-            svg.append("rect")
-                .attr("x", annotX - 55)
-                .attr("y", annotY - 15)
-                .attr("width", 110)
-                .attr("height", 20)
-                .attr("class", "annotation-background");
-                
-            svg.append("text")
-                .attr("x", annotX)
-                .attr("y", annotY)
-                .text("Projected range")
-                .attr("class", "annotation")
-                .attr("text-anchor", "middle");
+      // Common dimensions and margins
+      const margin = { top: 40, right: 60, bottom: 50, left: 80 }
+      const width = 800 - margin.left - margin.right
+      const height = 200 - margin.top - margin.bottom
+
+      // Color palette - improved contrast
+      const colors = {
+        main: '#0466c8',
+        light: '#4cc9f0', // Lighter blue for better contrast
+        medium: '#0353a4',
+        dark: '#023e7d', // Darker blue
+        veryLight: '#90e0ef',
+        grid: '#e9ecef',
+      }
+
+      // Data for all charts
+      const years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030]
+
+      // Launch projections data
+      const launchData = [
+        { year: 2023, launches: 223 },
+        { year: 2024, launches: 260 },
+        { year: 2025, launches: 300 },
+        { year: 2026, launches: 335 },
+        { year: 2027, launches: 365 },
+        { year: 2028, launches: 390 },
+        { year: 2029, launches: 410 },
+        { year: 2030, launches: 425 },
+      ]
+
+      // Satellite population data
+      const leoData = [
+        { year: 2023, satellites: 8200 },
+        { year: 2024, satellites: 10000 },
+        { year: 2025, satellites: 12000 },
+        { year: 2026, satellites: 14000 },
+        { year: 2027, satellites: 16000 },
+        { year: 2028, satellites: 18000 },
+        { year: 2029, satellites: 20000 },
+        { year: 2030, satellites: 22000 },
+      ]
+
+      const geoData = [
+        { year: 2023, satellites: 560 },
+        { year: 2024, satellites: 570 },
+        { year: 2025, satellites: 580 },
+        { year: 2026, satellites: 590 },
+        { year: 2027, satellites: 600 },
+        { year: 2028, satellites: 620 },
+        { year: 2029, satellites: 635 },
+        { year: 2030, satellites: 650 },
+      ]
+
+      const meoHeoData = [
+        { year: 2023, satellites: 355 },
+        { year: 2024, satellites: 380 },
+        { year: 2025, satellites: 400 },
+        { year: 2026, satellites: 425 },
+        { year: 2027, satellites: 450 },
+        { year: 2028, satellites: 480 },
+        { year: 2029, satellites: 515 },
+        { year: 2030, satellites: 550 },
+      ]
+
+      // Market segment data
+      const marketData = [
+        { segment: 'Communications', value2023: 18, value2030: 31 },
+        { segment: 'Earth Observation', value2023: 3.5, value2030: 8 },
+        { segment: 'Navigation', value2023: 2.8, value2030: 5 },
+        { segment: 'Space Tourism', value2023: 0.5, value2030: 3 },
+        { segment: 'In-Space Manufacturing', value2023: 0.2, value2030: 2 },
+      ]
+
+      // 1. Launch Projections Chart
+      function createLaunchChart() {
+        const svg = d3
+          .select('#launch-chart')
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`)
+
+        // X scale
+        const x = d3.scaleLinear().domain([2023, 2030]).range([0, width])
+
+        // Y scale
+        const y = d3.scaleLinear().domain([0, 500]).range([height, 0])
+
+        // Add X axis
+        svg
+          .append('g')
+          .attr('transform', `translate(0,${height})`)
+          .call(d3.axisBottom(x).tickFormat(d3.format('d')).ticks(8))
+          .attr('class', 'axis-label')
+
+        // Add Y axis
+        svg.append('g').call(d3.axisLeft(y).ticks(5)).attr('class', 'axis-label')
+
+        // Add X axis label
+        svg
+          .append('text')
+          .attr('text-anchor', 'middle')
+          .attr('x', width / 2)
+          .attr('y', height + margin.bottom - 10)
+          .text('Year')
+          .attr('class', 'axis-label')
+
+        // Add Y axis label
+        svg
+          .append('text')
+          .attr('text-anchor', 'middle')
+          .attr('transform', 'rotate(-90)')
+          .attr('y', -margin.left + 30)
+          .attr('x', -height / 2)
+          .text('Annual Launches')
+          .attr('class', 'axis-label')
+
+        // Add gridlines
+        svg
+          .append('g')
+          .attr('class', 'grid')
+          .selectAll('line')
+          .data(y.ticks(5))
+          .enter()
+          .append('line')
+          .attr('x1', 0)
+          .attr('x2', width)
+          .attr('y1', (d) => y(d))
+          .attr('y2', (d) => y(d))
+          .attr('stroke', colors.grid)
+          .attr('stroke-width', 0.5)
+
+        // Add the line
+        const line = d3
+          .line()
+          .x((d) => x(d.year))
+          .y((d) => y(d.launches))
+          .curve(d3.curveMonotoneX)
+
+        svg
+          .append('path')
+          .datum(launchData)
+          .attr('fill', 'none')
+          .attr('stroke', colors.main)
+          .attr('stroke-width', 2.5)
+          .attr('d', line)
+
+        // Add the points
+        svg
+          .selectAll('dot')
+          .data(launchData)
+          .enter()
+          .append('circle')
+          .attr('cx', (d) => x(d.year))
+          .attr('cy', (d) => y(d.launches))
+          .attr('r', 4)
+          .attr('fill', colors.main)
+
+        // Add value labels for first and last point
+        svg
+          .append('text')
+          .attr('x', x(launchData[0].year) - 5)
+          .attr('y', y(launchData[0].launches) - 10)
+          .text(launchData[0].launches)
+          .attr('text-anchor', 'end')
+          .attr('class', 'key-number')
+
+        svg
+          .append('text')
+          .attr('x', x(launchData[launchData.length - 1].year) + 5)
+          .attr('y', y(launchData[launchData.length - 1].launches) - 10)
+          .text(launchData[launchData.length - 1].launches)
+          .attr('text-anchor', 'start')
+          .attr('class', 'key-number')
+
+        // Add projection range for 2028-2030
+        const upperBound = [
+          { year: 2028, launches: 410 },
+          { year: 2029, launches: 435 },
+          { year: 2030, launches: 460 },
+        ]
+
+        const lowerBound = [
+          { year: 2028, launches: 370 },
+          { year: 2029, launches: 385 },
+          { year: 2030, launches: 390 },
+        ]
+
+        // Upper bound line
+        const upperLine = d3
+          .line()
+          .x((d) => x(d.year))
+          .y((d) => y(d.launches))
+          .curve(d3.curveMonotoneX)
+
+        svg
+          .append('path')
+          .datum(upperBound)
+          .attr('fill', 'none')
+          .attr('stroke', colors.main)
+          .attr('stroke-width', 1)
+          .attr('stroke-dasharray', '4,4')
+          .attr('d', upperLine)
+
+        // Lower bound line
+        const lowerLine = d3
+          .line()
+          .x((d) => x(d.year))
+          .y((d) => y(d.launches))
+          .curve(d3.curveMonotoneX)
+
+        svg
+          .append('path')
+          .datum(lowerBound)
+          .attr('fill', 'none')
+          .attr('stroke', colors.main)
+          .attr('stroke-width', 1)
+          .attr('stroke-dasharray', '4,4')
+          .attr('d', lowerLine)
+
+        // Add annotation for projected range with background
+        const annotX = x(2029)
+        const annotY = y(470)
+
+        // Background for annotation
+        svg
+          .append('rect')
+          .attr('x', annotX - 55)
+          .attr('y', annotY - 15)
+          .attr('width', 110)
+          .attr('height', 20)
+          .attr('class', 'annotation-background')
+
+        svg
+          .append('text')
+          .attr('x', annotX)
+          .attr('y', annotY)
+          .text('Projected range')
+          .attr('class', 'annotation')
+          .attr('text-anchor', 'middle')
+      }
+
+      // 2. Satellite Population Chart
+      function createSatelliteChart() {
+        const svg = d3
+          .select('#satellite-chart')
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`)
+
+        // X scale
+        const x = d3.scaleLinear().domain([2023, 2030]).range([0, width])
+
+        // Y scale
+        const y = d3.scaleLinear().domain([0, 25000]).range([height, 0])
+
+        // Add X axis
+        svg
+          .append('g')
+          .attr('transform', `translate(0,${height})`)
+          .call(d3.axisBottom(x).tickFormat(d3.format('d')).ticks(8))
+          .attr('class', 'axis-label')
+
+        // Add Y axis
+        svg
+          .append('g')
+          .call(
+            d3
+              .axisLeft(y)
+              .ticks(5)
+              .tickFormat((d) => d / 1000 + 'k')
+          )
+          .attr('class', 'axis-label')
+
+        // Add X axis label
+        svg
+          .append('text')
+          .attr('text-anchor', 'middle')
+          .attr('x', width / 2)
+          .attr('y', height + margin.bottom - 10)
+          .text('Year')
+          .attr('class', 'axis-label')
+
+        // Add Y axis label
+        svg
+          .append('text')
+          .attr('text-anchor', 'middle')
+          .attr('transform', 'rotate(-90)')
+          .attr('y', -margin.left + 30)
+          .attr('x', -height / 2)
+          .text('Active Satellites')
+          .attr('class', 'axis-label')
+
+        // Add gridlines
+        svg
+          .append('g')
+          .attr('class', 'grid')
+          .selectAll('line')
+          .data(y.ticks(5))
+          .enter()
+          .append('line')
+          .attr('x1', 0)
+          .attr('x2', width)
+          .attr('y1', (d) => y(d))
+          .attr('y2', (d) => y(d))
+          .attr('stroke', colors.grid)
+          .attr('stroke-width', 0.5)
+
+        // Prepare stacked data
+        const stackedData = []
+        for (let i = 0; i < years.length; i++) {
+          const year = years[i]
+          const leo = leoData.find((d) => d.year === year).satellites
+          const geo = geoData.find((d) => d.year === year).satellites
+          const meoHeo = meoHeoData.find((d) => d.year === year).satellites
+
+          stackedData.push({
+            year: year,
+            leo: leo,
+            geo: geo,
+            meoHeo: meoHeo,
+          })
         }
-        
-        // 2. Satellite Population Chart
-        function createSatelliteChart() {
-            const svg = d3.select("#satellite-chart")
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
-            
-            // X scale
-            const x = d3.scaleLinear()
-                .domain([2023, 2030])
-                .range([0, width]);
-            
-            // Y scale
-            const y = d3.scaleLinear()
-                .domain([0, 25000])
-                .range([height, 0]);
-            
-            // Add X axis
-            svg.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(8))
-                .attr("class", "axis-label");
-            
-            // Add Y axis
-            svg.append("g")
-                .call(d3.axisLeft(y).ticks(5).tickFormat(d => d/1000 + "k"))
-                .attr("class", "axis-label");
-            
-            // Add X axis label
-            svg.append("text")
-                .attr("text-anchor", "middle")
-                .attr("x", width / 2)
-                .attr("y", height + margin.bottom - 10)
-                .text("Year")
-                .attr("class", "axis-label");
-            
-            // Add Y axis label
-            svg.append("text")
-                .attr("text-anchor", "middle")
-                .attr("transform", "rotate(-90)")
-                .attr("y", -margin.left + 30)
-                .attr("x", -height / 2)
-                .text("Active Satellites")
-                .attr("class", "axis-label");
-            
-            // Add gridlines
-            svg.append("g")
-                .attr("class", "grid")
-                .selectAll("line")
-                .data(y.ticks(5))
-                .enter()
-                .append("line")
-                .attr("x1", 0)
-                .attr("x2", width)
-                .attr("y1", d => y(d))
-                .attr("y2", d => y(d))
-                .attr("stroke", colors.grid)
-                .attr("stroke-width", 0.5);
-            
-            // Prepare stacked data
-            const stackedData = [];
-            for (let i = 0; i < years.length; i++) {
-                const year = years[i];
-                const leo = leoData.find(d => d.year === year).satellites;
-                const geo = geoData.find(d => d.year === year).satellites;
-                const meoHeo = meoHeoData.find(d => d.year === year).satellites;
-                
-                stackedData.push({
-                    year: year,
-                    leo: leo,
-                    geo: geo,
-                    meoHeo: meoHeo
-                });
-            }
-            
-            // Stack the data
-            const stack = d3.stack()
-                .keys(["leo", "geo", "meoHeo"])
-                .order(d3.stackOrderNone)
-                .offset(d3.stackOffsetNone);
-            
-            const series = stack(stackedData);
-            
-            // Create a color scale with improved contrast
-            const colorScale = d3.scaleOrdinal()
-                .domain(["leo", "geo", "meoHeo"])
-                .range([colors.light, colors.medium, colors.dark]);
-            
-            // Add the areas
-            const area = d3.area()
-                .x(d => x(d.data.year))
-                .y0(d => y(d[0]))
-                .y1(d => y(d[1]))
-                .curve(d3.curveMonotoneX);
-            
-            svg.selectAll("mylayers")
-                .data(series)
-                .enter()
-                .append("path")
-                .attr("d", area)
-                .style("fill", (d, i) => colorScale(d.key));
-            
-            // Add legend with improved contrast
-            const legend = svg.append("g")
-                .attr("transform", `translate(${width - 120}, 10)`);
-            
-            const legendItems = [
-                {name: "LEO", color: colors.light},
-                {name: "GEO", color: colors.medium},
-                {name: "MEO/HEO", color: colors.dark}
-            ];
-            
-            legendItems.forEach((item, i) => {
-                const legendRow = legend.append("g")
-                    .attr("transform", `translate(0, ${i * 20})`);
-                
-                legendRow.append("rect")
-                    .attr("width", 15)
-                    .attr("height", 15)
-                    .attr("fill", item.color)
-                    .attr("stroke", "#333")
-                    .attr("stroke-width", 0.5);
-                
-                legendRow.append("text")
-                    .attr("x", 20)
-                    .attr("y", 12)
-                    .text(item.name)
-                    .attr("class", "legend-item");
-            });
-            
-            // Add annotation for LEO growth with background
-            const annotX = x(2026);
-            const annotY = y(14000);
-            
-            // Background for annotation
-            svg.append("rect")
-                .attr("x", annotX - 125)
-                .attr("y", annotY - 15)
-                .attr("width", 250)
-                .attr("height", 20)
-                .attr("class", "annotation-background");
-                
-            svg.append("text")
-                .attr("x", annotX)
-                .attr("y", annotY)
-                .text("Constellation deployment drives LEO growth")
-                .attr("class", "annotation")
-                .attr("text-anchor", "middle");
-            
-            // Calculate total satellites for 2023 and 2030
-            const total2023 = leoData[0].satellites + geoData[0].satellites + meoHeoData[0].satellites;
-            const total2030 = leoData[7].satellites + geoData[7].satellites + meoHeoData[7].satellites;
-            
-            // Add value labels
-            svg.append("text")
-                .attr("x", x(2023) + 5)
-                .attr("y", y(total2023) - 10)
-                .text(total2023)
-                .attr("class", "key-number")
-                .attr("text-anchor", "start");
-            
-            svg.append("text")
-                .attr("x", x(2030) - 5)
-                .attr("y", y(total2030) - 10)
-                .text(total2030)
-                .attr("class", "key-number")
-                .attr("text-anchor", "end");
-        }
-        
-        // 3. Market Segment Chart
-        function createMarketChart() {
-            const svg = d3.select("#market-chart")
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
-            
-            // X scale
-            const x = d3.scaleBand()
-                .domain(marketData.map(d => d.segment))
-                .range([0, width])
-                .padding(0.3);
-            
-            // Y scale - reduced to 35B max to avoid excessive empty space
-            const y = d3.scaleLinear()
-                .domain([0, 35])
-                .range([height, 0]);
-            
-            // Add X axis
-            svg.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x))
-                .attr("class", "axis-label");
-            
-            // Add Y axis
-            svg.append("g")
-                .call(d3.axisLeft(y).ticks(5).tickFormat(d => "$" + d + "B"))
-                .attr("class", "axis-label");
-            
-            // Add Y axis label with improved positioning
-            svg.append("text")
-                .attr("text-anchor", "middle")
-                .attr("transform", "rotate(-90)")
-                .attr("y", -margin.left + 35)
-                .attr("x", -height / 2)
-                .text("Market Value (Billion USD)")
-                .attr("class", "axis-label");
-            
-            // Add gridlines
-            svg.append("g")
-                .attr("class", "grid")
-                .selectAll("line")
-                .data(y.ticks(5))
-                .enter()
-                .append("line")
-                .attr("x1", 0)
-                .attr("x2", width)
-                .attr("y1", d => y(d))
-                .attr("y2", d => y(d))
-                .attr("stroke", colors.grid)
-                .attr("stroke-width", 0.5);
-            
-            // X scale for grouped bars
-            const xSubgroup = d3.scaleBand()
-                .domain(["value2023", "value2030"])
-                .range([0, x.bandwidth()])
-                .padding(0.1);
-            
-            // Color scale for groups with improved contrast
-            const colorScale = d3.scaleOrdinal()
-                .domain(["value2023", "value2030"])
-                .range([colors.light, colors.dark]);
-            
-            // Add grouped bars
-            svg.append("g")
-                .selectAll("g")
-                .data(marketData)
-                .enter()
-                .append("g")
-                .attr("transform", d => `translate(${x(d.segment)},0)`)
-                .selectAll("rect")
-                .data(d => ["value2023", "value2030"].map(key => ({key: key, value: d[key], segment: d.segment})))
-                .enter()
-                .append("rect")
-                .attr("x", d => xSubgroup(d.key))
-                .attr("y", d => y(d.value))
-                .attr("width", xSubgroup.bandwidth())
-                .attr("height", d => height - y(d.value))
-                .attr("fill", d => colorScale(d.key))
-                .attr("stroke", "#333")
-                .attr("stroke-width", 0.5);
-            
-            // Add value labels
-            marketData.forEach(d => {
-                // 2023 value
-                svg.append("text")
-                    .attr("x", x(d.segment) + xSubgroup("value2023") + xSubgroup.bandwidth()/2)
-                    .attr("y", y(d.value2023) - 5)
-                    .text("$" + d.value2023 + "B")
-                    .attr("text-anchor", "middle")
-                    .attr("font-size", "9pt");
-                
-                // 2030 value
-                svg.append("text")
-                    .attr("x", x(d.segment) + xSubgroup("value2030") + xSubgroup.bandwidth()/2)
-                    .attr("y", y(d.value2030) - 5)
-                    .text("$" + d.value2030 + "B")
-                    .attr("text-anchor", "middle")
-                    .attr("class", "key-number");
-            });
-            
-            // Add legend with improved contrast
-            const legend = svg.append("g")
-                .attr("transform", `translate(${width - 120}, 10)`);
-            
-            const legendItems = [
-                {name: "2023", color: colors.light},
-                {name: "2030", color: colors.dark}
-            ];
-            
-            legendItems.forEach((item, i) => {
-                const legendRow = legend.append("g")
-                    .attr("transform", `translate(0, ${i * 20})`);
-                
-                legendRow.append("rect")
-                    .attr("width", 15)
-                    .attr("height", 15)
-                    .attr("fill", item.color)
-                    .attr("stroke", "#333")
-                    .attr("stroke-width", 0.5);
-                
-                legendRow.append("text")
-                    .attr("x", 20)
-                    .attr("y", 12)
-                    .text(item.name)
-                    .attr("class", "legend-item");
-            });
-            
-            // Add callout box for regulatory challenges
-            svg.append("rect")
-                .attr("x", 10)
-                .attr("y", 10)
-                .attr("width", 200)
-                .attr("height", 60)
-                .attr("class", "callout-box");
-            
-            svg.append("text")
-                .attr("x", 15)
-                .attr("y", 25)
-                .text("Regulatory & Sustainability Challenges:")
-                .attr("class", "callout-text")
-                .attr("font-weight", "bold");
-            
-            svg.append("text")
-                .attr("x", 15)
-                .attr("y", 40)
-                .text("• Orbital debris mitigation requirements")
-                .attr("class", "callout-text");
-            
-            svg.append("text")
-                .attr("x", 15)
-                .attr("y", 55)
-                .text("• Spectrum allocation constraints")
-                .attr("class", "callout-text");
-        }
-        
-        // Create all charts
-        createLaunchChart();
-        createSatelliteChart();
-        createMarketChart();
+
+        // Stack the data
+        const stack = d3
+          .stack()
+          .keys(['leo', 'geo', 'meoHeo'])
+          .order(d3.stackOrderNone)
+          .offset(d3.stackOffsetNone)
+
+        const series = stack(stackedData)
+
+        // Create a color scale with improved contrast
+        const colorScale = d3
+          .scaleOrdinal()
+          .domain(['leo', 'geo', 'meoHeo'])
+          .range([colors.light, colors.medium, colors.dark])
+
+        // Add the areas
+        const area = d3
+          .area()
+          .x((d) => x(d.data.year))
+          .y0((d) => y(d[0]))
+          .y1((d) => y(d[1]))
+          .curve(d3.curveMonotoneX)
+
+        svg
+          .selectAll('mylayers')
+          .data(series)
+          .enter()
+          .append('path')
+          .attr('d', area)
+          .style('fill', (d, i) => colorScale(d.key))
+
+        // Add legend with improved contrast
+        const legend = svg.append('g').attr('transform', `translate(${width - 120}, 10)`)
+
+        const legendItems = [
+          { name: 'LEO', color: colors.light },
+          { name: 'GEO', color: colors.medium },
+          { name: 'MEO/HEO', color: colors.dark },
+        ]
+
+        legendItems.forEach((item, i) => {
+          const legendRow = legend.append('g').attr('transform', `translate(0, ${i * 20})`)
+
+          legendRow
+            .append('rect')
+            .attr('width', 15)
+            .attr('height', 15)
+            .attr('fill', item.color)
+            .attr('stroke', '#333')
+            .attr('stroke-width', 0.5)
+
+          legendRow
+            .append('text')
+            .attr('x', 20)
+            .attr('y', 12)
+            .text(item.name)
+            .attr('class', 'legend-item')
+        })
+
+        // Add annotation for LEO growth with background
+        const annotX = x(2026)
+        const annotY = y(14000)
+
+        // Background for annotation
+        svg
+          .append('rect')
+          .attr('x', annotX - 125)
+          .attr('y', annotY - 15)
+          .attr('width', 250)
+          .attr('height', 20)
+          .attr('class', 'annotation-background')
+
+        svg
+          .append('text')
+          .attr('x', annotX)
+          .attr('y', annotY)
+          .text('Constellation deployment drives LEO growth')
+          .attr('class', 'annotation')
+          .attr('text-anchor', 'middle')
+
+        // Calculate total satellites for 2023 and 2030
+        const total2023 = leoData[0].satellites + geoData[0].satellites + meoHeoData[0].satellites
+        const total2030 = leoData[7].satellites + geoData[7].satellites + meoHeoData[7].satellites
+
+        // Add value labels
+        svg
+          .append('text')
+          .attr('x', x(2023) + 5)
+          .attr('y', y(total2023) - 10)
+          .text(total2023)
+          .attr('class', 'key-number')
+          .attr('text-anchor', 'start')
+
+        svg
+          .append('text')
+          .attr('x', x(2030) - 5)
+          .attr('y', y(total2030) - 10)
+          .text(total2030)
+          .attr('class', 'key-number')
+          .attr('text-anchor', 'end')
+      }
+
+      // 3. Market Segment Chart
+      function createMarketChart() {
+        const svg = d3
+          .select('#market-chart')
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`)
+
+        // X scale
+        const x = d3
+          .scaleBand()
+          .domain(marketData.map((d) => d.segment))
+          .range([0, width])
+          .padding(0.3)
+
+        // Y scale - reduced to 35B max to avoid excessive empty space
+        const y = d3.scaleLinear().domain([0, 35]).range([height, 0])
+
+        // Add X axis
+        svg
+          .append('g')
+          .attr('transform', `translate(0,${height})`)
+          .call(d3.axisBottom(x))
+          .attr('class', 'axis-label')
+
+        // Add Y axis
+        svg
+          .append('g')
+          .call(
+            d3
+              .axisLeft(y)
+              .ticks(5)
+              .tickFormat((d) => '$' + d + 'B')
+          )
+          .attr('class', 'axis-label')
+
+        // Add Y axis label with improved positioning
+        svg
+          .append('text')
+          .attr('text-anchor', 'middle')
+          .attr('transform', 'rotate(-90)')
+          .attr('y', -margin.left + 35)
+          .attr('x', -height / 2)
+          .text('Market Value (Billion USD)')
+          .attr('class', 'axis-label')
+
+        // Add gridlines
+        svg
+          .append('g')
+          .attr('class', 'grid')
+          .selectAll('line')
+          .data(y.ticks(5))
+          .enter()
+          .append('line')
+          .attr('x1', 0)
+          .attr('x2', width)
+          .attr('y1', (d) => y(d))
+          .attr('y2', (d) => y(d))
+          .attr('stroke', colors.grid)
+          .attr('stroke-width', 0.5)
+
+        // X scale for grouped bars
+        const xSubgroup = d3
+          .scaleBand()
+          .domain(['value2023', 'value2030'])
+          .range([0, x.bandwidth()])
+          .padding(0.1)
+
+        // Color scale for groups with improved contrast
+        const colorScale = d3
+          .scaleOrdinal()
+          .domain(['value2023', 'value2030'])
+          .range([colors.light, colors.dark])
+
+        // Add grouped bars
+        svg
+          .append('g')
+          .selectAll('g')
+          .data(marketData)
+          .enter()
+          .append('g')
+          .attr('transform', (d) => `translate(${x(d.segment)},0)`)
+          .selectAll('rect')
+          .data((d) =>
+            ['value2023', 'value2030'].map((key) => ({
+              key: key,
+              value: d[key],
+              segment: d.segment,
+            }))
+          )
+          .enter()
+          .append('rect')
+          .attr('x', (d) => xSubgroup(d.key))
+          .attr('y', (d) => y(d.value))
+          .attr('width', xSubgroup.bandwidth())
+          .attr('height', (d) => height - y(d.value))
+          .attr('fill', (d) => colorScale(d.key))
+          .attr('stroke', '#333')
+          .attr('stroke-width', 0.5)
+
+        // Add value labels
+        marketData.forEach((d) => {
+          // 2023 value
+          svg
+            .append('text')
+            .attr('x', x(d.segment) + xSubgroup('value2023') + xSubgroup.bandwidth() / 2)
+            .attr('y', y(d.value2023) - 5)
+            .text('$' + d.value2023 + 'B')
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '9pt')
+
+          // 2030 value
+          svg
+            .append('text')
+            .attr('x', x(d.segment) + xSubgroup('value2030') + xSubgroup.bandwidth() / 2)
+            .attr('y', y(d.value2030) - 5)
+            .text('$' + d.value2030 + 'B')
+            .attr('text-anchor', 'middle')
+            .attr('class', 'key-number')
+        })
+
+        // Add legend with improved contrast
+        const legend = svg.append('g').attr('transform', `translate(${width - 120}, 10)`)
+
+        const legendItems = [
+          { name: '2023', color: colors.light },
+          { name: '2030', color: colors.dark },
+        ]
+
+        legendItems.forEach((item, i) => {
+          const legendRow = legend.append('g').attr('transform', `translate(0, ${i * 20})`)
+
+          legendRow
+            .append('rect')
+            .attr('width', 15)
+            .attr('height', 15)
+            .attr('fill', item.color)
+            .attr('stroke', '#333')
+            .attr('stroke-width', 0.5)
+
+          legendRow
+            .append('text')
+            .attr('x', 20)
+            .attr('y', 12)
+            .text(item.name)
+            .attr('class', 'legend-item')
+        })
+
+        // Add callout box for regulatory challenges
+        svg
+          .append('rect')
+          .attr('x', 10)
+          .attr('y', 10)
+          .attr('width', 200)
+          .attr('height', 60)
+          .attr('class', 'callout-box')
+
+        svg
+          .append('text')
+          .attr('x', 15)
+          .attr('y', 25)
+          .text('Regulatory & Sustainability Challenges:')
+          .attr('class', 'callout-text')
+          .attr('font-weight', 'bold')
+
+        svg
+          .append('text')
+          .attr('x', 15)
+          .attr('y', 40)
+          .text('• Orbital debris mitigation requirements')
+          .attr('class', 'callout-text')
+
+        svg
+          .append('text')
+          .attr('x', 15)
+          .attr('y', 55)
+          .text('• Spectrum allocation constraints')
+          .attr('class', 'callout-text')
+      }
+
+      // Create all charts
+      createLaunchChart()
+      createSatelliteChart()
+      createMarketChart()
     </script>
-</body>
+  </body>
 </html>

@@ -1,348 +1,357 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Global AI Investment and Startup Formation (2013-2024)</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .container {
-            width: 850px;
-            height: 600px;
-            background-color: white;
-        }
-        
-        .title {
-            font-size: 22px;
-            font-weight: bold;
-            text-align: center;
-            margin-top: 10px;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 16px;
-            text-align: center;
-            color: #666;
-            margin-bottom: 20px;
-        }
-        
-        .axis-label {
-            font-size: 13px;
-            fill: #555;
-            font-weight: 500;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-opacity: 0.7;
-            shape-rendering: crispEdges;
-        }
-        
-        .annotation {
-            font-size: 13px;
-            font-style: italic;
-            fill: #555;
-        }
-        
-        .data-label {
-            font-size: 12px;
-            fill: #333;
-            text-anchor: middle;
-            font-weight: 500;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-size: 14px;
-            font-weight: bold;
-            fill: #333;
-        }
-        
-        .source {
-            font-size: 12px;
-            fill: #555;
-            text-anchor: end;
-        }
-        
-        .legend-container {
-            fill: #f9f9f9;
-            stroke: #e0e0e0;
-            stroke-width: 1;
-            rx: 4;
-            ry: 4;
-        }
-        
-        .legend-item text {
-            font-size: 13px;
-            fill: #555;
-        }
-        
-        .tick text {
-            font-size: 12px;
-            fill: #555;
-        }
-        
-        .domain {
-            stroke: #ccc;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        width: 850px;
+        height: 600px;
+        background-color: white;
+      }
+
+      .title {
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 10px;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        text-align: center;
+        color: #666;
+        margin-bottom: 20px;
+      }
+
+      .axis-label {
+        font-size: 13px;
+        fill: #555;
+        font-weight: 500;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+      }
+
+      .annotation {
+        font-size: 13px;
+        font-style: italic;
+        fill: #555;
+      }
+
+      .data-label {
+        font-size: 12px;
+        fill: #333;
+        text-anchor: middle;
+        font-weight: 500;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-size: 14px;
+        font-weight: bold;
+        fill: #333;
+      }
+
+      .source {
+        font-size: 12px;
+        fill: #555;
+        text-anchor: end;
+      }
+
+      .legend-container {
+        fill: #f9f9f9;
+        stroke: #e0e0e0;
+        stroke-width: 1;
+        rx: 4;
+        ry: 4;
+      }
+
+      .legend-item text {
+        font-size: 13px;
+        fill: #555;
+      }
+
+      .tick text {
+        font-size: 12px;
+        fill: #555;
+      }
+
+      .domain {
+        stroke: #ccc;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="title">Global AI Investment and Startup Formation (2013-2024)</div>
-        <div class="subtitle">AI funding (billions USD) and number of AI startups by country</div>
-        <div id="chart"></div>
+      <div class="title">Global AI Investment and Startup Formation (2013-2024)</div>
+      <div class="subtitle">AI funding (billions USD) and number of AI startups by country</div>
+      <div id="chart"></div>
     </div>
 
     <script>
-        // Data
-        const data = [
-            { country: "US", funding: 471, startups: 6956 },
-            { country: "China", funding: 119, startups: 1605 },
-            { country: "UK", funding: 28, startups: 885 },
-            { country: "Germany", funding: 13, startups: 472 },
-            { country: "France", funding: 11, startups: 382 },
-            { country: "Sweden", funding: 7, startups: 129 },
-            { country: "Netherlands", funding: 3, startups: 104 },
-            { country: "Spain", funding: 3, startups: 92 },
-            { country: "Other", funding: 105, startups: 2375 }
-        ];
+      // Data
+      const data = [
+        { country: 'US', funding: 471, startups: 6956 },
+        { country: 'China', funding: 119, startups: 1605 },
+        { country: 'UK', funding: 28, startups: 885 },
+        { country: 'Germany', funding: 13, startups: 472 },
+        { country: 'France', funding: 11, startups: 382 },
+        { country: 'Sweden', funding: 7, startups: 129 },
+        { country: 'Netherlands', funding: 3, startups: 104 },
+        { country: 'Spain', funding: 3, startups: 92 },
+        { country: 'Other', funding: 105, startups: 2375 },
+      ]
 
-        // Calculate rest of world funding
-        const restOfWorldFunding = data.filter(d => d.country !== "US").reduce((sum, d) => sum + d.funding, 0);
+      // Calculate rest of world funding
+      const restOfWorldFunding = data
+        .filter((d) => d.country !== 'US')
+        .reduce((sum, d) => sum + d.funding, 0)
 
-        // Set up dimensions and margins
-        const margin = { top: 60, right: 80, bottom: 100, left: 80 };
-        const width = 850 - margin.left - margin.right;
-        const height = 500 - margin.top - margin.bottom;
+      // Set up dimensions and margins
+      const margin = { top: 60, right: 80, bottom: 100, left: 80 }
+      const width = 850 - margin.left - margin.right
+      const height = 500 - margin.top - margin.bottom
 
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
 
-        // Define marker for arrows
-        svg.append("defs").append("marker")
-            .attr("id", "arrow")
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 5)
-            .attr("refY", 0)
-            .attr("markerWidth", 6)
-            .attr("markerHeight", 6)
-            .attr("orient", "auto")
-            .append("path")
-            .attr("d", "M0,-5L10,0L0,5")
-            .attr("fill", "#555");
+      // Define marker for arrows
+      svg
+        .append('defs')
+        .append('marker')
+        .attr('id', 'arrow')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 5)
+        .attr('refY', 0)
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
+        .attr('orient', 'auto')
+        .append('path')
+        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('fill', '#555')
 
-        // Set up scales
-        const x0 = d3.scaleBand()
-            .domain(data.map(d => d.country))
-            .rangeRound([0, width])
-            .paddingInner(0.2);
+      // Set up scales
+      const x0 = d3
+        .scaleBand()
+        .domain(data.map((d) => d.country))
+        .rangeRound([0, width])
+        .paddingInner(0.2)
 
-        const x1 = d3.scaleBand()
-            .domain(["funding", "startups"])
-            .rangeRound([0, x0.bandwidth()])
-            .padding(0.05);
+      const x1 = d3
+        .scaleBand()
+        .domain(['funding', 'startups'])
+        .rangeRound([0, x0.bandwidth()])
+        .padding(0.05)
 
-        const y0 = d3.scaleLinear()
-            .domain([0, 500])
-            .range([height, 0]);
+      const y0 = d3.scaleLinear().domain([0, 500]).range([height, 0])
 
-        const y1 = d3.scaleLinear()
-            .domain([0, 7000])
-            .range([height, 0]);
+      const y1 = d3.scaleLinear().domain([0, 7000]).range([height, 0])
 
-        // Define colors
-        const color = d3.scaleOrdinal()
-            .domain(["funding", "startups"])
-            .range(["#2E74C0", "#45B7B8"]);
+      // Define colors
+      const color = d3.scaleOrdinal().domain(['funding', 'startups']).range(['#2E74C0', '#45B7B8'])
 
-        // Add gridlines
-        svg.append("g")
-            .attr("class", "grid")
-            .call(d3.axisLeft(y0)
-                .tickSize(-width)
-                .tickFormat("")
-                .ticks(5)
-            );
+      // Add gridlines
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .call(d3.axisLeft(y0).tickSize(-width).tickFormat('').ticks(5))
 
-        // Add x-axis
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x0).tickSize(0))
-            .selectAll("text")
-            .style("text-anchor", "middle")
-            .style("font-size", "13px")
-            .style("font-weight", "500");
+      // Add x-axis
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x0).tickSize(0))
+        .selectAll('text')
+        .style('text-anchor', 'middle')
+        .style('font-size', '13px')
+        .style('font-weight', '500')
 
-        // Add primary y-axis (left)
-        svg.append("g")
-            .call(d3.axisLeft(y0).ticks(5))
-            .selectAll("text")
-            .style("font-size", "12px");
+      // Add primary y-axis (left)
+      svg.append('g').call(d3.axisLeft(y0).ticks(5)).selectAll('text').style('font-size', '12px')
 
-        // Add secondary y-axis (right)
-        svg.append("g")
-            .attr("transform", `translate(${width}, 0)`)
-            .call(d3.axisRight(y1).ticks(5))
-            .selectAll("text")
-            .style("font-size", "12px");
+      // Add secondary y-axis (right)
+      svg
+        .append('g')
+        .attr('transform', `translate(${width}, 0)`)
+        .call(d3.axisRight(y1).ticks(5))
+        .selectAll('text')
+        .style('font-size', '12px')
 
-        // Add y-axis labels
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -margin.left + 25)
-            .attr("x", -height / 2)
-            .attr("text-anchor", "middle")
-            .text("AI Funding (Billions USD)");
+      // Add y-axis labels
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', -margin.left + 25)
+        .attr('x', -height / 2)
+        .attr('text-anchor', 'middle')
+        .text('AI Funding (Billions USD)')
 
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("transform", "rotate(90)")
-            .attr("y", -width - margin.right + 25)
-            .attr("x", height / 2)
-            .attr("text-anchor", "middle")
-            .text("Number of AI Startups");
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('transform', 'rotate(90)')
+        .attr('y', -width - margin.right + 25)
+        .attr('x', height / 2)
+        .attr('text-anchor', 'middle')
+        .text('Number of AI Startups')
 
-        // Create grouped bars
-        const countryGroups = svg.selectAll(".country-group")
-            .data(data)
-            .enter().append("g")
-            .attr("class", "country-group")
-            .attr("transform", d => `translate(${x0(d.country)},0)`);
+      // Create grouped bars
+      const countryGroups = svg
+        .selectAll('.country-group')
+        .data(data)
+        .enter()
+        .append('g')
+        .attr('class', 'country-group')
+        .attr('transform', (d) => `translate(${x0(d.country)},0)`)
 
-        // Add funding bars
-        countryGroups.append("rect")
-            .attr("class", "bar")
-            .attr("x", x1("funding"))
-            .attr("y", d => y0(d.funding))
-            .attr("width", x1.bandwidth())
-            .attr("height", d => height - y0(d.funding))
-            .attr("fill", color("funding"));
+      // Add funding bars
+      countryGroups
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', x1('funding'))
+        .attr('y', (d) => y0(d.funding))
+        .attr('width', x1.bandwidth())
+        .attr('height', (d) => height - y0(d.funding))
+        .attr('fill', color('funding'))
 
-        // Add startup bars
-        countryGroups.append("rect")
-            .attr("class", "bar")
-            .attr("x", x1("startups"))
-            .attr("y", d => y1(d.startups))
-            .attr("width", x1.bandwidth())
-            .attr("height", d => height - y1(d.startups))
-            .attr("fill", color("startups"));
+      // Add startup bars
+      countryGroups
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', x1('startups'))
+        .attr('y', (d) => y1(d.startups))
+        .attr('width', x1.bandwidth())
+        .attr('height', (d) => height - y1(d.startups))
+        .attr('fill', color('startups'))
 
-        // Add data labels for funding with smart positioning
-        countryGroups.append("text")
-            .attr("class", d => d.country === "US" ? "key-number" : "data-label")
-            .attr("x", x1("funding") + x1.bandwidth() / 2)
-            .attr("y", d => {
-                // Position labels above bars, with more space for small values
-                const calculatedY = y0(d.funding) - 8;
-                return d.funding < 20 ? Math.min(calculatedY, height - 25) : calculatedY;
-            })
-            .text(d => `$${d.funding}B`);
+      // Add data labels for funding with smart positioning
+      countryGroups
+        .append('text')
+        .attr('class', (d) => (d.country === 'US' ? 'key-number' : 'data-label'))
+        .attr('x', x1('funding') + x1.bandwidth() / 2)
+        .attr('y', (d) => {
+          // Position labels above bars, with more space for small values
+          const calculatedY = y0(d.funding) - 8
+          return d.funding < 20 ? Math.min(calculatedY, height - 25) : calculatedY
+        })
+        .text((d) => `$${d.funding}B`)
 
-        // Add data labels for startups with smart positioning
-        countryGroups.append("text")
-            .attr("class", d => d.country === "US" ? "key-number" : "data-label")
-            .attr("x", x1("startups") + x1.bandwidth() / 2)
-            .attr("y", d => {
-                // Position labels above bars, with more space for small values
-                const calculatedY = y1(d.startups) - 8;
-                return d.startups < 200 ? Math.min(calculatedY, height - 25) : calculatedY;
-            })
-            .text(d => d3.format(",")(d.startups));
+      // Add data labels for startups with smart positioning
+      countryGroups
+        .append('text')
+        .attr('class', (d) => (d.country === 'US' ? 'key-number' : 'data-label'))
+        .attr('x', x1('startups') + x1.bandwidth() / 2)
+        .attr('y', (d) => {
+          // Position labels above bars, with more space for small values
+          const calculatedY = y1(d.startups) - 8
+          return d.startups < 200 ? Math.min(calculatedY, height - 25) : calculatedY
+        })
+        .text((d) => d3.format(',')(d.startups))
 
-        // Add annotation for US dominance with proper arrow
-        // Create a clear annotation box with background
-        const annotationX = x0("US") + x0.bandwidth()/2;
-        const annotationY = y0(471) - 40;
-        
-        // Add annotation background
-        svg.append("rect")
-            .attr("x", annotationX - 150)
-            .attr("y", annotationY - 20)
-            .attr("width", 300)
-            .attr("height", 25)
-            .attr("fill", "#f9f9f9")
-            .attr("stroke", "#e0e0e0")
-            .attr("stroke-width", 1)
-            .attr("rx", 4)
-            .attr("ry", 4);
-            
-        // Add annotation text
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", annotationX)
-            .attr("y", annotationY)
-            .attr("text-anchor", "middle")
-            .text(`US funding ($471B) exceeds rest of world combined ($${restOfWorldFunding}B)`);
-            
-        // Add arrow from annotation to US bar
-        svg.append("path")
-            .attr("d", `M${annotationX},${annotationY + 5} L${annotationX},${y0(471) - 5}`)
-            .attr("stroke", "#555")
-            .attr("stroke-width", 1.5)
-            .attr("marker-end", "url(#arrow)");
+      // Add annotation for US dominance with proper arrow
+      // Create a clear annotation box with background
+      const annotationX = x0('US') + x0.bandwidth() / 2
+      const annotationY = y0(471) - 40
 
-        // Add legend with proper background and positioning
-        const legendWidth = 260;
-        const legendHeight = 60;
-        const legendX = width - legendWidth - 10;
-        const legendY = height + 30;
-        
-        // Add legend background
-        svg.append("rect")
-            .attr("class", "legend-container")
-            .attr("x", legendX)
-            .attr("y", legendY)
-            .attr("width", legendWidth)
-            .attr("height", legendHeight);
+      // Add annotation background
+      svg
+        .append('rect')
+        .attr('x', annotationX - 150)
+        .attr('y', annotationY - 20)
+        .attr('width', 300)
+        .attr('height', 25)
+        .attr('fill', '#f9f9f9')
+        .attr('stroke', '#e0e0e0')
+        .attr('stroke-width', 1)
+        .attr('rx', 4)
+        .attr('ry', 4)
 
-        const legend = svg.append("g")
-            .attr("class", "legend")
-            .attr("transform", `translate(${legendX + 15}, ${legendY + 15})`);
+      // Add annotation text
+      svg
+        .append('text')
+        .attr('class', 'annotation')
+        .attr('x', annotationX)
+        .attr('y', annotationY)
+        .attr('text-anchor', 'middle')
+        .text(`US funding ($471B) exceeds rest of world combined ($${restOfWorldFunding}B)`)
 
-        const legendItems = ["funding", "startups"];
-        const legendLabels = ["AI Funding (Billions USD)", "Number of AI Startups"];
+      // Add arrow from annotation to US bar
+      svg
+        .append('path')
+        .attr('d', `M${annotationX},${annotationY + 5} L${annotationX},${y0(471) - 5}`)
+        .attr('stroke', '#555')
+        .attr('stroke-width', 1.5)
+        .attr('marker-end', 'url(#arrow)')
 
-        legendItems.forEach((item, i) => {
-            const legendItem = legend.append("g")
-                .attr("class", "legend-item")
-                .attr("transform", `translate(0, ${i * 25})`);
+      // Add legend with proper background and positioning
+      const legendWidth = 260
+      const legendHeight = 60
+      const legendX = width - legendWidth - 10
+      const legendY = height + 30
 
-            legendItem.append("rect")
-                .attr("width", 16)
-                .attr("height", 16)
-                .attr("fill", color(item));
+      // Add legend background
+      svg
+        .append('rect')
+        .attr('class', 'legend-container')
+        .attr('x', legendX)
+        .attr('y', legendY)
+        .attr('width', legendWidth)
+        .attr('height', legendHeight)
 
-            legendItem.append("text")
-                .attr("x", 25)
-                .attr("y", 13)
-                .text(legendLabels[i]);
-        });
+      const legend = svg
+        .append('g')
+        .attr('class', 'legend')
+        .attr('transform', `translate(${legendX + 15}, ${legendY + 15})`)
 
-        // Add source attribution with improved styling
-        svg.append("text")
-            .attr("class", "source")
-            .attr("x", width - 10)
-            .attr("y", height + legendHeight + 40)
-            .text("Source: Visual Capitalist, 2024");
+      const legendItems = ['funding', 'startups']
+      const legendLabels = ['AI Funding (Billions USD)', 'Number of AI Startups']
+
+      legendItems.forEach((item, i) => {
+        const legendItem = legend
+          .append('g')
+          .attr('class', 'legend-item')
+          .attr('transform', `translate(0, ${i * 25})`)
+
+        legendItem.append('rect').attr('width', 16).attr('height', 16).attr('fill', color(item))
+
+        legendItem.append('text').attr('x', 25).attr('y', 13).text(legendLabels[i])
+      })
+
+      // Add source attribution with improved styling
+      svg
+        .append('text')
+        .attr('class', 'source')
+        .attr('x', width - 10)
+        .attr('y', height + legendHeight + 40)
+        .text('Source: Visual Capitalist, 2024')
     </script>
-</body>
+  </body>
 </html>

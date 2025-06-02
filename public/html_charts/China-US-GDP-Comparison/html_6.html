@@ -1,709 +1,748 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Decomposing Growth Drivers: China vs. US (1980-2023)</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        .visualization-container {
-            width: 850px;
-            height: 800px;
-            position: relative;
-        }
-        
-        .title {
-            text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        
-        .panel {
-            margin-bottom: 20px;
-        }
-        
-        .panel-title {
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .source {
-            text-align: right;
-            font-size: 10px;
-            font-style: italic;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .axis line, .axis path {
-            stroke: #ccc;
-        }
-        
-        .axis text {
-            font-size: 11px;
-            fill: #333;
-        }
-        
-        .grid line {
-            stroke: #eee;
-            stroke-opacity: 0.7;
-            shape-rendering: crispEdges;
-        }
-        
-        .china-line {
-            stroke: #C6002B;
-            stroke-width: 2.5;
-            fill: none;
-        }
-        
-        .us-line {
-            stroke: #004E8C;
-            stroke-width: 2.5;
-            fill: none;
-        }
-        
-        .annotation-line {
-            stroke: #FFB300;
-            stroke-width: 1.5;
-            stroke-dasharray: 4,3;
-        }
-        
-        .annotation-text {
-            font-size: 11px;
-            fill: #333;
-            font-weight: bold;
-        }
-        
-        .legend {
-            font-size: 11px;
-        }
-        
-        .highlight-value {
-            font-family: 'Georgia', serif;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        
-        .annotation-box {
-            fill: rgba(249, 249, 249, 0.9);
-            stroke: #ddd;
-            stroke-width: 1px;
-            rx: 5px;
-            ry: 5px;
-        }
-        
-        .annotation-box-text {
-            font-size: 12px;
-            fill: #333;
-            line-height: 1.4;
-        }
-        
-        .data-point {
-            stroke-width: 1.5;
-            stroke: white;
-        }
-        
-        .bar-label {
-            font-size: 12px;
-            font-weight: bold;
-            text-anchor: middle;
-            dominant-baseline: middle;
-        }
-        
-        .event-label {
-            font-size: 11px;
-            font-weight: bold;
-            fill: #8B4513;
-        }
-        
-        .event-marker {
-            stroke: #FFB300;
-            stroke-width: 2;
-            stroke-dasharray: 4,3;
-        }
-        
-        .period-label {
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .country-label {
-            font-size: 11px;
-            font-weight: bold;
-        }
-        
-        .total-label {
-            font-size: 14px;
-            font-weight: bold;
-            font-family: 'Georgia', serif;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .visualization-container {
+        width: 850px;
+        height: 800px;
+        position: relative;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+
+      .panel {
+        margin-bottom: 20px;
+      }
+
+      .panel-title {
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .source {
+        text-align: right;
+        font-size: 10px;
+        font-style: italic;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      .axis line,
+      .axis path {
+        stroke: #ccc;
+      }
+
+      .axis text {
+        font-size: 11px;
+        fill: #333;
+      }
+
+      .grid line {
+        stroke: #eee;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+      }
+
+      .china-line {
+        stroke: #c6002b;
+        stroke-width: 2.5;
+        fill: none;
+      }
+
+      .us-line {
+        stroke: #004e8c;
+        stroke-width: 2.5;
+        fill: none;
+      }
+
+      .annotation-line {
+        stroke: #ffb300;
+        stroke-width: 1.5;
+        stroke-dasharray: 4, 3;
+      }
+
+      .annotation-text {
+        font-size: 11px;
+        fill: #333;
+        font-weight: bold;
+      }
+
+      .legend {
+        font-size: 11px;
+      }
+
+      .highlight-value {
+        font-family: 'Georgia', serif;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .annotation-box {
+        fill: rgba(249, 249, 249, 0.9);
+        stroke: #ddd;
+        stroke-width: 1px;
+        rx: 5px;
+        ry: 5px;
+      }
+
+      .annotation-box-text {
+        font-size: 12px;
+        fill: #333;
+        line-height: 1.4;
+      }
+
+      .data-point {
+        stroke-width: 1.5;
+        stroke: white;
+      }
+
+      .bar-label {
+        font-size: 12px;
+        font-weight: bold;
+        text-anchor: middle;
+        dominant-baseline: middle;
+      }
+
+      .event-label {
+        font-size: 11px;
+        font-weight: bold;
+        fill: #8b4513;
+      }
+
+      .event-marker {
+        stroke: #ffb300;
+        stroke-width: 2;
+        stroke-dasharray: 4, 3;
+      }
+
+      .period-label {
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .country-label {
+        font-size: 11px;
+        font-weight: bold;
+      }
+
+      .total-label {
+        font-size: 14px;
+        font-weight: bold;
+        font-family: 'Georgia', serif;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Decomposing Growth Drivers: China vs. US (1980-2023)</div>
-        <div id="visualization"></div>
-        <div class="source">Source: World Bank, CRS Report RL33534, ECB 2024</div>
+      <div class="title">Decomposing Growth Drivers: China vs. US (1980-2023)</div>
+      <div id="visualization"></div>
+      <div class="source">Source: World Bank, CRS Report RL33534, ECB 2024</div>
     </div>
 
     <script>
-        // Main dimensions - increased for better spacing
-        const width = 850;
-        const height = 800;
-        const margin = {top: 20, right: 100, bottom: 40, left: 60};
-        
-        // Adjusted panel heights - more space for bottom panel
-        const topPanelHeight = 200;
-        const middlePanelHeight = 200;
-        const bottomPanelHeight = 240;
-        
-        // Create SVG
-        const svg = d3.select("#visualization")
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height);
-        
-        // Data for Investment as % of GDP
-        const investmentData = [
-            // China data
-            {country: "China", year: 1980, value: 35},
-            {country: "China", year: 1985, value: 36},
-            {country: "China", year: 1990, value: 36.5},
-            {country: "China", year: 1995, value: 38},
-            {country: "China", year: 2000, value: 39},
-            {country: "China", year: 2001, value: 39.5}, // WTO entry
-            {country: "China", year: 2005, value: 41},
-            {country: "China", year: 2008, value: 42}, // Financial crisis
-            {country: "China", year: 2010, value: 47},
-            {country: "China", year: 2015, value: 45},
-            {country: "China", year: 2020, value: 43}, // COVID-19
-            {country: "China", year: 2023, value: 42},
-            
-            // US data
-            {country: "US", year: 1980, value: 21},
-            {country: "US", year: 1985, value: 20.5},
-            {country: "US", year: 1990, value: 21},
-            {country: "US", year: 1995, value: 21.5},
-            {country: "US", year: 2000, value: 22},
-            {country: "US", year: 2001, value: 21.5}, // WTO entry
-            {country: "US", year: 2005, value: 22},
-            {country: "US", year: 2008, value: 20.5}, // Financial crisis
-            {country: "US", year: 2010, value: 19},
-            {country: "US", year: 2015, value: 20.5},
-            {country: "US", year: 2020, value: 21}, // COVID-19
-            {country: "US", year: 2023, value: 21.5}
-        ];
-        
-        // Data for TFP Growth
-        const tfpData = [
-            // China data
-            {country: "China", year: 1980, value: 2.8},
-            {country: "China", year: 1985, value: 3.0},
-            {country: "China", year: 1990, value: 2.7},
-            {country: "China", year: 1995, value: 3.2},
-            {country: "China", year: 2000, value: 2.9},
-            {country: "China", year: 2001, value: 3.0}, // WTO entry
-            {country: "China", year: 2005, value: 3.1},
-            {country: "China", year: 2008, value: 2.8}, // Financial crisis
-            {country: "China", year: 2010, value: 1.0},
-            {country: "China", year: 2015, value: 0.6},
-            {country: "China", year: 2020, value: 0.8}, // COVID-19
-            {country: "China", year: 2023, value: 1.3},
-            
-            // US data
-            {country: "US", year: 1980, value: 0.5},
-            {country: "US", year: 1985, value: 0.8},
-            {country: "US", year: 1990, value: 0.7},
-            {country: "US", year: 1995, value: 1.5},
-            {country: "US", year: 2000, value: 1.8},
-            {country: "US", year: 2001, value: 1.2}, // WTO entry
-            {country: "US", year: 2005, value: 1.0},
-            {country: "US", year: 2008, value: -0.8}, // Financial crisis
-            {country: "US", year: 2010, value: 0.9},
-            {country: "US", year: 2015, value: 0.7},
-            {country: "US", year: 2020, value: -1.0}, // COVID-19
-            {country: "US", year: 2023, value: 1.5}
-        ];
-        
-        // Data for GDP Growth Contributions
-        const gdpContributionsData = [
-            // China data
-            {country: "China", period: "1980-2008", capital: 5.1, labor: 1.6, tfp: 2.8, total: 9.5},
-            {country: "China", period: "2009-2018", capital: 5.4, labor: 0.4, tfp: 0.7, total: 6.5},
-            {country: "China", period: "2019-2023", capital: 4.0, labor: 0.2, tfp: 1.3, total: 5.5},
-            
-            // US data
-            {country: "US", period: "1980-2008", capital: 1.5, labor: 0.8, tfp: 1.2, total: 3.5},
-            {country: "US", period: "2009-2018", capital: 1.0, labor: 0.6, tfp: 0.8, total: 2.4},
-            {country: "US", period: "2019-2023", capital: 0.9, labor: 0.3, tfp: 1.0, total: 2.2}
-        ];
-        
-        // Key events for annotations - reduced to only important ones
-        const keyEvents = [
-            {year: 2001, event: "China's WTO Entry"},
-            {year: 2008, event: "Global Financial Crisis"},
-            {year: 2020, event: "COVID-19 Pandemic"}
-        ];
-        
-        // Create scales
-        const xScale = d3.scaleLinear()
-            .domain([1980, 2023])
-            .range([margin.left, width - margin.right]);
-        
-        const investmentYScale = d3.scaleLinear()
-            .domain([15, 50])
-            .range([topPanelHeight, 0]);
-        
-        const tfpYScale = d3.scaleLinear()
-            .domain([-2, 7])
-            .range([middlePanelHeight, 0]);
-        
-        const gdpYScale = d3.scaleLinear()
-            .domain([0, 12])
-            .range([bottomPanelHeight, 0]);
-        
-        // Create line generators
-        const investmentLine = d3.line()
-            .x(d => xScale(d.year))
-            .y(d => investmentYScale(d.value))
-            .curve(d3.curveMonotoneX);
-        
-        const tfpLine = d3.line()
-            .x(d => xScale(d.year))
-            .y(d => tfpYScale(d.value))
-            .curve(d3.curveMonotoneX);
-        
-        // Create panels with adjusted spacing
-        const investmentPanel = svg.append("g")
-            .attr("transform", `translate(0, ${margin.top})`);
-        
-        const tfpPanel = svg.append("g")
-            .attr("transform", `translate(0, ${margin.top + topPanelHeight + 50})`);
-        
-        const gdpPanel = svg.append("g")
-            .attr("transform", `translate(0, ${margin.top + topPanelHeight + middlePanelHeight + 100})`);
-        
-        // Panel titles
-        investmentPanel.append("text")
-            .attr("class", "panel-title")
-            .attr("x", width / 2)
-            .attr("y", -5)
-            .attr("text-anchor", "middle")
-            .text("Investment as % of GDP");
-        
-        tfpPanel.append("text")
-            .attr("class", "panel-title")
-            .attr("x", width / 2)
-            .attr("y", -5)
-            .attr("text-anchor", "middle")
-            .text("Productivity Growth (TFP)");
-        
-        gdpPanel.append("text")
-            .attr("class", "panel-title")
-            .attr("x", width / 2)
-            .attr("y", -5)
-            .attr("text-anchor", "middle")
-            .text("Contributions to GDP Growth");
-        
-        // Create axes
-        // Investment panel axes
-        investmentPanel.append("g")
-            .attr("class", "axis")
-            .attr("transform", `translate(0, ${topPanelHeight})`)
-            .call(d3.axisBottom(xScale)
-                .tickValues([1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020])
-                .tickFormat(d3.format("d")));
-        
-        investmentPanel.append("g")
-            .attr("class", "axis")
-            .attr("transform", `translate(${margin.left}, 0)`)
-            .call(d3.axisLeft(investmentYScale)
-                .tickValues([15, 20, 25, 30, 35, 40, 45, 50])
-                .tickFormat(d => d + "%"));
-        
-        // TFP panel axes
-        tfpPanel.append("g")
-            .attr("class", "axis")
-            .attr("transform", `translate(0, ${middlePanelHeight})`)
-            .call(d3.axisBottom(xScale)
-                .tickValues([1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020])
-                .tickFormat(d3.format("d")));
-        
-        tfpPanel.append("g")
-            .attr("class", "axis")
-            .attr("transform", `translate(${margin.left}, 0)`)
-            .call(d3.axisLeft(tfpYScale)
-                .tickValues([-2, 0, 2, 4, 6])
-                .tickFormat(d => d + "%"));
-        
-        // GDP panel axes
-        gdpPanel.append("g")
-            .attr("class", "axis")
-            .attr("transform", `translate(0, ${bottomPanelHeight})`)
-            .call(d3.axisBottom(xScale)
-                .tickValues([1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020])
-                .tickFormat(d3.format("d")));
-        
-        gdpPanel.append("g")
-            .attr("class", "axis")
-            .attr("transform", `translate(${margin.left}, 0)`)
-            .call(d3.axisLeft(gdpYScale)
-                .tickValues([0, 3, 6, 9, 12])
-                .tickFormat(d => d + "%"));
-        
-        // Add gridlines
-        function addGridlines(panel, yScale, tickValues, height) {
-            panel.selectAll("grid-line")
-                .data(tickValues)
-                .enter()
-                .append("line")
-                .attr("class", "grid")
-                .attr("x1", margin.left)
-                .attr("x2", width - margin.right)
-                .attr("y1", d => yScale(d))
-                .attr("y2", d => yScale(d))
-                .attr("stroke", "#eee");
+      // Main dimensions - increased for better spacing
+      const width = 850
+      const height = 800
+      const margin = { top: 20, right: 100, bottom: 40, left: 60 }
+
+      // Adjusted panel heights - more space for bottom panel
+      const topPanelHeight = 200
+      const middlePanelHeight = 200
+      const bottomPanelHeight = 240
+
+      // Create SVG
+      const svg = d3
+        .select('#visualization')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+
+      // Data for Investment as % of GDP
+      const investmentData = [
+        // China data
+        { country: 'China', year: 1980, value: 35 },
+        { country: 'China', year: 1985, value: 36 },
+        { country: 'China', year: 1990, value: 36.5 },
+        { country: 'China', year: 1995, value: 38 },
+        { country: 'China', year: 2000, value: 39 },
+        { country: 'China', year: 2001, value: 39.5 }, // WTO entry
+        { country: 'China', year: 2005, value: 41 },
+        { country: 'China', year: 2008, value: 42 }, // Financial crisis
+        { country: 'China', year: 2010, value: 47 },
+        { country: 'China', year: 2015, value: 45 },
+        { country: 'China', year: 2020, value: 43 }, // COVID-19
+        { country: 'China', year: 2023, value: 42 },
+
+        // US data
+        { country: 'US', year: 1980, value: 21 },
+        { country: 'US', year: 1985, value: 20.5 },
+        { country: 'US', year: 1990, value: 21 },
+        { country: 'US', year: 1995, value: 21.5 },
+        { country: 'US', year: 2000, value: 22 },
+        { country: 'US', year: 2001, value: 21.5 }, // WTO entry
+        { country: 'US', year: 2005, value: 22 },
+        { country: 'US', year: 2008, value: 20.5 }, // Financial crisis
+        { country: 'US', year: 2010, value: 19 },
+        { country: 'US', year: 2015, value: 20.5 },
+        { country: 'US', year: 2020, value: 21 }, // COVID-19
+        { country: 'US', year: 2023, value: 21.5 },
+      ]
+
+      // Data for TFP Growth
+      const tfpData = [
+        // China data
+        { country: 'China', year: 1980, value: 2.8 },
+        { country: 'China', year: 1985, value: 3.0 },
+        { country: 'China', year: 1990, value: 2.7 },
+        { country: 'China', year: 1995, value: 3.2 },
+        { country: 'China', year: 2000, value: 2.9 },
+        { country: 'China', year: 2001, value: 3.0 }, // WTO entry
+        { country: 'China', year: 2005, value: 3.1 },
+        { country: 'China', year: 2008, value: 2.8 }, // Financial crisis
+        { country: 'China', year: 2010, value: 1.0 },
+        { country: 'China', year: 2015, value: 0.6 },
+        { country: 'China', year: 2020, value: 0.8 }, // COVID-19
+        { country: 'China', year: 2023, value: 1.3 },
+
+        // US data
+        { country: 'US', year: 1980, value: 0.5 },
+        { country: 'US', year: 1985, value: 0.8 },
+        { country: 'US', year: 1990, value: 0.7 },
+        { country: 'US', year: 1995, value: 1.5 },
+        { country: 'US', year: 2000, value: 1.8 },
+        { country: 'US', year: 2001, value: 1.2 }, // WTO entry
+        { country: 'US', year: 2005, value: 1.0 },
+        { country: 'US', year: 2008, value: -0.8 }, // Financial crisis
+        { country: 'US', year: 2010, value: 0.9 },
+        { country: 'US', year: 2015, value: 0.7 },
+        { country: 'US', year: 2020, value: -1.0 }, // COVID-19
+        { country: 'US', year: 2023, value: 1.5 },
+      ]
+
+      // Data for GDP Growth Contributions
+      const gdpContributionsData = [
+        // China data
+        { country: 'China', period: '1980-2008', capital: 5.1, labor: 1.6, tfp: 2.8, total: 9.5 },
+        { country: 'China', period: '2009-2018', capital: 5.4, labor: 0.4, tfp: 0.7, total: 6.5 },
+        { country: 'China', period: '2019-2023', capital: 4.0, labor: 0.2, tfp: 1.3, total: 5.5 },
+
+        // US data
+        { country: 'US', period: '1980-2008', capital: 1.5, labor: 0.8, tfp: 1.2, total: 3.5 },
+        { country: 'US', period: '2009-2018', capital: 1.0, labor: 0.6, tfp: 0.8, total: 2.4 },
+        { country: 'US', period: '2019-2023', capital: 0.9, labor: 0.3, tfp: 1.0, total: 2.2 },
+      ]
+
+      // Key events for annotations - reduced to only important ones
+      const keyEvents = [
+        { year: 2001, event: "China's WTO Entry" },
+        { year: 2008, event: 'Global Financial Crisis' },
+        { year: 2020, event: 'COVID-19 Pandemic' },
+      ]
+
+      // Create scales
+      const xScale = d3
+        .scaleLinear()
+        .domain([1980, 2023])
+        .range([margin.left, width - margin.right])
+
+      const investmentYScale = d3.scaleLinear().domain([15, 50]).range([topPanelHeight, 0])
+
+      const tfpYScale = d3.scaleLinear().domain([-2, 7]).range([middlePanelHeight, 0])
+
+      const gdpYScale = d3.scaleLinear().domain([0, 12]).range([bottomPanelHeight, 0])
+
+      // Create line generators
+      const investmentLine = d3
+        .line()
+        .x((d) => xScale(d.year))
+        .y((d) => investmentYScale(d.value))
+        .curve(d3.curveMonotoneX)
+
+      const tfpLine = d3
+        .line()
+        .x((d) => xScale(d.year))
+        .y((d) => tfpYScale(d.value))
+        .curve(d3.curveMonotoneX)
+
+      // Create panels with adjusted spacing
+      const investmentPanel = svg.append('g').attr('transform', `translate(0, ${margin.top})`)
+
+      const tfpPanel = svg
+        .append('g')
+        .attr('transform', `translate(0, ${margin.top + topPanelHeight + 50})`)
+
+      const gdpPanel = svg
+        .append('g')
+        .attr('transform', `translate(0, ${margin.top + topPanelHeight + middlePanelHeight + 100})`)
+
+      // Panel titles
+      investmentPanel
+        .append('text')
+        .attr('class', 'panel-title')
+        .attr('x', width / 2)
+        .attr('y', -5)
+        .attr('text-anchor', 'middle')
+        .text('Investment as % of GDP')
+
+      tfpPanel
+        .append('text')
+        .attr('class', 'panel-title')
+        .attr('x', width / 2)
+        .attr('y', -5)
+        .attr('text-anchor', 'middle')
+        .text('Productivity Growth (TFP)')
+
+      gdpPanel
+        .append('text')
+        .attr('class', 'panel-title')
+        .attr('x', width / 2)
+        .attr('y', -5)
+        .attr('text-anchor', 'middle')
+        .text('Contributions to GDP Growth')
+
+      // Create axes
+      // Investment panel axes
+      investmentPanel
+        .append('g')
+        .attr('class', 'axis')
+        .attr('transform', `translate(0, ${topPanelHeight})`)
+        .call(
+          d3
+            .axisBottom(xScale)
+            .tickValues([1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020])
+            .tickFormat(d3.format('d'))
+        )
+
+      investmentPanel
+        .append('g')
+        .attr('class', 'axis')
+        .attr('transform', `translate(${margin.left}, 0)`)
+        .call(
+          d3
+            .axisLeft(investmentYScale)
+            .tickValues([15, 20, 25, 30, 35, 40, 45, 50])
+            .tickFormat((d) => d + '%')
+        )
+
+      // TFP panel axes
+      tfpPanel
+        .append('g')
+        .attr('class', 'axis')
+        .attr('transform', `translate(0, ${middlePanelHeight})`)
+        .call(
+          d3
+            .axisBottom(xScale)
+            .tickValues([1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020])
+            .tickFormat(d3.format('d'))
+        )
+
+      tfpPanel
+        .append('g')
+        .attr('class', 'axis')
+        .attr('transform', `translate(${margin.left}, 0)`)
+        .call(
+          d3
+            .axisLeft(tfpYScale)
+            .tickValues([-2, 0, 2, 4, 6])
+            .tickFormat((d) => d + '%')
+        )
+
+      // GDP panel axes
+      gdpPanel
+        .append('g')
+        .attr('class', 'axis')
+        .attr('transform', `translate(0, ${bottomPanelHeight})`)
+        .call(
+          d3
+            .axisBottom(xScale)
+            .tickValues([1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020])
+            .tickFormat(d3.format('d'))
+        )
+
+      gdpPanel
+        .append('g')
+        .attr('class', 'axis')
+        .attr('transform', `translate(${margin.left}, 0)`)
+        .call(
+          d3
+            .axisLeft(gdpYScale)
+            .tickValues([0, 3, 6, 9, 12])
+            .tickFormat((d) => d + '%')
+        )
+
+      // Add gridlines
+      function addGridlines(panel, yScale, tickValues, height) {
+        panel
+          .selectAll('grid-line')
+          .data(tickValues)
+          .enter()
+          .append('line')
+          .attr('class', 'grid')
+          .attr('x1', margin.left)
+          .attr('x2', width - margin.right)
+          .attr('y1', (d) => yScale(d))
+          .attr('y2', (d) => yScale(d))
+          .attr('stroke', '#eee')
+      }
+
+      addGridlines(
+        investmentPanel,
+        investmentYScale,
+        [15, 20, 25, 30, 35, 40, 45, 50],
+        topPanelHeight
+      )
+      addGridlines(tfpPanel, tfpYScale, [-2, 0, 2, 4, 6], middlePanelHeight)
+      addGridlines(gdpPanel, gdpYScale, [0, 3, 6, 9, 12], bottomPanelHeight)
+
+      // Draw investment lines
+      const chinaInvestmentData = investmentData.filter((d) => d.country === 'China')
+      const usInvestmentData = investmentData.filter((d) => d.country === 'US')
+
+      investmentPanel
+        .append('path')
+        .datum(chinaInvestmentData)
+        .attr('class', 'china-line')
+        .attr('d', investmentLine)
+
+      investmentPanel
+        .append('path')
+        .datum(usInvestmentData)
+        .attr('class', 'us-line')
+        .attr('d', investmentLine)
+
+      // Draw TFP lines
+      const chinaTfpData = tfpData.filter((d) => d.country === 'China')
+      const usTfpData = tfpData.filter((d) => d.country === 'US')
+
+      tfpPanel.append('path').datum(chinaTfpData).attr('class', 'china-line').attr('d', tfpLine)
+
+      tfpPanel.append('path').datum(usTfpData).attr('class', 'us-line').attr('d', tfpLine)
+
+      // Add data points at 5-year intervals
+      function addDataPoints(panel, data, yScale, colorClass) {
+        panel
+          .selectAll(`.${colorClass}-point`)
+          .data(data.filter((d) => d.year % 5 === 0))
+          .enter()
+          .append('circle')
+          .attr('class', `data-point ${colorClass}-point`)
+          .attr('cx', (d) => xScale(d.year))
+          .attr('cy', (d) => yScale(d.value))
+          .attr('r', 4)
+          .attr('fill', colorClass === 'china-line' ? '#C6002B' : '#004E8C')
+      }
+
+      addDataPoints(investmentPanel, chinaInvestmentData, investmentYScale, 'china-line')
+      addDataPoints(investmentPanel, usInvestmentData, investmentYScale, 'us-line')
+      addDataPoints(tfpPanel, chinaTfpData, tfpYScale, 'china-line')
+      addDataPoints(tfpPanel, usTfpData, tfpYScale, 'us-line')
+
+      // Draw stacked bar chart for GDP contributions - improved spacing and readability
+      const periodScale = d3
+        .scaleBand()
+        .domain(['1980-2008', '2009-2018', '2019-2023'])
+        .range([margin.left + 80, width - margin.right - 80])
+        .padding(0.3)
+
+      const countryScale = d3
+        .scaleBand()
+        .domain(['China', 'US'])
+        .range([0, periodScale.bandwidth()])
+        .padding(0.1)
+
+      // Draw bars with improved labels
+      gdpContributionsData.forEach((d) => {
+        const x = periodScale(d.period) + countryScale(d.country)
+        const barWidth = countryScale.bandwidth()
+
+        // Capital accumulation (dark gray)
+        gdpPanel
+          .append('rect')
+          .attr('x', x)
+          .attr('y', gdpYScale(d.capital))
+          .attr('width', barWidth)
+          .attr('height', gdpYScale(0) - gdpYScale(d.capital))
+          .attr('fill', d.country === 'China' ? '#555555' : '#444444')
+
+        // Labor reallocation (medium gray)
+        gdpPanel
+          .append('rect')
+          .attr('x', x)
+          .attr('y', gdpYScale(d.capital + d.labor))
+          .attr('width', barWidth)
+          .attr('height', gdpYScale(d.capital) - gdpYScale(d.capital + d.labor))
+          .attr('fill', d.country === 'China' ? '#888888' : '#777777')
+
+        // TFP (light blue/red)
+        gdpPanel
+          .append('rect')
+          .attr('x', x)
+          .attr('y', gdpYScale(d.total))
+          .attr('width', barWidth)
+          .attr('height', gdpYScale(d.capital + d.labor) - gdpYScale(d.total))
+          .attr('fill', d.country === 'China' ? '#FF9999' : '#99CCFF')
+
+        // Add value labels - improved visibility
+        // Only add component labels if segment is large enough
+        if (d.capital >= 1.0) {
+          gdpPanel
+            .append('text')
+            .attr('class', 'bar-label')
+            .attr('x', x + barWidth / 2)
+            .attr('y', gdpYScale(d.capital / 2))
+            .attr('fill', 'white')
+            .text(`${d.capital}`)
         }
-        
-        addGridlines(investmentPanel, investmentYScale, [15, 20, 25, 30, 35, 40, 45, 50], topPanelHeight);
-        addGridlines(tfpPanel, tfpYScale, [-2, 0, 2, 4, 6], middlePanelHeight);
-        addGridlines(gdpPanel, gdpYScale, [0, 3, 6, 9, 12], bottomPanelHeight);
-        
-        // Draw investment lines
-        const chinaInvestmentData = investmentData.filter(d => d.country === "China");
-        const usInvestmentData = investmentData.filter(d => d.country === "US");
-        
-        investmentPanel.append("path")
-            .datum(chinaInvestmentData)
-            .attr("class", "china-line")
-            .attr("d", investmentLine);
-        
-        investmentPanel.append("path")
-            .datum(usInvestmentData)
-            .attr("class", "us-line")
-            .attr("d", investmentLine);
-        
-        // Draw TFP lines
-        const chinaTfpData = tfpData.filter(d => d.country === "China");
-        const usTfpData = tfpData.filter(d => d.country === "US");
-        
-        tfpPanel.append("path")
-            .datum(chinaTfpData)
-            .attr("class", "china-line")
-            .attr("d", tfpLine);
-        
-        tfpPanel.append("path")
-            .datum(usTfpData)
-            .attr("class", "us-line")
-            .attr("d", tfpLine);
-        
-        // Add data points at 5-year intervals
-        function addDataPoints(panel, data, yScale, colorClass) {
-            panel.selectAll(`.${colorClass}-point`)
-                .data(data.filter(d => d.year % 5 === 0))
-                .enter()
-                .append("circle")
-                .attr("class", `data-point ${colorClass}-point`)
-                .attr("cx", d => xScale(d.year))
-                .attr("cy", d => yScale(d.value))
-                .attr("r", 4)
-                .attr("fill", colorClass === "china-line" ? "#C6002B" : "#004E8C");
+
+        if (d.labor >= 0.4) {
+          gdpPanel
+            .append('text')
+            .attr('class', 'bar-label')
+            .attr('x', x + barWidth / 2)
+            .attr('y', gdpYScale(d.capital + d.labor / 2))
+            .attr('fill', 'white')
+            .text(`${d.labor}`)
         }
-        
-        addDataPoints(investmentPanel, chinaInvestmentData, investmentYScale, "china-line");
-        addDataPoints(investmentPanel, usInvestmentData, investmentYScale, "us-line");
-        addDataPoints(tfpPanel, chinaTfpData, tfpYScale, "china-line");
-        addDataPoints(tfpPanel, usTfpData, tfpYScale, "us-line");
-        
-        // Draw stacked bar chart for GDP contributions - improved spacing and readability
-        const periodScale = d3.scaleBand()
-            .domain(["1980-2008", "2009-2018", "2019-2023"])
-            .range([margin.left + 80, width - margin.right - 80])
-            .padding(0.3);
-        
-        const countryScale = d3.scaleBand()
-            .domain(["China", "US"])
-            .range([0, periodScale.bandwidth()])
-            .padding(0.1);
-        
-        // Draw bars with improved labels
-        gdpContributionsData.forEach(d => {
-            const x = periodScale(d.period) + countryScale(d.country);
-            const barWidth = countryScale.bandwidth();
-            
-            // Capital accumulation (dark gray)
-            gdpPanel.append("rect")
-                .attr("x", x)
-                .attr("y", gdpYScale(d.capital))
-                .attr("width", barWidth)
-                .attr("height", gdpYScale(0) - gdpYScale(d.capital))
-                .attr("fill", d.country === "China" ? "#555555" : "#444444");
-            
-            // Labor reallocation (medium gray)
-            gdpPanel.append("rect")
-                .attr("x", x)
-                .attr("y", gdpYScale(d.capital + d.labor))
-                .attr("width", barWidth)
-                .attr("height", gdpYScale(d.capital) - gdpYScale(d.capital + d.labor))
-                .attr("fill", d.country === "China" ? "#888888" : "#777777");
-            
-            // TFP (light blue/red)
-            gdpPanel.append("rect")
-                .attr("x", x)
-                .attr("y", gdpYScale(d.total))
-                .attr("width", barWidth)
-                .attr("height", gdpYScale(d.capital + d.labor) - gdpYScale(d.total))
-                .attr("fill", d.country === "China" ? "#FF9999" : "#99CCFF");
-            
-            // Add value labels - improved visibility
-            // Only add component labels if segment is large enough
-            if (d.capital >= 1.0) {
-                gdpPanel.append("text")
-                    .attr("class", "bar-label")
-                    .attr("x", x + barWidth / 2)
-                    .attr("y", gdpYScale(d.capital / 2))
-                    .attr("fill", "white")
-                    .text(`${d.capital}`);
-            }
-            
-            if (d.labor >= 0.4) {
-                gdpPanel.append("text")
-                    .attr("class", "bar-label")
-                    .attr("x", x + barWidth / 2)
-                    .attr("y", gdpYScale(d.capital + d.labor / 2))
-                    .attr("fill", "white")
-                    .text(`${d.labor}`);
-            }
-            
-            if (d.tfp >= 0.7) {
-                gdpPanel.append("text")
-                    .attr("class", "bar-label")
-                    .attr("x", x + barWidth / 2)
-                    .attr("y", gdpYScale(d.capital + d.labor + d.tfp / 2))
-                    .attr("fill", d.country === "China" ? "#800000" : "#000080")
-                    .text(`${d.tfp}`);
-            }
-            
-            // Add total value on top of each bar
-            gdpPanel.append("text")
-                .attr("class", "total-label")
-                .attr("x", x + barWidth / 2)
-                .attr("y", gdpYScale(d.total) - 10)
-                .attr("text-anchor", "middle")
-                .attr("fill", d.country === "China" ? "#C6002B" : "#004E8C")
-                .text(`${d.total}%`);
-            
-            // Add country label below each bar - improved spacing
-            gdpPanel.append("text")
-                .attr("class", "country-label")
-                .attr("x", x + barWidth / 2)
-                .attr("y", bottomPanelHeight + 20)
-                .attr("text-anchor", "middle")
-                .attr("fill", d.country === "China" ? "#C6002B" : "#004E8C")
-                .text(d.country);
-        });
-        
-        // Period labels - improved positioning
-        gdpPanel.selectAll(".period-label")
-            .data(["1980-2008", "2009-2018", "2019-2023"])
-            .enter()
-            .append("text")
-            .attr("class", "period-label")
-            .attr("x", d => periodScale(d) + periodScale.bandwidth() / 2)
-            .attr("y", bottomPanelHeight + 40)
-            .attr("text-anchor", "middle")
-            .text(d => d);
-        
-        // Add key event annotations - improved placement
-        // Only add vertical lines to top two panels
-        function addEventLines(panel, height) {
-            keyEvents.forEach(event => {
-                panel.append("line")
-                    .attr("class", "event-marker")
-                    .attr("x1", xScale(event.year))
-                    .attr("x2", xScale(event.year))
-                    .attr("y1", 0)
-                    .attr("y2", height);
-            });
+
+        if (d.tfp >= 0.7) {
+          gdpPanel
+            .append('text')
+            .attr('class', 'bar-label')
+            .attr('x', x + barWidth / 2)
+            .attr('y', gdpYScale(d.capital + d.labor + d.tfp / 2))
+            .attr('fill', d.country === 'China' ? '#800000' : '#000080')
+            .text(`${d.tfp}`)
         }
-        
-        addEventLines(investmentPanel, topPanelHeight);
-        addEventLines(tfpPanel, middlePanelHeight);
-        
-        // Add event labels only to top panel with better positioning
-        keyEvents.forEach((event, i) => {
-            // Calculate offset to prevent overlap
-            const yPos = 15 + (i * 15);
-            
-            investmentPanel.append("text")
-                .attr("class", "event-label")
-                .attr("x", xScale(event.year))
-                .attr("y", yPos)
-                .attr("text-anchor", "middle")
-                .text(event.event);
-        });
-        
-        // Add legends - improved positioning
-        // Top panel legend
-        const investmentLegend = investmentPanel.append("g")
-            .attr("class", "legend")
-            .attr("transform", `translate(${width - margin.right + 20}, 20)`);
-        
-        investmentLegend.append("line")
-            .attr("x1", 0)
-            .attr("x2", 20)
-            .attr("y1", 0)
-            .attr("y2", 0)
-            .attr("class", "china-line");
-        
-        investmentLegend.append("text")
-            .attr("x", 25)
-            .attr("y", 4)
-            .text("China");
-        
-        investmentLegend.append("line")
-            .attr("x1", 0)
-            .attr("x2", 20)
-            .attr("y1", 20)
-            .attr("y2", 20)
-            .attr("class", "us-line");
-        
-        investmentLegend.append("text")
-            .attr("x", 25)
-            .attr("y", 24)
-            .text("US");
-        
-        // Middle panel legend
-        const tfpLegend = tfpPanel.append("g")
-            .attr("class", "legend")
-            .attr("transform", `translate(${width - margin.right + 20}, 20)`);
-        
-        tfpLegend.append("line")
-            .attr("x1", 0)
-            .attr("x2", 20)
-            .attr("y1", 0)
-            .attr("y2", 0)
-            .attr("class", "china-line");
-        
-        tfpLegend.append("text")
-            .attr("x", 25)
-            .attr("y", 4)
-            .text("China");
-        
-        tfpLegend.append("line")
-            .attr("x1", 0)
-            .attr("x2", 20)
-            .attr("y1", 20)
-            .attr("y2", 20)
-            .attr("class", "us-line");
-        
-        tfpLegend.append("text")
-            .attr("x", 25)
-            .attr("y", 24)
-            .text("US");
-        
-        // Bottom panel legend - moved to side for better space utilization
-        const barLegend = gdpPanel.append("g")
-            .attr("class", "legend")
-            .attr("transform", `translate(${width - margin.right + 20}, 20)`);
-        
-        // Capital
-        barLegend.append("rect")
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", 14)
-            .attr("height", 14)
-            .attr("fill", "#555555");
-        
-        barLegend.append("text")
-            .attr("x", 20)
-            .attr("y", 11)
-            .text("Capital accumulation");
-        
-        // Labor
-        barLegend.append("rect")
-            .attr("x", 0)
-            .attr("y", 25)
-            .attr("width", 14)
-            .attr("height", 14)
-            .attr("fill", "#888888");
-        
-        barLegend.append("text")
-            .attr("x", 20)
-            .attr("y", 36)
-            .text("Labor reallocation");
-        
-        // TFP China
-        barLegend.append("rect")
-            .attr("x", 0)
-            .attr("y", 50)
-            .attr("width", 14)
-            .attr("height", 14)
-            .attr("fill", "#FF9999");
-        
-        barLegend.append("text")
-            .attr("x", 20)
-            .attr("y", 61)
-            .text("TFP (China)");
-        
-        // TFP US
-        barLegend.append("rect")
-            .attr("x", 0)
-            .attr("y", 75)
-            .attr("width", 14)
-            .attr("height", 14)
-            .attr("fill", "#99CCFF");
-        
-        barLegend.append("text")
-            .attr("x", 20)
-            .attr("y", 86)
-            .text("TFP (US)");
-        
-        // Add annotation box - moved to right side to avoid data overlap
-        const annotationBox = svg.append("rect")
-            .attr("class", "annotation-box")
-            .attr("x", width - margin.right - 320)
-            .attr("y", margin.top + 50)
-            .attr("width", 300)
-            .attr("height", 90);
-        
-        const annotationText = svg.append("text")
-            .attr("class", "annotation-box-text")
-            .attr("x", width - margin.right - 310)
-            .attr("y", margin.top + 70);
-        
-        annotationText.append("tspan")
-            .attr("x", width - margin.right - 310)
-            .attr("dy", 0)
-            .text("China's growth has been primarily investment-driven,");
-        
-        annotationText.append("tspan")
-            .attr("x", width - margin.right - 310)
-            .attr("dy", 18)
-            .text("with diminishing returns evident in falling TFP");
-        
-        annotationText.append("tspan")
-            .attr("x", width - margin.right - 310)
-            .attr("dy", 18)
-            .text("contribution over time. The US maintains steady but");
-        
-        annotationText.append("tspan")
-            .attr("x", width - margin.right - 310)
-            .attr("dy", 18)
-            .text("lower investment rates with more consistent productivity.");
+
+        // Add total value on top of each bar
+        gdpPanel
+          .append('text')
+          .attr('class', 'total-label')
+          .attr('x', x + barWidth / 2)
+          .attr('y', gdpYScale(d.total) - 10)
+          .attr('text-anchor', 'middle')
+          .attr('fill', d.country === 'China' ? '#C6002B' : '#004E8C')
+          .text(`${d.total}%`)
+
+        // Add country label below each bar - improved spacing
+        gdpPanel
+          .append('text')
+          .attr('class', 'country-label')
+          .attr('x', x + barWidth / 2)
+          .attr('y', bottomPanelHeight + 20)
+          .attr('text-anchor', 'middle')
+          .attr('fill', d.country === 'China' ? '#C6002B' : '#004E8C')
+          .text(d.country)
+      })
+
+      // Period labels - improved positioning
+      gdpPanel
+        .selectAll('.period-label')
+        .data(['1980-2008', '2009-2018', '2019-2023'])
+        .enter()
+        .append('text')
+        .attr('class', 'period-label')
+        .attr('x', (d) => periodScale(d) + periodScale.bandwidth() / 2)
+        .attr('y', bottomPanelHeight + 40)
+        .attr('text-anchor', 'middle')
+        .text((d) => d)
+
+      // Add key event annotations - improved placement
+      // Only add vertical lines to top two panels
+      function addEventLines(panel, height) {
+        keyEvents.forEach((event) => {
+          panel
+            .append('line')
+            .attr('class', 'event-marker')
+            .attr('x1', xScale(event.year))
+            .attr('x2', xScale(event.year))
+            .attr('y1', 0)
+            .attr('y2', height)
+        })
+      }
+
+      addEventLines(investmentPanel, topPanelHeight)
+      addEventLines(tfpPanel, middlePanelHeight)
+
+      // Add event labels only to top panel with better positioning
+      keyEvents.forEach((event, i) => {
+        // Calculate offset to prevent overlap
+        const yPos = 15 + i * 15
+
+        investmentPanel
+          .append('text')
+          .attr('class', 'event-label')
+          .attr('x', xScale(event.year))
+          .attr('y', yPos)
+          .attr('text-anchor', 'middle')
+          .text(event.event)
+      })
+
+      // Add legends - improved positioning
+      // Top panel legend
+      const investmentLegend = investmentPanel
+        .append('g')
+        .attr('class', 'legend')
+        .attr('transform', `translate(${width - margin.right + 20}, 20)`)
+
+      investmentLegend
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', 20)
+        .attr('y1', 0)
+        .attr('y2', 0)
+        .attr('class', 'china-line')
+
+      investmentLegend.append('text').attr('x', 25).attr('y', 4).text('China')
+
+      investmentLegend
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', 20)
+        .attr('y1', 20)
+        .attr('y2', 20)
+        .attr('class', 'us-line')
+
+      investmentLegend.append('text').attr('x', 25).attr('y', 24).text('US')
+
+      // Middle panel legend
+      const tfpLegend = tfpPanel
+        .append('g')
+        .attr('class', 'legend')
+        .attr('transform', `translate(${width - margin.right + 20}, 20)`)
+
+      tfpLegend
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', 20)
+        .attr('y1', 0)
+        .attr('y2', 0)
+        .attr('class', 'china-line')
+
+      tfpLegend.append('text').attr('x', 25).attr('y', 4).text('China')
+
+      tfpLegend
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', 20)
+        .attr('y1', 20)
+        .attr('y2', 20)
+        .attr('class', 'us-line')
+
+      tfpLegend.append('text').attr('x', 25).attr('y', 24).text('US')
+
+      // Bottom panel legend - moved to side for better space utilization
+      const barLegend = gdpPanel
+        .append('g')
+        .attr('class', 'legend')
+        .attr('transform', `translate(${width - margin.right + 20}, 20)`)
+
+      // Capital
+      barLegend
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', 14)
+        .attr('height', 14)
+        .attr('fill', '#555555')
+
+      barLegend.append('text').attr('x', 20).attr('y', 11).text('Capital accumulation')
+
+      // Labor
+      barLegend
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', 25)
+        .attr('width', 14)
+        .attr('height', 14)
+        .attr('fill', '#888888')
+
+      barLegend.append('text').attr('x', 20).attr('y', 36).text('Labor reallocation')
+
+      // TFP China
+      barLegend
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', 50)
+        .attr('width', 14)
+        .attr('height', 14)
+        .attr('fill', '#FF9999')
+
+      barLegend.append('text').attr('x', 20).attr('y', 61).text('TFP (China)')
+
+      // TFP US
+      barLegend
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', 75)
+        .attr('width', 14)
+        .attr('height', 14)
+        .attr('fill', '#99CCFF')
+
+      barLegend.append('text').attr('x', 20).attr('y', 86).text('TFP (US)')
+
+      // Add annotation box - moved to right side to avoid data overlap
+      const annotationBox = svg
+        .append('rect')
+        .attr('class', 'annotation-box')
+        .attr('x', width - margin.right - 320)
+        .attr('y', margin.top + 50)
+        .attr('width', 300)
+        .attr('height', 90)
+
+      const annotationText = svg
+        .append('text')
+        .attr('class', 'annotation-box-text')
+        .attr('x', width - margin.right - 310)
+        .attr('y', margin.top + 70)
+
+      annotationText
+        .append('tspan')
+        .attr('x', width - margin.right - 310)
+        .attr('dy', 0)
+        .text("China's growth has been primarily investment-driven,")
+
+      annotationText
+        .append('tspan')
+        .attr('x', width - margin.right - 310)
+        .attr('dy', 18)
+        .text('with diminishing returns evident in falling TFP')
+
+      annotationText
+        .append('tspan')
+        .attr('x', width - margin.right - 310)
+        .attr('dy', 18)
+        .text('contribution over time. The US maintains steady but')
+
+      annotationText
+        .append('tspan')
+        .attr('x', width - margin.right - 310)
+        .attr('dy', 18)
+        .text('lower investment rates with more consistent productivity.')
     </script>
-</body>
+  </body>
 </html>

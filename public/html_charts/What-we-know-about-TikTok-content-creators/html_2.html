@@ -1,479 +1,517 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Influencer Tier Performance Dashboard</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #ffffff;
-        }
-        
-        .visualization-container {
-            width: 1000px;
-            height: 650px;
-            margin: 0 auto;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        
-        .title {
-            font-size: 18pt;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 12pt;
-            text-align: center;
-            margin-bottom: 25px;
-            color: #555;
-        }
-        
-        .panel-title {
-            font-size: 13pt;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        
-        .panel-container {
-            display: flex;
-            justify-content: space-between;
-            height: 480px;
-        }
-        
-        .left-panel, .right-panel {
-            background-color: #ffffff;
-            border-radius: 5px;
-        }
-        
-        .left-panel {
-            width: 48%;
-        }
-        
-        .right-panel {
-            width: 48%;
-        }
-        
-        .source {
-            font-size: 8pt;
-            color: #777;
-            text-align: center;
-            margin-top: 15px;
-        }
-        
-        .axis-label {
-            font-size: 10pt;
-            font-weight: 600;
-        }
-        
-        .value-label {
-            font-size: 10pt;
-            text-anchor: middle;
-        }
-        
-        .highlight-value {
-            font-family: 'Georgia', serif;
-            font-size: 12pt;
-            font-weight: bold;
-        }
-        
-        .legend {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 0 10px;
-        }
-        
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            margin-right: 5px;
-        }
-        
-        .legend-text {
-            font-size: 9pt;
-        }
-        
-        .annotation {
-            font-size: 10pt;
-            font-weight: bold;
-            fill: #00B79A;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-opacity: 0.7;
-            shape-rendering: crispEdges;
-        }
-        
-        .cost-label {
-            font-size: 8pt;
-            fill: #333;
-        }
-        
-        .platform-label {
-            font-size: 9pt;
-            text-anchor: middle;
-        }
-        
-        .tier-label {
-            font-size: 10pt;
-            font-weight: 600;
-            text-anchor: middle;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff;
+      }
+
+      .visualization-container {
+        width: 1000px;
+        height: 650px;
+        margin: 0 auto;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      .title {
+        font-size: 18pt;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 12pt;
+        text-align: center;
+        margin-bottom: 25px;
+        color: #555;
+      }
+
+      .panel-title {
+        font-size: 13pt;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 15px;
+      }
+
+      .panel-container {
+        display: flex;
+        justify-content: space-between;
+        height: 480px;
+      }
+
+      .left-panel,
+      .right-panel {
+        background-color: #ffffff;
+        border-radius: 5px;
+      }
+
+      .left-panel {
+        width: 48%;
+      }
+
+      .right-panel {
+        width: 48%;
+      }
+
+      .source {
+        font-size: 8pt;
+        color: #777;
+        text-align: center;
+        margin-top: 15px;
+      }
+
+      .axis-label {
+        font-size: 10pt;
+        font-weight: 600;
+      }
+
+      .value-label {
+        font-size: 10pt;
+        text-anchor: middle;
+      }
+
+      .highlight-value {
+        font-family: 'Georgia', serif;
+        font-size: 12pt;
+        font-weight: bold;
+      }
+
+      .legend {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin: 0 10px;
+      }
+
+      .legend-color {
+        width: 12px;
+        height: 12px;
+        margin-right: 5px;
+      }
+
+      .legend-text {
+        font-size: 9pt;
+      }
+
+      .annotation {
+        font-size: 10pt;
+        font-weight: bold;
+        fill: #00b79a;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+      }
+
+      .cost-label {
+        font-size: 8pt;
+        fill: #333;
+      }
+
+      .platform-label {
+        font-size: 9pt;
+        text-anchor: middle;
+      }
+
+      .tier-label {
+        font-size: 10pt;
+        font-weight: 600;
+        text-anchor: middle;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Influencer Tier Performance: Engagement & ROI Metrics</div>
-        <div class="subtitle">Comparison of Engagement Rates and Return on Investment Across Influencer Categories</div>
-        
-        <div class="panel-container">
-            <div class="left-panel" id="engagement-chart"></div>
-            <div class="right-panel" id="roi-chart"></div>
-        </div>
-        
-        <div class="source">Sources: SocialMotto (citing Upfluence), The Cirqle, Later, Influencer Marketing Hub, 2024-2025</div>
+      <div class="title">Influencer Tier Performance: Engagement & ROI Metrics</div>
+      <div class="subtitle">
+        Comparison of Engagement Rates and Return on Investment Across Influencer Categories
+      </div>
+
+      <div class="panel-container">
+        <div class="left-panel" id="engagement-chart"></div>
+        <div class="right-panel" id="roi-chart"></div>
+      </div>
+
+      <div class="source">
+        Sources: SocialMotto (citing Upfluence), The Cirqle, Later, Influencer Marketing Hub,
+        2024-2025
+      </div>
     </div>
 
     <script>
-        // Data for the left panel (engagement rates)
-        const engagementData = [
-            { tier: "Micro-influencers", platform: "TikTok", rate: 17.96 },
-            { tier: "Micro-influencers", platform: "Instagram", rate: 3.86 },
-            { tier: "Micro-influencers", platform: "YouTube", rate: 1.63 },
-            { tier: "Celebrity influencers", platform: "TikTok", rate: 4.96 },
-            { tier: "Celebrity influencers", platform: "Instagram", rate: 1.21 },
-            { tier: "Celebrity influencers", platform: "YouTube", rate: 0.37 }
-        ];
+      // Data for the left panel (engagement rates)
+      const engagementData = [
+        { tier: 'Micro-influencers', platform: 'TikTok', rate: 17.96 },
+        { tier: 'Micro-influencers', platform: 'Instagram', rate: 3.86 },
+        { tier: 'Micro-influencers', platform: 'YouTube', rate: 1.63 },
+        { tier: 'Celebrity influencers', platform: 'TikTok', rate: 4.96 },
+        { tier: 'Celebrity influencers', platform: 'Instagram', rate: 1.21 },
+        { tier: 'Celebrity influencers', platform: 'YouTube', rate: 0.37 },
+      ]
 
-        // Data for the right panel (ROI and costs)
-        const roiData = [
-            { tier: "Nano/Micro (10K-250K)", roi: 2.5, cost: "$100-500 per post" },
-            { tier: "Mid-tier (250K-1M)", roi: 2.0, cost: "$500-5K per post" },
-            { tier: "Macro (1M-10M)", roi: 2.1, cost: "$5K-20K per post" },
-            { tier: "Celebrity (10M+)", roi: 1.7, cost: "$20K-750K per post" }
-        ];
+      // Data for the right panel (ROI and costs)
+      const roiData = [
+        { tier: 'Nano/Micro (10K-250K)', roi: 2.5, cost: '$100-500 per post' },
+        { tier: 'Mid-tier (250K-1M)', roi: 2.0, cost: '$500-5K per post' },
+        { tier: 'Macro (1M-10M)', roi: 2.1, cost: '$5K-20K per post' },
+        { tier: 'Celebrity (10M+)', roi: 1.7, cost: '$20K-750K per post' },
+      ]
 
-        // Platform colors
-        const platformColors = {
-            "TikTok": "#009FE3",
-            "Instagram": "#F58534",
-            "YouTube": "#8E44AD"
-        };
+      // Platform colors
+      const platformColors = {
+        TikTok: '#009FE3',
+        Instagram: '#F58534',
+        YouTube: '#8E44AD',
+      }
 
-        // Create the left panel chart (engagement rates)
-        function createEngagementChart() {
-            const margin = { top: 50, right: 30, bottom: 120, left: 60 };
-            const width = document.querySelector('.left-panel').clientWidth - margin.left - margin.right;
-            const height = document.querySelector('.left-panel').clientHeight - margin.top - margin.bottom;
+      // Create the left panel chart (engagement rates)
+      function createEngagementChart() {
+        const margin = { top: 50, right: 30, bottom: 120, left: 60 }
+        const width = document.querySelector('.left-panel').clientWidth - margin.left - margin.right
+        const height =
+          document.querySelector('.left-panel').clientHeight - margin.top - margin.bottom
 
-            // Create SVG
-            const svg = d3.select("#engagement-chart")
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
+        // Create SVG
+        const svg = d3
+          .select('#engagement-chart')
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`)
 
-            // Add panel title with more space
-            svg.append("text")
-                .attr("class", "panel-title")
-                .attr("x", width / 2)
-                .attr("y", -25)
-                .attr("text-anchor", "middle")
-                .text("Average Engagement Rate (%) by Influencer Tier & Platform");
+        // Add panel title with more space
+        svg
+          .append('text')
+          .attr('class', 'panel-title')
+          .attr('x', width / 2)
+          .attr('y', -25)
+          .attr('text-anchor', 'middle')
+          .text('Average Engagement Rate (%) by Influencer Tier & Platform')
 
-            // Get unique tiers and platforms
-            const tiers = [...new Set(engagementData.map(d => d.tier))];
-            const platforms = [...new Set(engagementData.map(d => d.platform))];
+        // Get unique tiers and platforms
+        const tiers = [...new Set(engagementData.map((d) => d.tier))]
+        const platforms = [...new Set(engagementData.map((d) => d.platform))]
 
-            // X scale for tiers
-            const x0 = d3.scaleBand()
-                .domain(tiers)
-                .rangeRound([0, width])
-                .paddingInner(0.3);
+        // X scale for tiers
+        const x0 = d3.scaleBand().domain(tiers).rangeRound([0, width]).paddingInner(0.3)
 
-            // X scale for platforms within tiers
-            const x1 = d3.scaleBand()
-                .domain(platforms)
-                .rangeRound([0, x0.bandwidth()])
-                .padding(0.1);
+        // X scale for platforms within tiers
+        const x1 = d3.scaleBand().domain(platforms).rangeRound([0, x0.bandwidth()]).padding(0.1)
 
-            // Y scale for engagement rates
-            const y = d3.scaleLinear()
-                .domain([0, 20])
-                .range([height, 0]);
+        // Y scale for engagement rates
+        const y = d3.scaleLinear().domain([0, 20]).range([height, 0])
 
-            // Add gridlines
-            svg.append("g")
-                .attr("class", "grid")
-                .call(d3.axisLeft(y)
-                    .tickSize(-width)
-                    .tickFormat("")
-                    .ticks(5)
-                );
+        // Add gridlines
+        svg
+          .append('g')
+          .attr('class', 'grid')
+          .call(d3.axisLeft(y).tickSize(-width).tickFormat('').ticks(5))
 
-            // Add X axis for tiers
-            svg.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x0).tickSize(0))
-                .selectAll("text")
-                .attr("class", "tier-label")
-                .attr("y", 15)
-                .attr("dy", ".71em");
+        // Add X axis for tiers
+        svg
+          .append('g')
+          .attr('transform', `translate(0,${height})`)
+          .call(d3.axisBottom(x0).tickSize(0))
+          .selectAll('text')
+          .attr('class', 'tier-label')
+          .attr('y', 15)
+          .attr('dy', '.71em')
 
-            // Add Y axis
-            svg.append("g")
-                .call(d3.axisLeft(y)
-                    .tickFormat(d => d + "%")
-                    .ticks(5)
-                );
+        // Add Y axis
+        svg.append('g').call(
+          d3
+            .axisLeft(y)
+            .tickFormat((d) => d + '%')
+            .ticks(5)
+        )
 
-            // Create the grouped bars
-            const tierGroups = svg.selectAll(".tier-group")
-                .data(tiers)
-                .enter().append("g")
-                .attr("class", "tier-group")
-                .attr("transform", d => `translate(${x0(d)},0)`);
+        // Create the grouped bars
+        const tierGroups = svg
+          .selectAll('.tier-group')
+          .data(tiers)
+          .enter()
+          .append('g')
+          .attr('class', 'tier-group')
+          .attr('transform', (d) => `translate(${x0(d)},0)`)
 
-            // Add bars for each platform within each tier
-            tierGroups.selectAll(".bar")
-                .data(tier => platforms.map(platform => {
-                    const match = engagementData.find(d => d.tier === tier && d.platform === platform);
-                    return {
-                        tier: tier,
-                        platform: platform,
-                        rate: match ? match.rate : 0
-                    };
-                }))
-                .enter().append("rect")
-                .attr("class", "bar")
-                .attr("x", d => x1(d.platform))
-                .attr("y", d => y(d.rate))
-                .attr("width", x1.bandwidth())
-                .attr("height", d => height - y(d.rate))
-                .attr("fill", d => platformColors[d.platform]);
+        // Add bars for each platform within each tier
+        tierGroups
+          .selectAll('.bar')
+          .data((tier) =>
+            platforms.map((platform) => {
+              const match = engagementData.find((d) => d.tier === tier && d.platform === platform)
+              return {
+                tier: tier,
+                platform: platform,
+                rate: match ? match.rate : 0,
+              }
+            })
+          )
+          .enter()
+          .append('rect')
+          .attr('class', 'bar')
+          .attr('x', (d) => x1(d.platform))
+          .attr('y', (d) => y(d.rate))
+          .attr('width', x1.bandwidth())
+          .attr('height', (d) => height - y(d.rate))
+          .attr('fill', (d) => platformColors[d.platform])
 
-            // Add value labels on top of bars
-            tierGroups.selectAll(".value-label")
-                .data(tier => platforms.map(platform => {
-                    const match = engagementData.find(d => d.tier === tier && d.platform === platform);
-                    return {
-                        tier: tier,
-                        platform: platform,
-                        rate: match ? match.rate : 0
-                    };
-                }))
-                .enter().append("text")
-                .attr("class", d => d.platform === "TikTok" && d.tier === "Micro-influencers" ? "value-label highlight-value" : "value-label")
-                .attr("x", d => x1(d.platform) + x1.bandwidth() / 2)
-                .attr("y", d => y(d.rate) - 5)
-                .attr("text-anchor", "middle")
-                .text(d => d.rate.toFixed(2) + "%");
+        // Add value labels on top of bars
+        tierGroups
+          .selectAll('.value-label')
+          .data((tier) =>
+            platforms.map((platform) => {
+              const match = engagementData.find((d) => d.tier === tier && d.platform === platform)
+              return {
+                tier: tier,
+                platform: platform,
+                rate: match ? match.rate : 0,
+              }
+            })
+          )
+          .enter()
+          .append('text')
+          .attr('class', (d) =>
+            d.platform === 'TikTok' && d.tier === 'Micro-influencers'
+              ? 'value-label highlight-value'
+              : 'value-label'
+          )
+          .attr('x', (d) => x1(d.platform) + x1.bandwidth() / 2)
+          .attr('y', (d) => y(d.rate) - 5)
+          .attr('text-anchor', 'middle')
+          .text((d) => d.rate.toFixed(2) + '%')
 
-            // Add platform labels with improved spacing
-            tiers.forEach(tier => {
-                const tierX = x0(tier);
-                
-                platforms.forEach(platform => {
-                    const platformX = tierX + x1(platform) + x1.bandwidth() / 2;
-                    
-                    svg.append("text")
-                        .attr("class", "platform-label")
-                        .attr("x", platformX)
-                        .attr("y", height + 45) // Increased spacing
-                        .attr("text-anchor", "middle")
-                        .text(platform);
-                });
-            });
+        // Add platform labels with improved spacing
+        tiers.forEach((tier) => {
+          const tierX = x0(tier)
 
-            // Add tier labels below platform labels
-            tiers.forEach(tier => {
-                svg.append("text")
-                    .attr("class", "tier-label")
-                    .attr("x", x0(tier) + x0.bandwidth() / 2)
-                    .attr("y", height + 70) // Position below platform labels
-                    .attr("text-anchor", "middle")
-                    .text(tier);
-            });
+          platforms.forEach((platform) => {
+            const platformX = tierX + x1(platform) + x1.bandwidth() / 2
 
-            // Add legend with improved spacing
-            const legendHeight = 20;
-            const legendWidth = 300;
-            const legend = svg.append("g")
-                .attr("class", "legend")
-                .attr("transform", `translate(${(width - legendWidth) / 2},${height + 90})`);
+            svg
+              .append('text')
+              .attr('class', 'platform-label')
+              .attr('x', platformX)
+              .attr('y', height + 45) // Increased spacing
+              .attr('text-anchor', 'middle')
+              .text(platform)
+          })
+        })
 
-            platforms.forEach((platform, i) => {
-                const legendItem = legend.append("g")
-                    .attr("transform", `translate(${i * (legendWidth / 3)}, 0)`);
-                
-                legendItem.append("rect")
-                    .attr("width", 12)
-                    .attr("height", 12)
-                    .attr("fill", platformColors[platform]);
-                
-                legendItem.append("text")
-                    .attr("x", 16)
-                    .attr("y", 10)
-                    .attr("class", "legend-text")
-                    .text(platform);
-            });
-        }
+        // Add tier labels below platform labels
+        tiers.forEach((tier) => {
+          svg
+            .append('text')
+            .attr('class', 'tier-label')
+            .attr('x', x0(tier) + x0.bandwidth() / 2)
+            .attr('y', height + 70) // Position below platform labels
+            .attr('text-anchor', 'middle')
+            .text(tier)
+        })
 
-        // Create the right panel chart (ROI and costs)
-        function createRoiChart() {
-            const margin = { top: 50, right: 30, bottom: 120, left: 60 };
-            const width = document.querySelector('.right-panel').clientWidth - margin.left - margin.right;
-            const height = document.querySelector('.right-panel').clientHeight - margin.top - margin.bottom;
+        // Add legend with improved spacing
+        const legendHeight = 20
+        const legendWidth = 300
+        const legend = svg
+          .append('g')
+          .attr('class', 'legend')
+          .attr('transform', `translate(${(width - legendWidth) / 2},${height + 90})`)
 
-            // Create SVG
-            const svg = d3.select("#roi-chart")
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
+        platforms.forEach((platform, i) => {
+          const legendItem = legend
+            .append('g')
+            .attr('transform', `translate(${i * (legendWidth / 3)}, 0)`)
 
-            // Add panel title with more space
-            svg.append("text")
-                .attr("class", "panel-title")
-                .attr("x", width / 2)
-                .attr("y", -25)
-                .attr("text-anchor", "middle")
-                .text("ROI Comparison by Influencer Tier (TikTok)");
+          legendItem
+            .append('rect')
+            .attr('width', 12)
+            .attr('height', 12)
+            .attr('fill', platformColors[platform])
 
-            // X scale for tiers with more padding
-            const x = d3.scaleBand()
-                .domain(roiData.map(d => d.tier))
-                .range([0, width])
-                .padding(0.4); // Increased padding for better spacing
+          legendItem
+            .append('text')
+            .attr('x', 16)
+            .attr('y', 10)
+            .attr('class', 'legend-text')
+            .text(platform)
+        })
+      }
 
-            // Y scale for ROI
-            const y = d3.scaleLinear()
-                .domain([0, 3.0])
-                .range([height, 0]);
+      // Create the right panel chart (ROI and costs)
+      function createRoiChart() {
+        const margin = { top: 50, right: 30, bottom: 120, left: 60 }
+        const width =
+          document.querySelector('.right-panel').clientWidth - margin.left - margin.right
+        const height =
+          document.querySelector('.right-panel').clientHeight - margin.top - margin.bottom
 
-            // Add gridlines
-            svg.append("g")
-                .attr("class", "grid")
-                .call(d3.axisLeft(y)
-                    .tickSize(-width)
-                    .tickFormat("")
-                    .ticks(6)
-                );
+        // Create SVG
+        const svg = d3
+          .select('#roi-chart')
+          .append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`)
 
-            // Add X axis with improved label positioning
-            const xAxis = svg.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x).tickSize(0));
-                
-            xAxis.selectAll("text")
-                .attr("class", "axis-label")
-                .attr("y", 12)
-                .attr("x", 0)
-                .attr("dy", ".71em")
-                .attr("transform", "rotate(-40)")
-                .style("text-anchor", "end");
+        // Add panel title with more space
+        svg
+          .append('text')
+          .attr('class', 'panel-title')
+          .attr('x', width / 2)
+          .attr('y', -25)
+          .attr('text-anchor', 'middle')
+          .text('ROI Comparison by Influencer Tier (TikTok)')
 
-            // Add Y axis
-            svg.append("g")
-                .call(d3.axisLeft(y)
-                    .tickFormat(d => d + "x")
-                    .ticks(6)
-                );
+        // X scale for tiers with more padding
+        const x = d3
+          .scaleBand()
+          .domain(roiData.map((d) => d.tier))
+          .range([0, width])
+          .padding(0.4) // Increased padding for better spacing
 
-            // Create the bars
-            svg.selectAll(".bar")
-                .data(roiData)
-                .enter().append("rect")
-                .attr("class", "bar")
-                .attr("x", d => x(d.tier))
-                .attr("y", d => y(d.roi))
-                .attr("width", x.bandwidth())
-                .attr("height", d => height - y(d.roi))
-                .attr("fill", "#00B79A");
+        // Y scale for ROI
+        const y = d3.scaleLinear().domain([0, 3.0]).range([height, 0])
 
-            // Add ROI value labels on top of bars
-            svg.selectAll(".roi-label")
-                .data(roiData)
-                .enter().append("text")
-                .attr("class", d => d.tier === "Nano/Micro (10K-250K)" ? "value-label highlight-value" : "value-label")
-                .attr("x", d => x(d.tier) + x.bandwidth() / 2)
-                .attr("y", d => y(d.roi) - 10)
-                .attr("text-anchor", "middle")
-                .text(d => d.roi.toFixed(1) + "x ROI");
+        // Add gridlines
+        svg
+          .append('g')
+          .attr('class', 'grid')
+          .call(d3.axisLeft(y).tickSize(-width).tickFormat('').ticks(6))
 
-            // Add cost labels with improved positioning
-            svg.selectAll(".cost-label")
-                .data(roiData)
-                .enter().append("text")
-                .attr("class", "cost-label")
-                .attr("x", d => x(d.tier) + x.bandwidth() / 2)
-                .attr("y", d => {
-                    // Adjust vertical position based on bar height
-                    const barHeight = height - y(d.roi);
-                    // For shorter bars, position text lower in the bar
-                    return y(d.roi) + Math.min(barHeight - 5, barHeight * 0.7);
-                })
-                .attr("text-anchor", "middle")
-                .text(d => d.cost);
+        // Add X axis with improved label positioning
+        const xAxis = svg
+          .append('g')
+          .attr('transform', `translate(0,${height})`)
+          .call(d3.axisBottom(x).tickSize(0))
 
-            // Add annotation for 30% better ROI with improved positioning
-            svg.append("defs").append("marker")
-                .attr("id", "arrowhead")
-                .attr("viewBox", "0 -5 10 10")
-                .attr("refX", 5)
-                .attr("refY", 0)
-                .attr("markerWidth", 6)
-                .attr("markerHeight", 6)
-                .attr("orient", "auto")
-                .append("path")
-                .attr("d", "M0,-5L10,0L0,5")
-                .attr("fill", "#00B79A");
+        xAxis
+          .selectAll('text')
+          .attr('class', 'axis-label')
+          .attr('y', 12)
+          .attr('x', 0)
+          .attr('dy', '.71em')
+          .attr('transform', 'rotate(-40)')
+          .style('text-anchor', 'end')
 
-            // Position for the first bar (Nano/Micro)
-            const firstBarX = x("Nano/Micro (10K-250K)") + x.bandwidth() / 2;
-            const firstBarY = y(2.5);
-            
-            // Add the annotation text
-            svg.append("text")
-                .attr("class", "annotation")
-                .attr("x", firstBarX)
-                .attr("y", firstBarY - 45)
-                .attr("text-anchor", "middle")
-                .text("30% better ROI than larger tiers");
-                
-            // Add the arrow connecting annotation to bar
-            svg.append("line")
-                .attr("x1", firstBarX)
-                .attr("y1", firstBarY - 30)
-                .attr("x2", firstBarX)
-                .attr("y2", firstBarY - 5)
-                .attr("stroke", "#00B79A")
-                .attr("stroke-width", 2)
-                .attr("marker-end", "url(#arrowhead)");
-        }
+        // Add Y axis
+        svg.append('g').call(
+          d3
+            .axisLeft(y)
+            .tickFormat((d) => d + 'x')
+            .ticks(6)
+        )
 
-        // Initialize charts when the page loads
-        document.addEventListener("DOMContentLoaded", function() {
-            createEngagementChart();
-            createRoiChart();
-        });
+        // Create the bars
+        svg
+          .selectAll('.bar')
+          .data(roiData)
+          .enter()
+          .append('rect')
+          .attr('class', 'bar')
+          .attr('x', (d) => x(d.tier))
+          .attr('y', (d) => y(d.roi))
+          .attr('width', x.bandwidth())
+          .attr('height', (d) => height - y(d.roi))
+          .attr('fill', '#00B79A')
+
+        // Add ROI value labels on top of bars
+        svg
+          .selectAll('.roi-label')
+          .data(roiData)
+          .enter()
+          .append('text')
+          .attr('class', (d) =>
+            d.tier === 'Nano/Micro (10K-250K)' ? 'value-label highlight-value' : 'value-label'
+          )
+          .attr('x', (d) => x(d.tier) + x.bandwidth() / 2)
+          .attr('y', (d) => y(d.roi) - 10)
+          .attr('text-anchor', 'middle')
+          .text((d) => d.roi.toFixed(1) + 'x ROI')
+
+        // Add cost labels with improved positioning
+        svg
+          .selectAll('.cost-label')
+          .data(roiData)
+          .enter()
+          .append('text')
+          .attr('class', 'cost-label')
+          .attr('x', (d) => x(d.tier) + x.bandwidth() / 2)
+          .attr('y', (d) => {
+            // Adjust vertical position based on bar height
+            const barHeight = height - y(d.roi)
+            // For shorter bars, position text lower in the bar
+            return y(d.roi) + Math.min(barHeight - 5, barHeight * 0.7)
+          })
+          .attr('text-anchor', 'middle')
+          .text((d) => d.cost)
+
+        // Add annotation for 30% better ROI with improved positioning
+        svg
+          .append('defs')
+          .append('marker')
+          .attr('id', 'arrowhead')
+          .attr('viewBox', '0 -5 10 10')
+          .attr('refX', 5)
+          .attr('refY', 0)
+          .attr('markerWidth', 6)
+          .attr('markerHeight', 6)
+          .attr('orient', 'auto')
+          .append('path')
+          .attr('d', 'M0,-5L10,0L0,5')
+          .attr('fill', '#00B79A')
+
+        // Position for the first bar (Nano/Micro)
+        const firstBarX = x('Nano/Micro (10K-250K)') + x.bandwidth() / 2
+        const firstBarY = y(2.5)
+
+        // Add the annotation text
+        svg
+          .append('text')
+          .attr('class', 'annotation')
+          .attr('x', firstBarX)
+          .attr('y', firstBarY - 45)
+          .attr('text-anchor', 'middle')
+          .text('30% better ROI than larger tiers')
+
+        // Add the arrow connecting annotation to bar
+        svg
+          .append('line')
+          .attr('x1', firstBarX)
+          .attr('y1', firstBarY - 30)
+          .attr('x2', firstBarX)
+          .attr('y2', firstBarY - 5)
+          .attr('stroke', '#00B79A')
+          .attr('stroke-width', 2)
+          .attr('marker-end', 'url(#arrowhead)')
+      }
+
+      // Initialize charts when the page loads
+      document.addEventListener('DOMContentLoaded', function () {
+        createEngagementChart()
+        createRoiChart()
+      })
     </script>
-</body>
+  </body>
 </html>

@@ -1,268 +1,289 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Economic Drivers of Air Pollution</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        .visualization-container {
-            width: 800px;
-            background-color: white;
-            padding: 20px;
-        }
-        
-        .title {
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 13px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 30px;
-            color: #555;
-        }
-        
-        .bar-label {
-            font-size: 11px;
-            fill: #333;
-        }
-        
-        .value-label {
-            font-size: 10px;
-            fill: #333;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            font-size: 11px;
-        }
-        
-        .statistical-note {
-            font-size: 10px;
-            text-align: center;
-            color: #666;
-            margin-top: 30px;
-        }
-        
-        .source {
-            font-size: 10px;
-            text-align: right;
-            color: #666;
-            margin-top: 10px;
-        }
-        
-        .grid-line {
-            stroke: #e0e0e0;
-            stroke-width: 1px;
-        }
-        
-        .zero-line {
-            stroke: #A0A0A0;
-            stroke-width: 1.5px;
-        }
-        
-        .reference-line {
-            stroke: #d0d0d0;
-            stroke-width: 1px;
-        }
-        
-        .category-label {
-            font-size: 12px;
-            font-weight: bold;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .visualization-container {
+        width: 800px;
+        background-color: white;
+        padding: 20px;
+      }
+
+      .title {
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 13px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 30px;
+        color: #555;
+      }
+
+      .bar-label {
+        font-size: 11px;
+        fill: #333;
+      }
+
+      .value-label {
+        font-size: 10px;
+        fill: #333;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        font-size: 11px;
+      }
+
+      .statistical-note {
+        font-size: 10px;
+        text-align: center;
+        color: #666;
+        margin-top: 30px;
+      }
+
+      .source {
+        font-size: 10px;
+        text-align: right;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .grid-line {
+        stroke: #e0e0e0;
+        stroke-width: 1px;
+      }
+
+      .zero-line {
+        stroke: #a0a0a0;
+        stroke-width: 1.5px;
+      }
+
+      .reference-line {
+        stroke: #d0d0d0;
+        stroke-width: 1px;
+      }
+
+      .category-label {
+        font-size: 12px;
+        font-weight: bold;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Economic Drivers of Air Pollution Trends in the Mediterranean Region</div>
-        <div class="subtitle">Percentage change in emissions for each 1% increase in factor, 1995-2016</div>
-        
-        <svg id="chart"></svg>
-        
-        <div class="statistical-note">All relationships statistically significant at p<0.05 level</div>
-        <div class="source">Source: Gyamfi et al., 2021, Energy Reports 7:6119–6129</div>
+      <div class="title">Economic Drivers of Air Pollution Trends in the Mediterranean Region</div>
+      <div class="subtitle">
+        Percentage change in emissions for each 1% increase in factor, 1995-2016
+      </div>
+
+      <svg id="chart"></svg>
+
+      <div class="statistical-note">
+        All relationships statistically significant at p<0.05 level
+      </div>
+      <div class="source">Source: Gyamfi et al., 2021, Energy Reports 7:6119–6129</div>
     </div>
 
     <script>
-        // Data preparation
-        const data = [
-            { factor: "Fossil fuel consumption", value: 0.400, category: "increase" },
-            { factor: "GDP in early development phase", value: 0.122, category: "increase" },
-            { factor: "Financial development", value: -0.106, category: "decrease" },
-            { factor: "Foreign Direct Investment", value: -0.088, category: "decrease" },
-            { factor: "Renewable energy share", value: -0.076, category: "decrease" },
-            { factor: "GDP in later development phase", value: -0.048, category: "decrease" }
-        ];
+      // Data preparation
+      const data = [
+        { factor: 'Fossil fuel consumption', value: 0.4, category: 'increase' },
+        { factor: 'GDP in early development phase', value: 0.122, category: 'increase' },
+        { factor: 'Financial development', value: -0.106, category: 'decrease' },
+        { factor: 'Foreign Direct Investment', value: -0.088, category: 'decrease' },
+        { factor: 'Renewable energy share', value: -0.076, category: 'decrease' },
+        { factor: 'GDP in later development phase', value: -0.048, category: 'decrease' },
+      ]
 
-        // Properly sort data by category first, then by absolute value within each category
-        const increasingFactors = data.filter(d => d.category === "increase")
-                                     .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
-        
-        const decreasingFactors = data.filter(d => d.category === "decrease")
-                                     .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
-        
-        // Combine the sorted groups with increasing factors first, then decreasing
-        const sortedData = [...increasingFactors, ...decreasingFactors];
+      // Properly sort data by category first, then by absolute value within each category
+      const increasingFactors = data
+        .filter((d) => d.category === 'increase')
+        .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
 
-        // Chart dimensions
-        const margin = { top: 60, right: 60, bottom: 60, left: 220 };
-        const width = 760 - margin.left - margin.right;
-        const height = 400 - margin.top - margin.bottom;
-        const barHeight = 30;
-        const barPadding = 15;
+      const decreasingFactors = data
+        .filter((d) => d.category === 'decrease')
+        .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
 
-        // Create SVG
-        const svg = d3.select("#chart")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+      // Combine the sorted groups with increasing factors first, then decreasing
+      const sortedData = [...increasingFactors, ...decreasingFactors]
 
-        // Scales
-        const xScale = d3.scaleLinear()
-            .domain([-0.5, 0.5])
-            .range([0, width]);
+      // Chart dimensions
+      const margin = { top: 60, right: 60, bottom: 60, left: 220 }
+      const width = 760 - margin.left - margin.right
+      const height = 400 - margin.top - margin.bottom
+      const barHeight = 30
+      const barPadding = 15
 
-        const yScale = d3.scaleBand()
-            .domain(sortedData.map(d => d.factor))
-            .range([0, sortedData.length * (barHeight + barPadding)])
-            .padding(0.1);
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
 
-        // Color scale - with more pronounced difference for highlighted bars
-        const colorScale = d => {
-            if (d.category === "increase") {
-                return d.factor === "Fossil fuel consumption" ? "#D32F2F" : "#FB9A99";
-            } else {
-                return d.factor === "Financial development" ? "#1A7431" : "#31A354";
-            }
-        };
+      // Scales
+      const xScale = d3.scaleLinear().domain([-0.5, 0.5]).range([0, width])
 
-        // Add gridlines
-        for (let i = -0.4; i <= 0.4; i += 0.2) {
-            svg.append("line")
-                .attr("class", "grid-line")
-                .attr("x1", xScale(i))
-                .attr("y1", -10)
-                .attr("x2", xScale(i))
-                .attr("y2", yScale.range()[1] + 10)
-                .style("stroke-opacity", i === 0 ? 0 : 0.5);
+      const yScale = d3
+        .scaleBand()
+        .domain(sortedData.map((d) => d.factor))
+        .range([0, sortedData.length * (barHeight + barPadding)])
+        .padding(0.1)
+
+      // Color scale - with more pronounced difference for highlighted bars
+      const colorScale = (d) => {
+        if (d.category === 'increase') {
+          return d.factor === 'Fossil fuel consumption' ? '#D32F2F' : '#FB9A99'
+        } else {
+          return d.factor === 'Financial development' ? '#1A7431' : '#31A354'
         }
+      }
 
-        // Add zero line
-        svg.append("line")
-            .attr("class", "zero-line")
-            .attr("x1", xScale(0))
-            .attr("y1", -20)
-            .attr("x2", xScale(0))
-            .attr("y2", yScale.range()[1] + 20);
+      // Add gridlines
+      for (let i = -0.4; i <= 0.4; i += 0.2) {
+        svg
+          .append('line')
+          .attr('class', 'grid-line')
+          .attr('x1', xScale(i))
+          .attr('y1', -10)
+          .attr('x2', xScale(i))
+          .attr('y2', yScale.range()[1] + 10)
+          .style('stroke-opacity', i === 0 ? 0 : 0.5)
+      }
 
-        // Add reference lines from bars to zero line
-        sortedData.forEach(d => {
-            svg.append("line")
-                .attr("class", "reference-line")
-                .attr("x1", xScale(0))
-                .attr("y1", yScale(d.factor) + barHeight / 2)
-                .attr("x2", d.value < 0 ? xScale(d.value) : xScale(0))
-                .attr("y2", yScale(d.factor) + barHeight / 2)
-                .style("stroke-dasharray", "3,3")
-                .style("stroke-width", 1.5);
-        });
+      // Add zero line
+      svg
+        .append('line')
+        .attr('class', 'zero-line')
+        .attr('x1', xScale(0))
+        .attr('y1', -20)
+        .attr('x2', xScale(0))
+        .attr('y2', yScale.range()[1] + 20)
 
-        // Add bars
-        svg.selectAll(".bar")
-            .data(sortedData)
-            .enter()
-            .append("rect")
-            .attr("class", "bar")
-            .attr("x", d => d.value < 0 ? xScale(d.value) : xScale(0))
-            .attr("y", d => yScale(d.factor))
-            .attr("width", d => Math.abs(xScale(d.value) - xScale(0)))
-            .attr("height", barHeight)
-            .attr("fill", d => colorScale(d));
+      // Add reference lines from bars to zero line
+      sortedData.forEach((d) => {
+        svg
+          .append('line')
+          .attr('class', 'reference-line')
+          .attr('x1', xScale(0))
+          .attr('y1', yScale(d.factor) + barHeight / 2)
+          .attr('x2', d.value < 0 ? xScale(d.value) : xScale(0))
+          .attr('y2', yScale(d.factor) + barHeight / 2)
+          .style('stroke-dasharray', '3,3')
+          .style('stroke-width', 1.5)
+      })
 
-        // Add factor labels
-        svg.selectAll(".factor-label")
-            .data(sortedData)
-            .enter()
-            .append("text")
-            .attr("class", "bar-label")
-            .attr("x", -15)
-            .attr("y", d => yScale(d.factor) + barHeight / 2 + 4)
-            .attr("text-anchor", "end")
-            .text(d => d.factor);
+      // Add bars
+      svg
+        .selectAll('.bar')
+        .data(sortedData)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', (d) => (d.value < 0 ? xScale(d.value) : xScale(0)))
+        .attr('y', (d) => yScale(d.factor))
+        .attr('width', (d) => Math.abs(xScale(d.value) - xScale(0)))
+        .attr('height', barHeight)
+        .attr('fill', (d) => colorScale(d))
 
-        // Add value labels with improved styling for key numbers
-        svg.selectAll(".value-label")
-            .data(sortedData)
-            .enter()
-            .append("text")
-            .attr("class", d => (d.factor === "Fossil fuel consumption" || d.factor === "Financial development") ? 
-                  "value-label key-number" : "value-label")
-            .attr("x", d => {
-                if (d.value < 0) {
-                    return xScale(d.value) - 5;
-                } else {
-                    return xScale(d.value) + 5;
-                }
-            })
-            .attr("y", d => yScale(d.factor) + barHeight / 2 + 4)
-            .attr("text-anchor", d => d.value < 0 ? "end" : "start")
-            .text(d => {
-                const sign = d.value > 0 ? "+" : "";
-                return `${sign}${d.value.toFixed(3)}%`;
-            })
-            .style("fill", d => {
-                if (d.factor === "Fossil fuel consumption") return "#9A0000";
-                if (d.factor === "Financial development") return "#004D25";
-                return "#333";
-            });
+      // Add factor labels
+      svg
+        .selectAll('.factor-label')
+        .data(sortedData)
+        .enter()
+        .append('text')
+        .attr('class', 'bar-label')
+        .attr('x', -15)
+        .attr('y', (d) => yScale(d.factor) + barHeight / 2 + 4)
+        .attr('text-anchor', 'end')
+        .text((d) => d.factor)
 
-        // Add x-axis labels
-        const xAxisValues = [-0.4, -0.2, 0, 0.2, 0.4];
-        svg.selectAll(".x-axis-label")
-            .data(xAxisValues)
-            .enter()
-            .append("text")
-            .attr("x", d => xScale(d))
-            .attr("y", yScale.range()[1] + 30)
-            .attr("text-anchor", "middle")
-            .attr("font-size", "10px")
-            .attr("fill", "#666")
-            .text(d => `${d.toFixed(1)}%`);
+      // Add value labels with improved styling for key numbers
+      svg
+        .selectAll('.value-label')
+        .data(sortedData)
+        .enter()
+        .append('text')
+        .attr('class', (d) =>
+          d.factor === 'Fossil fuel consumption' || d.factor === 'Financial development'
+            ? 'value-label key-number'
+            : 'value-label'
+        )
+        .attr('x', (d) => {
+          if (d.value < 0) {
+            return xScale(d.value) - 5
+          } else {
+            return xScale(d.value) + 5
+          }
+        })
+        .attr('y', (d) => yScale(d.factor) + barHeight / 2 + 4)
+        .attr('text-anchor', (d) => (d.value < 0 ? 'end' : 'start'))
+        .text((d) => {
+          const sign = d.value > 0 ? '+' : ''
+          return `${sign}${d.value.toFixed(3)}%`
+        })
+        .style('fill', (d) => {
+          if (d.factor === 'Fossil fuel consumption') return '#9A0000'
+          if (d.factor === 'Financial development') return '#004D25'
+          return '#333'
+        })
 
-        // Add category labels with correct positioning
-        svg.append("text")
-            .attr("class", "category-label")
-            .attr("x", width * 0.75)
-            .attr("y", -30)
-            .attr("text-anchor", "middle")
-            .attr("fill", "#D32F2F")
-            .text("Factors that increase emissions");
+      // Add x-axis labels
+      const xAxisValues = [-0.4, -0.2, 0, 0.2, 0.4]
+      svg
+        .selectAll('.x-axis-label')
+        .data(xAxisValues)
+        .enter()
+        .append('text')
+        .attr('x', (d) => xScale(d))
+        .attr('y', yScale.range()[1] + 30)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '10px')
+        .attr('fill', '#666')
+        .text((d) => `${d.toFixed(1)}%`)
 
-        svg.append("text")
-            .attr("class", "category-label")
-            .attr("x", width * 0.25)
-            .attr("y", -30)
-            .attr("text-anchor", "middle")
-            .attr("fill", "#1A7431")
-            .text("Factors that decrease emissions");
+      // Add category labels with correct positioning
+      svg
+        .append('text')
+        .attr('class', 'category-label')
+        .attr('x', width * 0.75)
+        .attr('y', -30)
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#D32F2F')
+        .text('Factors that increase emissions')
+
+      svg
+        .append('text')
+        .attr('class', 'category-label')
+        .attr('x', width * 0.25)
+        .attr('y', -30)
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#1A7431')
+        .text('Factors that decrease emissions')
     </script>
-</body>
+  </body>
 </html>

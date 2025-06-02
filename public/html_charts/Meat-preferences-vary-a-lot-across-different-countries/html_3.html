@@ -1,331 +1,408 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GDP vs Meat Consumption Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-            margin: 0;
-        }
-        
-        .visualization-container {
-            width: 850px;
-        }
-        
-        .title {
-            font-size: 22px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 16px;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #555;
-        }
-        
-        .axis-label {
-            font-size: 12px;
-            fill: #555;
-        }
-        
-        .tick line {
-            stroke: #ddd;
-        }
-        
-        .tick text {
-            font-size: 10px;
-            fill: #666;
-        }
-        
-        .grid line {
-            stroke: #eee;
-            stroke-opacity: 0.7;
-            shape-rendering: crispEdges;
-        }
-        
-        .country-label {
-            font-size: 11px;
-            font-weight: 500;
-        }
-        
-        .leader-line {
-            stroke: #999;
-            stroke-width: 0.7;
-            stroke-dasharray: 2,2;
-        }
-        
-        .trend-line {
-            stroke: #003366;
-            stroke-width: 2;
-            fill: none;
-        }
-        
-        .note {
-            font-size: 11px;
-            fill: #666;
-        }
-        
-        .source {
-            font-size: 10px;
-            fill: #888;
-        }
-        
-        .highlight-number {
-            font-family: 'Georgia', serif;
-            font-size: 13px;
-            fill: #003366;
-            font-weight: bold;
-        }
+      body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        margin: 0;
+      }
+
+      .visualization-container {
+        width: 850px;
+      }
+
+      .title {
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #555;
+      }
+
+      .axis-label {
+        font-size: 12px;
+        fill: #555;
+      }
+
+      .tick line {
+        stroke: #ddd;
+      }
+
+      .tick text {
+        font-size: 10px;
+        fill: #666;
+      }
+
+      .grid line {
+        stroke: #eee;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+      }
+
+      .country-label {
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      .leader-line {
+        stroke: #999;
+        stroke-width: 0.7;
+        stroke-dasharray: 2, 2;
+      }
+
+      .trend-line {
+        stroke: #003366;
+        stroke-width: 2;
+        fill: none;
+      }
+
+      .note {
+        font-size: 11px;
+        fill: #666;
+      }
+
+      .source {
+        font-size: 10px;
+        fill: #888;
+      }
+
+      .highlight-number {
+        font-family: 'Georgia', serif;
+        font-size: 13px;
+        fill: #003366;
+        font-weight: bold;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Income and urbanization explain ~75% of global meat consumption variation</div>
-        <div class="subtitle">Relationship between GDP per capita and meat consumption per person</div>
-        <svg id="chart"></svg>
+      <div class="title">
+        Income and urbanization explain ~75% of global meat consumption variation
+      </div>
+      <div class="subtitle">
+        Relationship between GDP per capita and meat consumption per person
+      </div>
+      <svg id="chart"></svg>
     </div>
 
     <script>
-        // Set up dimensions and margins
-        const margin = {top: 20, right: 100, bottom: 140, left: 70};
-        const width = 850 - margin.left - margin.right;
-        const height = 620 - margin.top - margin.bottom;
-        
-        // Create SVG
-        const svg = d3.select("#chart")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-            
-        // Sample data based on the specification
-        const data = [
-            { country: "Portugal", gdpPerCapita: 34000, meatConsumption: 151, population: 10, highlight: true },
-            { country: "USA", gdpPerCapita: 65000, meatConsumption: 144, population: 330, highlight: true },
-            { country: "Argentina", gdpPerCapita: 22000, meatConsumption: 121, population: 45, highlight: true },
-            { country: "China", gdpPerCapita: 17000, meatConsumption: 112, population: 1400, highlight: true },
-            { country: "Brazil", gdpPerCapita: 15000, meatConsumption: 109, population: 212, highlight: true },
-            { country: "Germany", gdpPerCapita: 54000, meatConsumption: 84, population: 83, highlight: true },
-            { country: "World Average", gdpPerCapita: 17500, meatConsumption: 64, population: 100, highlight: true },
-            { country: "India", gdpPerCapita: 7000, meatConsumption: 15, population: 1380, highlight: true },
-            { country: "Ethiopia", gdpPerCapita: 2500, meatConsumption: 7, population: 115, highlight: true },
-            // Additional data points to show the trend
-            { country: "", gdpPerCapita: 1200, meatConsumption: 5, population: 20 },
-            { country: "", gdpPerCapita: 5000, meatConsumption: 25, population: 40 },
-            { country: "", gdpPerCapita: 10000, meatConsumption: 45, population: 25 },
-            { country: "", gdpPerCapita: 30000, meatConsumption: 90, population: 15 },
-            { country: "", gdpPerCapita: 50000, meatConsumption: 120, population: 10 },
-            { country: "", gdpPerCapita: 90000, meatConsumption: 145, population: 2 }
-        ];
-        
-        // Create scales
-        const xScale = d3.scaleLog()
-            .domain([1000, 100000])
-            .range([0, width]);
-            
-        const yScale = d3.scaleLinear()
-            .domain([0, 160])
-            .range([height, 0]);
-            
-        // Adjusted population scale with more reasonable sizing
-        const populationScale = d3.scaleSqrt()
-            .domain([0, d3.max(data, d => d.population)])
-            .range([3, 18]); // Reduced max size to avoid overly large circles
-            
-        // Create axes
-        const xAxis = d3.axisBottom(xScale)
-            .tickValues([1000, 2000, 5000, 10000, 20000, 50000, 100000])
-            .tickFormat(d => d3.format(",")(d));
-            
-        const yAxis = d3.axisLeft(yScale)
-            .tickValues([0, 20, 40, 60, 80, 100, 120, 140, 160]);
-            
-        // Add X axis
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(xAxis)
-            .selectAll("text")
-            .style("text-anchor", "middle");
-            
-        // Add Y axis
-        svg.append("g")
-            .call(yAxis);
-            
-        // Add X axis label
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("text-anchor", "middle")
-            .attr("x", width / 2)
-            .attr("y", height + 40)
-            .text("GDP per capita (PPP, international $), log scale");
-            
-        // Add Y axis label
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("text-anchor", "middle")
-            .attr("transform", "rotate(-90)")
-            .attr("x", -height / 2)
-            .attr("y", -50)
-            .text("Meat consumption (kg/person/year)");
-            
-        // Add grid lines
-        svg.append("g")
-            .attr("class", "grid")
-            .selectAll("line")
-            .data(yScale.ticks(8))
-            .enter()
-            .append("line")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", d => yScale(d))
-            .attr("y2", d => yScale(d));
-            
-        svg.append("g")
-            .attr("class", "grid")
-            .selectAll("line")
-            .data([1000, 2000, 5000, 10000, 20000, 50000, 100000])
-            .enter()
-            .append("line")
-            .attr("x1", d => xScale(d))
-            .attr("x2", d => xScale(d))
-            .attr("y1", 0)
-            .attr("y2", height);
-            
-        // Create a smoother trend line using regression
-        // First, prepare data for regression (log transform GDP)
-        const regressionData = data.map(d => [Math.log10(d.gdpPerCapita), d.meatConsumption]);
-        
-        // Simple linear regression function
-        function linearRegression(data) {
-            const n = data.length;
-            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
-            
-            for (let i = 0; i < n; i++) {
-                sumX += data[i][0];
-                sumY += data[i][1];
-                sumXY += data[i][0] * data[i][1];
-                sumX2 += data[i][0] * data[i][0];
-            }
-            
-            const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-            const intercept = (sumY - slope * sumX) / n;
-            
-            return {slope, intercept};
+      // Set up dimensions and margins
+      const margin = { top: 20, right: 100, bottom: 140, left: 70 }
+      const width = 850 - margin.left - margin.right
+      const height = 620 - margin.top - margin.bottom
+
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
+
+      // Sample data based on the specification
+      const data = [
+        {
+          country: 'Portugal',
+          gdpPerCapita: 34000,
+          meatConsumption: 151,
+          population: 10,
+          highlight: true,
+        },
+        {
+          country: 'USA',
+          gdpPerCapita: 65000,
+          meatConsumption: 144,
+          population: 330,
+          highlight: true,
+        },
+        {
+          country: 'Argentina',
+          gdpPerCapita: 22000,
+          meatConsumption: 121,
+          population: 45,
+          highlight: true,
+        },
+        {
+          country: 'China',
+          gdpPerCapita: 17000,
+          meatConsumption: 112,
+          population: 1400,
+          highlight: true,
+        },
+        {
+          country: 'Brazil',
+          gdpPerCapita: 15000,
+          meatConsumption: 109,
+          population: 212,
+          highlight: true,
+        },
+        {
+          country: 'Germany',
+          gdpPerCapita: 54000,
+          meatConsumption: 84,
+          population: 83,
+          highlight: true,
+        },
+        {
+          country: 'World Average',
+          gdpPerCapita: 17500,
+          meatConsumption: 64,
+          population: 100,
+          highlight: true,
+        },
+        {
+          country: 'India',
+          gdpPerCapita: 7000,
+          meatConsumption: 15,
+          population: 1380,
+          highlight: true,
+        },
+        {
+          country: 'Ethiopia',
+          gdpPerCapita: 2500,
+          meatConsumption: 7,
+          population: 115,
+          highlight: true,
+        },
+        // Additional data points to show the trend
+        { country: '', gdpPerCapita: 1200, meatConsumption: 5, population: 20 },
+        { country: '', gdpPerCapita: 5000, meatConsumption: 25, population: 40 },
+        { country: '', gdpPerCapita: 10000, meatConsumption: 45, population: 25 },
+        { country: '', gdpPerCapita: 30000, meatConsumption: 90, population: 15 },
+        { country: '', gdpPerCapita: 50000, meatConsumption: 120, population: 10 },
+        { country: '', gdpPerCapita: 90000, meatConsumption: 145, population: 2 },
+      ]
+
+      // Create scales
+      const xScale = d3.scaleLog().domain([1000, 100000]).range([0, width])
+
+      const yScale = d3.scaleLinear().domain([0, 160]).range([height, 0])
+
+      // Adjusted population scale with more reasonable sizing
+      const populationScale = d3
+        .scaleSqrt()
+        .domain([0, d3.max(data, (d) => d.population)])
+        .range([3, 18]) // Reduced max size to avoid overly large circles
+
+      // Create axes
+      const xAxis = d3
+        .axisBottom(xScale)
+        .tickValues([1000, 2000, 5000, 10000, 20000, 50000, 100000])
+        .tickFormat((d) => d3.format(',')(d))
+
+      const yAxis = d3.axisLeft(yScale).tickValues([0, 20, 40, 60, 80, 100, 120, 140, 160])
+
+      // Add X axis
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(xAxis)
+        .selectAll('text')
+        .style('text-anchor', 'middle')
+
+      // Add Y axis
+      svg.append('g').call(yAxis)
+
+      // Add X axis label
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('text-anchor', 'middle')
+        .attr('x', width / 2)
+        .attr('y', height + 40)
+        .text('GDP per capita (PPP, international $), log scale')
+
+      // Add Y axis label
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -height / 2)
+        .attr('y', -50)
+        .text('Meat consumption (kg/person/year)')
+
+      // Add grid lines
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .selectAll('line')
+        .data(yScale.ticks(8))
+        .enter()
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', (d) => yScale(d))
+        .attr('y2', (d) => yScale(d))
+
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .selectAll('line')
+        .data([1000, 2000, 5000, 10000, 20000, 50000, 100000])
+        .enter()
+        .append('line')
+        .attr('x1', (d) => xScale(d))
+        .attr('x2', (d) => xScale(d))
+        .attr('y1', 0)
+        .attr('y2', height)
+
+      // Create a smoother trend line using regression
+      // First, prepare data for regression (log transform GDP)
+      const regressionData = data.map((d) => [Math.log10(d.gdpPerCapita), d.meatConsumption])
+
+      // Simple linear regression function
+      function linearRegression(data) {
+        const n = data.length
+        let sumX = 0,
+          sumY = 0,
+          sumXY = 0,
+          sumX2 = 0
+
+        for (let i = 0; i < n; i++) {
+          sumX += data[i][0]
+          sumY += data[i][1]
+          sumXY += data[i][0] * data[i][1]
+          sumX2 += data[i][0] * data[i][0]
         }
-        
-        // Calculate regression
-        const regression = linearRegression(regressionData);
-        
-        // Create trend line data points
-        const trendData = [];
-        for (let x = 3; x <= 5; x += 0.1) { // log10 of 1,000 to 100,000
-            const gdp = Math.pow(10, x);
-            const consumption = regression.intercept + regression.slope * x;
-            trendData.push({gdpPerCapita: gdp, meatConsumption: consumption});
-        }
-        
-        // Draw the trend line
-        const trendLine = d3.line()
-            .x(d => xScale(d.gdpPerCapita))
-            .y(d => yScale(d.meatConsumption))
-            .curve(d3.curveMonotoneX);
-            
-        svg.append("path")
-            .datum(trendData)
-            .attr("class", "trend-line")
-            .attr("d", trendLine);
-            
-        // Add data points
-        svg.selectAll(".data-point")
-            .data(data)
-            .enter()
-            .append("circle")
-            .attr("class", "data-point")
-            .attr("cx", d => xScale(d.gdpPerCapita))
-            .attr("cy", d => yScale(d.meatConsumption))
-            .attr("r", d => populationScale(d.population))
-            .style("fill", "#4682B4")
-            .style("opacity", 0.7)
-            .style("stroke", d => d.highlight ? "#003366" : "none")
-            .style("stroke-width", d => d.highlight ? 1.5 : 0);
-            
-        // Completely revised label positions to avoid overlapping
-        const labelPositions = {
-            "Portugal": { dx: 10, dy: -15, showLeader: true },
-            "USA": { dx: -55, dy: -25, showLeader: true },
-            "Argentina": { dx: 25, dy: -15, showLeader: true },
-            "China": { dx: -55, dy: -30, showLeader: true },
-            "Brazil": { dx: -55, dy: 30, showLeader: true },
-            "Germany": { dx: 15, dy: 0, showLeader: true },
-            "World Average": { dx: 20, dy: 0, showLeader: true },
-            "India": { dx: 25, dy: 0, showLeader: true },
-            "Ethiopia": { dx: 20, dy: -15, showLeader: true }
-        };
-        
-        const highlightedData = data.filter(d => d.highlight);
-        
-        // Add leader lines with improved positioning
-        svg.selectAll(".leader-line")
-            .data(highlightedData)
-            .enter()
-            .filter(d => labelPositions[d.country].showLeader)
-            .append("line")
-            .attr("class", "leader-line")
-            .attr("x1", d => xScale(d.gdpPerCapita))
-            .attr("y1", d => yScale(d.meatConsumption))
-            .attr("x2", d => xScale(d.gdpPerCapita) + labelPositions[d.country].dx * 0.7)
-            .attr("y2", d => yScale(d.meatConsumption) + labelPositions[d.country].dy * 0.7);
-        
-        // Add country labels with consistent formatting
-        svg.selectAll(".country-label-group")
-            .data(highlightedData)
-            .enter()
-            .append("g")
-            .attr("class", "country-label-group")
-            .attr("transform", d => `translate(${xScale(d.gdpPerCapita) + labelPositions[d.country].dx}, ${yScale(d.meatConsumption) + labelPositions[d.country].dy})`)
-            .each(function(d) {
-                const g = d3.select(this);
-                g.append("text")
-                  .attr("class", "country-label")
-                  .text(`${d.country} (${d.meatConsumption} kg)`);
-            });
-            
-        // Add note at the bottom with proper spacing
-        svg.append("text")
-            .attr("class", "note")
-            .attr("x", 0)
-            .attr("y", height + 70)
-            .text("Multivariate analysis across 137 countries shows income per capita and urbanization rate explain ")
-            .append("tspan")
-            .attr("class", "highlight-number")
-            .text("~75%")
-            .append("tspan")
-            .attr("class", "note")
-            .text(" of meat consumption variation");
-            
-        svg.append("text")
-            .attr("class", "note")
-            .attr("x", 0)
-            .attr("y", height + 90)
-            .text("(R² ≈ 0.89 for total meat, R² ≈ 0.68 for ruminant meat)");
-            
-        // Add source attribution with proper positioning
-        svg.append("text")
-            .attr("class", "source")
-            .attr("x", 0)
-            .attr("y", height + 115)
-            .text("Source: Our World in Data, 2022; Milford et al. 2019");
+
+        const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX)
+        const intercept = (sumY - slope * sumX) / n
+
+        return { slope, intercept }
+      }
+
+      // Calculate regression
+      const regression = linearRegression(regressionData)
+
+      // Create trend line data points
+      const trendData = []
+      for (let x = 3; x <= 5; x += 0.1) {
+        // log10 of 1,000 to 100,000
+        const gdp = Math.pow(10, x)
+        const consumption = regression.intercept + regression.slope * x
+        trendData.push({ gdpPerCapita: gdp, meatConsumption: consumption })
+      }
+
+      // Draw the trend line
+      const trendLine = d3
+        .line()
+        .x((d) => xScale(d.gdpPerCapita))
+        .y((d) => yScale(d.meatConsumption))
+        .curve(d3.curveMonotoneX)
+
+      svg.append('path').datum(trendData).attr('class', 'trend-line').attr('d', trendLine)
+
+      // Add data points
+      svg
+        .selectAll('.data-point')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('class', 'data-point')
+        .attr('cx', (d) => xScale(d.gdpPerCapita))
+        .attr('cy', (d) => yScale(d.meatConsumption))
+        .attr('r', (d) => populationScale(d.population))
+        .style('fill', '#4682B4')
+        .style('opacity', 0.7)
+        .style('stroke', (d) => (d.highlight ? '#003366' : 'none'))
+        .style('stroke-width', (d) => (d.highlight ? 1.5 : 0))
+
+      // Completely revised label positions to avoid overlapping
+      const labelPositions = {
+        Portugal: { dx: 10, dy: -15, showLeader: true },
+        USA: { dx: -55, dy: -25, showLeader: true },
+        Argentina: { dx: 25, dy: -15, showLeader: true },
+        China: { dx: -55, dy: -30, showLeader: true },
+        Brazil: { dx: -55, dy: 30, showLeader: true },
+        Germany: { dx: 15, dy: 0, showLeader: true },
+        'World Average': { dx: 20, dy: 0, showLeader: true },
+        India: { dx: 25, dy: 0, showLeader: true },
+        Ethiopia: { dx: 20, dy: -15, showLeader: true },
+      }
+
+      const highlightedData = data.filter((d) => d.highlight)
+
+      // Add leader lines with improved positioning
+      svg
+        .selectAll('.leader-line')
+        .data(highlightedData)
+        .enter()
+        .filter((d) => labelPositions[d.country].showLeader)
+        .append('line')
+        .attr('class', 'leader-line')
+        .attr('x1', (d) => xScale(d.gdpPerCapita))
+        .attr('y1', (d) => yScale(d.meatConsumption))
+        .attr('x2', (d) => xScale(d.gdpPerCapita) + labelPositions[d.country].dx * 0.7)
+        .attr('y2', (d) => yScale(d.meatConsumption) + labelPositions[d.country].dy * 0.7)
+
+      // Add country labels with consistent formatting
+      svg
+        .selectAll('.country-label-group')
+        .data(highlightedData)
+        .enter()
+        .append('g')
+        .attr('class', 'country-label-group')
+        .attr(
+          'transform',
+          (d) =>
+            `translate(${xScale(d.gdpPerCapita) + labelPositions[d.country].dx}, ${yScale(d.meatConsumption) + labelPositions[d.country].dy})`
+        )
+        .each(function (d) {
+          const g = d3.select(this)
+          g.append('text')
+            .attr('class', 'country-label')
+            .text(`${d.country} (${d.meatConsumption} kg)`)
+        })
+
+      // Add note at the bottom with proper spacing
+      svg
+        .append('text')
+        .attr('class', 'note')
+        .attr('x', 0)
+        .attr('y', height + 70)
+        .text(
+          'Multivariate analysis across 137 countries shows income per capita and urbanization rate explain '
+        )
+        .append('tspan')
+        .attr('class', 'highlight-number')
+        .text('~75%')
+        .append('tspan')
+        .attr('class', 'note')
+        .text(' of meat consumption variation')
+
+      svg
+        .append('text')
+        .attr('class', 'note')
+        .attr('x', 0)
+        .attr('y', height + 90)
+        .text('(R² ≈ 0.89 for total meat, R² ≈ 0.68 for ruminant meat)')
+
+      // Add source attribution with proper positioning
+      svg
+        .append('text')
+        .attr('class', 'source')
+        .attr('x', 0)
+        .attr('y', height + 115)
+        .text('Source: Our World in Data, 2022; Milford et al. 2019')
     </script>
-</body>
+  </body>
 </html>

@@ -1,428 +1,515 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mobility Technology Funding Hotspots</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 10px;
-        }
-        
-        .visualization-container {
-            width: 900px;
-            height: 650px;
-            background-color: white;
-            position: relative;
-        }
-        
-        .title {
-            text-align: center;
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            text-align: center;
-            font-size: 16px;
-            color: #555;
-            margin-bottom: 10px;
-        }
-        
-        .axis-label {
-            font-size: 13px;
-            font-weight: 500;
-            fill: #333;
-        }
-        
-        .annotation {
-            font-size: 12px;
-            fill: #333;
-            pointer-events: none;
-        }
-        
-        .annotation-line {
-            stroke: #555;
-            stroke-width: 1.2px;
-            stroke-dasharray: 3,2;
-            pointer-events: none;
-        }
-        
-        .annotation-highlight {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            fill: #1a1a1a;
-        }
-        
-        .bubble-label {
-            font-size: 11px;
-            pointer-events: none;
-            fill: #333;
-            font-weight: 500;
-        }
-        
-        .bubble-value {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            font-size: 12px;
-            pointer-events: none;
-        }
-        
-        .legend-title {
-            font-size: 12px;
-            fill: #333;
-            font-weight: 600;
-        }
-        
-        .legend-label {
-            font-size: 11px;
-            fill: #555;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-width: 0.5px;
-        }
-        
-        .zero-line {
-            stroke: #aaa;
-            stroke-width: 1px;
-            stroke-dasharray: 4,3;
-        }
-        
-        .annotation-bg {
-            fill: rgba(255, 255, 255, 0.9);
-            rx: 3;
-            ry: 3;
-        }
+      body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 10px;
+      }
+
+      .visualization-container {
+        width: 900px;
+        height: 650px;
+        background-color: white;
+        position: relative;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        text-align: center;
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 10px;
+      }
+
+      .axis-label {
+        font-size: 13px;
+        font-weight: 500;
+        fill: #333;
+      }
+
+      .annotation {
+        font-size: 12px;
+        fill: #333;
+        pointer-events: none;
+      }
+
+      .annotation-line {
+        stroke: #555;
+        stroke-width: 1.2px;
+        stroke-dasharray: 3, 2;
+        pointer-events: none;
+      }
+
+      .annotation-highlight {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        fill: #1a1a1a;
+      }
+
+      .bubble-label {
+        font-size: 11px;
+        pointer-events: none;
+        fill: #333;
+        font-weight: 500;
+      }
+
+      .bubble-value {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        font-size: 12px;
+        pointer-events: none;
+      }
+
+      .legend-title {
+        font-size: 12px;
+        fill: #333;
+        font-weight: 600;
+      }
+
+      .legend-label {
+        font-size: 11px;
+        fill: #555;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-width: 0.5px;
+      }
+
+      .zero-line {
+        stroke: #aaa;
+        stroke-width: 1px;
+        stroke-dasharray: 4, 3;
+      }
+
+      .annotation-bg {
+        fill: rgba(255, 255, 255, 0.9);
+        rx: 3;
+        ry: 3;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Mobility Technology Funding Hotspots: Growth Clusters Driving Investment</div>
-        <div class="subtitle">Technology Clusters by Maturity, Growth Rate, and Funding Volume (2024)</div>
-        <svg id="bubble-chart"></svg>
+      <div class="title">
+        Mobility Technology Funding Hotspots: Growth Clusters Driving Investment
+      </div>
+      <div class="subtitle">
+        Technology Clusters by Maturity, Growth Rate, and Funding Volume (2024)
+      </div>
+      <svg id="bubble-chart"></svg>
     </div>
 
     <script>
-        // Data preparation
-        const data = [
-            { cluster: "Gen AI for AV Training", maturity: "Emerging", growthRate: 70, funding: 1.2, category: "AV/Connected" },
-            { cluster: "Battery Manufacturing", maturity: "Scaling", growthRate: 15, funding: 9.0, category: "Battery/Energy" },
-            { cluster: "Battery Recycling", maturity: "Early Growth", growthRate: 45, funding: 3.8, category: "Battery/Energy" },
-            { cluster: "Battery Swapping", maturity: "Early Growth", growthRate: 25, funding: 1.3, category: "Battery/Energy" },
-            { cluster: "Charging Infrastructure", maturity: "Scaling", growthRate: 30, funding: 4.5, category: "Battery/Energy" },
-            { cluster: "Data-Driven Telematics", maturity: "Scaling", growthRate: 45, funding: 2.2, category: "Data/Software" },
-            { cluster: "Vehicle Financing Tech", maturity: "Early Growth", growthRate: 80, funding: 3.8, category: "Financial Services" },
-            { cluster: "In-Vehicle Payments", maturity: "Emerging", growthRate: 81, funding: 0.4, category: "Financial Services" },
-            { cluster: "Car Subscription", maturity: "Mature", growthRate: -15, funding: 0.8, category: "Traditional Mobility" },
-            { cluster: "Micromobility", maturity: "Mature", growthRate: -10, funding: 1.2, category: "Traditional Mobility" }
-        ];
+      // Data preparation
+      const data = [
+        {
+          cluster: 'Gen AI for AV Training',
+          maturity: 'Emerging',
+          growthRate: 70,
+          funding: 1.2,
+          category: 'AV/Connected',
+        },
+        {
+          cluster: 'Battery Manufacturing',
+          maturity: 'Scaling',
+          growthRate: 15,
+          funding: 9.0,
+          category: 'Battery/Energy',
+        },
+        {
+          cluster: 'Battery Recycling',
+          maturity: 'Early Growth',
+          growthRate: 45,
+          funding: 3.8,
+          category: 'Battery/Energy',
+        },
+        {
+          cluster: 'Battery Swapping',
+          maturity: 'Early Growth',
+          growthRate: 25,
+          funding: 1.3,
+          category: 'Battery/Energy',
+        },
+        {
+          cluster: 'Charging Infrastructure',
+          maturity: 'Scaling',
+          growthRate: 30,
+          funding: 4.5,
+          category: 'Battery/Energy',
+        },
+        {
+          cluster: 'Data-Driven Telematics',
+          maturity: 'Scaling',
+          growthRate: 45,
+          funding: 2.2,
+          category: 'Data/Software',
+        },
+        {
+          cluster: 'Vehicle Financing Tech',
+          maturity: 'Early Growth',
+          growthRate: 80,
+          funding: 3.8,
+          category: 'Financial Services',
+        },
+        {
+          cluster: 'In-Vehicle Payments',
+          maturity: 'Emerging',
+          growthRate: 81,
+          funding: 0.4,
+          category: 'Financial Services',
+        },
+        {
+          cluster: 'Car Subscription',
+          maturity: 'Mature',
+          growthRate: -15,
+          funding: 0.8,
+          category: 'Traditional Mobility',
+        },
+        {
+          cluster: 'Micromobility',
+          maturity: 'Mature',
+          growthRate: -10,
+          funding: 1.2,
+          category: 'Traditional Mobility',
+        },
+      ]
 
-        // Color mapping
-        const colorMap = {
-            "AV/Connected": "#1F355E",
-            "Data/Software": "#F28C28",
-            "Battery/Energy": "#2A7F62",
-            "Traditional Mobility": "#545B64",
-            "Financial Services": "#6B5B95"
-        };
+      // Color mapping
+      const colorMap = {
+        'AV/Connected': '#1F355E',
+        'Data/Software': '#F28C28',
+        'Battery/Energy': '#2A7F62',
+        'Traditional Mobility': '#545B64',
+        'Financial Services': '#6B5B95',
+      }
 
-        // Annotations - carefully positioned to avoid overlaps
-        const annotations = [
-            { 
-                cluster: "Gen AI for AV Training", 
-                text: "Gen AI: 3x funding increase since 2022 accelerating AV development",
-                dx: 30,
-                dy: -40,
-                align: "start"
-            },
-            { 
-                cluster: "Vehicle Financing Tech", 
-                text: "Financial Services: Fastest growing segment with novel credit models",
-                dx: 30,
-                dy: -50,
-                align: "start"
-            },
-            { 
-                cluster: "Battery Recycling", 
-                text: "Battery Recycling: Anticipating >100M retired EV batteries by 2030",
-                dx: -20,
-                dy: -60,
-                align: "middle"
-            },
-            { 
-                cluster: "Micromobility", 
-                text: "Mature Services: Declining investment as business models consolidate",
-                dx: 100,
-                dy: -40,
-                align: "start"
-            }
-        ];
+      // Annotations - carefully positioned to avoid overlaps
+      const annotations = [
+        {
+          cluster: 'Gen AI for AV Training',
+          text: 'Gen AI: 3x funding increase since 2022 accelerating AV development',
+          dx: 30,
+          dy: -40,
+          align: 'start',
+        },
+        {
+          cluster: 'Vehicle Financing Tech',
+          text: 'Financial Services: Fastest growing segment with novel credit models',
+          dx: 30,
+          dy: -50,
+          align: 'start',
+        },
+        {
+          cluster: 'Battery Recycling',
+          text: 'Battery Recycling: Anticipating >100M retired EV batteries by 2030',
+          dx: -20,
+          dy: -60,
+          align: 'middle',
+        },
+        {
+          cluster: 'Micromobility',
+          text: 'Mature Services: Declining investment as business models consolidate',
+          dx: 100,
+          dy: -40,
+          align: 'start',
+        },
+      ]
 
-        // Set up dimensions - adjusted for better spacing
-        const margin = { top: 40, right: 120, bottom: 80, left: 80 };
-        const width = 900 - margin.left - margin.right;
-        const height = 650 - margin.top - margin.bottom;
+      // Set up dimensions - adjusted for better spacing
+      const margin = { top: 40, right: 120, bottom: 80, left: 80 }
+      const width = 900 - margin.left - margin.right
+      const height = 650 - margin.top - margin.bottom
 
-        // Create SVG
-        const svg = d3.select("#bubble-chart")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+      // Create SVG
+      const svg = d3
+        .select('#bubble-chart')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
 
-        // Define scales
-        const maturityStages = ["Emerging", "Early Growth", "Scaling", "Mature"];
-        const xScale = d3.scaleBand()
-            .domain(maturityStages)
-            .range([0, width])
-            .padding(0.2);
+      // Define scales
+      const maturityStages = ['Emerging', 'Early Growth', 'Scaling', 'Mature']
+      const xScale = d3.scaleBand().domain(maturityStages).range([0, width]).padding(0.2)
 
-        const yScale = d3.scaleLinear()
-            .domain([-20, 90])
-            .range([height, 0]);
+      const yScale = d3.scaleLinear().domain([-20, 90]).range([height, 0])
 
-        const sizeScale = d3.scaleSqrt()
-            .domain([0.4, 9])
-            .range([10, 40]);  // Reduced maximum size to prevent overlapping
+      const sizeScale = d3.scaleSqrt().domain([0.4, 9]).range([10, 40]) // Reduced maximum size to prevent overlapping
 
-        // Add horizontal grid lines
-        svg.append("g")
-            .attr("class", "grid")
-            .selectAll("line.horizontal")
-            .data([-20, 0, 20, 40, 60, 80])
-            .enter()
-            .append("line")
-            .attr("class", "horizontal")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", d => yScale(d))
-            .attr("y2", d => yScale(d));
+      // Add horizontal grid lines
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .selectAll('line.horizontal')
+        .data([-20, 0, 20, 40, 60, 80])
+        .enter()
+        .append('line')
+        .attr('class', 'horizontal')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', (d) => yScale(d))
+        .attr('y2', (d) => yScale(d))
 
-        // Add vertical grid lines
-        svg.append("g")
-            .attr("class", "grid")
-            .selectAll("line.vertical")
-            .data(maturityStages)
-            .enter()
-            .append("line")
-            .attr("class", "vertical")
-            .attr("x1", d => xScale(d) + xScale.bandwidth()/2)
-            .attr("x2", d => xScale(d) + xScale.bandwidth()/2)
-            .attr("y1", 0)
-            .attr("y2", height);
+      // Add vertical grid lines
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .selectAll('line.vertical')
+        .data(maturityStages)
+        .enter()
+        .append('line')
+        .attr('class', 'vertical')
+        .attr('x1', (d) => xScale(d) + xScale.bandwidth() / 2)
+        .attr('x2', (d) => xScale(d) + xScale.bandwidth() / 2)
+        .attr('y1', 0)
+        .attr('y2', height)
 
-        // Add zero line
-        svg.append("line")
-            .attr("class", "zero-line")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", yScale(0))
-            .attr("y2", yScale(0));
+      // Add zero line
+      svg
+        .append('line')
+        .attr('class', 'zero-line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', yScale(0))
+        .attr('y2', yScale(0))
 
-        // Add x-axis
-        svg.append("g")
-            .attr("transform", `translate(0, ${height})`)
-            .call(d3.axisBottom(xScale))
-            .selectAll("text")
-            .style("font-size", "13px");
+      // Add x-axis
+      svg
+        .append('g')
+        .attr('transform', `translate(0, ${height})`)
+        .call(d3.axisBottom(xScale))
+        .selectAll('text')
+        .style('font-size', '13px')
 
-        // Add y-axis
-        svg.append("g")
-            .call(d3.axisLeft(yScale)
-                .tickFormat(d => `${d}%`)
-                .tickValues([-20, 0, 20, 40, 60, 80]))
-            .selectAll("text")
-            .style("font-size", "12px");
+      // Add y-axis
+      svg
+        .append('g')
+        .call(
+          d3
+            .axisLeft(yScale)
+            .tickFormat((d) => `${d}%`)
+            .tickValues([-20, 0, 20, 40, 60, 80])
+        )
+        .selectAll('text')
+        .style('font-size', '12px')
 
-        // Add axis labels
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("text-anchor", "middle")
-            .attr("x", width / 2)
-            .attr("y", height + 45)
-            .text("Technology Maturity Stage");
+      // Add axis labels
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('text-anchor', 'middle')
+        .attr('x', width / 2)
+        .attr('y', height + 45)
+        .text('Technology Maturity Stage')
 
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("text-anchor", "middle")
-            .attr("transform", "rotate(-90)")
-            .attr("x", -height / 2)
-            .attr("y", -45)
-            .text("Annual Funding Growth Rate (2023-24)");
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -height / 2)
+        .attr('y', -45)
+        .text('Annual Funding Growth Rate (2023-24)')
 
-        // Create bubbles
-        const bubbles = svg.selectAll(".bubble")
-            .data(data)
-            .enter()
-            .append("circle")
-            .attr("class", "bubble")
-            .attr("cx", d => xScale(d.maturity) + xScale.bandwidth() / 2)
-            .attr("cy", d => yScale(d.growthRate))
-            .attr("r", d => sizeScale(d.funding))
-            .attr("fill", d => d3.color(colorMap[d.category]).copy({opacity: 0.7}))
-            .attr("stroke", d => d3.color(colorMap[d.category]).darker(0.5))
-            .attr("stroke-width", 1);
+      // Create bubbles
+      const bubbles = svg
+        .selectAll('.bubble')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('class', 'bubble')
+        .attr('cx', (d) => xScale(d.maturity) + xScale.bandwidth() / 2)
+        .attr('cy', (d) => yScale(d.growthRate))
+        .attr('r', (d) => sizeScale(d.funding))
+        .attr('fill', (d) => d3.color(colorMap[d.category]).copy({ opacity: 0.7 }))
+        .attr('stroke', (d) => d3.color(colorMap[d.category]).darker(0.5))
+        .attr('stroke-width', 1)
 
-        // Calculate optimized label positions to avoid overlaps
-        function getLabelPosition(d) {
-            const x = xScale(d.maturity) + xScale.bandwidth() / 2;
-            const y = yScale(d.growthRate);
-            const r = sizeScale(d.funding);
-            
-            // Special positioning for specific clusters to avoid overlaps
-            if (d.cluster === "Battery Manufacturing") {
-                return { x: x - 20, y: y - r - 10 };
-            } else if (d.cluster === "Charging Infrastructure") {
-                return { x: x + 20, y: y - r - 10 };
-            } else if (d.cluster === "Battery Recycling") {
-                return { x: x, y: y - r - 15 };
-            } else if (d.cluster === "Vehicle Financing Tech") {
-                return { x: x - 20, y: y - r - 10 };
-            } else if (d.cluster === "Car Subscription") {
-                return { x: x - 40, y: y - r - 10 }; // Moved further left to avoid overlap
-            } else if (d.cluster === "Micromobility") {
-                return { x: x + 20, y: y - r - 10 };
-            } else if (d.cluster === "Data-Driven Telematics") {
-                return { x: x + 20, y: y - r - 10 };
-            } else if (d.cluster === "In-Vehicle Payments") {
-                return { x: x, y: y - r - 15 }; // Adjusted to be more consistent
-            } else {
-                return { x: x, y: y - r - 10 };
-            }
+      // Calculate optimized label positions to avoid overlaps
+      function getLabelPosition(d) {
+        const x = xScale(d.maturity) + xScale.bandwidth() / 2
+        const y = yScale(d.growthRate)
+        const r = sizeScale(d.funding)
+
+        // Special positioning for specific clusters to avoid overlaps
+        if (d.cluster === 'Battery Manufacturing') {
+          return { x: x - 20, y: y - r - 10 }
+        } else if (d.cluster === 'Charging Infrastructure') {
+          return { x: x + 20, y: y - r - 10 }
+        } else if (d.cluster === 'Battery Recycling') {
+          return { x: x, y: y - r - 15 }
+        } else if (d.cluster === 'Vehicle Financing Tech') {
+          return { x: x - 20, y: y - r - 10 }
+        } else if (d.cluster === 'Car Subscription') {
+          return { x: x - 40, y: y - r - 10 } // Moved further left to avoid overlap
+        } else if (d.cluster === 'Micromobility') {
+          return { x: x + 20, y: y - r - 10 }
+        } else if (d.cluster === 'Data-Driven Telematics') {
+          return { x: x + 20, y: y - r - 10 }
+        } else if (d.cluster === 'In-Vehicle Payments') {
+          return { x: x, y: y - r - 15 } // Adjusted to be more consistent
+        } else {
+          return { x: x, y: y - r - 10 }
         }
-        
-        // Add value labels (above bubbles)
-        svg.selectAll(".bubble-value")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("class", "bubble-value")
-            .attr("x", d => getLabelPosition(d).x)
-            .attr("y", d => getLabelPosition(d).y)
-            .attr("text-anchor", "middle")
-            .text(d => `$${d.funding}B`);
-            
-        // Add cluster name labels (below values)
-        svg.selectAll(".bubble-label")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("class", "bubble-label")
-            .attr("x", d => getLabelPosition(d).x)
-            .attr("y", d => getLabelPosition(d).y + 15)
-            .attr("text-anchor", "middle")
-            .text(d => d.cluster);
+      }
 
-        // Add annotations with background for better readability
-        annotations.forEach(anno => {
-            const target = data.find(d => d.cluster === anno.cluster);
-            if (!target) return;
-            
-            const x = xScale(target.maturity) + xScale.bandwidth() / 2;
-            const y = yScale(target.growthRate);
-            
-            // Add annotation line with increased visibility
-            svg.append("line")
-                .attr("class", "annotation-line")
-                .attr("x1", x)
-                .attr("y1", y)
-                .attr("x2", x + anno.dx)
-                .attr("y2", y + anno.dy);
-            
-            // Add annotation background
-            const textWidth = anno.text.length * 5.5;  // Estimate text width
-            const bgX = anno.align === "start" ? x + anno.dx : 
-                        anno.align === "end" ? x + anno.dx - textWidth : 
-                        x + anno.dx - textWidth/2;
-            
-            svg.append("rect")
-                .attr("class", "annotation-bg")
-                .attr("x", bgX - 5)
-                .attr("y", y + anno.dy - 15)
-                .attr("width", textWidth + 10)
-                .attr("height", 20);
-            
-            // Add annotation text
-            svg.append("text")
-                .attr("class", "annotation")
-                .attr("x", x + anno.dx)
-                .attr("y", y + anno.dy)
-                .attr("text-anchor", anno.align)
-                .text(anno.text);
-        });
+      // Add value labels (above bubbles)
+      svg
+        .selectAll('.bubble-value')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'bubble-value')
+        .attr('x', (d) => getLabelPosition(d).x)
+        .attr('y', (d) => getLabelPosition(d).y)
+        .attr('text-anchor', 'middle')
+        .text((d) => `$${d.funding}B`)
 
-        // Add size legend - repositioned to avoid overlap with x-axis labels
-        const legendX = width - 80;
-        const legendY = height - 140; // Moved up to avoid overlap with "Mature" label
-        
-        svg.append("text")
-            .attr("class", "legend-title")
-            .attr("x", legendX)
-            .attr("y", legendY - 60)
-            .attr("text-anchor", "middle")
-            .text("Bubble size represents");
-            
-        svg.append("text")
-            .attr("class", "legend-title")
-            .attr("x", legendX)
-            .attr("y", legendY - 45)
-            .attr("text-anchor", "middle")
-            .text("2024 funding amount ($B)");
-            
-        // Legend circles
-        const legendSizes = [1, 5, 9];
-        legendSizes.forEach((size, i) => {
-            svg.append("circle")
-                .attr("cx", legendX)
-                .attr("cy", legendY + i * 30)
-                .attr("r", sizeScale(size))
-                .attr("fill", "none")
-                .attr("stroke", "#555")
-                .attr("stroke-width", 1);
-                
-            svg.append("text")
-                .attr("class", "legend-label")
-                .attr("x", legendX + 60)
-                .attr("y", legendY + i * 30 + 5)
-                .attr("text-anchor", "end")
-                .text(`$${size}B`);
-        });
-        
-        // Add color legend - repositioned for better layout
-        const colorLegendX = 50;
-        const colorLegendY = height - 140; // Moved up to match size legend
-        const categories = Object.keys(colorMap);
-        
-        svg.append("text")
-            .attr("class", "legend-title")
-            .attr("x", colorLegendX)
-            .attr("y", colorLegendY - 20)
-            .text("Technology Categories");
-        
-        categories.forEach((category, i) => {
-            svg.append("rect")
-                .attr("x", colorLegendX)
-                .attr("y", colorLegendY + i * 20)
-                .attr("width", 15)
-                .attr("height", 15)
-                .attr("fill", colorMap[category]);
-                
-            svg.append("text")
-                .attr("class", "legend-label")
-                .attr("x", colorLegendX + 25)
-                .attr("y", colorLegendY + i * 20 + 12)
-                .text(category);
-        });
+      // Add cluster name labels (below values)
+      svg
+        .selectAll('.bubble-label')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'bubble-label')
+        .attr('x', (d) => getLabelPosition(d).x)
+        .attr('y', (d) => getLabelPosition(d).y + 15)
+        .attr('text-anchor', 'middle')
+        .text((d) => d.cluster)
+
+      // Add annotations with background for better readability
+      annotations.forEach((anno) => {
+        const target = data.find((d) => d.cluster === anno.cluster)
+        if (!target) return
+
+        const x = xScale(target.maturity) + xScale.bandwidth() / 2
+        const y = yScale(target.growthRate)
+
+        // Add annotation line with increased visibility
+        svg
+          .append('line')
+          .attr('class', 'annotation-line')
+          .attr('x1', x)
+          .attr('y1', y)
+          .attr('x2', x + anno.dx)
+          .attr('y2', y + anno.dy)
+
+        // Add annotation background
+        const textWidth = anno.text.length * 5.5 // Estimate text width
+        const bgX =
+          anno.align === 'start'
+            ? x + anno.dx
+            : anno.align === 'end'
+              ? x + anno.dx - textWidth
+              : x + anno.dx - textWidth / 2
+
+        svg
+          .append('rect')
+          .attr('class', 'annotation-bg')
+          .attr('x', bgX - 5)
+          .attr('y', y + anno.dy - 15)
+          .attr('width', textWidth + 10)
+          .attr('height', 20)
+
+        // Add annotation text
+        svg
+          .append('text')
+          .attr('class', 'annotation')
+          .attr('x', x + anno.dx)
+          .attr('y', y + anno.dy)
+          .attr('text-anchor', anno.align)
+          .text(anno.text)
+      })
+
+      // Add size legend - repositioned to avoid overlap with x-axis labels
+      const legendX = width - 80
+      const legendY = height - 140 // Moved up to avoid overlap with "Mature" label
+
+      svg
+        .append('text')
+        .attr('class', 'legend-title')
+        .attr('x', legendX)
+        .attr('y', legendY - 60)
+        .attr('text-anchor', 'middle')
+        .text('Bubble size represents')
+
+      svg
+        .append('text')
+        .attr('class', 'legend-title')
+        .attr('x', legendX)
+        .attr('y', legendY - 45)
+        .attr('text-anchor', 'middle')
+        .text('2024 funding amount ($B)')
+
+      // Legend circles
+      const legendSizes = [1, 5, 9]
+      legendSizes.forEach((size, i) => {
+        svg
+          .append('circle')
+          .attr('cx', legendX)
+          .attr('cy', legendY + i * 30)
+          .attr('r', sizeScale(size))
+          .attr('fill', 'none')
+          .attr('stroke', '#555')
+          .attr('stroke-width', 1)
+
+        svg
+          .append('text')
+          .attr('class', 'legend-label')
+          .attr('x', legendX + 60)
+          .attr('y', legendY + i * 30 + 5)
+          .attr('text-anchor', 'end')
+          .text(`$${size}B`)
+      })
+
+      // Add color legend - repositioned for better layout
+      const colorLegendX = 50
+      const colorLegendY = height - 140 // Moved up to match size legend
+      const categories = Object.keys(colorMap)
+
+      svg
+        .append('text')
+        .attr('class', 'legend-title')
+        .attr('x', colorLegendX)
+        .attr('y', colorLegendY - 20)
+        .text('Technology Categories')
+
+      categories.forEach((category, i) => {
+        svg
+          .append('rect')
+          .attr('x', colorLegendX)
+          .attr('y', colorLegendY + i * 20)
+          .attr('width', 15)
+          .attr('height', 15)
+          .attr('fill', colorMap[category])
+
+        svg
+          .append('text')
+          .attr('class', 'legend-label')
+          .attr('x', colorLegendX + 25)
+          .attr('y', colorLegendY + i * 20 + 12)
+          .text(category)
+      })
     </script>
-</body>
+  </body>
 </html>

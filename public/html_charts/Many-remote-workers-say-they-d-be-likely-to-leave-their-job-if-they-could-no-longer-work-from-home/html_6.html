@@ -1,380 +1,484 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Hidden Costs of Return-to-Office Mandates</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .container {
-            width: 1200px;
-            padding: 20px;
-        }
-        
-        .title {
-            font-size: 28px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            font-size: 16px;
-            text-align: center;
-            margin-bottom: 30px;
-            color: #555;
-        }
-        
-        .source {
-            font-size: 12px;
-            text-align: center;
-            margin-top: 30px;
-            color: #777;
-            font-style: italic;
-        }
-        
-        .key-stat {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            font-size: 18px;
-            fill: #333;
-        }
-        
-        .annotation {
-            font-size: 14px;
-            fill: #555;
-        }
-        
-        .axis-label {
-            font-size: 12px;
-            fill: #777;
-        }
-        
-        .zero-line {
-            stroke: #ccc;
-            stroke-width: 1;
-            stroke-dasharray: 4,4;
-        }
-        
-        .connector {
-            stroke: #aaa;
-            stroke-width: 1.5;
-        }
-        
-        .bar-label {
-            font-size: 14px;
-            font-weight: bold;
-            text-anchor: middle;
-        }
-        
-        .context-box {
-            fill: #f8f8f8;
-            stroke: #ddd;
-            stroke-width: 1;
-            rx: 5;
-            ry: 5;
-        }
-        
-        .context-text {
-            font-size: 14px;
-            fill: #333;
-        }
-        
-        .stage-label {
-            font-size: 12px;
-            fill: #555;
-            text-anchor: middle;
-        }
-        
-        .fa-icon {
-            font-size: 24px;
-            fill: #ff7f0e;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .container {
+        width: 1200px;
+        padding: 20px;
+      }
+
+      .title {
+        font-size: 28px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        text-align: center;
+        margin-bottom: 30px;
+        color: #555;
+      }
+
+      .source {
+        font-size: 12px;
+        text-align: center;
+        margin-top: 30px;
+        color: #777;
+        font-style: italic;
+      }
+
+      .key-stat {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        font-size: 18px;
+        fill: #333;
+      }
+
+      .annotation {
+        font-size: 14px;
+        fill: #555;
+      }
+
+      .axis-label {
+        font-size: 12px;
+        fill: #777;
+      }
+
+      .zero-line {
+        stroke: #ccc;
+        stroke-width: 1;
+        stroke-dasharray: 4, 4;
+      }
+
+      .connector {
+        stroke: #aaa;
+        stroke-width: 1.5;
+      }
+
+      .bar-label {
+        font-size: 14px;
+        font-weight: bold;
+        text-anchor: middle;
+      }
+
+      .context-box {
+        fill: #f8f8f8;
+        stroke: #ddd;
+        stroke-width: 1;
+        rx: 5;
+        ry: 5;
+      }
+
+      .context-text {
+        font-size: 14px;
+        fill: #333;
+      }
+
+      .stage-label {
+        font-size: 12px;
+        fill: #555;
+        text-anchor: middle;
+      }
+
+      .fa-icon {
+        font-size: 24px;
+        fill: #ff7f0e;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="title">The Hidden Costs of Return-to-Office Mandates</div>
-        <div class="subtitle">Impact on S&P 500 tech and financial firms based on analysis of >3 million LinkedIn profiles</div>
-        <div id="chart"></div>
-        <div class="source">Source: "Return to Office Mandates and Brain Drain," Dr. Mark Ma et al., SSRN, December 2024</div>
+      <div class="title">The Hidden Costs of Return-to-Office Mandates</div>
+      <div class="subtitle">
+        Impact on S&P 500 tech and financial firms based on analysis of >3 million LinkedIn profiles
+      </div>
+      <div id="chart"></div>
+      <div class="source">
+        Source: "Return to Office Mandates and Brain Drain," Dr. Mark Ma et al., SSRN, December 2024
+      </div>
     </div>
 
     <script>
-        // Set up dimensions
-        const margin = {top: 80, right: 180, bottom: 70, left: 80};
-        const width = 1200 - margin.left - margin.right;
-        const height = 600 - margin.top - margin.bottom;
-        
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left}, ${margin.top})`);
-        
-        // Define the data for the waterfall chart
-        const data = [
-            { stage: "RTO Mandate", value: 0, label: "RTO Mandate", color: "#ff7f0e", description: "Companies implementing return-to-office policies" },
-            { stage: "Overall Turnover", value: 14, label: "+14%", color: "#006c70", description: "Jump in turnover following RTO mandates" },
-            { stage: "Women", value: 20, label: "+20%", color: "#003f5c", description: "Higher turnover among women" },
-            { stage: "Men", value: 7, label: "+7%", color: "#003f5c", description: "Turnover among men" },
-            { stage: "Mid-level", value: 18, label: "+18%", color: "#2f7bbf", description: "Mid-level skilled workers turnover" },
-            { stage: "Senior", value: 19, label: "+19%", color: "#2f7bbf", description: "Senior managers turnover" },
-            { stage: "Hiring Rate", value: -17, label: "-17%", color: "#ff7f0e", description: "Decrease in overall hiring rates" },
-            { stage: "Time-to-Fill", value: 23, label: "+23%", color: "#ff7f0e", description: "Increase in time to fill positions (≈+12 days per role)" }
-        ];
-        
-        // Define x scale
-        const x = d3.scaleBand()
-            .domain(data.map(d => d.stage))
-            .range([0, width])
-            .padding(0.3);
-        
-        // Define y scale
-        const y = d3.scaleLinear()
-            .domain([-25, 25])
-            .range([height, 0]);
-        
-        // Draw zero line
-        svg.append("line")
-            .attr("class", "zero-line")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", y(0))
-            .attr("y2", y(0));
-        
-        // Draw y-axis
-        svg.append("g")
-            .call(d3.axisLeft(y).tickFormat(d => d + "%"))
-            .call(g => g.select(".domain").remove());
-        
-        // Draw bars
-        const bars = svg.selectAll(".bar")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", "bar")
-            .attr("x", d => x(d.stage))
-            .attr("width", x.bandwidth())
-            .attr("y", d => d.value >= 0 ? y(d.value) : y(0))
-            .attr("height", d => Math.abs(y(0) - y(d.value)))
-            .attr("fill", d => {
-                // Special case for RTO Mandate - make it a filled bar
-                if (d.stage === "RTO Mandate") {
-                    return "#ff7f0e";
-                }
-                return d.color;
-            });
-        
-        // Add bar labels
-        svg.selectAll(".bar-label")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("class", "bar-label")
-            .attr("x", d => x(d.stage) + x.bandwidth() / 2)
-            .attr("y", d => {
-                if (d.stage === "RTO Mandate") {
-                    return y(0) - 10;
-                } else if (d.value >= 0) {
-                    return y(d.value) - 10;
-                } else {
-                    return y(0) + 20;
-                }
-            })
-            .text(d => d.label)
-            .attr("fill", d => {
-                if (d.stage === "RTO Mandate" || d.value < 0) {
-                    return "#fff";
-                }
-                return "#333";
-            });
-        
-        // Add stage labels with more space from axis
-        svg.selectAll(".stage-label")
-            .data(data)
-            .enter()
-            .append("text")
-            .attr("class", "stage-label")
-            .attr("x", d => x(d.stage) + x.bandwidth() / 2)
-            .attr("y", height + 40)
-            .text(d => d.stage);
-        
-        // Add connectors between related elements with improved routing
-        // RTO to Overall Turnover
-        svg.append("path")
-            .attr("class", "connector")
-            .attr("d", `M${x("RTO Mandate") + x.bandwidth()/2},${y(0)} L${x("Overall Turnover") + x.bandwidth()/2},${y(14)}`)
-            .attr("fill", "none")
-            .attr("stroke", "#aaa");
-        
-        // Overall Turnover to Women
-        svg.append("path")
-            .attr("class", "connector")
-            .attr("d", `M${x("Overall Turnover") + x.bandwidth()/2},${y(14)} 
-                        L${x("Overall Turnover") + x.bandwidth()/2},${y(17)} 
-                        L${x("Women") + x.bandwidth()/2},${y(17)} 
-                        L${x("Women") + x.bandwidth()/2},${y(20)}`)
-            .attr("fill", "none")
-            .attr("stroke", "#aaa");
-        
-        // Overall Turnover to Men
-        svg.append("path")
-            .attr("class", "connector")
-            .attr("d", `M${x("Overall Turnover") + x.bandwidth()/2},${y(14)} 
-                        L${x("Overall Turnover") + x.bandwidth()/2},${y(10)} 
-                        L${x("Men") + x.bandwidth()/2},${y(10)} 
-                        L${x("Men") + x.bandwidth()/2},${y(7)}`)
-            .attr("fill", "none")
-            .attr("stroke", "#aaa");
-        
-        // Overall Turnover to Mid-level
-        svg.append("path")
-            .attr("class", "connector")
-            .attr("d", `M${x("Overall Turnover") + x.bandwidth()/2},${y(14)} 
-                        L${x("Overall Turnover") + x.bandwidth()/2 + 30},${y(14)} 
-                        L${x("Mid-level") - 30},${y(18)} 
-                        L${x("Mid-level") + x.bandwidth()/2},${y(18)}`)
-            .attr("fill", "none")
-            .attr("stroke", "#aaa");
-        
-        // Overall Turnover to Senior
-        svg.append("path")
-            .attr("class", "connector")
-            .attr("d", `M${x("Overall Turnover") + x.bandwidth()/2},${y(14)} 
-                        L${x("Overall Turnover") + x.bandwidth()/2 + 40},${y(14)} 
-                        L${x("Senior") - 30},${y(19)} 
-                        L${x("Senior") + x.bandwidth()/2},${y(19)}`)
-            .attr("fill", "none")
-            .attr("stroke", "#aaa");
-        
-        // Overall Turnover to Hiring Rate - improved routing
-        svg.append("path")
-            .attr("class", "connector")
-            .attr("d", `M${x("Overall Turnover") + x.bandwidth()/2},${y(14)} 
-                        L${x("Overall Turnover") + x.bandwidth()/2 + 50},${y(14)} 
-                        L${x("Hiring Rate") - 50},${y(-10)} 
-                        L${x("Hiring Rate") + x.bandwidth()/2},${y(-17)}`)
-            .attr("fill", "none")
-            .attr("stroke", "#aaa");
-        
-        // Hiring Rate to Time-to-Fill
-        svg.append("path")
-            .attr("class", "connector")
-            .attr("d", `M${x("Hiring Rate") + x.bandwidth()/2},${y(-17)} 
-                        L${x("Time-to-Fill") + x.bandwidth()/2},${y(23)}`)
-            .attr("fill", "none")
-            .attr("stroke", "#aaa");
-        
-        // Add FontAwesome building icon to RTO Mandate bar
-        svg.append("foreignObject")
-            .attr("x", x("RTO Mandate") + x.bandwidth()/2 - 12)
-            .attr("y", y(0) - 40)
-            .attr("width", 24)
-            .attr("height", 24)
-            .html('<i class="fas fa-building" style="font-size: 24px; color: #ff7f0e;"></i>');
-        
-        // Gender comparison annotation - repositioned for clarity
-        svg.append("rect")
-            .attr("class", "context-box")
-            .attr("x", x("Women") - 20)
-            .attr("y", y(25) - 30)
-            .attr("width", x.bandwidth() * 2 + 40)
-            .attr("height", 60);
-        
-        svg.append("text")
-            .attr("x", x("Women") + x.bandwidth())
-            .attr("y", y(25) - 10)
-            .attr("text-anchor", "middle")
-            .attr("class", "annotation")
-            .text("Gender comparison");
-        
-        svg.append("text")
-            .attr("x", x("Women") + x.bandwidth())
-            .attr("y", y(25) + 10)
-            .attr("text-anchor", "middle")
-            .attr("class", "key-stat")
-            .text("Women: +20% vs Men: +7%");
-        
-        // Job level annotation - repositioned for clarity
-        svg.append("rect")
-            .attr("class", "context-box")
-            .attr("x", x("Mid-level") - 20)
-            .attr("y", y(25) - 30)
-            .attr("width", x.bandwidth() * 2 + 40)
-            .attr("height", 60);
-        
-        svg.append("text")
-            .attr("x", x("Mid-level") + x.bandwidth())
-            .attr("y", y(25) - 10)
-            .attr("text-anchor", "middle")
-            .attr("class", "annotation")
-            .text("Job level comparison");
-        
-        svg.append("text")
-            .attr("x", x("Mid-level") + x.bandwidth())
-            .attr("y", y(25) + 10)
-            .attr("text-anchor", "middle")
-            .attr("class", "key-stat")
-            .text("Mid-level: +18%, Senior: +19%");
-        
-        // Time-to-fill annotation - repositioned to avoid overlap
-        svg.append("circle")
-            .attr("cx", x("Time-to-Fill") + x.bandwidth()/2)
-            .attr("cy", y(23))
-            .attr("r", 5)
-            .attr("fill", "#ff7f0e");
-        
-        svg.append("line")
-            .attr("x1", x("Time-to-Fill") + x.bandwidth()/2)
-            .attr("y1", y(23))
-            .attr("x2", x("Time-to-Fill") + x.bandwidth() + 30)
-            .attr("y2", y(15))
-            .attr("stroke", "#aaa")
-            .attr("stroke-width", 1);
-        
-        svg.append("text")
-            .attr("x", x("Time-to-Fill") + x.bandwidth() + 35)
-            .attr("y", y(15))
-            .attr("class", "key-stat")
-            .text("+23% time-to-fill");
-        
-        svg.append("text")
-            .attr("x", x("Time-to-Fill") + x.bandwidth() + 35)
-            .attr("y", y(15) + 20)
-            .attr("class", "annotation")
-            .text("≈+12 days per role");
-        
-        // Additional context box - repositioned for better balance
-        svg.append("rect")
-            .attr("class", "context-box")
-            .attr("x", 50)
-            .attr("y", y(-25) - 60)
-            .attr("width", 300)
-            .attr("height", 50);
-        
-        svg.append("text")
-            .attr("x", 60)
-            .attr("y", y(-25) - 30)
-            .attr("class", "context-text")
-            .html('<tspan font-family="Georgia" font-weight="bold">91%</tspan> of employees now expect flexible work');
-        
-        svg.append("text")
-            .attr("x", 60)
-            .attr("y", y(-25) - 30 + 20)
-            .attr("class", "context-text")
-            .text("(54% hybrid, 37% fully remote)");
+      // Set up dimensions
+      const margin = { top: 80, right: 180, bottom: 70, left: 80 }
+      const width = 1200 - margin.left - margin.right
+      const height = 600 - margin.top - margin.bottom
+
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
+
+      // Define the data for the waterfall chart
+      const data = [
+        {
+          stage: 'RTO Mandate',
+          value: 0,
+          label: 'RTO Mandate',
+          color: '#ff7f0e',
+          description: 'Companies implementing return-to-office policies',
+        },
+        {
+          stage: 'Overall Turnover',
+          value: 14,
+          label: '+14%',
+          color: '#006c70',
+          description: 'Jump in turnover following RTO mandates',
+        },
+        {
+          stage: 'Women',
+          value: 20,
+          label: '+20%',
+          color: '#003f5c',
+          description: 'Higher turnover among women',
+        },
+        {
+          stage: 'Men',
+          value: 7,
+          label: '+7%',
+          color: '#003f5c',
+          description: 'Turnover among men',
+        },
+        {
+          stage: 'Mid-level',
+          value: 18,
+          label: '+18%',
+          color: '#2f7bbf',
+          description: 'Mid-level skilled workers turnover',
+        },
+        {
+          stage: 'Senior',
+          value: 19,
+          label: '+19%',
+          color: '#2f7bbf',
+          description: 'Senior managers turnover',
+        },
+        {
+          stage: 'Hiring Rate',
+          value: -17,
+          label: '-17%',
+          color: '#ff7f0e',
+          description: 'Decrease in overall hiring rates',
+        },
+        {
+          stage: 'Time-to-Fill',
+          value: 23,
+          label: '+23%',
+          color: '#ff7f0e',
+          description: 'Increase in time to fill positions (≈+12 days per role)',
+        },
+      ]
+
+      // Define x scale
+      const x = d3
+        .scaleBand()
+        .domain(data.map((d) => d.stage))
+        .range([0, width])
+        .padding(0.3)
+
+      // Define y scale
+      const y = d3.scaleLinear().domain([-25, 25]).range([height, 0])
+
+      // Draw zero line
+      svg
+        .append('line')
+        .attr('class', 'zero-line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', y(0))
+        .attr('y2', y(0))
+
+      // Draw y-axis
+      svg
+        .append('g')
+        .call(d3.axisLeft(y).tickFormat((d) => d + '%'))
+        .call((g) => g.select('.domain').remove())
+
+      // Draw bars
+      const bars = svg
+        .selectAll('.bar')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', (d) => x(d.stage))
+        .attr('width', x.bandwidth())
+        .attr('y', (d) => (d.value >= 0 ? y(d.value) : y(0)))
+        .attr('height', (d) => Math.abs(y(0) - y(d.value)))
+        .attr('fill', (d) => {
+          // Special case for RTO Mandate - make it a filled bar
+          if (d.stage === 'RTO Mandate') {
+            return '#ff7f0e'
+          }
+          return d.color
+        })
+
+      // Add bar labels
+      svg
+        .selectAll('.bar-label')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'bar-label')
+        .attr('x', (d) => x(d.stage) + x.bandwidth() / 2)
+        .attr('y', (d) => {
+          if (d.stage === 'RTO Mandate') {
+            return y(0) - 10
+          } else if (d.value >= 0) {
+            return y(d.value) - 10
+          } else {
+            return y(0) + 20
+          }
+        })
+        .text((d) => d.label)
+        .attr('fill', (d) => {
+          if (d.stage === 'RTO Mandate' || d.value < 0) {
+            return '#fff'
+          }
+          return '#333'
+        })
+
+      // Add stage labels with more space from axis
+      svg
+        .selectAll('.stage-label')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'stage-label')
+        .attr('x', (d) => x(d.stage) + x.bandwidth() / 2)
+        .attr('y', height + 40)
+        .text((d) => d.stage)
+
+      // Add connectors between related elements with improved routing
+      // RTO to Overall Turnover
+      svg
+        .append('path')
+        .attr('class', 'connector')
+        .attr(
+          'd',
+          `M${x('RTO Mandate') + x.bandwidth() / 2},${y(0)} L${x('Overall Turnover') + x.bandwidth() / 2},${y(14)}`
+        )
+        .attr('fill', 'none')
+        .attr('stroke', '#aaa')
+
+      // Overall Turnover to Women
+      svg
+        .append('path')
+        .attr('class', 'connector')
+        .attr(
+          'd',
+          `M${x('Overall Turnover') + x.bandwidth() / 2},${y(14)} 
+                        L${x('Overall Turnover') + x.bandwidth() / 2},${y(17)} 
+                        L${x('Women') + x.bandwidth() / 2},${y(17)} 
+                        L${x('Women') + x.bandwidth() / 2},${y(20)}`
+        )
+        .attr('fill', 'none')
+        .attr('stroke', '#aaa')
+
+      // Overall Turnover to Men
+      svg
+        .append('path')
+        .attr('class', 'connector')
+        .attr(
+          'd',
+          `M${x('Overall Turnover') + x.bandwidth() / 2},${y(14)} 
+                        L${x('Overall Turnover') + x.bandwidth() / 2},${y(10)} 
+                        L${x('Men') + x.bandwidth() / 2},${y(10)} 
+                        L${x('Men') + x.bandwidth() / 2},${y(7)}`
+        )
+        .attr('fill', 'none')
+        .attr('stroke', '#aaa')
+
+      // Overall Turnover to Mid-level
+      svg
+        .append('path')
+        .attr('class', 'connector')
+        .attr(
+          'd',
+          `M${x('Overall Turnover') + x.bandwidth() / 2},${y(14)} 
+                        L${x('Overall Turnover') + x.bandwidth() / 2 + 30},${y(14)} 
+                        L${x('Mid-level') - 30},${y(18)} 
+                        L${x('Mid-level') + x.bandwidth() / 2},${y(18)}`
+        )
+        .attr('fill', 'none')
+        .attr('stroke', '#aaa')
+
+      // Overall Turnover to Senior
+      svg
+        .append('path')
+        .attr('class', 'connector')
+        .attr(
+          'd',
+          `M${x('Overall Turnover') + x.bandwidth() / 2},${y(14)} 
+                        L${x('Overall Turnover') + x.bandwidth() / 2 + 40},${y(14)} 
+                        L${x('Senior') - 30},${y(19)} 
+                        L${x('Senior') + x.bandwidth() / 2},${y(19)}`
+        )
+        .attr('fill', 'none')
+        .attr('stroke', '#aaa')
+
+      // Overall Turnover to Hiring Rate - improved routing
+      svg
+        .append('path')
+        .attr('class', 'connector')
+        .attr(
+          'd',
+          `M${x('Overall Turnover') + x.bandwidth() / 2},${y(14)} 
+                        L${x('Overall Turnover') + x.bandwidth() / 2 + 50},${y(14)} 
+                        L${x('Hiring Rate') - 50},${y(-10)} 
+                        L${x('Hiring Rate') + x.bandwidth() / 2},${y(-17)}`
+        )
+        .attr('fill', 'none')
+        .attr('stroke', '#aaa')
+
+      // Hiring Rate to Time-to-Fill
+      svg
+        .append('path')
+        .attr('class', 'connector')
+        .attr(
+          'd',
+          `M${x('Hiring Rate') + x.bandwidth() / 2},${y(-17)} 
+                        L${x('Time-to-Fill') + x.bandwidth() / 2},${y(23)}`
+        )
+        .attr('fill', 'none')
+        .attr('stroke', '#aaa')
+
+      // Add FontAwesome building icon to RTO Mandate bar
+      svg
+        .append('foreignObject')
+        .attr('x', x('RTO Mandate') + x.bandwidth() / 2 - 12)
+        .attr('y', y(0) - 40)
+        .attr('width', 24)
+        .attr('height', 24)
+        .html('<i class="fas fa-building" style="font-size: 24px; color: #ff7f0e;"></i>')
+
+      // Gender comparison annotation - repositioned for clarity
+      svg
+        .append('rect')
+        .attr('class', 'context-box')
+        .attr('x', x('Women') - 20)
+        .attr('y', y(25) - 30)
+        .attr('width', x.bandwidth() * 2 + 40)
+        .attr('height', 60)
+
+      svg
+        .append('text')
+        .attr('x', x('Women') + x.bandwidth())
+        .attr('y', y(25) - 10)
+        .attr('text-anchor', 'middle')
+        .attr('class', 'annotation')
+        .text('Gender comparison')
+
+      svg
+        .append('text')
+        .attr('x', x('Women') + x.bandwidth())
+        .attr('y', y(25) + 10)
+        .attr('text-anchor', 'middle')
+        .attr('class', 'key-stat')
+        .text('Women: +20% vs Men: +7%')
+
+      // Job level annotation - repositioned for clarity
+      svg
+        .append('rect')
+        .attr('class', 'context-box')
+        .attr('x', x('Mid-level') - 20)
+        .attr('y', y(25) - 30)
+        .attr('width', x.bandwidth() * 2 + 40)
+        .attr('height', 60)
+
+      svg
+        .append('text')
+        .attr('x', x('Mid-level') + x.bandwidth())
+        .attr('y', y(25) - 10)
+        .attr('text-anchor', 'middle')
+        .attr('class', 'annotation')
+        .text('Job level comparison')
+
+      svg
+        .append('text')
+        .attr('x', x('Mid-level') + x.bandwidth())
+        .attr('y', y(25) + 10)
+        .attr('text-anchor', 'middle')
+        .attr('class', 'key-stat')
+        .text('Mid-level: +18%, Senior: +19%')
+
+      // Time-to-fill annotation - repositioned to avoid overlap
+      svg
+        .append('circle')
+        .attr('cx', x('Time-to-Fill') + x.bandwidth() / 2)
+        .attr('cy', y(23))
+        .attr('r', 5)
+        .attr('fill', '#ff7f0e')
+
+      svg
+        .append('line')
+        .attr('x1', x('Time-to-Fill') + x.bandwidth() / 2)
+        .attr('y1', y(23))
+        .attr('x2', x('Time-to-Fill') + x.bandwidth() + 30)
+        .attr('y2', y(15))
+        .attr('stroke', '#aaa')
+        .attr('stroke-width', 1)
+
+      svg
+        .append('text')
+        .attr('x', x('Time-to-Fill') + x.bandwidth() + 35)
+        .attr('y', y(15))
+        .attr('class', 'key-stat')
+        .text('+23% time-to-fill')
+
+      svg
+        .append('text')
+        .attr('x', x('Time-to-Fill') + x.bandwidth() + 35)
+        .attr('y', y(15) + 20)
+        .attr('class', 'annotation')
+        .text('≈+12 days per role')
+
+      // Additional context box - repositioned for better balance
+      svg
+        .append('rect')
+        .attr('class', 'context-box')
+        .attr('x', 50)
+        .attr('y', y(-25) - 60)
+        .attr('width', 300)
+        .attr('height', 50)
+
+      svg
+        .append('text')
+        .attr('x', 60)
+        .attr('y', y(-25) - 30)
+        .attr('class', 'context-text')
+        .html(
+          '<tspan font-family="Georgia" font-weight="bold">91%</tspan> of employees now expect flexible work'
+        )
+
+      svg
+        .append('text')
+        .attr('x', 60)
+        .attr('y', y(-25) - 30 + 20)
+        .attr('class', 'context-text')
+        .text('(54% hybrid, 37% fully remote)')
     </script>
-</body>
+  </body>
 </html>

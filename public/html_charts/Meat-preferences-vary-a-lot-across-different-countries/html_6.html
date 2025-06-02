@@ -1,470 +1,485 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Global Meat Consumption Projection</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        .visualization-container {
-            width: 800px;
-            height: 600px;
-            position: relative;
-        }
-        
-        .title {
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 16px;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #555;
-        }
-        
-        .axis-label {
-            font-size: 12px;
-            fill: #555;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-opacity: 0.7;
-            shape-rendering: crispEdges;
-        }
-        
-        .annotation {
-            font-size: 12px;
-            fill: #333;
-        }
-        
-        .annotation-box {
-            fill: rgba(255, 255, 255, 0.9);
-            stroke: #ccc;
-            stroke-width: 1px;
-            rx: 4px;
-            ry: 4px;
-        }
-        
-        .annotation-line {
-            stroke: #555;
-            stroke-width: 1.5px;
-            stroke-dasharray: 3,3;
-        }
-        
-        .total-label {
-            font-family: 'Georgia', serif;
-            font-size: 14px;
-            font-weight: bold;
-            fill: #333;
-        }
-        
-        .total-line {
-            stroke: #333;
-            stroke-width: 1.5px;
-            stroke-dasharray: 4,2;
-        }
-        
-        .legend-item text {
-            font-size: 12px;
-            fill: #333;
-        }
-        
-        .source-note {
-            font-size: 11px;
-            fill: #777;
-        }
-        
-        .key-number {
-            font-family: 'Georgia', serif;
-            font-weight: bold;
-            font-size: 14px;
-            fill: #1a1a1a;
-        }
-        
-        .region-label {
-            font-size: 13px;
-            font-weight: bold;
-            pointer-events: none;
-            text-anchor: middle;
-            dominant-baseline: middle;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .visualization-container {
+        width: 800px;
+        height: 600px;
+        position: relative;
+      }
+
+      .title {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #555;
+      }
+
+      .axis-label {
+        font-size: 12px;
+        fill: #555;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+      }
+
+      .annotation {
+        font-size: 12px;
+        fill: #333;
+      }
+
+      .annotation-box {
+        fill: rgba(255, 255, 255, 0.9);
+        stroke: #ccc;
+        stroke-width: 1px;
+        rx: 4px;
+        ry: 4px;
+      }
+
+      .annotation-line {
+        stroke: #555;
+        stroke-width: 1.5px;
+        stroke-dasharray: 3, 3;
+      }
+
+      .total-label {
+        font-family: 'Georgia', serif;
+        font-size: 14px;
+        font-weight: bold;
+        fill: #333;
+      }
+
+      .total-line {
+        stroke: #333;
+        stroke-width: 1.5px;
+        stroke-dasharray: 4, 2;
+      }
+
+      .legend-item text {
+        font-size: 12px;
+        fill: #333;
+      }
+
+      .source-note {
+        font-size: 11px;
+        fill: #777;
+      }
+
+      .key-number {
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        font-size: 14px;
+        fill: #1a1a1a;
+      }
+
+      .region-label {
+        font-size: 13px;
+        font-weight: bold;
+        pointer-events: none;
+        text-anchor: middle;
+        dominant-baseline: middle;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Global meat consumption projected to rise <span style="font-family: 'Georgia', serif; color: #1a1a1a;">32%</span> by 2050, with regional variations</div>
-        <div class="subtitle">Projected meat consumption (million metric tons)</div>
-        <svg id="chart"></svg>
+      <div class="title">
+        Global meat consumption projected to rise
+        <span style="font-family: 'Georgia', serif; color: #1a1a1a">32%</span> by 2050, with
+        regional variations
+      </div>
+      <div class="subtitle">Projected meat consumption (million metric tons)</div>
+      <svg id="chart"></svg>
     </div>
 
     <script>
-        // Set up dimensions
-        const margin = {top: 30, right: 30, bottom: 80, left: 60};
-        const width = 800 - margin.left - margin.right;
-        const height = 500 - margin.top - margin.bottom;
+      // Set up dimensions
+      const margin = { top: 30, right: 30, bottom: 80, left: 60 }
+      const width = 800 - margin.left - margin.right
+      const height = 500 - margin.top - margin.bottom
 
-        // Create SVG
-        const svg = d3.select("#chart")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
 
-        // Define the data
-        const years = [2020, 2030, 2040, 2050];
-        
-        const data = [
-            {
-                region: "China",
-                color: "#1a4e8c", // dark blue
-                values: [
-                    {year: 2020, value: 90},
-                    {year: 2030, value: 100},
-                    {year: 2040, value: 108},
-                    {year: 2050, value: 115}
-                ]
-            },
-            {
-                region: "Americas",
-                color: "#4682b4", // medium blue
-                values: [
-                    {year: 2020, value: 85},
-                    {year: 2030, value: 92},
-                    {year: 2040, value: 100},
-                    {year: 2050, value: 110}
-                ]
-            },
-            {
-                region: "Europe",
-                color: "#87ceeb", // light blue
-                values: [
-                    {year: 2020, value: 65},
-                    {year: 2030, value: 65.5},
-                    {year: 2040, value: 65.8},
-                    {year: 2050, value: 65.3}
-                ]
-            },
-            {
-                region: "Africa",
-                color: "#4caf50", // green
-                values: [
-                    {year: 2020, value: 25},
-                    {year: 2030, value: 28},
-                    {year: 2040, value: 32},
-                    {year: 2050, value: 37.5}
-                ]
-            },
-            {
-                region: "Rest of Asia",
-                color: "#9c27b0", // purple
-                values: [
-                    {year: 2020, value: 70},
-                    {year: 2030, value: 80},
-                    {year: 2040, value: 90},
-                    {year: 2050, value: 115}
-                ]
-            },
-            {
-                region: "Oceania",
-                color: "#ffc107", // yellow
-                values: [
-                    {year: 2020, value: 5},
-                    {year: 2030, value: 5.5},
-                    {year: 2040, value: 6},
-                    {year: 2050, value: 7.2}
-                ]
+      // Define the data
+      const years = [2020, 2030, 2040, 2050]
+
+      const data = [
+        {
+          region: 'China',
+          color: '#1a4e8c', // dark blue
+          values: [
+            { year: 2020, value: 90 },
+            { year: 2030, value: 100 },
+            { year: 2040, value: 108 },
+            { year: 2050, value: 115 },
+          ],
+        },
+        {
+          region: 'Americas',
+          color: '#4682b4', // medium blue
+          values: [
+            { year: 2020, value: 85 },
+            { year: 2030, value: 92 },
+            { year: 2040, value: 100 },
+            { year: 2050, value: 110 },
+          ],
+        },
+        {
+          region: 'Europe',
+          color: '#87ceeb', // light blue
+          values: [
+            { year: 2020, value: 65 },
+            { year: 2030, value: 65.5 },
+            { year: 2040, value: 65.8 },
+            { year: 2050, value: 65.3 },
+          ],
+        },
+        {
+          region: 'Africa',
+          color: '#4caf50', // green
+          values: [
+            { year: 2020, value: 25 },
+            { year: 2030, value: 28 },
+            { year: 2040, value: 32 },
+            { year: 2050, value: 37.5 },
+          ],
+        },
+        {
+          region: 'Rest of Asia',
+          color: '#9c27b0', // purple
+          values: [
+            { year: 2020, value: 70 },
+            { year: 2030, value: 80 },
+            { year: 2040, value: 90 },
+            { year: 2050, value: 115 },
+          ],
+        },
+        {
+          region: 'Oceania',
+          color: '#ffc107', // yellow
+          values: [
+            { year: 2020, value: 5 },
+            { year: 2030, value: 5.5 },
+            { year: 2040, value: 6 },
+            { year: 2050, value: 7.2 },
+          ],
+        },
+      ]
+
+      // Process data for stacked area chart
+      const stackedData = []
+
+      years.forEach((year) => {
+        const yearData = { year }
+        let cumulative = 0
+
+        data.forEach((region) => {
+          const regionValue = region.values.find((v) => v.year === year).value
+          yearData[region.region] = regionValue
+          yearData[`${region.region}_start`] = cumulative
+          yearData[`${region.region}_end`] = cumulative + regionValue
+          cumulative += regionValue
+        })
+
+        yearData.total = cumulative
+        stackedData.push(yearData)
+      })
+
+      // Set up scales
+      const x = d3.scaleLinear().domain([2020, 2050]).range([0, width])
+
+      const y = d3.scaleLinear().domain([0, 500]).range([height, 0])
+
+      // Create axes
+      const xAxis = d3
+        .axisBottom(x)
+        .tickValues([2020, 2030, 2040, 2050])
+        .tickFormat((d) => d)
+
+      const yAxis = d3
+        .axisLeft(y)
+        .tickValues([0, 100, 200, 300, 400, 500])
+        .tickFormat((d) => d)
+
+      // Add X axis
+      svg
+        .append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(xAxis)
+        .selectAll('text')
+        .style('font-size', '12px')
+
+      // Add Y axis
+      svg.append('g').call(yAxis).selectAll('text').style('font-size', '12px')
+
+      // Add Y axis label
+      svg
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('transform', 'rotate(-90)')
+        .attr('y', -margin.left + 20)
+        .attr('x', -height / 2)
+        .attr('text-anchor', 'middle')
+        .text('Million metric tons')
+
+      // Add grid lines
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .call(
+          d3.axisLeft(y).tickValues([0, 100, 200, 300, 400, 500]).tickSize(-width).tickFormat('')
+        )
+
+      // Create area generator for each region
+      data.forEach((region, i) => {
+        const areaGenerator = d3
+          .area()
+          .x((d) => x(d.year))
+          .y0((d) => y(d[`${region.region}_start`]))
+          .y1((d) => y(d[`${region.region}_end`]))
+          .curve(d3.curveMonotoneX)
+
+        svg
+          .append('path')
+          .datum(stackedData)
+          .attr('fill', region.color)
+          .attr('opacity', 0.9)
+          .attr('d', areaGenerator)
+      })
+
+      // Calculate region centers for labels
+      function calculateRegionCenters() {
+        const centers = []
+
+        data.forEach((region) => {
+          // Find the midpoint year (around 2035)
+          const midYearData =
+            stackedData.find((d) => d.year === 2035) || stackedData.find((d) => d.year === 2030)
+
+          if (midYearData) {
+            const start = midYearData[`${region.region}_start`]
+            const end = midYearData[`${region.region}_end`]
+            const midY = (start + end) / 2
+
+            // Only add if the region has enough vertical space
+            const height = end - start
+            if (height > 15 || region.region === 'Oceania') {
+              centers.push({
+                region: region.region,
+                x: x(2035),
+                y: y(midY),
+                color: region.color,
+                height: height,
+              })
             }
-        ];
+          }
+        })
 
-        // Process data for stacked area chart
-        const stackedData = [];
-        
-        years.forEach(year => {
-            const yearData = {year};
-            let cumulative = 0;
-            
-            data.forEach(region => {
-                const regionValue = region.values.find(v => v.year === year).value;
-                yearData[region.region] = regionValue;
-                yearData[`${region.region}_start`] = cumulative;
-                yearData[`${region.region}_end`] = cumulative + regionValue;
-                cumulative += regionValue;
-            });
-            
-            yearData.total = cumulative;
-            stackedData.push(yearData);
-        });
+        return centers
+      }
 
-        // Set up scales
-        const x = d3.scaleLinear()
-            .domain([2020, 2050])
-            .range([0, width]);
+      // Add region labels directly on areas
+      const regionCenters = calculateRegionCenters()
 
-        const y = d3.scaleLinear()
-            .domain([0, 500])
-            .range([height, 0]);
-
-        // Create axes
-        const xAxis = d3.axisBottom(x)
-            .tickValues([2020, 2030, 2040, 2050])
-            .tickFormat(d => d);
-
-        const yAxis = d3.axisLeft(y)
-            .tickValues([0, 100, 200, 300, 400, 500])
-            .tickFormat(d => d);
-
-        // Add X axis
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(xAxis)
-            .selectAll("text")
-            .style("font-size", "12px");
-
-        // Add Y axis
-        svg.append("g")
-            .call(yAxis)
-            .selectAll("text")
-            .style("font-size", "12px");
-
-        // Add Y axis label
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -margin.left + 20)
-            .attr("x", -height / 2)
-            .attr("text-anchor", "middle")
-            .text("Million metric tons");
-
-        // Add grid lines
-        svg.append("g")
-            .attr("class", "grid")
-            .call(d3.axisLeft(y)
-                .tickValues([0, 100, 200, 300, 400, 500])
-                .tickSize(-width)
-                .tickFormat("")
-            );
-
-        // Create area generator for each region
-        data.forEach((region, i) => {
-            const areaGenerator = d3.area()
-                .x(d => x(d.year))
-                .y0(d => y(d[`${region.region}_start`]))
-                .y1(d => y(d[`${region.region}_end`]))
-                .curve(d3.curveMonotoneX);
-                
-            svg.append("path")
-                .datum(stackedData)
-                .attr("fill", region.color)
-                .attr("opacity", 0.9)
-                .attr("d", areaGenerator);
-        });
-
-        // Calculate region centers for labels
-        function calculateRegionCenters() {
-            const centers = [];
-            
-            data.forEach(region => {
-                // Find the midpoint year (around 2035)
-                const midYearData = stackedData.find(d => d.year === 2035) || 
-                                   stackedData.find(d => d.year === 2030);
-                
-                if (midYearData) {
-                    const start = midYearData[`${region.region}_start`];
-                    const end = midYearData[`${region.region}_end`];
-                    const midY = (start + end) / 2;
-                    
-                    // Only add if the region has enough vertical space
-                    const height = end - start;
-                    if (height > 15 || region.region === "Oceania") {
-                        centers.push({
-                            region: region.region,
-                            x: x(2035),
-                            y: y(midY),
-                            color: region.color,
-                            height: height
-                        });
-                    }
-                }
-            });
-            
-            return centers;
+      regionCenters.forEach((center) => {
+        // Skip very small regions for direct labeling
+        if (center.height < 10 && center.region === 'Oceania') {
+          return // Skip direct labeling for very small regions
         }
 
-        // Add region labels directly on areas
-        const regionCenters = calculateRegionCenters();
-        
-        regionCenters.forEach(center => {
-            // Skip very small regions for direct labeling
-            if (center.height < 10 && center.region === "Oceania") {
-                return; // Skip direct labeling for very small regions
-            }
-            
-            // Create background for better readability
-            svg.append("rect")
-                .attr("x", center.x - 40)
-                .attr("y", center.y - 10)
-                .attr("width", 80)
-                .attr("height", 20)
-                .attr("fill", "rgba(255, 255, 255, 0.7)")
-                .attr("rx", 3)
-                .attr("ry", 3);
-                
-            svg.append("text")
-                .attr("class", "region-label")
-                .attr("x", center.x)
-                .attr("y", center.y)
-                .attr("fill", "#333")
-                .text(center.region);
-        });
+        // Create background for better readability
+        svg
+          .append('rect')
+          .attr('x', center.x - 40)
+          .attr('y', center.y - 10)
+          .attr('width', 80)
+          .attr('height', 20)
+          .attr('fill', 'rgba(255, 255, 255, 0.7)')
+          .attr('rx', 3)
+          .attr('ry', 3)
 
-        // Add total values and lines
-        [0, 3].forEach((i) => {
-            const year = years[i];
-            const total = stackedData[i].total;
-            
-            // Horizontal line
-            svg.append("line")
-                .attr("class", "total-line")
-                .attr("x1", x(year) - 30)
-                .attr("y1", y(total))
-                .attr("x2", x(year) + 30)
-                .attr("y2", y(total));
-                
-            // Total label
-            svg.append("text")
-                .attr("class", "total-label")
-                .attr("x", x(year))
-                .attr("y", y(total) - 10)
-                .attr("text-anchor", "middle")
-                .text(`${total} Mt`);
-        });
+        svg
+          .append('text')
+          .attr('class', 'region-label')
+          .attr('x', center.x)
+          .attr('y', center.y)
+          .attr('fill', '#333')
+          .text(center.region)
+      })
 
-        // Add annotations - revised positioning and content
-        const annotations = [
-            {
-                x: x(2035),
-                y: y(350),
-                width: 220,
-                height: 60,
-                text: "Africa projected to see 30% growth, while Europe expected to remain nearly stable (+0.4%)",
-                lineX1: x(2035) - 30,
-                lineY1: y(350) + 30,
-                lineX2: x(2035) - 80,
-                lineY2: y(280)
-            },
-            {
-                x: x(2025),
-                y: y(430),
-                width: 200,
-                height: 50,
-                text: "China and the Americas expected to supply the bulk of production growth",
-                lineX1: x(2025),
-                lineY1: y(430) + 25,
-                lineX2: x(2025),
-                lineY2: y(350)
-            }
-        ];
+      // Add total values and lines
+      ;[0, 3].forEach((i) => {
+        const year = years[i]
+        const total = stackedData[i].total
 
-        annotations.forEach(ann => {
-            // Box
-            svg.append("rect")
-                .attr("class", "annotation-box")
-                .attr("x", ann.x - ann.width/2)
-                .attr("y", ann.y - ann.height/2)
-                .attr("width", ann.width)
-                .attr("height", ann.height);
-                
-            // Text
-            const textElement = svg.append("text")
-                .attr("class", "annotation")
-                .attr("x", ann.x)
-                .attr("y", ann.y - ann.height/4)
-                .attr("text-anchor", "middle")
-                .attr("dominant-baseline", "middle")
-                .style("font-size", "11px");
-                
-            // Split text into multiple lines
-            const words = ann.text.split(' ');
-            let line = '';
-            let lineNumber = 0;
-            const lineHeight = 1.2;
-            
-            words.forEach(word => {
-                const testLine = line + word + ' ';
-                if (testLine.length * 6 > ann.width - 20) {
-                    textElement.append("tspan")
-                        .attr("x", ann.x)
-                        .attr("dy", lineNumber === 0 ? 0 : lineHeight + "em")
-                        .text(line);
-                    line = word + ' ';
-                    lineNumber++;
-                } else {
-                    line = testLine;
-                }
-            });
-            
-            textElement.append("tspan")
-                .attr("x", ann.x)
-                .attr("dy", lineNumber === 0 ? 0 : lineHeight + "em")
-                .text(line);
-                
-            // Line with better positioning
-            svg.append("line")
-                .attr("class", "annotation-line")
-                .attr("x1", ann.lineX1)
-                .attr("y1", ann.lineY1)
-                .attr("x2", ann.lineX2)
-                .attr("y2", ann.lineY2);
-        });
+        // Horizontal line
+        svg
+          .append('line')
+          .attr('class', 'total-line')
+          .attr('x1', x(year) - 30)
+          .attr('y1', y(total))
+          .attr('x2', x(year) + 30)
+          .attr('y2', y(total))
 
-        // Add legend with better positioning
-        const legend = svg.append("g")
-            .attr("class", "legend")
-            .attr("transform", `translate(${width - 120}, ${height - 150})`);
-            
-        data.forEach((region, i) => {
-            const legendItem = legend.append("g")
-                .attr("class", "legend-item")
-                .attr("transform", `translate(0, ${i * 20})`);
-                
-            legendItem.append("rect")
-                .attr("width", 15)
-                .attr("height", 15)
-                .attr("fill", region.color);
-                
-            legendItem.append("text")
-                .attr("x", 20)
-                .attr("y", 12)
-                .text(region.region);
-        });
+        // Total label
+        svg
+          .append('text')
+          .attr('class', 'total-label')
+          .attr('x', x(year))
+          .attr('y', y(total) - 10)
+          .attr('text-anchor', 'middle')
+          .text(`${total} Mt`)
+      })
 
-        // Add source and methodology notes
-        svg.append("text")
-            .attr("class", "source-note")
-            .attr("x", 0)
-            .attr("y", height + 30)
-            .text("Source: Our World in Data, 2023");
-            
-        svg.append("text")
-            .attr("class", "source-note")
-            .attr("x", 0)
-            .attr("y", height + 50)
-            .text("Projections based on population growth, economic development, and consumer preference trends");
+      // Add annotations - revised positioning and content
+      const annotations = [
+        {
+          x: x(2035),
+          y: y(350),
+          width: 220,
+          height: 60,
+          text: 'Africa projected to see 30% growth, while Europe expected to remain nearly stable (+0.4%)',
+          lineX1: x(2035) - 30,
+          lineY1: y(350) + 30,
+          lineX2: x(2035) - 80,
+          lineY2: y(280),
+        },
+        {
+          x: x(2025),
+          y: y(430),
+          width: 200,
+          height: 50,
+          text: 'China and the Americas expected to supply the bulk of production growth',
+          lineX1: x(2025),
+          lineY1: y(430) + 25,
+          lineX2: x(2025),
+          lineY2: y(350),
+        },
+      ]
+
+      annotations.forEach((ann) => {
+        // Box
+        svg
+          .append('rect')
+          .attr('class', 'annotation-box')
+          .attr('x', ann.x - ann.width / 2)
+          .attr('y', ann.y - ann.height / 2)
+          .attr('width', ann.width)
+          .attr('height', ann.height)
+
+        // Text
+        const textElement = svg
+          .append('text')
+          .attr('class', 'annotation')
+          .attr('x', ann.x)
+          .attr('y', ann.y - ann.height / 4)
+          .attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'middle')
+          .style('font-size', '11px')
+
+        // Split text into multiple lines
+        const words = ann.text.split(' ')
+        let line = ''
+        let lineNumber = 0
+        const lineHeight = 1.2
+
+        words.forEach((word) => {
+          const testLine = line + word + ' '
+          if (testLine.length * 6 > ann.width - 20) {
+            textElement
+              .append('tspan')
+              .attr('x', ann.x)
+              .attr('dy', lineNumber === 0 ? 0 : lineHeight + 'em')
+              .text(line)
+            line = word + ' '
+            lineNumber++
+          } else {
+            line = testLine
+          }
+        })
+
+        textElement
+          .append('tspan')
+          .attr('x', ann.x)
+          .attr('dy', lineNumber === 0 ? 0 : lineHeight + 'em')
+          .text(line)
+
+        // Line with better positioning
+        svg
+          .append('line')
+          .attr('class', 'annotation-line')
+          .attr('x1', ann.lineX1)
+          .attr('y1', ann.lineY1)
+          .attr('x2', ann.lineX2)
+          .attr('y2', ann.lineY2)
+      })
+
+      // Add legend with better positioning
+      const legend = svg
+        .append('g')
+        .attr('class', 'legend')
+        .attr('transform', `translate(${width - 120}, ${height - 150})`)
+
+      data.forEach((region, i) => {
+        const legendItem = legend
+          .append('g')
+          .attr('class', 'legend-item')
+          .attr('transform', `translate(0, ${i * 20})`)
+
+        legendItem.append('rect').attr('width', 15).attr('height', 15).attr('fill', region.color)
+
+        legendItem.append('text').attr('x', 20).attr('y', 12).text(region.region)
+      })
+
+      // Add source and methodology notes
+      svg
+        .append('text')
+        .attr('class', 'source-note')
+        .attr('x', 0)
+        .attr('y', height + 30)
+        .text('Source: Our World in Data, 2023')
+
+      svg
+        .append('text')
+        .attr('class', 'source-note')
+        .attr('x', 0)
+        .attr('y', height + 50)
+        .text(
+          'Projections based on population growth, economic development, and consumer preference trends'
+        )
     </script>
-</body>
+  </body>
 </html>

@@ -1,238 +1,325 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Air Quality Co-Benefits Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .visualization-container {
-            width: 950px;
-            padding: 20px;
-            background-color: white;
-        }
-        
-        .title {
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 12px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #555;
-        }
-        
-        .sector-label {
-            font-weight: bold;
-            font-size: 12px;
-        }
-        
-        .intervention-label {
-            font-size: 11px;
-        }
-        
-        .value-label {
-            font-family: 'Georgia', serif;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .x-axis-title {
-            font-size: 11px;
-            text-anchor: middle;
-            fill: #555;
-        }
-        
-        .note {
-            font-size: 11px;
-            font-style: italic;
-            color: #666;
-            margin-top: 15px;
-        }
-        
-        .note i {
-            margin-right: 8px;
-        }
-        
-        .source {
-            font-size: 10px;
-            color: #888;
-            margin-top: 10px;
-            text-align: right;
-        }
-        
-        .grid line {
-            stroke: #e0e0e0;
-            stroke-width: 1px;
-        }
-        
-        .sector-divider {
-            stroke: #ddd;
-            stroke-width: 1px;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .visualization-container {
+        width: 950px;
+        padding: 20px;
+        background-color: white;
+      }
+
+      .title {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #555;
+      }
+
+      .sector-label {
+        font-weight: bold;
+        font-size: 12px;
+      }
+
+      .intervention-label {
+        font-size: 11px;
+      }
+
+      .value-label {
+        font-family: 'Georgia', serif;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .x-axis-title {
+        font-size: 11px;
+        text-anchor: middle;
+        fill: #555;
+      }
+
+      .note {
+        font-size: 11px;
+        font-style: italic;
+        color: #666;
+        margin-top: 15px;
+      }
+
+      .note i {
+        margin-right: 8px;
+      }
+
+      .source {
+        font-size: 10px;
+        color: #888;
+        margin-top: 10px;
+        text-align: right;
+      }
+
+      .grid line {
+        stroke: #e0e0e0;
+        stroke-width: 1px;
+      }
+
+      .sector-divider {
+        stroke: #ddd;
+        stroke-width: 1px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="visualization-container">
-        <div class="title">Agricultural and Waste Management Interventions Deliver the Highest Air Quality Co-Benefits</div>
-        <div class="subtitle">PM2.5-related health co-benefits per million USD invested (avoided premature deaths)</div>
-        <div id="chart"></div>
-        <div class="note"><i class="fas fa-info-circle"></i> Co-benefits calculated based on reduced PM2.5 exposure leading to avoided premature deaths, normalized by intervention cost</div>
-        <div class="source">Source: Analysis based on GAINS model projections; Amann et al. 2020</div>
+      <div class="title">
+        Agricultural and Waste Management Interventions Deliver the Highest Air Quality Co-Benefits
+      </div>
+      <div class="subtitle">
+        PM2.5-related health co-benefits per million USD invested (avoided premature deaths)
+      </div>
+      <div id="chart"></div>
+      <div class="note">
+        <i class="fas fa-info-circle"></i> Co-benefits calculated based on reduced PM2.5 exposure
+        leading to avoided premature deaths, normalized by intervention cost
+      </div>
+      <div class="source">Source: Analysis based on GAINS model projections; Amann et al. 2020</div>
     </div>
 
     <script>
-        // Data preparation
-        const data = [
-            { sector: "Agriculture", intervention: "Improved fertilizer management", value: 4.2, color: "#31A354", highlight: true },
-            { sector: "Agriculture", intervention: "Livestock feed optimization", value: 3.1, color: "#31A354", highlight: true },
-            { sector: "Agriculture", intervention: "Manure management", value: 2.7, color: "#31A354", highlight: false },
-            { sector: "Waste Management", intervention: "Landfill gas capture", value: 3.8, color: "#FB9A99", highlight: true },
-            { sector: "Waste Management", intervention: "Waste sorting and recycling", value: 2.5, color: "#FB9A99", highlight: false },
-            { sector: "Energy", intervention: "Coal to renewable transition", value: 2.3, color: "#08519C", highlight: false },
-            { sector: "Energy", intervention: "Energy efficiency in buildings", value: 1.4, color: "#08519C", highlight: false },
-            { sector: "Transport", intervention: "Electric vehicles", value: 1.1, color: "#9EC5E8", highlight: false },
-            { sector: "Transport", intervention: "Public transportation", value: 0.9, color: "#9EC5E8", highlight: false },
-            { sector: "Industry", intervention: "Clean technology adoption", value: 1.2, color: "#333333", highlight: false },
-            { sector: "Industry", intervention: "Process efficiency improvements", value: 0.8, color: "#333333", highlight: false }
-        ];
+      // Data preparation
+      const data = [
+        {
+          sector: 'Agriculture',
+          intervention: 'Improved fertilizer management',
+          value: 4.2,
+          color: '#31A354',
+          highlight: true,
+        },
+        {
+          sector: 'Agriculture',
+          intervention: 'Livestock feed optimization',
+          value: 3.1,
+          color: '#31A354',
+          highlight: true,
+        },
+        {
+          sector: 'Agriculture',
+          intervention: 'Manure management',
+          value: 2.7,
+          color: '#31A354',
+          highlight: false,
+        },
+        {
+          sector: 'Waste Management',
+          intervention: 'Landfill gas capture',
+          value: 3.8,
+          color: '#FB9A99',
+          highlight: true,
+        },
+        {
+          sector: 'Waste Management',
+          intervention: 'Waste sorting and recycling',
+          value: 2.5,
+          color: '#FB9A99',
+          highlight: false,
+        },
+        {
+          sector: 'Energy',
+          intervention: 'Coal to renewable transition',
+          value: 2.3,
+          color: '#08519C',
+          highlight: false,
+        },
+        {
+          sector: 'Energy',
+          intervention: 'Energy efficiency in buildings',
+          value: 1.4,
+          color: '#08519C',
+          highlight: false,
+        },
+        {
+          sector: 'Transport',
+          intervention: 'Electric vehicles',
+          value: 1.1,
+          color: '#9EC5E8',
+          highlight: false,
+        },
+        {
+          sector: 'Transport',
+          intervention: 'Public transportation',
+          value: 0.9,
+          color: '#9EC5E8',
+          highlight: false,
+        },
+        {
+          sector: 'Industry',
+          intervention: 'Clean technology adoption',
+          value: 1.2,
+          color: '#333333',
+          highlight: false,
+        },
+        {
+          sector: 'Industry',
+          intervention: 'Process efficiency improvements',
+          value: 0.8,
+          color: '#333333',
+          highlight: false,
+        },
+      ]
 
-        // Group data by sector
-        const sectorGroups = d3.group(data, d => d.sector);
-        
-        // Set up dimensions
-        const margin = { top: 20, right: 80, bottom: 50, left: 260 };
-        const width = 900 - margin.left - margin.right;
-        const height = 450 - margin.top - margin.bottom;
-        
-        // Bar dimensions
-        const barHeight = 25;
-        const barPadding = 5;
-        const sectorPadding = 30;
-        
-        // Calculate total height needed
-        let totalHeight = 0;
-        sectorGroups.forEach(group => {
-            totalHeight += group.length * (barHeight + barPadding) + sectorPadding;
-        });
-        totalHeight -= sectorPadding; // Remove extra padding for the last sector
-        
-        // Create SVG
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", totalHeight + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left}, ${margin.top})`);
-        
-        // Create scales
-        const xScale = d3.scaleLinear()
-            .domain([0, 5])
-            .range([0, width]);
-        
-        // Add vertical gridlines
-        svg.append("g")
-            .attr("class", "grid")
-            .selectAll("line")
-            .data(d3.range(1, 6))
-            .enter()
-            .append("line")
-            .attr("x1", d => xScale(d))
-            .attr("x2", d => xScale(d))
-            .attr("y1", 0)
-            .attr("y2", totalHeight)
-            .attr("stroke", "#e0e0e0")
-            .attr("stroke-width", 1);
-        
-        // Add x-axis
-        svg.append("g")
-            .attr("transform", `translate(0, ${totalHeight})`)
-            .call(d3.axisBottom(xScale)
-                .ticks(5)
-                .tickFormat(d => d.toFixed(1)))
-            .selectAll("text")
-            .style("font-size", "10px");
-        
-        // Add x-axis title
-        svg.append("text")
-            .attr("class", "x-axis-title")
-            .attr("x", width / 2)
-            .attr("y", totalHeight + 35)
-            .text("Avoided premature deaths per million USD invested");
-        
-        // Draw bars for each sector
-        let currentY = 0;
-        
-        sectorGroups.forEach((interventions, sector) => {
-            // Calculate the vertical position for the sector label
-            const sectorLabelY = currentY + (interventions.length * (barHeight + barPadding) - barPadding) / 2;
-            
-            // Add sector label
-            svg.append("text")
-                .attr("class", "sector-label")
-                .attr("x", -margin.left + 15)
-                .attr("y", sectorLabelY)
-                .attr("dy", "0.35em")
-                .text(sector);
-            
-            // Add sector divider line (except for the first sector)
-            if (currentY > 0) {
-                svg.append("line")
-                    .attr("class", "sector-divider")
-                    .attr("x1", -margin.left + 15)
-                    .attr("x2", width + 60)
-                    .attr("y1", currentY - sectorPadding / 2)
-                    .attr("y2", currentY - sectorPadding / 2);
-            }
-            
-            // Draw bars for each intervention in the sector
-            interventions.forEach((d, i) => {
-                const y = currentY + i * (barHeight + barPadding);
-                
-                // Draw bar
-                svg.append("rect")
-                    .attr("x", 0)
-                    .attr("y", y)
-                    .attr("width", xScale(d.value))
-                    .attr("height", barHeight)
-                    .attr("fill", d.highlight ? d3.color(d.color).darker(0.3) : d.color)
-                    .attr("opacity", 0.8);
-                
-                // Add intervention label
-                svg.append("text")
-                    .attr("class", "intervention-label")
-                    .attr("x", -15)
-                    .attr("y", y + barHeight / 2)
-                    .attr("dy", "0.35em")
-                    .attr("text-anchor", "end")
-                    .text(d.intervention);
-                
-                // Add value label
-                svg.append("text")
-                    .attr("class", "value-label")
-                    .attr("x", xScale(d.value) + 5)
-                    .attr("y", y + barHeight / 2)
-                    .attr("dy", "0.35em")
-                    .text(d.value.toFixed(1));
-            });
-            
-            // Update currentY for the next sector
-            currentY += interventions.length * (barHeight + barPadding) + sectorPadding;
-        });
+      // Group data by sector
+      const sectorGroups = d3.group(data, (d) => d.sector)
+
+      // Set up dimensions
+      const margin = { top: 20, right: 80, bottom: 50, left: 260 }
+      const width = 900 - margin.left - margin.right
+      const height = 450 - margin.top - margin.bottom
+
+      // Bar dimensions
+      const barHeight = 25
+      const barPadding = 5
+      const sectorPadding = 30
+
+      // Calculate total height needed
+      let totalHeight = 0
+      sectorGroups.forEach((group) => {
+        totalHeight += group.length * (barHeight + barPadding) + sectorPadding
+      })
+      totalHeight -= sectorPadding // Remove extra padding for the last sector
+
+      // Create SVG
+      const svg = d3
+        .select('#chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', totalHeight + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
+
+      // Create scales
+      const xScale = d3.scaleLinear().domain([0, 5]).range([0, width])
+
+      // Add vertical gridlines
+      svg
+        .append('g')
+        .attr('class', 'grid')
+        .selectAll('line')
+        .data(d3.range(1, 6))
+        .enter()
+        .append('line')
+        .attr('x1', (d) => xScale(d))
+        .attr('x2', (d) => xScale(d))
+        .attr('y1', 0)
+        .attr('y2', totalHeight)
+        .attr('stroke', '#e0e0e0')
+        .attr('stroke-width', 1)
+
+      // Add x-axis
+      svg
+        .append('g')
+        .attr('transform', `translate(0, ${totalHeight})`)
+        .call(
+          d3
+            .axisBottom(xScale)
+            .ticks(5)
+            .tickFormat((d) => d.toFixed(1))
+        )
+        .selectAll('text')
+        .style('font-size', '10px')
+
+      // Add x-axis title
+      svg
+        .append('text')
+        .attr('class', 'x-axis-title')
+        .attr('x', width / 2)
+        .attr('y', totalHeight + 35)
+        .text('Avoided premature deaths per million USD invested')
+
+      // Draw bars for each sector
+      let currentY = 0
+
+      sectorGroups.forEach((interventions, sector) => {
+        // Calculate the vertical position for the sector label
+        const sectorLabelY =
+          currentY + (interventions.length * (barHeight + barPadding) - barPadding) / 2
+
+        // Add sector label
+        svg
+          .append('text')
+          .attr('class', 'sector-label')
+          .attr('x', -margin.left + 15)
+          .attr('y', sectorLabelY)
+          .attr('dy', '0.35em')
+          .text(sector)
+
+        // Add sector divider line (except for the first sector)
+        if (currentY > 0) {
+          svg
+            .append('line')
+            .attr('class', 'sector-divider')
+            .attr('x1', -margin.left + 15)
+            .attr('x2', width + 60)
+            .attr('y1', currentY - sectorPadding / 2)
+            .attr('y2', currentY - sectorPadding / 2)
+        }
+
+        // Draw bars for each intervention in the sector
+        interventions.forEach((d, i) => {
+          const y = currentY + i * (barHeight + barPadding)
+
+          // Draw bar
+          svg
+            .append('rect')
+            .attr('x', 0)
+            .attr('y', y)
+            .attr('width', xScale(d.value))
+            .attr('height', barHeight)
+            .attr('fill', d.highlight ? d3.color(d.color).darker(0.3) : d.color)
+            .attr('opacity', 0.8)
+
+          // Add intervention label
+          svg
+            .append('text')
+            .attr('class', 'intervention-label')
+            .attr('x', -15)
+            .attr('y', y + barHeight / 2)
+            .attr('dy', '0.35em')
+            .attr('text-anchor', 'end')
+            .text(d.intervention)
+
+          // Add value label
+          svg
+            .append('text')
+            .attr('class', 'value-label')
+            .attr('x', xScale(d.value) + 5)
+            .attr('y', y + barHeight / 2)
+            .attr('dy', '0.35em')
+            .text(d.value.toFixed(1))
+        })
+
+        // Update currentY for the next sector
+        currentY += interventions.length * (barHeight + barPadding) + sectorPadding
+      })
     </script>
-</body>
+  </body>
 </html>
