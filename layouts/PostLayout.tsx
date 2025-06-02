@@ -278,8 +278,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
               <button
                 onClick={() => {
                   const link = document.createElement('a')
-                  const basePath =
-                    'https://raw.githubusercontent.com/rickyang1114/multimodal-deepresearch-demo/refs/heads/main/public'
+                  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
                   link.href = `${basePath}/pdfs/${slug}.pdf`
                   link.download = `${slug}.pdf`
                   link.click()

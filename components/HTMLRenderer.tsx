@@ -42,13 +42,8 @@ const HTMLRenderer = ({
 
     const parts = pathname.split('/').filter(Boolean)
     const basename = parts.length > 0 ? parts[parts.length - 1] : ''
-    const bp =
-      'https://raw.githubusercontent.com/rickyang1114/multimodal-deepresearch-demo/refs/heads/main/public'
+    const bp = process.env.NEXT_PUBLIC_BASE_PATH || ''
     const fullPath = `${bp}/html_charts/${basename}/${htmlFile}`
-    console.log(`hard code fullPath: ${fullPath}`)
-    console.log(
-      `NEXT_PUBLIC_BASE_PATH: ${process.env.NEXT_PUBLIC_BASE_PATH}/html_charts/${basename}/${htmlFile}`
-    )
     setHtmlPath(fullPath)
   }, [pathname, htmlFile, basePath])
 
