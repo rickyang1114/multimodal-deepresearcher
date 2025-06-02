@@ -187,28 +187,28 @@ export default function Home({ posts }) {
                 {/* Framework Steps */}
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="flex items-start space-x-4">
-                    <span className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+                    <span className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">A</span>
                     <div>
                       <h5 className="font-semibold text-gray-900 dark:text-gray-100">Researching</h5>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Iterative researching about given topic</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-4">
-                    <span className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
+                    <span className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">B</span>
                     <div>
                       <h5 className="font-semibold text-gray-900 dark:text-gray-100">Exemplar Report Textualization</h5>
                       <p className="text-sm text-gray-600 dark:text-gray-400">In-context learning from high-quality multimodal reports</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-4">
-                    <span className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">3</span>
+                    <span className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">C</span>
                     <div>
                       <h5 className="font-semibold text-gray-900 dark:text-gray-100">Planning</h5>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Strategic content organization and visualization style guide</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-4">
-                    <span className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">4</span>
+                    <span className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">D</span>
                     <div>
                       <h5 className="font-semibold text-gray-900 dark:text-gray-100">Multimodal Report Generation</h5>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Generation of multimodal reports with interleaved texts and visualizations</p>
