@@ -277,8 +277,9 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
             <div className="pt-4">
               <button
                 onClick={() => {
+                  const basePath = process.env.BASE_PATH || ''
                   const link = document.createElement('a')
-                  link.href = `/pdfs/${slug}.pdf`
+                  link.href = `${basePath}/pdfs/${slug}.pdf`
                   link.download = `${slug}.pdf`
                   link.click()
                 }}

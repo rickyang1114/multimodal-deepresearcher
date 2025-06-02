@@ -217,7 +217,7 @@ export default function Home({ posts }) {
                   {/* FDV Image - Full Width */}
                   <div className="rounded-lg border-2 border-dashed border-blue-300 bg-white p-6 dark:border-blue-600 dark:bg-gray-800">
                     <img
-                      src="/mdr/fdv.png"
+                      src="./mdr/fdv.png"
                       alt="Formal Description of Visualization (FDV) Example"
                       className="h-auto w-full rounded-lg"
                     />
@@ -235,7 +235,7 @@ export default function Home({ posts }) {
                 <div className="mb-8">
                   <div className="rounded-lg border-2 border-dashed border-blue-300 bg-white p-6 dark:border-blue-600 dark:bg-gray-800">
                     <img
-                      src="/mdr/framework.png"
+                      src="./mdr/framework.png"
                       alt="Multimodal DeepResearcher Framework"
                       className="h-auto w-full rounded-lg"
                     />
