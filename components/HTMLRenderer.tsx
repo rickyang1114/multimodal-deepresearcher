@@ -46,7 +46,9 @@ const HTMLRenderer = ({
       'https://raw.githubusercontent.com/rickyang1114/multimodal-deepresearch-demo/refs/heads/main/public'
     const fullPath = `${bp}/html_charts/${basename}/${htmlFile}`
     console.log(`hard code fullPath: ${fullPath}`)
-    console.log(`env ${process.env}`)
+    console.log(
+      `NEXT_PUBLIC_BASE_PATH: ${process.env.NEXT_PUBLIC_BASE_PATH}/html_charts/${basename}/${htmlFile}`
+    )
     setHtmlPath(fullPath)
   }, [pathname, htmlFile, basePath])
 
