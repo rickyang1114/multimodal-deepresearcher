@@ -84,7 +84,7 @@ const HTMLRenderer = ({
           throw new Error(`Failed to load chart: ${response.status} ${response.statusText}`)
         }
 
-        let htmlContent = await response.text()
+        const htmlContent = await response.text()
 
         // 等待iframe加载完成
         await new Promise<void>((resolve) => {
@@ -271,7 +271,7 @@ const HTMLRenderer = ({
         iframeRef.current.parentNode.removeChild(iframeRef.current)
       }
     }
-  }, [htmlPath, isMounted, chartId, height, minHeight, isLoaded])
+  }, [htmlPath, isMounted, chartId, height, minHeight, isLoaded, chartHeight])
 
   if (!isMounted) {
     return (
