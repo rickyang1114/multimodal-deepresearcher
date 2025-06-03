@@ -24,6 +24,8 @@ export default function AuthorLayout({ children, content }: Props) {
     arxiv,
   } = content
 
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+
   return (
     <>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -36,7 +38,7 @@ export default function AuthorLayout({ children, content }: Props) {
           <div className="flex flex-col items-center space-x-2 pt-8">
             {avatar && (
               <Image
-                src={avatar}
+                src={`${basePath}/${avatar}`}
                 alt="avatar"
                 width={192}
                 height={192}
