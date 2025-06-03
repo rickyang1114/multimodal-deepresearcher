@@ -46,6 +46,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
   const headingElementsRef = useRef<Record<string, IntersectionObserverEntry>>({})
   const tocRef = useRef<HTMLDivElement>(null)
   const activeItemRef = useRef<HTMLLIElement>(null)
+  const bp = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
   // Extract headings after component mounts
   useEffect(() => {
@@ -278,8 +279,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
               <button
                 onClick={() => {
                   const link = document.createElement('a')
-                  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
-                  link.href = `${basePath}/pdfs/${slug}.pdf`
+                  link.href = `${bp}/pdfs/${slug}.pdf`
                   link.download = `${slug}.pdf`
                   link.click()
                 }}
@@ -306,7 +306,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                     <li className="flex items-center space-x-2" key={author.name}>
                       {author.avatar && (
                         <Image
-                          src={author.avatar}
+                          src={`${bp ? bp + '/' : ''}${author.avatar}`}
                           width={38}
                           height={38}
                           alt="avatar"
