@@ -47,7 +47,6 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
   const tocRef = useRef<HTMLDivElement>(null)
   const activeItemRef = useRef<HTMLLIElement>(null)
   const bp = process.env.NEXT_PUBLIC_BASE_PATH || ''
-
   // Extract headings after component mounts
   useEffect(() => {
     const headings = document.querySelectorAll('h2, h3, h4')
@@ -306,7 +305,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                     <li className="flex items-center space-x-2" key={author.name}>
                       {author.avatar && (
                         <Image
-                          src={`${bp ? bp + '/' : ''}${author.avatar}`}
+                          src={author.avatar}
                           width={38}
                           height={38}
                           alt="avatar"

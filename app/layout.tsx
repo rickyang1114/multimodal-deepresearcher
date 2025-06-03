@@ -59,7 +59,7 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const basePath = process.env.BASE_PATH || ''
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
   return (
     <html

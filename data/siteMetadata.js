@@ -8,8 +8,8 @@ const siteMetadata = {
   theme: 'system', // system, dark or light
   siteUrl: 'https://github.com/rickyang1114/multimodal-deepresearcher/',
   siteRepo: 'https://github.com/rickyang1114/multimodal-deepresearcher/',
-  siteLogo: `${process.env.BASE_PATH || ''}/static/images/logo.png`,
-  socialBanner: `${process.env.BASE_PATH || ''}/static/images/twitter-card.png`,
+  siteLogo: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/static/images/logo.png`,
+  socialBanner: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/static/images/twitter-card.png`,
   // mastodon: '',
   email: 'zhaorui.yang@zju.edu.cn',
   github: 'https://github.com/rickyang1114/multimodal-deepresearcher/',
@@ -90,7 +90,7 @@ const siteMetadata = {
   search: {
     provider: 'kbar', // kbar or algolia
     kbarConfig: {
-      searchDocumentsPath: `${process.env.BASE_PATH || ''}/search.json`, // path to load documents to search
+      searchDocumentsPath: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/search.json`, // path to load documents to search
     },
     // provider: 'algolia',
     // algoliaConfig: {
