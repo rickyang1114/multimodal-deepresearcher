@@ -1,5 +1,7 @@
 # Multimodal DeepResearcher: Generating Text-Chart Interleaved Reports From Scratch with Agentic Framework
 
+[Demo Website](https://rickyang1114.github.io/multimodal-deepresearcher/)
+
 We introduce an **agentic framework** that automatically generates comprehensive multimodal reports **from scratch** with **interleaved texts and visualizations**, going beyond text-only content generation.
 
 This repo hosts the source code of the demo website for the project. Code will be released upon paper acceptance.
