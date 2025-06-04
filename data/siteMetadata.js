@@ -15,7 +15,7 @@ const siteMetadata = {
   github: 'https://github.com/rickyang1114/multimodal-deepresearcher/',
   homepage: 'https://rickyang1114.github.io/',
   googlescholar: 'https://scholar.google.com/citations?user=AGjSco8AAAAJ',
-  arxiv: 'https://arxiv.org/',
+  arxiv: 'https://arxiv.org/abs/2506.02454',
   // x: 'https://twitter.com/x',
   // twitter: 'https://twitter.com/Twitter',
   // facebook: 'https://facebook.com',
