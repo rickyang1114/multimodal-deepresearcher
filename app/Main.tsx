@@ -39,6 +39,8 @@ export default function Home({ posts }) {
             <span className="font-medium">Yingchaojie Feng</span>
             <sup className="text-blue-600 dark:text-blue-400">§</sup>,
             <br />
+            <span className="font-medium">Haozhe Feng</span>
+            <sup className="text-orange-600 dark:text-orange-400">¶</sup>,
             <span className="font-medium">Minfeng Zhu</span>
             <sup className="text-orange-600 dark:text-orange-400">‡</sup>
             <sup className="text-green-600 dark:text-green-400">✉</sup>,
@@ -47,13 +49,21 @@ export default function Home({ posts }) {
             <sup className="text-green-600 dark:text-green-400">✉</sup>,
             <span className="font-medium">Wei Chen</span>
             <sup className="text-blue-600 dark:text-blue-400">§</sup>
+            <sup className="text-green-600 dark:text-green-400">✉</sup>
           </div>
 
           {/* Affiliations - Same Line */}
           <div className="mt-3 text-center text-sm text-gray-600 dark:text-gray-400">
             <span>
-              <sup className="text-blue-600 dark:text-blue-400">§</sup>State Key Lab of CAD&CG,
-              Zhejiang University
+              <sup className="text-blue-600 dark:text-blue-400">§</sup>State Key Lab of CAD&CG, Zhejiang University
+            </span>
+            <span className="mx-4"></span>
+            <span>
+              <sup className="text-blue-600 dark:text-blue-400">†</sup>National University of Singapore
+            </span>
+            <span className="mx-4"></span>
+            <span>
+              <sup className="text-blue-600 dark:text-blue-400">¶</sup>Tencent TEG
             </span>
             <span className="mx-4"></span>
             <span>

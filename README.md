@@ -58,6 +58,6 @@ If you find our work interesting, consider citing us via:
   title={Multimodal deepresearcher: Generating text-chart interleaved reports from scratch with agentic framework},
   author={Yang, Zhaorui and Pan, Bo and Wang, Han and Wang, Yiyao and Liu, Xingyu and Weng, Luoxuan and Feng, Yingchaojie and Feng, Haozhe and Zhu, Minfeng and Zhang, Bo and Chen, Wei},
   booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
-  year={2025}
+  year={2026}
 }
 ```
