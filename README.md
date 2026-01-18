@@ -54,13 +54,10 @@ We are inspired by many previous works. To name a few, [DataNarrative](https://g
 If you find our work interesting, consider citing us via:
 
 ```bibtex
-@misc{yang2025multimodaldeepresearchergeneratingtextchart,
-    title={Multimodal DeepResearcher: Generating Text-Chart Interleaved Reports From Scratch with Agentic Framework},
-    author={Zhaorui Yang and Bo Pan and Han Wang and Yiyao Wang and Xingyu Liu and Minfeng Zhu and Bo Zhang and Wei Chen},
-    year={2025},
-    eprint={2506.02454},
-    archivePrefix={arXiv},
-    primaryClass={cs.CL},
-    url={https://arxiv.org/abs/2506.02454},
+@inproceedings{yang2025multimodal,
+  title={Multimodal deepresearcher: Generating text-chart interleaved reports from scratch with agentic framework},
+  author={Yang, Zhaorui and Pan, Bo and Wang, Han and Wang, Yiyao and Liu, Xingyu and Weng, Luoxuan and Feng, Yingchaojie and Feng, Haozhe and Zhu, Minfeng and Zhang, Bo and Chen, Wei},
+  booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+  year={2025}
 }
 ```
