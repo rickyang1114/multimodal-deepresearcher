@@ -55,11 +55,13 @@ export default function Home({ posts }) {
           {/* Affiliations - Same Line */}
           <div className="mt-3 text-center text-sm text-gray-600 dark:text-gray-400">
             <span>
-              <sup className="text-blue-600 dark:text-blue-400">§</sup>State Key Lab of CAD&CG, Zhejiang University
+              <sup className="text-blue-600 dark:text-blue-400">§</sup>State Key Lab of CAD&CG,
+              Zhejiang University
             </span>
             <span className="mx-4"></span>
             <span>
-              <sup className="text-blue-600 dark:text-blue-400">†</sup>National University of Singapore
+              <sup className="text-blue-600 dark:text-blue-400">†</sup>National University of
+              Singapore
             </span>
             <span className="mx-4"></span>
             <span>
