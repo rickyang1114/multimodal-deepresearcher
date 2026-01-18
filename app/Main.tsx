@@ -25,51 +25,51 @@ export default function Home({ posts }) {
           {/* Authors List - Slightly Larger Font */}
           <div className="text-center text-base leading-relaxed text-gray-700 dark:text-gray-300">
             <span className="font-medium">Zhaorui Yang</span>
-            <sup className="text-blue-600 dark:text-blue-400">§*</sup>,
+            <sup className="text-indigo-600 dark:text-indigo-400">§*</sup>,
             <span className="font-medium">Bo Pan</span>
-            <sup className="text-blue-600 dark:text-blue-400">§*</sup>,
+            <sup className="text-indigo-600 dark:text-indigo-400">§*</sup>,
             <span className="font-medium">Han Wang</span>
-            <sup className="text-blue-600 dark:text-blue-400">§*</sup>,
+            <sup className="text-indigo-600 dark:text-indigo-400">§*</sup>,
             <span className="font-medium">Yiyao Wang</span>
-            <sup className="text-blue-600 dark:text-blue-400">§</sup>,
+            <sup className="text-indigo-600 dark:text-indigo-400">§</sup>,
             <span className="font-medium">Xingyu Liu</span>
-            <sup className="text-blue-600 dark:text-blue-400">§</sup>,
+            <sup className="text-indigo-600 dark:text-indigo-400">§</sup>,
             <span className="font-medium">Luoxuan Weng</span>
-            <sup className="text-blue-600 dark:text-blue-400">§</sup>,
+            <sup className="text-indigo-600 dark:text-indigo-400">§</sup>,
             <span className="font-medium">Yingchaojie Feng</span>
-            <sup className="text-blue-600 dark:text-blue-400">§</sup>,
+            <sup className="text-emerald-600 dark:text-emerald-400">†</sup>,
             <br />
             <span className="font-medium">Haozhe Feng</span>
-            <sup className="text-orange-600 dark:text-orange-400">¶</sup>,
+            <sup className="text-cyan-600 dark:text-cyan-400">¶</sup>,
             <span className="font-medium">Minfeng Zhu</span>
-            <sup className="text-orange-600 dark:text-orange-400">‡</sup>
+            <sup className="text-purple-600 dark:text-purple-400">‡</sup>
             <sup className="text-green-600 dark:text-green-400">✉</sup>,
             <span className="font-medium">Bo Zhang</span>
-            <sup className="text-blue-600 dark:text-blue-400">§</sup>
+            <sup className="text-purple-600 dark:text-purple-400">‡</sup>
             <sup className="text-green-600 dark:text-green-400">✉</sup>,
             <span className="font-medium">Wei Chen</span>
-            <sup className="text-blue-600 dark:text-blue-400">§</sup>
+            <sup className="text-indigo-600 dark:text-indigo-400">§</sup>
             <sup className="text-green-600 dark:text-green-400">✉</sup>
           </div>
 
           {/* Affiliations - Same Line */}
           <div className="mt-3 text-center text-sm text-gray-600 dark:text-gray-400">
             <span>
-              <sup className="text-blue-600 dark:text-blue-400">§</sup>State Key Lab of CAD&CG,
+              <sup className="text-indigo-600 dark:text-indigo-400">§</sup>State Key Lab of CAD&CG,
               Zhejiang University
             </span>
             <span className="mx-4"></span>
             <span>
-              <sup className="text-blue-600 dark:text-blue-400">†</sup>National University of
+              <sup className="text-emerald-600 dark:text-emerald-400">†</sup>National University of
               Singapore
             </span>
             <span className="mx-4"></span>
             <span>
-              <sup className="text-blue-600 dark:text-blue-400">¶</sup>Tencent TEG
+              <sup className="text-cyan-600 dark:text-cyan-400">¶</sup>Tencent TEG
             </span>
             <span className="mx-4"></span>
             <span>
-              <sup className="text-orange-600 dark:text-orange-400">‡</sup>Zhejiang University
+              <sup className="text-purple-600 dark:text-purple-400">‡</sup>Zhejiang University
             </span>
           </div>
 
