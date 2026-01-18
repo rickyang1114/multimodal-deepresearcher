@@ -9,7 +9,7 @@
 
 We introduce an **agentic framework** that automatically generates comprehensive multimodal reports **from scratch** with **interleaved texts and visualizations**, going beyond text-only content generation.
 
-This repo hosts the source code of the demo website for the project. Code will be released upon paper acceptance.
+The paper has been accepted as an oral presentation at AAAI 2026. This repo contains the source code for the project's demo website and some utils (src/). The core implementation remains under review by my former internship company.
 
 ## Overall Framework
 
