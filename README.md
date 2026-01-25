@@ -9,7 +9,15 @@
 
 We introduce an **agentic framework** that automatically generates comprehensive multimodal reports **from scratch** with **interleaved texts and visualizations**, going beyond text-only content generation.
 
-The paper has been accepted as an oral presentation at AAAI 2026. This repo contains the source code for the project's demo website and some utils (src/). The core implementation remains under review by my former internship company.
+The paper has been accepted as an oral presentation at AAAI 2026. This repo contains the source code for the project's demo website and some utils (src/utils).
+
+All research topics are listed in src/topics.csv. Complete reports are available on [Google Drive](https://drive.google.com/file/d/1IBDgugaxIsuDGlrd5ZN-r-uh09kqz82R/view?usp=sharing). Each topic includes:
+
+- Textual report (Markdown format)
+- Final report (Markdown and PDF formats)
+- All charts (HTML and PNG formats)
+
+The core implementation remains under review by my former internship company.
 
 ## Overall Framework
 
